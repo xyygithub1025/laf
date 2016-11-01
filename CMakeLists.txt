@@ -1,7 +1,7 @@
 # LAF
 # Copyright (C) 2016  David Capello
 
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8)
 
 project(laf C CXX)
 
