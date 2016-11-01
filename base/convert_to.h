@@ -9,6 +9,7 @@
 #pragma once
 
 #include "base/base.h"
+#include "base/ints.h"
 #include <string>
 
 namespace base {
