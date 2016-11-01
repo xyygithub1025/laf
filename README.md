@@ -1,5 +1,7 @@
 # LAF: The Lost Application Framework
 
+[![Build Status](https://travis-ci.org/aseprite/laf.svg)](https://travis-ci.org/aseprite/laf)
+
 A library to create Windows, macOS, and Linux desktop applications.
 
 This library is under active development so we don't provide API or
