@@ -22,7 +22,6 @@
 #include <sys/sysctl.h>
 #endif
 
-#include "base/path.h"
 #include "base/time.h"
 
 #define MAXPATHLEN 1024

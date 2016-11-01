@@ -9,10 +9,9 @@
 #include <shlobj.h>
 #include <sys/stat.h>
 
-#include "base/path.h"
 #include "base/string.h"
-#include "base/win32_exception.h"
 #include "base/time.h"
+#include "base/win32_exception.h"
 
 namespace base {
 

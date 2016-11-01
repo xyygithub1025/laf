@@ -8,7 +8,6 @@
 
 #include "base/file_handle.h"
 #include "base/fs.h"
-#include "base/path.h"
 
 #include <vector>
 

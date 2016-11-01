@@ -38,7 +38,6 @@ set(BASE_SOURCES
   memory.cpp
   memory_dump.cpp
   mutex.cpp
-  path.cpp
   process.cpp
   program_options.cpp
   replace_string.cpp
