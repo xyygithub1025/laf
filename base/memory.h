@@ -16,7 +16,7 @@ void* base_realloc(void* mem, std::size_t bytes);
 void  base_free   (void* mem);
 char* base_strdup (const char* string);
 
-#ifdef MEMLEAK
+#ifdef LAF_MEMLEAK
 void base_memleak_init();
 void base_memleak_exit();
 #endif

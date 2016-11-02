@@ -41,7 +41,7 @@
 //////////////////////////////////////////////////////////////////////
 // Overloaded new/delete operators to detect memory-leaks
 
-#if defined __cplusplus && defined MEMLEAK
+#if defined __cplusplus && defined LAF_MEMLEAK
 
 #include <new>
 #include "base/memory.h"

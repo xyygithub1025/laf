@@ -18,7 +18,7 @@
 
 using namespace std;
 
-#if !defined MEMLEAK            // Without leak detection
+#if !defined LAF_MEMLEAK            // Without leak detection
 
 void* base_malloc(size_t bytes)
 {
