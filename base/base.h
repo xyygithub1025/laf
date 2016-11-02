@@ -44,37 +44,17 @@
 #if defined __cplusplus && defined LAF_MEMLEAK
 
 #include <new>
-#include "base/memory.h"
 
-inline void* operator new(std::size_t size)
-{
-  void* ptr = base_malloc(size);
-  if (!ptr)
-    throw std::bad_alloc();
-  return ptr;
-}
+#ifdef _NOEXCEPT
+  #define LAF_NOEXCEPT _NOEXCEPT
+#else
+  #define LAF_NOEXCEPT
+#endif
 
-inline void operator delete(void* ptr)
-{
-  if (!ptr)
-    return;
-  base_free(ptr);
-}
-
-inline void* operator new[](std::size_t size)
-{
-  void* ptr = base_malloc(size);
-  if (!ptr)
-    throw std::bad_alloc();
-  return ptr;
-}
-
-inline void operator delete[](void* ptr)
-{
-  if (!ptr)
-    return;
-  base_free(ptr);
-}
+void* operator new(std::size_t size);
+void* operator new[](std::size_t size);
+void operator delete(void* ptr) LAF_NOEXCEPT;
+void operator delete[](void* ptr) LAF_NOEXCEPT;
 
 #endif
 

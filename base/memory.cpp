@@ -22,31 +22,28 @@ using namespace std;
 
 void* base_malloc(size_t bytes)
 {
-  assert(bytes != 0);
   return malloc(bytes);
 }
 
 void* base_malloc0(size_t bytes)
 {
-  assert(bytes != 0);
   return calloc(1, bytes);
 }
 
 void* base_realloc(void* mem, size_t bytes)
 {
-  assert(bytes != 0);
   return realloc(mem, bytes);
 }
 
 void base_free(void* mem)
 {
-  assert(mem != NULL);
+  assert(mem);
   free(mem);
 }
 
 char* base_strdup(const char* string)
 {
-  assert(string != NULL);
+  assert(string);
 #ifdef _MSC_VER
   return _strdup(string);
 #else
@@ -165,8 +162,7 @@ static void addslot(void* ptr, size_t size)
 
   slot_t* p = reinterpret_cast<slot_t*>(malloc(sizeof(slot_t)));
 
-  assert(ptr != NULL);
-  assert(size != 0);
+  assert(ptr);
 
   // __builtin_return_address is a GCC extension
 #if defined(__GNUC__)
@@ -200,11 +196,11 @@ static void delslot(void* ptr)
 
   slot_t *it, *prev = NULL;
 
-  assert(ptr != NULL);
+  assert(ptr);
 
   base::scoped_lock lock(*mutex);
 
-  for (it=headslot; it!=NULL; prev=it, it=it->next) {
+  for (it=headslot; it!=nullptr; prev=it, it=it->next) {
     if (it->ptr == ptr) {
       if (prev)
         prev->next = it->next;
@@ -219,63 +215,90 @@ static void delslot(void* ptr)
 
 void* base_malloc(size_t bytes)
 {
-  assert(bytes != 0);
-
   void* mem = malloc(bytes);
-  if (mem != NULL) {
+  if (mem) {
     addslot(mem, bytes);
     return mem;
   }
   else
-    return NULL;
+    return nullptr;
 }
 
 void* base_malloc0(size_t bytes)
 {
-  assert(bytes != 0);
-
   void* mem = calloc(1, bytes);
-  if (mem != NULL) {
+  if (mem) {
     addslot(mem, bytes);
     return mem;
   }
   else
-    return NULL;
+    return nullptr;
 }
 
 void* base_realloc(void* mem, size_t bytes)
 {
-  assert(bytes != 0);
-
   void* newmem = realloc(mem, bytes);
-  if (newmem != NULL) {
-    if (mem != NULL)
+  if (newmem) {
+    if (mem)
       delslot(mem);
 
     addslot(newmem, bytes);
     return newmem;
   }
   else
-    return NULL;
+    return nullptr;
 }
 
 void base_free(void* mem)
 {
-  assert(mem != NULL);
-
-  delslot(mem);
-  free(mem);
+  assert(mem);
+  if (mem) {
+    delslot(mem);
+    free(mem);
+  }
 }
 
 char* base_strdup(const char* string)
 {
-  assert(string != NULL);
+  assert(string);
 
   char* mem = strdup(string);
-  if (mem != NULL)
+  if (mem)
     addslot(mem, strlen(mem) + 1);
 
   return mem;
+}
+
+// C++ operators
+
+void* operator new(std::size_t size)
+{
+  void* ptr = base_malloc(size);
+  if (!ptr)
+    throw std::bad_alloc();
+  return ptr;
+}
+
+void* operator new[](std::size_t size)
+{
+  void* ptr = base_malloc(size);
+  if (!ptr)
+    throw std::bad_alloc();
+  return ptr;
+}
+
+void operator delete(void* ptr) LAF_NOEXCEPT
+{
+  if (!ptr)
+    return;
+  base_free(ptr);
+}
+
+void operator delete[](void* ptr) LAF_NOEXCEPT
+{
+  if (!ptr)
+    return;
+  base_free(ptr);
 }
 
 #endif
