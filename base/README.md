@@ -1,7 +1,7 @@
 # LAF Base Library
 *Copyright (C) 2001-2016 David Capello*
 
-> Distributed under [MIT license](LICENSE.txt)
+> Distributed under [MIT license](../LICENSE.txt)
 
 Cross-platform core functionality to do basic tasks:
 
