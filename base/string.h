@@ -8,10 +8,14 @@
 #define BASE_STRING_H_INCLUDED
 #pragma once
 
-#include <string>
+#include <cstdarg>
 #include <iterator>
+#include <string>
 
 namespace base {
+
+  std::string string_printf(const char* format, ...);
+  std::string string_vprintf(const char* format, std::va_list ap);
 
   std::string string_to_lower(const std::string& original);
   std::string string_to_upper(const std::string& original);

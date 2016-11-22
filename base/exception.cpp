@@ -9,10 +9,12 @@
 #endif
 
 #include "base/exception.h"
+#include "base/string.h"
 
+#include <cstdarg>
 #include <cstdio>
 #include <cstring>
-#include <cstdarg>
+#include <vector>
 
 namespace base {
 
@@ -31,11 +33,7 @@ Exception::Exception(const char* format, ...) throw()
     else {
       va_list ap;
       va_start(ap, format);
-
-      char buf[1024];           // TODO warning buffer overflow
-      std::vsprintf(buf, format, ap);
-      m_msg = buf;
-
+      m_msg = base::string_vprintf(format, ap);
       va_end(ap);
     }
   }
