@@ -37,5 +37,6 @@ target_include_directories(modpbase64 PUBLIC
 
 # ----------------------------------------------------------------------
 # googletest library
-
-add_subdirectory(googletest)
+if(LAF_WITH_TESTS)
+  add_subdirectory(googletest)
+endif()
