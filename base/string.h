@@ -1,5 +1,5 @@
 // LAF Base Library
-// Copyright (c) 2001-2016 David Capello
+// Copyright (c) 2001-2017 David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -34,6 +34,9 @@ namespace base {
                                               typename SubIterator::reference> {
   public:
     typedef typename SubIterator::pointer pointer; // Needed for GCC
+
+    utf8_iteratorT() {
+    }
 
     explicit utf8_iteratorT(const SubIterator& it)
       : m_internal(it) {
@@ -127,6 +130,7 @@ namespace base {
 
   class utf8_iterator : public utf8_iteratorT<std::string::iterator> {
   public:
+    utf8_iterator() { }
     utf8_iterator(const utf8_iteratorT<std::string::iterator>& it)
       : utf8_iteratorT<std::string::iterator>(it) {
     }
@@ -137,6 +141,7 @@ namespace base {
 
   class utf8_const_iterator : public utf8_iteratorT<std::string::const_iterator> {
   public:
+    utf8_const_iterator() { }
     utf8_const_iterator(const utf8_iteratorT<std::string::const_iterator>& it)
       : utf8_iteratorT<std::string::const_iterator>(it) {
     }
