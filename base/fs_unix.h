@@ -1,5 +1,5 @@
 // LAF Base Library
-// Copyright (c) 2001-2016 David Capello
+// Copyright (c) 2001-2017 David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -114,8 +114,10 @@ void remove_directory(const std::string& path)
 std::string get_current_path()
 {
   std::vector<char> path(MAXPATHLEN);
-  getcwd(&path[0], path.size());
-  return std::string(&path[0]);
+  if (getcwd(&path[0], path.size()))
+    return std::string(&path[0]);
+  else
+    return std::string();
 }
 
 std::string get_app_path()
@@ -131,8 +133,9 @@ std::string get_app_path()
   const int mib[] = { CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1 };
   while (sysctl(mib, 4, &path[0], &size, NULL, 0) == -1)
       path.resize(size);
-#else  /* linux */
-  readlink("/proc/self/exe", &path[0], path.size());
+#else  // Linux
+  if (readlink("/proc/self/exe", &path[0], path.size()) == -1)
+    return std::string();
 #endif
 
   return std::string(&path[0]);
@@ -159,8 +162,10 @@ std::string get_user_docs_folder()
 std::string get_canonical_path(const std::string& path)
 {
   char buffer[PATH_MAX];
-  realpath(path.c_str(), buffer);
-  return buffer;
+  if (realpath(path.c_str(), buffer))
+    return buffer;
+  else
+    return std::string();
 }
 
 std::vector<std::string> list_files(const std::string& path)
