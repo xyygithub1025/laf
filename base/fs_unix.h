@@ -162,10 +162,10 @@ std::string get_user_docs_folder()
 std::string get_canonical_path(const std::string& path)
 {
   char buffer[PATH_MAX];
-  if (realpath(path.c_str(), buffer))
-    return buffer;
-  else
-    return std::string();
+  // Ignore return value as realpath() returns nullptr anyway when the
+  // resolved_path parameter is specified.
+  realpath(path.c_str(), buffer);
+  return path;
 }
 
 std::vector<std::string> list_files(const std::string& path)
