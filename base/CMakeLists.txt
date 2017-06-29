@@ -1,5 +1,5 @@
 # LAF Base Library
-# Copyright (c) 2001-2016 David Capello
+# Copyright (c) 2001-2017 David Capello
 
 include(CheckIncludeFiles)
 include(CheckFunctionExists)
@@ -49,7 +49,6 @@ set(BASE_SOURCES
   system_console.cpp
   thread.cpp
   time.cpp
-  trim_string.cpp
   version.cpp)
 
 if(APPLE)
