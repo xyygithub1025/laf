@@ -1,5 +1,5 @@
 // LAF Base Library
-// Copyright (c) 2001-2016 David Capello
+// Copyright (c) 2001-2017 David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -91,6 +91,10 @@ std::ostream& base::get_log_stream(LogLevel level)
 
 std::ostream& LOG(const char* format, ...)
 {
+  ASSERT(format);
+  if (!format)
+    return null_stream;
+
   if (log_level < INFO)
     return null_stream;
 
