@@ -1,5 +1,5 @@
 // LAF Base Library
-// Copyright (c) 2001-2016 David Capello
+// Copyright (c) 2001-2017 David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -18,11 +18,10 @@
 
 namespace base {
 
-using namespace std;
 
 struct same_name {
-  const string& name;
-  same_name(const string& name) : name(name) { }
+  const std::string& name;
+  same_name(const std::string& name) : name(name) { }
   bool operator()(const ProgramOptions::Option* a) {
     return (a->name() == name ||
             a->alias() == name);
@@ -48,7 +47,7 @@ ProgramOptions::~ProgramOptions()
     delete *it;
 }
 
-ProgramOptions::Option& ProgramOptions::add(const string& name)
+ProgramOptions::Option& ProgramOptions::add(const std::string& name)
 {
   Option* option = new Option(name);
   m_options.push_back(option);
@@ -58,7 +57,7 @@ ProgramOptions::Option& ProgramOptions::add(const string& name)
 void ProgramOptions::parse(int argc, const char* argv[])
 {
   for (int i=1; i<argc; ++i) {
-    string arg(argv[i]);
+    std::string arg(argv[i]);
 
     // n = number of dashes ('-') at the beginning of the argument.
     size_t n = 0;
@@ -73,8 +72,45 @@ void ProgramOptions::parse(int argc, const char* argv[])
 #endif
 
     if ((n > 0) && (len > 0)) {
-      // Use mnemonics
-      if (n == 1) {
+      // First we try to find the -optionName=optionValue pair
+      std::string optionName;
+      std::string optionValue;
+      size_t equalSignPos = arg.find('=', n);
+
+      if (equalSignPos != std::string::npos) {
+        optionName = arg.substr(n, equalSignPos-n);
+        optionValue = arg.substr(equalSignPos+1);
+      }
+      else {
+        optionName = arg.substr(n);
+      }
+
+      OptionList::iterator it =
+        find_if(m_options.begin(), m_options.end(), same_name(optionName));
+
+      // If we've found the -optionName or --optionName, we use it
+      if (it != m_options.end()) {
+        Option* option = *it;
+
+        if (option->doesRequireValue()) {
+          // If the option was specified without '=', we can get the
+          // value from the next argument.
+          if (equalSignPos == std::string::npos) {
+            if (i+1 >= argc) {
+              std::stringstream msg;
+              msg << "Missing value in '--" << optionName
+                  << "=" << option->getValueName() << "' option specification";
+              throw ProgramOptionNeedsValue(msg.str());
+            }
+            optionValue = argv[++i];
+          }
+        }
+
+        m_values.push_back(Value(option, optionValue));
+      }
+      // In case that the user specify to use mnemonics (it's options
+      // with one dash, e.g. -abc to enable -a, -b and -c options)
+      else if (n == 1) {
         char usedBy = 0;
 
         for (size_t j=1; j<arg.size(); ++j) {
@@ -82,7 +118,7 @@ void ProgramOptions::parse(int argc, const char* argv[])
             find_if(m_options.begin(), m_options.end(), same_mnemonic(arg[j]));
 
           if (it == m_options.end()) {
-            stringstream msg;
+            std::stringstream msg;
             msg << "Invalid option '-" << arg[j] << "'";
             throw InvalidProgramOption(msg.str());
           }
@@ -92,7 +128,7 @@ void ProgramOptions::parse(int argc, const char* argv[])
 
           if (option->doesRequireValue()) {
             if (usedBy != 0) {
-              stringstream msg;
+              std::stringstream msg;
               msg << "You cannot use '-" << option->mnemonic()
                   << "' and '-" << usedBy << "' "
                   << "together, both options need one extra argument";
@@ -100,7 +136,7 @@ void ProgramOptions::parse(int argc, const char* argv[])
             }
 
             if (i+1 >= argc) {
-              stringstream msg;
+              std::stringstream msg;
               msg << "Option '-" << option->mnemonic()
                   << "' needs one extra argument";
               throw ProgramOptionNeedsValue(msg.str());
@@ -114,46 +150,10 @@ void ProgramOptions::parse(int argc, const char* argv[])
           m_values.push_back(Value(option, optionValue));
         }
       }
-      // Use name
       else {
-        string optionName;
-        string optionValue;
-        size_t equalSignPos = arg.find('=', n);
-
-        if (equalSignPos != string::npos) {
-          optionName = arg.substr(n, equalSignPos-n);
-          optionValue = arg.substr(equalSignPos+1);
-        }
-        else {
-          optionName = arg.substr(n);
-        }
-
-        OptionList::iterator it =
-          find_if(m_options.begin(), m_options.end(), same_name(optionName));
-
-        if (it == m_options.end()) {
-          stringstream msg;
-          msg << "Invalid option '--" << optionName << "'";
-          throw InvalidProgramOption(msg.str());
-        }
-
-        Option* option = *it;
-
-        if (option->doesRequireValue()) {
-          // If the option was specified without '=', we can get the
-          // value from the next argument.
-          if (equalSignPos == string::npos) {
-            if (i+1 >= argc) {
-              stringstream msg;
-              msg << "Missing value in '--" << optionName
-                  << "=" << option->getValueName() << "' option specification";
-              throw ProgramOptionNeedsValue(msg.str());
-            }
-            optionValue = argv[++i];
-          }
-        }
-
-        m_values.push_back(Value(option, optionValue));
+        std::stringstream msg;
+        msg << "Invalid option " << arg;
+        throw InvalidProgramOption(msg.str());
       }
     }
     // Add values without a related option.

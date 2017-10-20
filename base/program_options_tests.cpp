@@ -1,5 +1,5 @@
 // LAF Base Library
-// Copyright (c) 2001-2016 David Capello
+// Copyright (c) 2001-2017 David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -147,6 +147,35 @@ TEST(ProgramOptions, ParseErrors)
   EXPECT_FALSE(po.enabled(output));
   EXPECT_EQ("input-and-output.txt", po.value_of(input));
   EXPECT_EQ("", po.value_of(output));
+}
+
+TEST(ProgramOptions, LongOptionWithSingleDash)
+{
+  ProgramOptions po;
+  ProgramOptions::Option& help = po.add("help").mnemonic('?');
+  ProgramOptions::Option& verbose = po.add("verbose").mnemonic('v');
+  ProgramOptions::Option& input = po.add("input").mnemonic('i').requiresValue("INPUT");
+  ProgramOptions::Option& output = po.add("output").mnemonic('o').requiresValue("OUTPUT");
+
+  const char* argv1[] = { "program.exe", "-input", "input.txt" };
+  po.reset();
+  po.parse(3, argv1);
+  EXPECT_FALSE(po.enabled(verbose));
+  EXPECT_EQ("input.txt", po.value_of(input));
+
+  const char* argv2[] = { "program.exe", "-vi", "input.txt" };
+  po.reset();
+  po.parse(3, argv2);
+  EXPECT_TRUE(po.enabled(verbose));
+  EXPECT_EQ("input.txt", po.value_of(input));
+
+  const char* argv3[] = { "program.exe", "-?v", "-input", "input.txt", "-output", "output.txt" };
+  po.reset();
+  po.parse(6, argv3);
+  EXPECT_TRUE(po.enabled(help));
+  EXPECT_TRUE(po.enabled(verbose));
+  EXPECT_EQ("input.txt", po.value_of(input));
+  EXPECT_EQ("output.txt", po.value_of(output));
 }
 
 int main(int argc, char** argv)
