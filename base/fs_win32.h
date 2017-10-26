@@ -1,5 +1,5 @@
 // LAF Base Library
-// Copyright (c) 2001-2016 David Capello
+// Copyright (c) 2001-2017 David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -55,17 +55,21 @@ void delete_file(const std::string& path)
 
 bool has_readonly_attr(const std::string& path)
 {
-  std::wstring fn = from_utf8(path);
-  DWORD attr = ::GetFileAttributes(fn.c_str());
-  return ((attr & FILE_ATTRIBUTE_READONLY) == FILE_ATTRIBUTE_READONLY);
+  DWORD attr = ::GetFileAttributes(from_utf8(path).c_str());
+
+  return ((attr != INVALID_FILE_ATTRIBUTES) &&
+          ((attr & FILE_ATTRIBUTE_READONLY) == FILE_ATTRIBUTE_READONLY));
 }
 
 void remove_readonly_attr(const std::string& path)
 {
   std::wstring fn = from_utf8(path);
   DWORD attr = ::GetFileAttributes(fn.c_str());
-  if ((attr & FILE_ATTRIBUTE_READONLY) == FILE_ATTRIBUTE_READONLY)
+
+  if ((attr != INVALID_FILE_ATTRIBUTES) &&
+      (attr & FILE_ATTRIBUTE_READONLY) == FILE_ATTRIBUTE_READONLY) {
     ::SetFileAttributes(fn.c_str(), attr & ~FILE_ATTRIBUTE_READONLY);
+  }
 }
 
 Time get_modification_time(const std::string& path)
