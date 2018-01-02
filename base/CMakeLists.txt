@@ -58,6 +58,7 @@ endif()
 
 if(WIN32)
   set(BASE_SOURCES ${BASE_SOURCES}
+    win/registry.cpp
     win/win32_exception.cpp)
 endif()
 
@@ -80,4 +81,7 @@ endif()
 
 if(LAF_WITH_TESTS)
   laf_find_tests(. laf-base)
+  if(WIN32)
+    laf_find_tests(win laf-base)
+  endif()
 endif()
