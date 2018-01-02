@@ -11,7 +11,7 @@
 
 #include "base/string.h"
 #include "base/time.h"
-#include "base/win32_exception.h"
+#include "base/win/win32_exception.h"
 
 namespace base {
 

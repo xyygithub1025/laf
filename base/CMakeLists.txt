@@ -58,7 +58,7 @@ endif()
 
 if(WIN32)
   set(BASE_SOURCES ${BASE_SOURCES}
-    win32_exception.cpp)
+    win/win32_exception.cpp)
 endif()
 
 add_library(laf-base ${BASE_SOURCES})

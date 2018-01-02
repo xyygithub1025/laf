@@ -1,5 +1,5 @@
 // LAF Base Library
-// Copyright (c) 2001-2016 David Capello
+// Copyright (c) 2001-2017 David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -8,7 +8,7 @@
 #include "config.h"
 #endif
 
-#include "base/win32_exception.h"
+#include "base/win/win32_exception.h"
 
 #include "base/string.h"
 
@@ -18,16 +18,15 @@ namespace base {
 
 Win32Exception::Win32Exception(const std::string& msg) throw()
   : Exception()
+  , m_errorCode(GetLastError())
 {
-  DWORD errcode = GetLastError();
   LPVOID buf;
-
   FormatMessage(
     FORMAT_MESSAGE_ALLOCATE_BUFFER | // TODO Try to use a TLS buffer
     FORMAT_MESSAGE_FROM_SYSTEM |
     FORMAT_MESSAGE_IGNORE_INSERTS,
     NULL,
-    errcode,
+    m_errorCode,
     MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
     (LPWSTR)&buf,
     0, NULL);

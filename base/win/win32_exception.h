@@ -1,5 +1,5 @@
 // LAF Base Library
-// Copyright (c) 2001-2016 David Capello
+// Copyright (c) 2001-2017 David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -8,7 +8,9 @@
 #define BASE_WIN32_EXCEPTION_H_INCLUDED
 #pragma once
 
-#include "exception.h"
+#include "base/exception.h"
+
+#include <windows.h>
 
 namespace base {
 
@@ -16,6 +18,11 @@ namespace base {
   public:
     Win32Exception(const std::string& msg) throw();
     virtual ~Win32Exception() throw();
+
+    DWORD errorCode() const { return m_errorCode; }
+
+  private:
+    DWORD m_errorCode;
   };
 
 }
