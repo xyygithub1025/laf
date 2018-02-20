@@ -1,5 +1,5 @@
 // LAF Base Library
-// Copyright (c) 2001-2016 David Capello
+// Copyright (c) 2001-2018 David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -9,7 +9,8 @@
 #pragma once
 
 #include <string>
-#include <vector>
+
+#include "base/paths.h"
 
 namespace base {
 
@@ -47,7 +48,7 @@ namespace base {
   // filename to an absolute one.
   std::string get_canonical_path(const std::string& path);
 
-  std::vector<std::string> list_files(const std::string& path);
+  paths list_files(const std::string& path);
 
   // Returns true if the given character is a valud path separator
   // (any of '\' or '/' characters).

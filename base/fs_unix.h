@@ -1,5 +1,5 @@
 // LAF Base Library
-// Copyright (c) 2001-2017 David Capello
+// Copyright (c) 2001-2018 David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -22,6 +22,7 @@
 #include <sys/sysctl.h>
 #endif
 
+#include "base/paths.h"
 #include "base/time.h"
 
 #define MAXPATHLEN 1024
@@ -168,9 +169,9 @@ std::string get_canonical_path(const std::string& path)
   return path;
 }
 
-std::vector<std::string> list_files(const std::string& path)
+paths list_files(const std::string& path)
 {
-  std::vector<std::string> files;
+  paths files;
   DIR* handle = opendir(path.c_str());
   if (handle) {
     dirent* item;

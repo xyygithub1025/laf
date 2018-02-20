@@ -1,5 +1,5 @@
 // LAF Base Library
-// Copyright (c) 2001-2017 David Capello
+// Copyright (c) 2001-2018 David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -9,6 +9,7 @@
 #include <shlobj.h>
 #include <sys/stat.h>
 
+#include "base/paths.h"
 #include "base/string.h"
 #include "base/time.h"
 #include "base/win/win32_exception.h"
@@ -152,10 +153,10 @@ std::string get_canonical_path(const std::string& path)
   return to_utf8(buffer);
 }
 
-std::vector<std::string> list_files(const std::string& path)
+paths list_files(const std::string& path)
 {
   WIN32_FIND_DATA fd;
-  std::vector<std::string> files;
+  paths files;
   HANDLE handle = FindFirstFile(base::from_utf8(base::join_path(path, "*")).c_str(), &fd);
   if (handle) {
     do {
