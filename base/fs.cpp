@@ -1,5 +1,5 @@
 // LAF Base Library
-// Copyright (c) 2001-2016 David Capello
+// Copyright (c) 2001-2018 David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -201,21 +201,13 @@ std::string normalize_path(const std::string& filename)
   return fn;
 }
 
-bool has_file_extension(const std::string& filename, const std::string& csv_extensions)
+bool has_file_extension(const std::string& filename, const base::paths& extensions)
 {
   if (!filename.empty()) {
-    std::string ext = base::string_to_lower(get_file_extension(filename));
-
-    int extsz = (int)ext.size();
-    std::string::const_iterator p =
-      std::search(csv_extensions.begin(),
-                  csv_extensions.end(),
-                  ext.begin(), ext.end());
-
-    if ((p != csv_extensions.end()) &&
-        ((p+extsz) == csv_extensions.end() || *(p+extsz) == ',') &&
-        (p == csv_extensions.begin() || *(p-1) == ','))
-      return true;
+    const std::string ext = get_file_extension(filename);
+    for (const auto& e : extensions)
+      if (utf8_icmp(ext, e) == 0)
+        return true;
   }
   return false;
 }

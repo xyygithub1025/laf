@@ -83,9 +83,9 @@ namespace base {
   std::string normalize_path(const std::string& filename);
 
   // Returns true if the filename contains one of the specified
-  // extensions. The cvs_extensions parameter must be a set of
-  // possible extensions separated by comma.
-  bool has_file_extension(const std::string& filename, const std::string& csv_extensions);
+  // extensions. The "extensions" parameter must be a set of possible
+  // extensions.
+  bool has_file_extension(const std::string& filename, const base::paths& extensions);
 
   int compare_filenames(const std::string& a, const std::string& b);
 

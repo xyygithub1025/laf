@@ -1,5 +1,5 @@
 // LAF Base Library
-// Copyright (c) 2001-2016 David Capello
+// Copyright (c) 2001-2018 David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -143,14 +143,18 @@ TEST(FS, RemovePathSeparator)
 
 TEST(FS, HasFileExtension)
 {
-  EXPECT_TRUE (has_file_extension("hi.png", "png"));
-  EXPECT_FALSE(has_file_extension("hi.png", "pngg"));
-  EXPECT_FALSE(has_file_extension("hi.png", "ppng"));
-  EXPECT_TRUE (has_file_extension("hi.jpeg", "jpg,jpeg"));
-  EXPECT_TRUE (has_file_extension("hi.jpg", "jpg,jpeg"));
-  EXPECT_FALSE(has_file_extension("hi.ase", "jpg,jpeg"));
-  EXPECT_TRUE (has_file_extension("hi.ase", "jpg,jpeg,ase"));
-  EXPECT_TRUE (has_file_extension("hi.ase", "ase,jpg,jpeg"));
+  EXPECT_TRUE (has_file_extension("hi.png", base::paths{"png"}));
+  EXPECT_FALSE(has_file_extension("hi.png", base::paths{"pngg"}));
+  EXPECT_FALSE(has_file_extension("hi.png", base::paths{"ppng"}));
+  EXPECT_TRUE (has_file_extension("hi.jpeg", base::paths{"jpg","jpeg"}));
+  EXPECT_TRUE (has_file_extension("hi.jpg", base::paths{"jpg","jpeg"}));
+  EXPECT_FALSE(has_file_extension("hi.ase", base::paths{"jpg","jpeg"}));
+  EXPECT_TRUE (has_file_extension("hi.ase", base::paths{"jpg","jpeg","ase"}));
+  EXPECT_TRUE (has_file_extension("hi.ase", base::paths{"ase","jpg","jpeg"}));
+
+  EXPECT_TRUE (has_file_extension("hi.png", base::paths{"Png"}));
+  EXPECT_TRUE (has_file_extension("hi.pnG", base::paths{"bmp","PNg"}));
+  EXPECT_TRUE (has_file_extension("hi.bmP", base::paths{"bMP","PNg"}));
 }
 
 TEST(FS, CompareFilenames)
