@@ -1,5 +1,5 @@
 // LAF Base Library
-// Copyright (c) 2001-2016 David Capello
+// Copyright (c) 2001-2018 David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -54,6 +54,14 @@ FileHandle open_file_with_exception(const string& filename, const string& mode)
   return f;
 }
 
+FileHandle open_file_with_exception_sync_on_close(const std::string& filename, const std::string& mode)
+{
+  FileHandle f(open_file_raw(filename, mode), close_file_and_sync);
+  if (!f)
+    throw runtime_error("Cannot open " + filename);
+  return f;
+}
+
 int open_file_descriptor_with_exception(const string& filename, const string& mode)
 {
   int flags = 0;
@@ -72,6 +80,26 @@ int open_file_descriptor_with_exception(const string& filename, const string& mo
     throw runtime_error("Cannot open " + filename);
 
   return fd;
+}
+
+void sync_file_descriptor(int fd)
+{
+#ifdef _WIN32
+  HANDLE handle = (HANDLE)_get_osfhandle(fd);
+  if (handle)
+    FlushFileBuffers(handle);
+#endif
+}
+
+void close_file_and_sync(FILE* file)
+{
+  fflush(file);
+#ifdef _WIN32
+  int fd = _fileno(file);
+  if (fd)
+    sync_file_descriptor(fd);
+#endif
+  fclose(file);
 }
 
 }
