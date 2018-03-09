@@ -31,6 +31,14 @@ using namespace std;
 
 namespace base {
 
+static void throw_cannot_open_exception(const string& filename, const string& mode)
+{
+  if (mode.find('w') != string::npos)
+    throw std::runtime_error("Cannot save file " + filename + " in the given location");
+  else
+    throw std::runtime_error("Cannot open file " + filename);
+}
+
 FILE* open_file_raw(const string& filename, const string& mode)
 {
 #ifdef _WIN32
@@ -50,7 +58,7 @@ FileHandle open_file_with_exception(const string& filename, const string& mode)
 {
   FileHandle f(open_file_raw(filename, mode), fclose);
   if (!f)
-    throw runtime_error("Cannot open " + filename);
+    throw_cannot_open_exception(filename, mode);
   return f;
 }
 
@@ -58,7 +66,7 @@ FileHandle open_file_with_exception_sync_on_close(const std::string& filename, c
 {
   FileHandle f(open_file_raw(filename, mode), close_file_and_sync);
   if (!f)
-    throw runtime_error("Cannot open " + filename);
+    throw_cannot_open_exception(filename, mode);
   return f;
 }
 
@@ -77,7 +85,7 @@ int open_file_descriptor_with_exception(const string& filename, const string& mo
 #endif
 
   if (fd == -1)
-    throw runtime_error("Cannot open " + filename);
+    throw_cannot_open_exception(filename, mode);
 
   return fd;
 }
