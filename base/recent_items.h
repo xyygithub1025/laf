@@ -1,5 +1,5 @@
 // LAF Base Library
-// Copyright (c) 2001-2016 David Capello
+// Copyright (c) 2001-2018 David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -10,6 +10,8 @@
 
 #include <list>
 #include <algorithm>
+
+#include "base/debug.h"
 
 namespace base {
 
@@ -28,6 +30,7 @@ public:
   bool empty() const { return m_items.empty(); }
   std::size_t size() const { return m_items.size(); }
   std::size_t limit() const { return m_limit; }
+  void clear() { m_items.clear(); }
 
   template<typename T2, typename Predicate>
   void addItem(const T2& item, Predicate p) {
@@ -41,13 +44,11 @@ public:
       return;
     }
 
-    // Does the list is full?
-    if (m_items.size() == m_limit) {
-      // Remove the last entry
-      m_items.erase(--m_items.end());
-    }
+    if (m_limit > 0)
+      m_items.insert(m_items.begin(), item);
 
-    m_items.insert(m_items.begin(), item);
+    while (m_items.size() > m_limit)
+      m_items.erase(--m_items.end());
   }
 
   template<typename T2, typename Predicate>
@@ -55,6 +56,18 @@ public:
     iterator it = std::find_if(m_items.begin(), m_items.end(), p);
     if (it != m_items.end())
       m_items.erase(it);
+  }
+
+  void setLimit(const int newLimit) {
+    ASSERT(newLimit >= 0);
+
+    if (newLimit < m_items.size()) {
+      auto it = m_items.begin();
+      std::advance(it, newLimit);
+      m_items.erase(it, m_items.end());
+    }
+
+    m_limit = newLimit;
   }
 
 private:
