@@ -1,5 +1,5 @@
 # LAF
-# Copyright (C) 2016  David Capello
+# Copyright (C) 2016-2018  David Capello
 
 cmake_minimum_required(VERSION 2.8)
 
@@ -16,11 +16,10 @@ option(LAF_WITH_TESTS "Enable LAF tests" ON)
 # Support for C++11 features
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-endif()
-if(APPLE)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-endif()
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  if(APPLE)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+  endif()
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
 endif()
 
