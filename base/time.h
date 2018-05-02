@@ -1,5 +1,5 @@
 // LAF Base Library
-// Copyright (c) 2001-2016 David Capello
+// Copyright (c) 2001-2018 David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -36,7 +36,18 @@ namespace base {
       hour = minute = second = 0;
     }
 
-    bool operator==(const Time& other) {
+    Time& addSeconds(const int seconds);
+    Time& addMinutes(const int minutes) {
+      return addSeconds(minutes*60);
+    }
+    Time& addHours(const int hours) {
+      return addSeconds(hours*60*60);
+    }
+    Time& addDays(const int days) {
+      return addSeconds(days*24*60*60);
+    }
+
+    bool operator==(const Time& other) const {
       return
         year == other.year &&
         month == other.month &&
@@ -46,9 +57,11 @@ namespace base {
         second == other.second;
     }
 
-    bool operator!=(const Time& other) {
+    bool operator!=(const Time& other) const {
       return !operator==(other);
     }
+
+    bool operator<(const Time& other) const;
   };
 
   Time current_time();

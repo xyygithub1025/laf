@@ -1,5 +1,5 @@
 // LAF Base Library
-// Copyright (c) 2001-2016 David Capello
+// Copyright (c) 2001-2018 David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -58,6 +58,55 @@ tick_t current_tick()
   gettimeofday(&now, nullptr);
   return now.tv_sec*1000 + now.tv_usec/1000;
 #endif
+}
+
+Time& Time::addSeconds(const int seconds)
+{
+  struct std::tm tm;
+  tm.tm_sec = second;
+  tm.tm_min = minute;
+  tm.tm_hour = hour;
+  tm.tm_mday = day;
+  tm.tm_mon = month-1;
+  tm.tm_year = year-1900;
+  tm.tm_wday = 0;
+  tm.tm_yday = 0;
+  tm.tm_isdst = 0;
+
+  std::time_t tt = std::mktime(&tm);
+
+  tt += seconds;
+
+  std::tm* t = std::localtime(&tt);
+
+  year = t->tm_year+1900;
+  month = t->tm_mon+1;
+  day = t->tm_mday;
+  hour = t->tm_hour;
+  minute = t->tm_min;
+  second = t->tm_sec;
+
+  return *this;
+}
+
+bool Time::operator<(const Time& other) const
+{
+  int d = year - other.year;
+  if (d != 0) return (d < 0);
+
+  d = month - other.month;
+  if (d != 0) return (d < 0);
+
+  d = day - other.day;
+  if (d != 0) return (d < 0);
+
+  d = hour - other.hour;
+  if (d != 0) return (d < 0);
+
+  d = minute - other.minute;
+  if (d != 0) return (d < 0);
+
+  return (second < other.second);
 }
 
 } // namespace base
