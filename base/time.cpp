@@ -10,10 +10,10 @@
 
 #include "base/time.h"
 
+#include <ctime>
 #if _WIN32
   #include <windows.h>
 #else
-  #include <ctime>
   #include <sys/time.h>
 #endif
 
