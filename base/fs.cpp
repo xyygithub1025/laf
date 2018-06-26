@@ -117,19 +117,32 @@ std::string replace_extension(const std::string& filename, const std::string& ex
   std::string::const_reverse_iterator rit;
   std::string result;
 
-  // search for the first dot from the end of the string
+  // Search for the first dot from the end of the string.
   for (rit=filename.rbegin(); rit!=filename.rend(); ++rit) {
-    if (is_path_separator(*rit))
-      return result;
-    else if (*rit == '.')
+    // Here is the dot of the extension.
+    if (*rit == '.')
       break;
+    // A path separator before a dot, i.e. the filename doesn't have a
+    // extension.
+    else if (is_path_separator(*rit)) {
+      rit = filename.rend();
+      break;
+    }
   }
 
   if (rit != filename.rend()) {
-    std::copy(filename.begin(), std::string::const_iterator(rit.base()),
+    auto it = std::string::const_iterator(rit.base());
+    --it;
+    std::copy(filename.begin(), it,
               std::back_inserter(result));
-    std::copy(extension.begin(), extension.end(),
-              std::back_inserter(result));
+  }
+  else {
+    result = filename;
+  }
+
+  if (!extension.empty()) {
+    result.push_back('.');
+    result += extension;
   }
 
   return result;

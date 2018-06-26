@@ -157,6 +157,20 @@ TEST(FS, HasFileExtension)
   EXPECT_TRUE (has_file_extension("hi.bmP", base::paths{"bMP","PNg"}));
 }
 
+TEST(FS, ReplaceExtension)
+{
+  EXPECT_EQ("hi.bmp", replace_extension("hi.png", "bmp"));
+  EXPECT_EQ("hi.bmp", replace_extension("hi", "bmp"));
+  EXPECT_EQ("hi", replace_extension("hi.bmp", ""));
+  EXPECT_EQ("hi", replace_extension("hi", ""));
+  EXPECT_EQ(".bmp", replace_extension(".png", "bmp"));
+  EXPECT_EQ("/path/hi.bmp", replace_extension("/path/hi.png", "bmp"));
+  EXPECT_EQ("/path/hi.bmp", replace_extension("/path/hi", "bmp"));
+  EXPECT_EQ("/path/hi", replace_extension("/path/hi.bmp", ""));
+  EXPECT_EQ("/path/hi", replace_extension("/path/hi", ""));
+  EXPECT_EQ("/.bmp", replace_extension("/.png", "bmp"));
+}
+
 TEST(FS, CompareFilenames)
 {
   EXPECT_EQ(-1, compare_filenames("a", "b"));
