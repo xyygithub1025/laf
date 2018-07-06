@@ -1,5 +1,5 @@
 # LAF Base Library
-# Copyright (c) 2001-2017 David Capello
+# Copyright (c) 2001-2018 David Capello
 
 include(CheckIncludeFiles)
 include(CheckFunctionExists)
@@ -41,6 +41,7 @@ set(BASE_SOURCES
   process.cpp
   program_options.cpp
   replace_string.cpp
+  rw_lock.cpp
   serialization.cpp
   sha1.cpp
   sha1_rfc3174.c
