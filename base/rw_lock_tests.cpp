@@ -4,7 +4,7 @@
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
 
-#include "tests/test.h"
+#include <gtest/gtest.h>
 
 #include "base/rw_lock.h"
 
@@ -75,4 +75,10 @@ TEST(RWLock, WeakLock)
   EXPECT_TRUE(a.lock(RWLock::ReadLock, 0));
   EXPECT_FALSE(a.weakLock(&flag));
   a.unlock();
+}
+
+int main(int argc, char** argv)
+{
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }
