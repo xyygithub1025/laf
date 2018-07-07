@@ -14,6 +14,7 @@
 // operations.
 //#define DEBUG_OBJECT_LOCKS
 
+#include "base/debug.h"
 #include "base/scoped_lock.h"
 #include "base/thread.h"
 
