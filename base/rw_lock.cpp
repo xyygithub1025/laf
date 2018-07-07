@@ -18,6 +18,8 @@
 #include "base/scoped_lock.h"
 #include "base/thread.h"
 
+#include <algorithm>
+
 namespace base {
 
 RWLock::RWLock()
@@ -82,7 +84,7 @@ bool RWLock::lock(LockType lockType, int timeout)
     }
 
     if (timeout > 0) {
-      int delay = MIN(100, timeout);
+      int delay = std::min(100, timeout);
       timeout -= delay;
 
 #ifdef DEBUG_OBJECT_LOCKS
@@ -191,7 +193,7 @@ bool RWLock::upgradeToWrite(int timeout)
     }
 
     if (timeout > 0) {
-      int delay = MIN(100, timeout);
+      int delay = std::min(100, timeout);
       timeout -= delay;
 
 #ifdef DEBUG_OBJECT_LOCKS
