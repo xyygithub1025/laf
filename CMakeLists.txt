@@ -22,5 +22,10 @@ if(LAF_WITH_TESTS)
   include(LafFindTests)
 endif()
 
+if(WIN32)
+  # We only support the Unicode API
+  add_definitions(-DUNICODE -D_UNICODE)
+endif()
+
 add_subdirectory(third_party)
 add_subdirectory(base)
