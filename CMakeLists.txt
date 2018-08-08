@@ -16,15 +16,15 @@ set(LAF_LIST_DIR "${CMAKE_CURRENT_LIST_DIR}" CACHE INTERNAL "Root LAF CMakeLists
 set(LAF_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}" CACHE INTERNAL "Root location of LAF binary files")
 option(LAF_WITH_TESTS "Enable LAF tests" ON)
 
+if(WIN32)
+  # We only support the Unicode API
+  add_definitions(-DUNICODE -D_UNICODE)
+endif()
+
 # Testing
 if(LAF_WITH_TESTS)
   enable_testing()
   include(LafFindTests)
-endif()
-
-if(WIN32)
-  # We only support the Unicode API
-  add_definitions(-DUNICODE -D_UNICODE)
 endif()
 
 add_subdirectory(third_party)
