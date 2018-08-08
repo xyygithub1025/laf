@@ -1,6 +1,8 @@
 # LAF: The Lost Application Framework
 
 [![Build Status](https://travis-ci.org/aseprite/laf.svg)](https://travis-ci.org/aseprite/laf)
+[![Build status](https://ci.appveyor.com/api/projects/status/3hqecxtkobx2gofo?svg=true)](https://ci.appveyor.com/project/dacap/laf)
+[![MIT Licensed](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.txt)
 
 A library to create Windows, macOS, and Linux desktop applications.
 
