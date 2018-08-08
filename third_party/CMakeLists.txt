@@ -38,5 +38,6 @@ target_include_directories(modpbase64 PUBLIC
 # ----------------------------------------------------------------------
 # googletest library
 if(LAF_WITH_TESTS)
+  set(gtest_force_shared_crt ON CACHE BOOL "")
   add_subdirectory(googletest)
 endif()
