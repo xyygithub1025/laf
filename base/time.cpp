@@ -71,7 +71,11 @@ Time& Time::addSeconds(const int seconds)
   tm.tm_year = year-1900;
   tm.tm_wday = 0;
   tm.tm_yday = 0;
-  tm.tm_isdst = 0;
+
+  // The value is negative if no information is available about
+  // Daylight Saving Time (DST). If we use 0 we might get one hour of
+  // difference between the input and the output.
+  tm.tm_isdst = -1;
 
   std::time_t tt = std::mktime(&tm);
 
