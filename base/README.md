@@ -11,7 +11,7 @@ Cross-platform core functionality to do basic tasks:
 * Logging functions ([LOG()](log.h))
 * Manage DLLs ([load/unload_dll()](dll.h))
 * Multi-threading ([thread](thread.h), [mutex](mutex.h), [ScopedLock](scoped_lock.h))
-* Smart pointers ([UniquePtr](unique_ptr.h), [SharedPtr](shared_ptr.h))
+* Smart pointers ([SharedPtr](shared_ptr.h))
 * String/UTF8 utilities ([string](string.h), [split_string](split_string.h), [trim_string](trim_string.h))
 * Timing ([Chrono](chrono.h))
 * Type conversion ([convert_to](convert_to.h))
