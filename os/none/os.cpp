@@ -9,6 +9,7 @@
 #endif
 
 #include "base/memory.h"
+#include "gfx/size.h"
 #include "os/system.h"
 
 namespace os {
