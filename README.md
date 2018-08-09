@@ -12,6 +12,9 @@ ABI compatibility at this moment.
 ## Modules
 
 * [base](base): Base functions for any kind of application.
+* [gfx](gfx): Generic graphics classes (rectangle, point, region, etc.)
+* [ft](ft): FreeType wrapper used by the `os` module.
+* [os](os): Functions to create windows in your Operating System desktop.
 
 ## License
 

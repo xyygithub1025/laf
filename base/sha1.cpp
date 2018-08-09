@@ -8,11 +8,11 @@
 #include "config.h"
 #endif
 
+#include "base/debug.h"
 #include "base/fstream_path.h"
 #include "base/sha1.h"
 #include "base/sha1_rfc3174.h"
 
-#include <cassert>
 #include <fstream>
 
 namespace base {
@@ -25,7 +25,7 @@ Sha1::Sha1()
 Sha1::Sha1(const std::vector<uint8_t>& digest)
   : m_digest(digest)
 {
-  assert(digest.size() == HashSize);
+  ASSERT(digest.size() == HashSize);
 }
 
 // Calculates the SHA1 of the given file.

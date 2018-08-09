@@ -11,7 +11,6 @@
 #include "base/debug.h"
 #include "base/string.h"
 
-#include <cassert>
 #include <cctype>
 #include <vector>
 
