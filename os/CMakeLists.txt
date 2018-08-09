@@ -130,7 +130,7 @@ if(LAF_OS_WITH_GTK)
 endif()
 
 if(LAF_OS_SKIA_BACKEND)
-  target_compile_definitions(laf-os PRIVATE
+  target_compile_options(laf-os PRIVATE
     -DSK_INTERNAL
     -DSK_GAMMA_SRGB
     -DSK_GAMMA_APPLY_TO_A8
@@ -141,10 +141,10 @@ if(LAF_OS_SKIA_BACKEND)
     -DGR_GL_FUNCTION_TYPE=__stdcall
     -DSK_SUPPORT_GPU=0) # TODO change this to 1
   if(WIN32)
-    target_compile_definitions(laf-os PRIVATE
+    target_compile_options(laf-os PRIVATE
       -DSK_BUILD_FOR_WIN32)
   elseif(APPLE)
-    target_compile_definitions(laf-os PRIVATE
+    target_compile_options(laf-os PRIVATE
       -DSK_BUILD_FOR_MAC
       -Wno-ignored-attributes -Wno-unused-result
       # Use Automatic Reference Counting
