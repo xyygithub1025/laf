@@ -9,6 +9,7 @@
 #endif
 
 #include "base/memory.h"
+#include "base/string.h"
 #include "gfx/size.h"
 #include "os/system.h"
 
