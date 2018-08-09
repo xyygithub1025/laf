@@ -9,7 +9,7 @@ set(LAF_OS_SOURCES
 ######################################################################
 # Skia backend
 
-if(LAF_OS_SKIA_BACKEND)
+if(LAF_OS_BACKEND STREQUAL "skia")
   set(SKIA_DIR "" CACHE PATH "Skia source code directory")
 
   if(NOT SKIA_DIR)
@@ -90,7 +90,7 @@ endif()
 ######################################################################
 # None backend
 
-if(LAF_OS_NONE_BACKEND)
+if(LAF_OS_BACKEND STREQUAL "none")
   list(APPEND LAF_OS_SOURCES
     none/os.cpp)
 endif()
@@ -129,7 +129,7 @@ if(LAF_OS_WITH_GTK)
   target_compile_definitions(laf-os PRIVATE -DLAF_OS_WITH_GTK)
 endif()
 
-if(LAF_OS_SKIA_BACKEND)
+if(LAF_OS_BACKEND STREQUAL "skia")
   target_compile_options(laf-os PRIVATE
     -DSK_INTERNAL
     -DSK_GAMMA_SRGB

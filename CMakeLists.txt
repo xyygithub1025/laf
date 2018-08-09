@@ -18,9 +18,14 @@ set(LAF_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}" CACHE INTERNAL "Root location o
 option(LAF_WITH_TESTS "Enable LAF tests" ON)
 option(LAF_GFX "Compile laf-gfx library" ON)
 option(LAF_OS "Compile laf-os library" ON)
-option(LAF_OS_NONE_BACKEND "Compile laf-os library without back-end" OFF)
-option(LAF_OS_SKIA_BACKEND "Compile laf-os library with Skia back-end" ON)
+set(LAF_OS_BACKEND "skia" CACHE STRING "Select laf-os backend")
+set_property(CACHE LAF_OS_BACKEND PROPERTY STRINGS "none" "skia")
 option(LAF_OS_WITH_GTK "Enable support for the experimental native GTK File Dialog" OFF)
+
+if(NOT SKIA_DIR)
+  message(WARNING "Specify SKIA_DIR if you want to compile laf-os with the Skia backend")
+  set(LAF_OS_BACKEND "none" CACHE STRING "Select laf-os backend")
+endif()
 
 if(WIN32)
   # We only support the Unicode API
