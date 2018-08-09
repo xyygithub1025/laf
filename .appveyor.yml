@@ -15,7 +15,7 @@ environment:
 
 install:
   - call "%VCVARS_FILE%" %VCVARS_ARG%
-  - vcpkg install pixman
+  - vcpkg install pixman freetype harfbuzz
 
 clone_script:
   - cmd: >-
