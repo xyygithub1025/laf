@@ -5,7 +5,7 @@ if(NOT FREETYPE_LIBRARIES)
   find_package(Freetype REQUIRED)
 endif()
 if(NOT HARFBUZZ_LIBRARIES)
-  find_package(HarfBuzz)
+  find_package(HarfBuzz REQUIRED)
 endif()
 
 add_library(laf-ft
