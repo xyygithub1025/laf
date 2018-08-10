@@ -10,6 +10,8 @@
 
 #include <gtest/gtest.h>
 
+#ifdef HAVE_PIXMAN
+
 #include "gfx/packing_rects.h"
 #include "gfx/rect_io.h"
 #include "gfx/size.h"
@@ -92,6 +94,8 @@ TEST(PackingRects, KeepSameRectsOrder)
   EXPECT_EQ(Rect(30, 0, 20, 20), pr[1]);
   EXPECT_EQ(Rect(0, 0, 30, 30), pr[2]);
 }
+
+#endif
 
 int main(int argc, char** argv)
 {

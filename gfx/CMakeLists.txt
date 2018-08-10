@@ -8,13 +8,14 @@ endif()
 
 set(LAF_GFX_EXTRA_SOURCES)
 if(PIXMAN_LIBRARY)
-  set(LAF_GFX_EXTRA_SOURCES region.cpp)
+  set(LAF_GFX_EXTRA_SOURCES
+    packing_rects.cpp
+    region.cpp)
 endif()
 
 add_library(laf-gfx
   hsl.cpp
   hsv.cpp
-  packing_rects.cpp
   rgb.cpp
   ${LAF_GFX_EXTRA_SOURCES})
 
@@ -27,7 +28,7 @@ endif()
 if(LAF_WITH_TESTS)
   laf_find_tests(. laf-gfx)
   if(PIXMAN_LIBRARY)
-    target_compile_definitions(region_tests
-      PRIVATE -DHAVE_PIXMAN)
+    target_compile_definitions(packing_rects_tests PRIVATE -DHAVE_PIXMAN)
+    target_compile_definitions(region_tests PRIVATE -DHAVE_PIXMAN)
   endif()
 endif()
