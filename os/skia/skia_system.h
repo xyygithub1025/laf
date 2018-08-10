@@ -9,7 +9,7 @@
 #pragma once
 
 #include "base/base.h"
-
+#include "gfx/size.h"
 #include "os/common/system.h"
 #include "os/skia/skia_display.h"
 #include "os/skia/skia_surface.h"

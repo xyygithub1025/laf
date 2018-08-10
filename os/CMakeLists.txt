@@ -3,6 +3,7 @@
 
 set(LAF_OS_SOURCES
   common/freetype_font.cpp
+  common/main.cpp
   draw_text.cpp
   system.cpp)
 
@@ -57,8 +58,7 @@ if(LAF_OS_BACKEND STREQUAL "skia")
 
   list(APPEND LAF_OS_SOURCES
     skia/skia_display.cpp
-    skia/skia_surface.cpp
-    skia/os.cpp)
+    skia/skia_surface.cpp)
 
   if(WIN32)
     list(APPEND LAF_OS_SOURCES

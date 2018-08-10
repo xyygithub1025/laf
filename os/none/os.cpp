@@ -54,24 +54,3 @@ void error_message(const char* msg)
 }
 
 } // namespace os
-
-extern int app_main(int argc, char* argv[]);
-
-#if _WIN32
-int wmain(int argc, wchar_t* wargv[], wchar_t* envp[]) {
-  char** argv;
-  if (wargv && argc > 0) {
-    argv = new char*[argc];
-    for (int i=0; i<argc; ++i)
-      argv[i] = base_strdup(base::to_utf8(std::wstring(wargv[i])).c_str());
-  }
-  else {
-    argv = new char*[1];
-    argv[0] = base_strdup("");
-    argc = 1;
-  }
-#else
-int main(int argc, char* argv[]) {
-#endif
-  return app_main(argc, argv);
-}

@@ -8,18 +8,7 @@
 #include "config.h"
 #endif
 
-#include "base/memory.h"
-#include "gfx/rect.h"
-#include "gfx/size.h"
-
 #include "os/skia/skia_system.h"
-
-#if __APPLE__
-  #include "os/osx/app.h"
-  #include <CoreServices/CoreServices.h>
-#elif !defined(_WIN32)
-  #include "os/x11/x11.h"
-#endif
 
 namespace os {
 
@@ -34,35 +23,3 @@ void error_message(const char* msg)
 }
 
 } // namespace os
-
-extern int app_main(int argc, char* argv[]);
-
-#if _WIN32
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-                    PWSTR lpCmdLine, int nCmdShow) {
-  int argc = __argc;
-  char** argv;
-  if (__wargv && argc > 0) {
-    argv = new char*[argc];
-    for (int i=0; i<argc; ++i)
-      argv[i] = base_strdup(base::to_utf8(std::wstring(__wargv[i])).c_str());
-  }
-  else {
-    argv = new char*[1];
-    argv[0] = base_strdup("");
-    argc = 1;
-  }
-#else
-int main(int argc, char* argv[]) {
-#endif
-
-#if __APPLE__
-  os::OSXApp app;
-  if (!app.init())
-    return 1;
-#elif !defined(_WIN32)
-  os::X11 x11;
-#endif
-
-  return app_main(argc, argv);
-}
