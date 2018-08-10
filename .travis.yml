@@ -17,7 +17,7 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - g++-4.9 libfreetype6-dev libharfbuzz-dev
+            - g++-4.9 libpixman-1-dev libfreetype6-dev libharfbuzz-dev
       env:
          - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
     - os: linux
@@ -26,7 +26,7 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - g++-5 libfreetype6-dev libharfbuzz-dev
+            - g++-5 libpixman-1-dev libfreetype6-dev libharfbuzz-dev
       env:
          - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
     - os: linux
@@ -35,7 +35,7 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - g++-6 libfreetype6-dev libharfbuzz-dev
+            - g++-6 libpixman-1-dev libfreetype6-dev libharfbuzz-dev
       env:
         - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
     - os: linux
@@ -44,7 +44,7 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - g++-7 libfreetype6-dev libharfbuzz-dev
+            - g++-7 libpixman-1-dev libfreetype6-dev libharfbuzz-dev
       env:
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
 
