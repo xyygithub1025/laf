@@ -18,7 +18,6 @@ set(LAF_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}" CACHE INTERNAL "Root location o
 if(SKIA_DIR)
   set(LAF_OS_DEFAULT_BACKEND "skia")
 else()
-  message(WARNING "Specify SKIA_DIR if you want to compile laf-os with the Skia backend")
   set(LAF_OS_DEFAULT_BACKEND "none")
 endif()
 
@@ -43,3 +42,23 @@ add_subdirectory(base)
 add_subdirectory(gfx)
 add_subdirectory(ft)
 add_subdirectory(os)
+
+# Information
+
+if(NOT LAF_CONF_PRINTED)
+  set(LAF_CONF_PRINTED TRUE CACHE INTERNAL "")
+  message(
+    "=== LAF CONFIGURATION ===\n"
+    " Backend:  ${LAF_OS_BACKEND}\n"
+    " Pixman:   ${PIXMAN_LIBRARY}\n"
+    " FreeType: ${LAF_FREETYPE_LIBRARIES}\n"
+    " HarfBuzz: ${LAF_HARFBUZZ_LIBRARIES}\n"
+    "=========================")
+  if(LAF_OS_BACKEND STREQUAL "skia")
+    message(" Skia dir: ${SKIA_DIR}")
+  else()
+    if(NOT SKIA_DIR)
+      message(WARNING "Specify SKIA_DIR if you want to compile laf-os with the Skia backend")
+    endif()
+  endif()
+endif()
