@@ -154,3 +154,15 @@ if(LAF_OS_BACKEND STREQUAL "skia")
     target_link_libraries(laf-os fontconfig Xcursor)
   endif()
 endif()
+
+if(MSVC)
+  # Linking with "wsetargv.obj" to add support to expand filename
+  # wildcards in argc/argv.
+  if(LAF_OS_BACKEND STREQUAL "skia")
+    set(LAF_OS_BACKEND_LINK_FLAGS "-LINK wsetargv.obj -ENTRY:\"wWinMainCRTStartup\"")
+  else()
+    set(LAF_OS_BACKEND_LINK_FLAGS "-LINK wsetargv.obj -ENTRY:\"wmainCRTStartup\"")
+  endif()
+else()
+  set(LAF_OS_BACKEND_LINK_FLAGS "")
+endif()
