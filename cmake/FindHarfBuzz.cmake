@@ -69,25 +69,3 @@ unset(HARFBUZZ_FIND_ARGS)
 
 # set the user variables
 set(HARFBUZZ_LIBRARIES "${HARFBUZZ_LIBRARY}")
-
-include(${CMAKE_CURRENT_LIST_DIR}/FindPackageHandleStandardArgs.cmake)
-
-find_package_handle_standard_args(
-  HarfBuzz
-  REQUIRED_VARS
-    HARFBUZZ_LIBRARY
-    HARFBUZZ_INCLUDE_DIRS
-  VERSION_VAR
-  HARFBUZZ_VERSION_STRING
-)
-
-if(HARFBUZZ_FOUND)
-  if(NOT TARGET HarfBuzz::HarfBuzz)
-    add_library(HarfBuzz::HarfBuzz UNKNOWN IMPORTED)
-    set_target_properties(HarfBuzz::HarfBuzz PROPERTIES
-      INTERFACE_INCLUDE_DIRECTORIES "${HARFBUZZ_INCLUDE_DIRS}")
-    set_target_properties(HarfBuzz::HarfBuzz PROPERTIES
-      IMPORTED_LINK_INTERFACE_LANGUAGES "C"
-      IMPORTED_LOCATION "${HARFBUZZ_LIBRARY}")
-  endif()
-endif()
