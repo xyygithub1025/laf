@@ -7,6 +7,10 @@ matrix:
       env:
         - MATRIX_EVAL="brew update && brew install pixman freetype harfbuzz"
     - os: linux
+      addons:
+        apt:
+          packages:
+            - libpixman-1-dev libfreetype6-dev libharfbuzz-dev
     - os: linux
       addons:
         apt:
