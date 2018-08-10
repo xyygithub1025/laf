@@ -58,8 +58,6 @@ if(NOT HARFBUZZ_LIBRARY)
     PATH_SUFFIXES
       lib
   )
-  include(${CMAKE_CURRENT_LIST_DIR}/SelectLibraryConfigurations.cmake)
-  select_library_configurations(HARFBUZZ)
 else()
   # on Windows, ensure paths are in canonical format (forward slahes):
   file(TO_CMAKE_PATH "${HARFBUZZ_LIBRARY}" HARFBUZZ_LIBRARY)
