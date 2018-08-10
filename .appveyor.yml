@@ -6,12 +6,14 @@ environment:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
       VCVARS_FILE: C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat
       VCVARS_ARG: x86_amd64
+      VCPKG_DEFAULT_TRIPLET: x64-windows
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       VCVARS_FILE: C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars32.bat
       VCVARS_ARG:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       VCVARS_FILE: C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat
       VCVARS_ARG:
+      VCPKG_DEFAULT_TRIPLET: x64-windows
 
 cache: C:\tools\vcpkg\installed\
 
