@@ -13,8 +13,12 @@ environment:
       VCVARS_FILE: C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat
       VCVARS_ARG:
 
+cache: C:\tools\vcpkg\installed\
+
 install:
   - call "%VCVARS_FILE%" %VCVARS_ARG%
+  - cd C:/tools/vcpkg
+  - git pull
   - vcpkg install pixman freetype harfbuzz
 
 clone_script:
