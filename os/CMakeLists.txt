@@ -114,7 +114,7 @@ if(LAF_OS_WITH_GTK)
 endif()
 
 add_library(laf-os ${LAF_OS_SOURCES})
-target_link_libraries(laf-os laf-gfx laf-base)
+target_link_libraries(laf-os laf-ft laf-gfx laf-base)
 
 if(LAF_OS_WITH_GTK)
   find_package(PkgConfig REQUIRED)
@@ -125,8 +125,6 @@ if(LAF_OS_WITH_GTK)
 endif()
 
 if(LAF_OS_BACKEND STREQUAL "skia")
-  target_link_libraries(laf-os
-    laf-ft ${FREETYPE_LIBRARIES})
   target_compile_options(laf-os PRIVATE
     -DSK_INTERNAL
     -DSK_GAMMA_SRGB
