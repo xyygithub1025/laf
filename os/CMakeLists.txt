@@ -166,3 +166,7 @@ if(MSVC)
 else()
   set(LAF_OS_BACKEND_LINK_FLAGS "")
 endif()
+
+if(LAF_WITH_TESTS)
+  laf_find_tests(. laf-os)
+endif()
