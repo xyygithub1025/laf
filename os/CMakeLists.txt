@@ -171,14 +171,11 @@ if(LAF_OS_BACKEND STREQUAL "skia")
     -DGR_GL_FUNCTION_TYPE=__stdcall
     -DSK_SUPPORT_GPU=0) # TODO change this to 1
   if(WIN32)
-    target_compile_options(laf-os PRIVATE
-      -DSK_BUILD_FOR_WIN32)
+    target_compile_options(laf-os PRIVATE -DSK_BUILD_FOR_WIN32)
   elseif(APPLE)
-    target_compile_options(laf-os PRIVATE
-      -DSK_BUILD_FOR_MAC)
+    target_compile_options(laf-os PRIVATE -DSK_BUILD_FOR_MAC)
   else()
-    target_compile_definitions(laf-os PRIVATE
-      -DSK_SAMPLES_FOR_X)
+    target_compile_definitions(laf-os PRIVATE -DSK_SAMPLES_FOR_X)
   endif()
 
   target_link_libraries(laf-os ${SKIA_LIBRARIES})
