@@ -11,10 +11,12 @@
 #include "base/memory.h"
 #include "base/string.h"
 
-#if __APPLE__
+#if _WIN32
+  #include <windows.h>
+#elif __APPLE__
   #include "os/osx/app.h"
   #include <CoreServices/CoreServices.h>
-#elif !defined(_WIN32)
+#else
   #include "os/x11/x11.h"
 #endif
 
