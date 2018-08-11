@@ -11,6 +11,7 @@
 #ifdef _WIN32
   #include "os/win/native_dialogs.h"
 #elif defined(__APPLE__)
+  #include "os/osx/app.h"
   #include "os/osx/menus.h"
   #include "os/osx/native_dialogs.h"
 #elif defined(LAF_OS_WITH_GTK)
@@ -50,6 +51,21 @@ public:
 
   void dispose() override {
     delete this;
+  }
+
+  void activateApp() override {
+#if __APPLE__
+    OSXApp::instance()->activateApp();
+#endif
+  }
+
+  void finishLaunching() override {
+#if __APPLE__
+    // Start processing NSApplicationDelegate events. (E.g. after
+    // calling this we'll receive application:openFiles: and we'll
+    // generate DropFiles events.)  events
+    OSXApp::instance()->finishLaunching();
+#endif
   }
 
   void useWintabAPI(bool state) override {
@@ -92,6 +108,10 @@ public:
       m_nativeDialogs = new NativeDialogsGTK();
 #endif
     return m_nativeDialogs;
+  }
+
+  EventQueue* eventQueue() override {
+    return EventQueue::instance();
   }
 
   Font* loadSpriteSheetFont(const char* filename, int scale) override {

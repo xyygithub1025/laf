@@ -15,16 +15,12 @@
 #include "os/skia/skia_surface.h"
 
 #ifdef _WIN32
-  #include "os/win/event_queue.h"
   #include "os/win/system.h"
   #define SkiaSystemBase WindowSystem
 #elif __APPLE__
-  #include "os/osx/app.h"
-  #include "os/osx/event_queue.h"
   #include "os/osx/system.h"
   #define SkiaSystemBase OSXSystem
 #else
-  #include "os/x11/event_queue.h"
   #include "os/x11/system.h"
   #define SkiaSystemBase X11System
 #endif
@@ -32,8 +28,6 @@
 #include "SkGraphics.h"
 
 namespace os {
-
-EventQueueImpl g_queue;
 
 class SkiaSystem : public SkiaSystemBase {
 public:
@@ -47,25 +41,6 @@ public:
     SkGraphics::Term();
   }
 
-  void dispose() override {
-    delete this;
-  }
-
-  void activateApp() override {
-#if __APPLE__
-    OSXApp::instance()->activateApp();
-#endif
-  }
-
-  void finishLaunching() override {
-#if __APPLE__
-    // Start processing NSApplicationDelegate events. (E.g. after
-    // calling this we'll receive application:openFiles: and we'll
-    // generate DropFiles events.)  events
-    OSXApp::instance()->finishLaunching();
-#endif
-  }
-
   Capabilities capabilities() const override {
     return Capabilities(
       int(Capabilities::MultipleDisplays) |
@@ -77,10 +52,6 @@ public:
       | int(Capabilities::GpuAccelerationSwitch)
 #endif
       );
-  }
-
-  EventQueue* eventQueue() override {
-    return &g_queue;
   }
 
   bool gpuAcceleration() const override {
@@ -148,10 +119,6 @@ private:
   SkiaDisplay* m_defaultDisplay;
   bool m_gpuAcceleration;
 };
-
-EventQueue* EventQueue::instance() {
-  return &g_queue;
-}
 
 } // namespace os
 
