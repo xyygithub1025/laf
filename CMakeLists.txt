@@ -26,11 +26,6 @@ set(LAF_OS_BACKEND ${LAF_OS_DEFAULT_BACKEND} CACHE STRING "Select laf-os backend
 set_property(CACHE LAF_OS_BACKEND PROPERTY STRINGS "none" "skia")
 option(LAF_OS_WITH_GTK "Enable support for the experimental native GTK File Dialog" OFF)
 
-if(WIN32)
-  # We only support the Unicode API
-  add_definitions(-DUNICODE -D_UNICODE)
-endif()
-
 # Testing
 if(LAF_WITH_TESTS)
   enable_testing()

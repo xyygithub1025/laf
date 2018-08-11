@@ -71,6 +71,13 @@ target_include_directories(laf-base PUBLIC
   ${LAF_LIST_DIR} ${LAF_BINARY_DIR})
 
 if(WIN32)
+  target_compile_definitions(laf-base PUBLIC
+    # Windows Vista is the minimum supported platform but we're defining
+    # Windows 10 to get the all constant/structure definitions.
+    -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00
+    # We only support the Unicode API
+    -DUNICODE -D_UNICODE)
+
   add_definitions(-D_CRT_SECURE_NO_WARNINGS)
   target_link_libraries(laf-base dbghelp shlwapi)
 else()
