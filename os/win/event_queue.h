@@ -12,6 +12,7 @@
 
 #include <windows.h>
 
+#include "base/debug.h"
 #include "os/event.h"
 #include "os/event_queue.h"
 

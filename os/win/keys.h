@@ -10,6 +10,7 @@
 
 #include <windows.h>
 
+#include "base/debug.h"
 #include "os/keys.h"
 
 namespace os {
