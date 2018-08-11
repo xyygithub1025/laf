@@ -78,7 +78,7 @@ if(WIN32)
     # We only support the Unicode API
     -DUNICODE -D_UNICODE)
 
-  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+  target_compile_definitions(laf-base PRIVATE -D_CRT_SECURE_NO_WARNINGS)
   target_link_libraries(laf-base dbghelp shlwapi)
 else()
   find_library(DL_LIBRARY NAMES dl)
