@@ -24,7 +24,9 @@ endif()
 option(LAF_WITH_TESTS "Enable LAF tests" ON)
 set(LAF_OS_BACKEND ${LAF_OS_DEFAULT_BACKEND} CACHE STRING "Select laf-os backend")
 set_property(CACHE LAF_OS_BACKEND PROPERTY STRINGS "none" "skia")
-option(LAF_OS_WITH_GTK "Enable support for the experimental native GTK File Dialog" OFF)
+if(NOT APPLE AND UNIX)
+option(LAF_OS_WITH_GTK "Use GTK library for native dialogs" OFF)
+endif()
 
 # Testing
 if(LAF_WITH_TESTS)
