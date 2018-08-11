@@ -74,11 +74,11 @@ if(WIN32)
   target_compile_definitions(laf-base PUBLIC
     # Windows Vista is the minimum supported platform but we're defining
     # Windows 10 to get the all constant/structure definitions.
-    -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00
+    _WIN32_WINNT=0x0A00 WINVER=0x0A00
     # We only support the Unicode API
-    -DUNICODE -D_UNICODE)
+    UNICODE _UNICODE)
 
-  target_compile_definitions(laf-base PRIVATE -D_CRT_SECURE_NO_WARNINGS)
+  target_compile_definitions(laf-base PRIVATE _CRT_SECURE_NO_WARNINGS)
   target_link_libraries(laf-base dbghelp shlwapi)
 else()
   find_library(DL_LIBRARY NAMES dl)

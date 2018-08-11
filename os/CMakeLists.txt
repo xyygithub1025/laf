@@ -153,23 +153,23 @@ else()
     pkg_check_modules(GTK gtk+-3.0)
     target_link_directories(laf-os ${GTK_LIBRARY_DIRS})
     target_include_directories(laf-os PRIVATE ${GTK_INCLUDE_DIRS})
-    target_compile_definitions(laf-os PRIVATE -DLAF_OS_WITH_GTK)
+    target_compile_definitions(laf-os PRIVATE LAF_OS_WITH_GTK)
   endif()
 endif()
 
 target_link_libraries(laf-os ${LAF_OS_PLATFORM_LIBS})
 
 if(LAF_OS_BACKEND STREQUAL "skia")
-  target_compile_options(laf-os PRIVATE
-    -DSK_INTERNAL
-    -DSK_GAMMA_SRGB
-    -DSK_GAMMA_APPLY_TO_A8
-    -DSK_SCALAR_TO_FLOAT_EXCLUDED
-    -DSK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1
-    -DSK_SUPPORT_OPENCL=0
-    -DSK_FORCE_DISTANCE_FIELD_TEXT=0
-    -DGR_GL_FUNCTION_TYPE=__stdcall
-    -DSK_SUPPORT_GPU=0) # TODO change this to 1
+  target_compile_definitions(laf-os PRIVATE
+    SK_INTERNAL
+    SK_GAMMA_SRGB
+    SK_GAMMA_APPLY_TO_A8
+    SK_SCALAR_TO_FLOAT_EXCLUDED
+    SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1
+    SK_SUPPORT_OPENCL=0
+    SK_FORCE_DISTANCE_FIELD_TEXT=0
+    GR_GL_FUNCTION_TYPE=__stdcall
+    SK_SUPPORT_GPU=0) # TODO change this to 1
   if(WIN32)
     target_compile_definitions(laf-os PRIVATE SK_BUILD_FOR_WIN32
       _CRT_SECURE_NO_WARNINGS)
