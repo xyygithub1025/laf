@@ -23,6 +23,7 @@
 #include "ft/lib.h"
 #include "os/common/freetype_font.h"
 #include "os/common/sprite_sheet_font.h"
+#include "os/event_queue.h"
 #include "os/menus.h"
 #include "os/system.h"
 
