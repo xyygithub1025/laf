@@ -185,17 +185,19 @@ if(UNIX AND NOT APPLE)
   target_link_libraries(laf-os fontconfig Xcursor)
 endif()
 
+set(_LAF_OS_BACKEND_INITIAL_LINK_FLAGS "")
 if(MSVC)
   # Linking with "wsetargv.obj" to add support to expand filename
   # wildcards in argc/argv.
   if(LAF_OS_BACKEND STREQUAL "skia")
-    set(LAF_OS_BACKEND_LINK_FLAGS "-LINK wsetargv.obj -ENTRY:\"wWinMainCRTStartup\"")
+    set(_LAF_OS_BACKEND_INITIAL_LINK_FLAGS "-LINK wsetargv.obj -ENTRY:\"wWinMainCRTStartup\"")
   else()
-    set(LAF_OS_BACKEND_LINK_FLAGS "-LINK wsetargv.obj -ENTRY:\"wmainCRTStartup\"")
+    set(_LAF_OS_BACKEND_INITIAL_LINK_FLAGS "-LINK wsetargv.obj -ENTRY:\"wmainCRTStartup\"")
   endif()
-else()
-  set(LAF_OS_BACKEND_LINK_FLAGS "")
 endif()
+set(LAF_OS_BACKEND_LINK_FLAGS "${_LAF_OS_BACKEND_INITIAL_LINK_FLAGS}"
+  CACHE STRING "Extra flags to link an application that uses laf-os")
+mark_as_advanced(LAF_OS_BACKEND_LINK_FLAGS)
 
 if(LAF_WITH_TESTS)
   laf_find_tests(. laf-os)
