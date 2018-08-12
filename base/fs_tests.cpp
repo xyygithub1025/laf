@@ -120,6 +120,23 @@ TEST(FS, GetFileTitle)
   EXPECT_EQ("",         get_file_title(""));
 }
 
+TEST(FS, GetFileTitleWithPath)
+{
+  EXPECT_EQ("C:\\foo\\main",   get_file_title_with_path("C:\\foo\\main.cpp"));
+  EXPECT_EQ("C:/foo/pack.tar", get_file_title_with_path("C:/foo/pack.tar.gz"));
+  EXPECT_EQ("./main",          get_file_title_with_path("./main.cpp"));
+  EXPECT_EQ(".\\main",         get_file_title_with_path(".\\main.cpp"));
+  EXPECT_EQ("\\main",          get_file_title_with_path("\\main.cpp"));
+  EXPECT_EQ("main",            get_file_title_with_path("main.cpp"));
+  EXPECT_EQ("main",            get_file_title_with_path("main."));
+  EXPECT_EQ("main",            get_file_title_with_path("main"));
+  EXPECT_EQ("C:/foo/",         get_file_title_with_path("C:/foo/"));
+  EXPECT_EQ("C:\\",            get_file_title_with_path("C:\\"));
+  EXPECT_EQ("C:\\",            get_file_title_with_path("C:\\.cpp"));
+  EXPECT_EQ("",                get_file_title_with_path(".cpp"));
+  EXPECT_EQ("",                get_file_title_with_path(""));
+}
+
 TEST(FS, JoinPath)
 {
   std::string sep;

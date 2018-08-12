@@ -68,6 +68,7 @@ namespace base {
 
   // Returns the file name without path and without extension.
   std::string get_file_title(const std::string& filename);
+  std::string get_file_title_with_path(const std::string& filename);
 
   // Joins two paths or a path and a file name with a path-separator.
   std::string join_path(const std::string& path, const std::string& file);

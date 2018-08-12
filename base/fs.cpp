@@ -172,6 +172,24 @@ std::string get_file_title(const std::string& filename)
   return result;
 }
 
+std::string get_file_title_with_path(const std::string& filename)
+{
+  std::string::const_reverse_iterator rit;
+
+  // search for the first dot from the end of the string
+  for (rit=filename.rbegin(); rit!=filename.rend(); ++rit) {
+    if (is_path_separator(*rit))
+      return filename;
+    else if (*rit == '.')
+      break;
+  }
+
+  if (rit != filename.rend())
+    return filename.substr(0, rit.base() - filename.begin() - 1);
+  else
+    return filename;
+}
+
 std::string join_path(const std::string& path, const std::string& file)
 {
   std::string result(path);
