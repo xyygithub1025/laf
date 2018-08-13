@@ -92,7 +92,8 @@ if(LAF_OS_BACKEND STREQUAL "skia")
 
   list(APPEND LAF_OS_SOURCES
     skia/skia_display.cpp
-    skia/skia_surface.cpp)
+    skia/skia_surface.cpp
+    skia/os.cpp)
 
   if(WIN32)
     list(APPEND LAF_OS_SOURCES skia/skia_window_win.cpp)
