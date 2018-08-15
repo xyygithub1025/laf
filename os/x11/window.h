@@ -8,8 +8,10 @@
 #define OS_X11_WINDOW_INCLUDED
 #pragma once
 
+#include "base/time.h"
 #include "gfx/fwd.h"
 #include "gfx/size.h"
+#include "os/event.h"
 #include "os/native_cursor.h"
 #include "os/surface_list.h"
 
@@ -23,7 +25,6 @@
 
 namespace os {
 
-class Event;
 class Surface;
 
 class X11Window {
@@ -76,6 +77,10 @@ private:
   ::XcursorImage* m_xcursorImage;
   ::XIC m_xic;
   int m_scale;
+
+  // Double-click info
+  Event::MouseButton m_doubleClickButton;
+  base::tick_t m_doubleClickTick;
 };
 
 } // namespace os

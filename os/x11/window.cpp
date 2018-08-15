@@ -25,6 +25,8 @@
 #define MOUSE_TRACE(...)
 #define EVENT_TRACE(...)
 
+#define LAF_X11_DOUBLE_CLICK_TIMEOUT 250
+
 namespace os {
 
 namespace {
@@ -141,6 +143,7 @@ X11Window::X11Window(::Display* display, int width, int height, int scale)
   , m_xcursorImage(nullptr)
   , m_xic(nullptr)
   , m_scale(scale)
+  , m_doubleClickButton(Event::NoneButton)
 {
   // Initialize special messages (just the first time a X11Window is
   // created)
@@ -575,7 +578,22 @@ void X11Window::processX11Event(XEvent& event)
       else {
         ev.setType(event.type == ButtonPress? Event::MouseDown:
                                               Event::MouseUp);
-        ev.setButton(get_mouse_button_from_x(event.xbutton.button));
+
+        Event::MouseButton button =
+          get_mouse_button_from_x(event.xbutton.button);
+        ev.setButton(button);
+
+        if (event.type == ButtonPress) {
+          if (m_doubleClickButton == button &&
+              base::current_tick() - m_doubleClickTick < LAF_X11_DOUBLE_CLICK_TIMEOUT) {
+            ev.setType(Event::MouseDoubleClick);
+            m_doubleClickButton = Event::NoneButton;
+          }
+          else {
+            m_doubleClickButton = button;
+            m_doubleClickTick = base::current_tick();
+          }
+        }
       }
       ev.setModifiers(get_modifiers_from_x(event.xbutton.state));
       ev.setPosition(gfx::Point(event.xbutton.x / m_scale,
@@ -592,6 +610,9 @@ void X11Window::processX11Event(XEvent& event)
       ev.setPosition(gfx::Point(event.xmotion.x / m_scale,
                                 event.xmotion.y / m_scale));
       queueEvent(ev);
+
+      // Reset double-click state
+      m_doubleClickButton = Event::NoneButton;
       break;
     }
 
