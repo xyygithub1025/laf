@@ -39,9 +39,7 @@ bool convert_skia_bitmap_to_ximage(const SkBitmap& bitmap, XImage& image)
   image.bytes_per_line = bitmap.rowBytes() - 4*bitmap.width();
   image.bits_per_pixel = bpp;
 
-  bool result = XInitImage(&image);
-
-  return result;
+  return (XInitImage(&image) ? true: false);
 }
 
 } // anonymous namespace
@@ -102,10 +100,18 @@ void SkiaWindow::paintGC(const gfx::Rect& rc)
   }
   else {
     SkBitmap scaled;
-    if (scaled.tryAllocPixels(
-          SkImageInfo::Make(rc.w, rc.h,
-                            bitmap.info().colorType(),
-                            bitmap.info().alphaType()))) {
+    const SkImageInfo info =
+      SkImageInfo::Make(rc.w, rc.h,
+                        bitmap.info().colorType(),
+                        bitmap.info().alphaType());
+
+    // Increase m_buffer for "scaled" pixels if needed.
+    const size_t rowBytes = info.minRowBytes();
+    const size_t requiredSize = info.computeByteSize(rowBytes);
+    if (requiredSize > m_buffer.size())
+      m_buffer.resize(requiredSize);
+
+    if (scaled.installPixels(info, (void*)&m_buffer[0], rowBytes)) {
       SkPaint paint;
       paint.setBlendMode(SkBlendMode::kSrc);
 

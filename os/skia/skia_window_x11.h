@@ -14,6 +14,7 @@
 #include "os/x11/window.h"
 
 #include <string>
+#include <vector>
 
 namespace os {
 
@@ -43,6 +44,7 @@ private:
 
   EventQueue* m_queue;
   SkiaDisplay* m_display;
+  std::vector<uint8_t> m_buffer;
 
   DISABLE_COPYING(SkiaWindow);
 };
