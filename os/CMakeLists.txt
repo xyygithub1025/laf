@@ -141,11 +141,11 @@ else()
 
   find_package(X11 REQUIRED)
   target_include_directories(laf-os PRIVATE ${X11_INCLUDE_DIR})
-  # include_directories(SYSTEM ${X11_INCLUDE_DIR})
   list(APPEND LAF_OS_PLATFORM_LIBS ${X11_LIBRARIES})
-  if(X11_Xcursor_FOUND)
-    list(APPEND LAF_OS_PLATFORM_LIBS ${X11_Xcursor_LIB})
+  if(NOT X11_Xcursor_FOUND)
+    message(FATAL_ERROR "Xcursor library not found")
   endif()
+  list(APPEND LAF_OS_PLATFORM_LIBS ${X11_Xcursor_LIB})
 
   check_library_exists(X11 XOpenIM "${X11_LIB_SEARCH_PATH}" XIM_FOUND)
 
@@ -184,7 +184,7 @@ if(LAF_OS_BACKEND STREQUAL "skia")
 endif()
 
 if(UNIX AND NOT APPLE)
-  target_link_libraries(laf-os fontconfig Xcursor)
+  target_link_libraries(laf-os fontconfig)
 endif()
 
 set(_LAF_OS_BACKEND_INITIAL_LINK_FLAGS "")
