@@ -77,6 +77,7 @@ private:
   ::XcursorImage* m_xcursorImage;
   ::XIC m_xic;
   int m_scale;
+  gfx::Point m_lastMousePos;
 
   // Double-click info
   Event::MouseButton m_doubleClickButton;

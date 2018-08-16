@@ -143,6 +143,7 @@ X11Window::X11Window(::Display* display, int width, int height, int scale)
   , m_xcursorImage(nullptr)
   , m_xic(nullptr)
   , m_scale(scale)
+  , m_lastMousePos(-1, -1)
   , m_doubleClickButton(Event::NoneButton)
 {
   // Initialize special messages (just the first time a X11Window is
@@ -604,15 +605,21 @@ void X11Window::processX11Event(XEvent& event)
     }
 
     case MotionNotify: {
+      // Reset double-click state
+      m_doubleClickButton = Event::NoneButton;
+
+      gfx::Point pos(event.xmotion.x / m_scale,
+                     event.xmotion.y / m_scale);
+
+      if (m_lastMousePos == pos)
+        break;
+      m_lastMousePos = pos;
+
       Event ev;
       ev.setType(Event::MouseMove);
       ev.setModifiers(get_modifiers_from_x(event.xmotion.state));
-      ev.setPosition(gfx::Point(event.xmotion.x / m_scale,
-                                event.xmotion.y / m_scale));
+      ev.setPosition(pos);
       queueEvent(ev);
-
-      // Reset double-click state
-      m_doubleClickButton = Event::NoneButton;
       break;
     }
 
