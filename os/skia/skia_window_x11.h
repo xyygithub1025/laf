@@ -38,9 +38,9 @@ public:
   void setLayout(const std::string& layout) { }
 
 private:
-  void queueEvent(Event& ev) override;
-  void paintGC(const gfx::Rect& rc) override;
-  void resizeDisplay(const gfx::Size& sz) override;
+  void onQueueEvent(Event& ev) override;
+  void onPaint(const gfx::Rect& rc) override;
+  void onResize(const gfx::Size& sz) override;
 
   EventQueue* m_queue;
   SkiaDisplay* m_display;

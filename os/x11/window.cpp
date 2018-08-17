@@ -196,10 +196,15 @@ X11Window::~X11Window()
   X11Window::removeWindow(this);
 }
 
+void X11Window::queueEvent(Event& ev)
+{
+  onQueueEvent(ev);
+}
+
 void X11Window::setScale(const int scale)
 {
   m_scale = scale;
-  resizeDisplay(clientSize());
+  onResize(clientSize());
 }
 
 void X11Window::setTitle(const std::string& title)
@@ -298,7 +303,7 @@ void X11Window::setMousePosition(const gfx::Point& position)
 
 void X11Window::updateWindow(const gfx::Rect& unscaledBounds)
 {
-  paintGC(gfx::Rect(unscaledBounds.x*m_scale,
+  onPaint(gfx::Rect(unscaledBounds.x*m_scale,
                     unscaledBounds.y*m_scale,
                     unscaledBounds.w*m_scale,
                     unscaledBounds.h*m_scale));
@@ -465,7 +470,7 @@ void X11Window::processX11Event(XEvent& event)
       if (newSize.w > 0 &&
           newSize.h > 0 &&
           newSize != clientSize()) {
-        resizeDisplay(newSize);
+        onResize(newSize);
       }
       break;
     }
@@ -473,7 +478,7 @@ void X11Window::processX11Event(XEvent& event)
     case Expose: {
       gfx::Rect rc(event.xexpose.x, event.xexpose.y,
                    event.xexpose.width, event.xexpose.height);
-      paintGC(rc);
+      onPaint(rc);
       break;
     }
 

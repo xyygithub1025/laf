@@ -32,6 +32,8 @@ public:
   X11Window(::Display* display, int width, int height, int scale);
   ~X11Window();
 
+  void queueEvent(Event& ev);
+
   int scale() const { return m_scale; }
   void setScale(const int scale);
 
@@ -61,9 +63,9 @@ public:
   static X11Window* getPointerFromHandle(Window handle);
 
 protected:
-  virtual void queueEvent(Event& event) = 0;
-  virtual void paintGC(const gfx::Rect& rc) = 0;
-  virtual void resizeDisplay(const gfx::Size& sz) = 0;
+  virtual void onQueueEvent(Event& event) = 0;
+  virtual void onPaint(const gfx::Rect& rc) = 0;
+  virtual void onResize(const gfx::Size& sz) = 0;
 
 private:
   bool setX11Cursor(::Cursor xcursor);

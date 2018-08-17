@@ -76,13 +76,13 @@ bool SkiaWindow::isMinimized() const
   return false;
 }
 
-void SkiaWindow::queueEvent(Event& ev)
+void SkiaWindow::onQueueEvent(Event& ev)
 {
   ev.setDisplay(m_display);
   m_queue->queueEvent(ev);
 }
 
-void SkiaWindow::paintGC(const gfx::Rect& rc)
+void SkiaWindow::onPaint(const gfx::Rect& rc)
 {
   SkiaSurface* surface = static_cast<SkiaSurface*>(m_display->getSurface());
   const SkBitmap& bitmap = surface->bitmap();
@@ -133,7 +133,7 @@ void SkiaWindow::paintGC(const gfx::Rect& rc)
   }
 }
 
-void SkiaWindow::resizeDisplay(const gfx::Size& sz)
+void SkiaWindow::onResize(const gfx::Size& sz)
 {
   m_display->resize(sz);
   updateWindow(gfx::Rect(sz / scale()));
