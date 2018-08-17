@@ -45,7 +45,7 @@
 namespace os {
 
 inline SkColor to_skia(gfx::Color c) {
-  return SkColorSetARGBInline(gfx::geta(c), gfx::getr(c), gfx::getg(c), gfx::getb(c));
+  return SkColorSetARGB(gfx::geta(c), gfx::getr(c), gfx::getg(c), gfx::getb(c));
 }
 
 inline SkIRect to_skia(const gfx::Rect& rc) {
