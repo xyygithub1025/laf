@@ -468,8 +468,7 @@ void X11Window::processX11Event(XEvent& event)
                         event.xconfigure.height);
 
       if (newSize.w > 0 &&
-          newSize.h > 0 &&
-          newSize != clientSize()) {
+          newSize.h > 0) {
         onResize(newSize);
       }
       break;
