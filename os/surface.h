@@ -63,7 +63,9 @@ namespace os {
 
     virtual void blitTo(Surface* dest, int srcx, int srcy, int dstx, int dsty, int width, int height) const = 0;
     virtual void scrollTo(const gfx::Rect& rc, int dx, int dy) = 0;
+    // TODO merge all these functions expoing a SkPaint-like structure
     virtual void drawSurface(const Surface* src, int dstx, int dsty) = 0;
+    virtual void drawSurface(const Surface* surface, const gfx::Rect& srcRect, const gfx::Rect& dstRect) = 0;
     virtual void drawRgbaSurface(const Surface* src, int dstx, int dsty) = 0;
     virtual void drawRgbaSurface(const Surface* src, int srcx, int srcy, int dstx, int dsty, int width, int height) = 0;
     virtual void drawRgbaSurface(const Surface* surface, const gfx::Rect& srcRect, const gfx::Rect& dstRect) = 0;

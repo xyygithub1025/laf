@@ -435,6 +435,21 @@ public:
       SkCanvas::kStrict_SrcRectConstraint);
   }
 
+  void drawSurface(const Surface* src, const gfx::Rect& srcRect, const gfx::Rect& dstRect) override {
+    SkRect srcRect2 = SkRect::Make(SkIRect::MakeXYWH(srcRect.x, srcRect.y, srcRect.w, srcRect.h));
+    SkRect dstRect2 = SkRect::Make(SkIRect::MakeXYWH(dstRect.x, dstRect.y, dstRect.w, dstRect.h));
+
+    SkPaint paint;
+    paint.setBlendMode(SkBlendMode::kSrc);
+    paint.setFilterQuality(srcRect.w < dstRect.w ||
+                           srcRect.h < dstRect.h ? kNone_SkFilterQuality:
+                                                   kHigh_SkFilterQuality);
+
+    m_canvas->drawBitmapRect(
+      ((SkiaSurface*)src)->m_bitmap, srcRect2, dstRect2, &paint,
+      SkCanvas::kStrict_SrcRectConstraint);
+  }
+
   void drawRgbaSurface(const Surface* src, int dstx, int dsty) override {
     gfx::Clip clip(dstx, dsty, 0, 0,
       ((SkiaSurface*)src)->width(),
