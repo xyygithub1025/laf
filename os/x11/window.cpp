@@ -4,8 +4,6 @@
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
 
-//#define DEBUG_PAINT_EVENTS
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -300,23 +298,10 @@ void X11Window::setMousePosition(const gfx::Point& position)
 
 void X11Window::updateWindow(const gfx::Rect& unscaledBounds)
 {
-  XEvent ev;
-  memset(&ev, 0, sizeof(ev));
-  ev.xexpose.type = Expose;
-  ev.xexpose.display = x11display();
-  ev.xexpose.window = handle();
-  ev.xexpose.x = unscaledBounds.x*m_scale;
-  ev.xexpose.y = unscaledBounds.y*m_scale;
-  ev.xexpose.width = unscaledBounds.w*m_scale;
-  ev.xexpose.height = unscaledBounds.h*m_scale;
-  XSendEvent(m_display, m_window, False,
-             ExposureMask, (XEvent*)&ev);
-
-#ifdef DEBUG_PAINT_EVENTS
-  gfx::Rect rc(ev.xexpose.x, ev.xexpose.y,
-               ev.xexpose.width, ev.xexpose.height);
-  paintGC(rc);
-#endif
+  paintGC(gfx::Rect(unscaledBounds.x*m_scale,
+                    unscaledBounds.y*m_scale,
+                    unscaledBounds.w*m_scale,
+                    unscaledBounds.h*m_scale));
 }
 
 bool X11Window::setNativeMouseCursor(NativeCursor cursor)
