@@ -74,6 +74,7 @@ void SkiaDisplay::resize(const gfx::Size& size)
   Event ev;
   ev.setType(Event::ResizeDisplay);
   ev.setDisplay(this);
+  os::queue_event(ev);
 #endif
 }
 
