@@ -26,7 +26,6 @@ void OSXEventQueue::getEvent(Event& ev, bool canWait)
     if (!app)
       return;
 
-  retry:
     NSEvent* event;
     do {
       // Pump the whole queue of Cocoa events
@@ -34,6 +33,7 @@ void OSXEventQueue::getEvent(Event& ev, bool canWait)
                                untilDate:[NSDate distantPast]
                                   inMode:NSDefaultRunLoopMode
                                  dequeue:YES];
+    retry:
       if (event) {
         // Intercept <Control+Tab>, <Cmd+[>, and other keyboard
         // combinations, and send them directly to the main
@@ -53,10 +53,10 @@ void OSXEventQueue::getEvent(Event& ev, bool canWait)
         EV_TRACE("EV: Wait for events...\n");
 
         // Wait until there is a Cocoa event in queue
-        [NSApp nextEventMatchingMask:NSEventMaskAny
-                           untilDate:[NSDate distantFuture]
-                              inMode:NSDefaultRunLoopMode
-                             dequeue:NO];
+        event = [app nextEventMatchingMask:NSEventMaskAny
+                                 untilDate:[NSDate distantFuture]
+                                    inMode:NSDefaultRunLoopMode
+                                   dequeue:YES];
 
         EV_TRACE("EV: Wake up!\n");
         goto retry;
