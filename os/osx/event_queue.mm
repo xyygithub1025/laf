@@ -13,6 +13,8 @@
 
 #include "os/osx/event_queue.h"
 
+#define EV_TRACE(...)
+
 namespace os {
 
 void OSXEventQueue::getEvent(Event& ev, bool canWait)
@@ -20,14 +22,14 @@ void OSXEventQueue::getEvent(Event& ev, bool canWait)
   ev.setType(Event::None);
 
   @autoreleasepool {
-  retry:;
     NSApplication* app = [NSApplication sharedApplication];
     if (!app)
       return;
 
-    // Pump the whole queue of Cocoa events
+  retry:
     NSEvent* event;
     do {
+      // Pump the whole queue of Cocoa events
       event = [app nextEventMatchingMask:NSEventMaskAny
                                untilDate:[NSDate distantPast]
                                   inMode:NSDefaultRunLoopMode
@@ -48,11 +50,15 @@ void OSXEventQueue::getEvent(Event& ev, bool canWait)
 
     if (!m_events.try_pop(ev)) {
       if (canWait) {
+        EV_TRACE("EV: Wait for events...\n");
+
         // Wait until there is a Cocoa event in queue
         [NSApp nextEventMatchingMask:NSEventMaskAny
                            untilDate:[NSDate distantFuture]
                               inMode:NSDefaultRunLoopMode
                              dequeue:NO];
+
+        EV_TRACE("EV: Wake up!\n");
         goto retry;
       }
     }
