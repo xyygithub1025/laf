@@ -30,7 +30,6 @@ public:
       BOOL res;
 
       if (canWait) {
-        ASSERT(false);          // Not yet supported
         res = GetMessage(&msg, nullptr, 0, 0);
       }
       else {

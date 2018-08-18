@@ -72,6 +72,8 @@ void X11EventQueue::getEvent(Event& ev, bool canWait)
 
   XEvent event;
   int events = XEventsQueued(display, QueuedAlready);
+  if (events == 0 && canWait)
+    events = 1;
   for (int i=0; i<events; ++i) {
     XNextEvent(display, &event);
     processX11Event(event);
