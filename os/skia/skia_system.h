@@ -109,10 +109,6 @@ public:
   void setTranslateDeadKeys(bool state) override {
     if (m_defaultDisplay)
       m_defaultDisplay->setTranslateDeadKeys(state);
-
-#ifdef _WIN32
-    g_queue.setTranslateDeadKeys(state);
-#endif
   }
 
 private:

@@ -20,8 +20,7 @@ namespace os {
 
 class WinEventQueue : public EventQueue {
 public:
-  WinEventQueue() : m_translateDeadKeys(false) {
-  }
+  WinEventQueue() { }
 
   void getEvent(Event& ev, bool canWait) override {
     MSG msg;
@@ -68,13 +67,8 @@ public:
     m_events.push(ev);
   }
 
-  void setTranslateDeadKeys(bool state) {
-    m_translateDeadKeys = state;
-  }
-
 private:
   std::queue<Event> m_events;
-  bool m_translateDeadKeys;
 };
 
 typedef WinEventQueue EventQueueImpl;
