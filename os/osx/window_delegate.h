@@ -34,8 +34,14 @@ class OSXWindowImpl;
   m_impl->onClose();
 }
 
-- (void)windowDidResize:(NSNotification*)notification
+- (void)windowWillStartLiveResize:(NSNotification*)notification
 {
+  m_impl->onStartResizing();
+}
+
+- (void)windowDidEndLiveResize:(NSNotification*)notification
+{
+  m_impl->onEndResizing();
 }
 
 - (void)windowDidMiniaturize:(NSNotification*)notification

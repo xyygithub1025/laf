@@ -27,6 +27,8 @@ public:
   virtual void onResize(const gfx::Size& size) = 0;
   virtual void onDrawRect(const gfx::Rect& rect) = 0;
   virtual void onWindowChanged() = 0;
+  virtual void onStartResizing() = 0;
+  virtual void onEndResizing() = 0;
 };
 
 @class OSXWindowDelegate;

@@ -45,6 +45,7 @@ public:
        int width, int height, int scale)
     : m_display(display)
     , m_backend(Backend::NONE)
+    , m_oldSurface(nullptr)
 #if SK_SUPPORT_GPU
     , m_nsGL(nil)
     , m_skSurface(nullptr)
@@ -166,6 +167,14 @@ public:
 #endif
 
     m_display->resize(size);
+
+    if (m_oldSurface) {
+      SkiaSurface* displaySurface = static_cast<SkiaSurface*>(m_display->getSurface());
+      displaySurface->drawSurface(
+        m_oldSurface,
+        gfx::Rect(0, 0, m_oldSurface->width(), m_oldSurface->height()),
+        gfx::Rect(0, 0, displaySurface->width(), displaySurface->height()));
+    }
   }
 
   void onDrawRect(const gfx::Rect& rect) override {
@@ -190,6 +199,31 @@ public:
     if (m_nsGL)
       [m_nsGL setView:[m_window contentView]];
 #endif
+  }
+
+  void onStartResizing() override {
+    ASSERT(!m_oldSurface);
+
+    const SkiaSurface* surface =
+      static_cast<SkiaSurface*>(m_display->getSurface());
+
+    m_oldSurface = new SkiaSurface;
+    m_oldSurface->create(surface->width(),
+                         surface->height());
+    m_oldSurface->drawSurface(surface, 0, 0);
+  }
+
+  void onEndResizing() override {
+    if (m_oldSurface) {
+      m_oldSurface->dispose();
+      m_oldSurface = nullptr;
+    }
+
+    // Generate the resizing display event for the user.
+    Event ev;
+    ev.setType(Event::ResizeDisplay);
+    ev.setDisplay(m_display);
+    os::queue_event(ev);
   }
 
 private:
@@ -368,6 +402,10 @@ private:
   Backend m_backend;
   bool m_closing;
   OSXWindow* m_window;
+
+  // Surface used for live resizing.
+  SkiaSurface* m_oldSurface;
+
 #if SK_SUPPORT_GPU
   std::unique_ptr<GLContext> m_glCtx;
   sk_sp<const GrGLInterface> m_glInterfaces;

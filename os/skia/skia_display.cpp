@@ -54,18 +54,27 @@ void SkiaDisplay::resetSkiaSurface()
 
 void SkiaDisplay::resize(const gfx::Size& size)
 {
-  Event ev;
-  ev.setType(Event::ResizeDisplay);
-  ev.setDisplay(this);
-  os::queue_event(ev);
-
   if (!m_initialized || m_customSurface)
     return;
 
+  gfx::Size newSize(size.w / m_window.scale(),
+                    size.h / m_window.scale());
+
+  if (m_initialized && m_surface &&
+      m_surface->width() == newSize.w &&
+      m_surface->height() == newSize.h) {
+    return;
+  }
+
   m_surface->dispose();
   m_surface = new SkiaSurface;
-  m_surface->create(size.w / m_window.scale(),
-                    size.h / m_window.scale());
+  m_surface->create(newSize.w, newSize.h);
+
+#if !defined(__APPLE__)
+  Event ev;
+  ev.setType(Event::ResizeDisplay);
+  ev.setDisplay(this);
+#endif
 }
 
 void SkiaDisplay::dispose()
