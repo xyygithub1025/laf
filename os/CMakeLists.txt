@@ -12,6 +12,7 @@ set(LAF_OS_SOURCES
   system.cpp)
 if(WIN32)
   list(APPEND LAF_OS_SOURCES
+    win/event_queue.cpp
     win/keys.cpp
     win/native_dialogs.cpp
     win/pen.cpp
@@ -91,9 +92,10 @@ if(LAF_OS_BACKEND STREQUAL "skia")
     CACHE INTERNAL "Skia libraries")
 
   list(APPEND LAF_OS_SOURCES
+    skia/os.cpp
+    skia/resize_surface.cpp
     skia/skia_display.cpp
-    skia/skia_surface.cpp
-    skia/os.cpp)
+    skia/skia_surface.cpp)
 
   if(WIN32)
     list(APPEND LAF_OS_SOURCES skia/skia_window_win.cpp)

@@ -11,6 +11,7 @@
 #include "os/skia/skia_window_win.h"
 
 #include "base/log.h"
+#include "os/common/event_queue_with_resize_display.h"
 #include "os/event.h"
 #include "os/event_queue.h"
 #include "os/skia/skia_display.h"
@@ -352,7 +353,29 @@ void SkiaWindow::onResize(const gfx::Size& size)
     createRenderTarget(size);
 #endif
 
+  // TODO the next code is quite similar to SkiaWindow::onResize() for X11.
+
+  // Set the ResizeDisplay event that will be sent in the near time
+  // (150ms) by the EventQueueWithResizeDisplay.
+  Event ev;
+  ev.setType(Event::ResizeDisplay);
+  ev.setDisplay(m_display);
+  const bool isNewEvent =
+    static_cast<EventQueueWithResizeDisplay*>(EventQueue::instance())
+      ->setResizeDisplayEvent(ev);
+
+  if (isNewEvent) m_resizeSurface.create(m_display);
   m_display->resize(size);
+  if (!isNewEvent) m_resizeSurface.draw(m_display);
+}
+
+void SkiaWindow::onEndResizing()
+{
+  m_resizeSurface.reset();
+
+  // Force the ResizeDisplay event now.
+  static_cast<EventQueueWithResizeDisplay*>(EventQueue::instance())
+    ->enqueueResizeDisplayEvent();
 }
 
 } // namespace os

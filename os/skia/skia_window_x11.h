@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2016-2017  David Capello
+// Copyright (C) 2016-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -11,6 +11,7 @@
 #include "base/disable_copying.h"
 #include "gfx/size.h"
 #include "os/native_cursor.h"
+#include "os/skia/resize_surface.h"
 #include "os/x11/window.h"
 
 #include <string>
@@ -44,6 +45,7 @@ private:
 
   EventQueue* m_queue;
   SkiaDisplay* m_display;
+  ResizeSurface m_resizeSurface;
   std::vector<uint8_t> m_buffer;
 
   DISABLE_COPYING(SkiaWindow);

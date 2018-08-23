@@ -9,6 +9,7 @@
 #pragma once
 
 #include "base/disable_copying.h"
+#include "os/skia/resize_surface.h"
 #include "os/skia/skia_surface.h"
 #include "os/win/window.h"
 
@@ -34,6 +35,7 @@ private:
   void onQueueEvent(Event& ev) override;
   void onPaint(HDC hdc) override;
   void onResize(const gfx::Size& sz) override;
+  void onEndResizing() override;
   void paintHDC(HDC dc);
 
 #if SK_SUPPORT_GPU
@@ -47,6 +49,7 @@ private:
 
   EventQueue* m_queue;
   SkiaDisplay* m_display;
+  ResizeSurface m_resizeSurface;
   Backend m_backend;
 #if SK_SUPPORT_GPU
   std::unique_ptr<GLContext> m_glCtx;

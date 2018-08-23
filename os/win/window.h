@@ -74,6 +74,8 @@ namespace os {
 
     virtual void onQueueEvent(Event& ev) { }
     virtual void onResize(const gfx::Size& sz) { }
+    virtual void onStartResizing() { }
+    virtual void onEndResizing() { }
     virtual void onPaint(HDC hdc) { }
 
     static void registerClass();

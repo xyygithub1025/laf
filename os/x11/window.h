@@ -80,6 +80,7 @@ private:
   ::XIC m_xic;
   int m_scale;
   gfx::Point m_lastMousePos;
+  gfx::Size m_lastClientSize;
 
   // Double-click info
   Event::MouseButton m_doubleClickButton;

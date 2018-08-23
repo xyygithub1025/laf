@@ -560,13 +560,15 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
 
     case WM_SIZE:
       if (m_isCreated) {
-        int w = GET_X_LPARAM(lparam);
-        int h = GET_Y_LPARAM(lparam);
+        gfx::Size newSize(GET_X_LPARAM(lparam),
+                          GET_Y_LPARAM(lparam));
 
-        if (w > 0 && h > 0) {
-          m_clientSize.w = w;
-          m_clientSize.h = h;
+        if (newSize.w > 0 &&
+            newSize.h > 0 &&
+            m_clientSize != newSize) {
+          m_clientSize = newSize;
           onResize(m_clientSize);
+          InvalidateRect(m_hwnd, nullptr, FALSE);
         }
 
         WINDOWPLACEMENT pl;
@@ -577,6 +579,14 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
             pl.rcNormalPosition.bottom - pl.rcNormalPosition.top);
         }
       }
+      break;
+
+    case WM_ENTERSIZEMOVE:
+      onStartResizing();
+      break;
+
+    case WM_EXITSIZEMOVE:
+      onEndResizing();
       break;
 
     // Mouse and Trackpad Messages

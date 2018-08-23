@@ -527,9 +527,8 @@ public:
       srcRect, dstRect, &paint);
   }
 
-  SkBitmap& bitmap() {
-    return m_bitmap;
-  }
+  SkBitmap& bitmap() { return m_bitmap; }
+  SkCanvas& canvas() { return *m_canvas; }
 
   void swapBitmap(SkBitmap& other) {
     ASSERT(!m_surface);

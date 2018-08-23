@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2016-2017  David Capello
+// Copyright (C) 2016-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -11,6 +11,7 @@
 #include "os/skia/skia_window_x11.h"
 
 #include "gfx/size.h"
+#include "os/common/event_queue_with_resize_display.h"
 #include "os/event.h"
 #include "os/event_queue.h"
 #include "os/skia/skia_display.h"
@@ -135,8 +136,18 @@ void SkiaWindow::onPaint(const gfx::Rect& rc)
 
 void SkiaWindow::onResize(const gfx::Size& sz)
 {
+  // Set the ResizeDisplay event that will be sent in the near time
+  // (150ms) by the EventQueueWithResizeDisplay.
+  Event ev;
+  ev.setType(Event::ResizeDisplay);
+  ev.setDisplay(m_display);
+  const bool isNewEvent =
+    static_cast<EventQueueWithResizeDisplay*>(EventQueue::instance())
+      ->setResizeDisplayEvent(ev);
+
+  if (isNewEvent) m_resizeSurface.create(m_display);
   m_display->resize(sz);
-  updateWindow(gfx::Rect(sz / scale()));
+  if (!isNewEvent) m_resizeSurface.draw(m_display);
 }
 
 } // namespace os

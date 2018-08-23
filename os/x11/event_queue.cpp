@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2016-2017  David Capello
+// Copyright (C) 2016-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -67,6 +67,8 @@ const char* get_event_name(XEvent& event)
 
 void X11EventQueue::getEvent(Event& ev, bool canWait)
 {
+  checkResizeDisplayEventEvent(canWait);
+
   ::Display* display = X11::instance()->display();
   XSync(display, False);
 

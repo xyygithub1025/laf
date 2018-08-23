@@ -144,6 +144,7 @@ X11Window::X11Window(::Display* display, int width, int height, int scale)
   , m_xic(nullptr)
   , m_scale(scale)
   , m_lastMousePos(-1, -1)
+  , m_lastClientSize(0, 0)
   , m_doubleClickButton(Event::NoneButton)
 {
   // Initialize special messages (just the first time a X11Window is
@@ -468,7 +469,9 @@ void X11Window::processX11Event(XEvent& event)
                         event.xconfigure.height);
 
       if (newSize.w > 0 &&
-          newSize.h > 0) {
+          newSize.h > 0 &&
+          newSize != m_lastClientSize) {
+        m_lastClientSize = newSize;
         onResize(newSize);
       }
       break;
