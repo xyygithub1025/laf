@@ -78,6 +78,7 @@ namespace os {
 
   System* create_system();
   System* instance();
+  void set_instance(System* system);
 
 } // namespace os
 
