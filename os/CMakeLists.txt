@@ -20,16 +20,20 @@ if(WIN32)
     win/window.cpp
     win/window_dde.cpp)
 elseif(APPLE)
-  list(APPEND LAF_OS_SOURCES
-    osx/app.mm
-    osx/app_delegate.mm
-    osx/event_queue.mm
-    osx/keys.mm
-    osx/logger.mm
-    osx/menus.mm
-    osx/native_dialogs.mm
-    osx/view.mm
-    osx/window.mm)
+  find_library(COCOA_LIBRARY Cocoa)
+  find_library(CARBON_LIBRARY Carbon)
+  if(COCOA_LIBRARY)
+    list(APPEND LAF_OS_SOURCES
+      osx/app.mm
+      osx/app_delegate.mm
+      osx/event_queue.mm
+      osx/keys.mm
+      osx/logger.mm
+      osx/menus.mm
+      osx/native_dialogs.mm
+      osx/view.mm
+      osx/window.mm)
+  endif()
 else()
   list(APPEND LAF_OS_SOURCES
     x11/event_queue.cpp
@@ -125,13 +129,11 @@ if(WIN32)
     kernel32 user32 gdi32 comdlg32 ole32 winmm
     shlwapi psapi wininet comctl32 dbghelp)
 elseif(APPLE)
-  find_library(COCOA_LIBRARY Cocoa)
-  find_library(CARBON_LIBRARY Carbon)
-  find_library(IOKIT_LIBRARY IOKit)
-  list(APPEND LAF_OS_PLATFORM_LIBS
-    ${COCOA_LIBRARY}
-    ${CARBON_LIBRARY}
-    ${IOKIT_LIBRARY})
+  if(COCOA_LIBRARY)
+    list(APPEND LAF_OS_PLATFORM_LIBS
+      ${COCOA_LIBRARY}
+      ${CARBON_LIBRARY})
+  endif()
 
   target_compile_options(laf-os PRIVATE
     -Wno-ignored-attributes -Wno-unused-result
