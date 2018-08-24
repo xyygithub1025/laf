@@ -77,13 +77,13 @@ bool open_file(const std::string& file)
   ret = win32_shell_execute(L"open",
                             base::from_utf8(file).c_str(), NULL);
 
-#elif __APPLE__
+#elif HAVE_SYSTEM
 
-  ret = std::system(("open \"" + file + "\"").c_str());
-
-#else
-
-  ret = std::system(("xdg-open \"" + file + "\"").c_str());
+  #if __APPLE__
+    ret = std::system(("open \"" + file + "\"").c_str());
+  #else
+    ret = std::system(("xdg-open \"" + file + "\"").c_str());
+  #endif
 
 #endif
 
@@ -107,24 +107,30 @@ bool open_folder(const std::string& _file)
   }
   return (ret == 0);
 
-#elif __APPLE__
+#elif HAVE_SYSTEM
 
-  int ret;
-  if (base::is_directory(file)) {
-    ret = std::system(("open \"" + file + "\"").c_str());
-  }
-  else {
-    ret = std::system(("open --reveal \"" + file + "\"").c_str());
-  }
-  return (ret == 0);
+  #if __APPLE__
 
-#else
+    int ret;
+    if (base::is_directory(file))
+      ret = std::system(("open \"" + file + "\"").c_str());
+    else
+      ret = std::system(("open --reveal \"" + file + "\"").c_str());
+    return (ret == 0);
 
-  if (!base::is_directory(file))
-    file = base::get_file_path(file);
+  #else
 
-  int ret = std::system(("xdg-open \"" + file + "\"").c_str());
-  return (ret == 0);
+    if (!base::is_directory(file))
+      file = base::get_file_path(file);
+
+    int ret = std::system(("xdg-open \"" + file + "\"").c_str());
+    return (ret == 0);
+
+  #endif
+
+#else  // HAVE_SYSTEM
+
+  return false;
 
 #endif
 }

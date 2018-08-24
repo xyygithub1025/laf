@@ -1,5 +1,5 @@
 // LAF Base Library                                      -*- C++ -*-
-// Copyright (c) 2001-2016 David Capello
+// Copyright (c) 2001-2018 David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -11,6 +11,7 @@
 #cmakedefine HAVE_STDINT_H     1
 #cmakedefine HAVE_SCHED_YIELD  1
 #cmakedefine HAVE_DLFCN_H      1
+#cmakedefine HAVE_SYSTEM       1
 
 #cmakedefine LAF_LITTLE_ENDIAN
 #cmakedefine LAF_BIG_ENDIAN

@@ -3,11 +3,16 @@
 
 include(CheckIncludeFiles)
 include(CheckFunctionExists)
+include(CheckCXXSourceCompiles)
 include(TestBigEndian)
 
 check_include_files(stdint.h HAVE_STDINT_H)
 check_include_files(dlfcn.h HAVE_DLFCN_H)
 check_function_exists(sched_yield HAVE_SCHED_YIELD)
+check_cxx_source_compiles("
+  #include <cstdlib>
+  int main() { return std::system(\"\"); }
+  " HAVE_SYSTEM)
 
 test_big_endian(LAF_BIG_ENDIAN)
 if(NOT LAF_BIG_ENDIAN)
