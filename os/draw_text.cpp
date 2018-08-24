@@ -56,6 +56,10 @@ retry:;
 
   switch (font->type()) {
 
+    case FontType::kUnknown:
+      // Do nothing
+      break;
+
     case FontType::kSpriteSheet: {
       SpriteSheetFont* ssFont = static_cast<SpriteSheetFont*>(font);
       Surface* sheet = ssFont->getSurfaceSheet();
