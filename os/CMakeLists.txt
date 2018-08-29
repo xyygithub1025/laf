@@ -188,7 +188,8 @@ if(LAF_OS_BACKEND STREQUAL "skia")
 
   if(UNIX AND NOT APPLE)
     # Needed for SkFontMgr on Linux
-    target_link_libraries(laf-os fontconfig)
+    find_library(FONTCONFIG_LIBRARY fontconfig)
+    target_link_libraries(laf-os ${FONTCONFIG_LIBRARY})
   endif()
 endif()
 
