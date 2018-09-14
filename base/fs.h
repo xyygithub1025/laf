@@ -48,6 +48,9 @@ namespace base {
   // filename to an absolute one.
   std::string get_canonical_path(const std::string& path);
 
+  // TODO why get_canonical_path() is not enough?
+  std::string get_absolute_path(const std::string& filename);
+
   paths list_files(const std::string& path);
 
   // Returns true if the given character is a valud path separator

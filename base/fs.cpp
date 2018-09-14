@@ -53,6 +53,22 @@ void make_all_directories(const std::string& path)
   }
 }
 
+std::string get_absolute_path(const std::string& filename)
+{
+  std::string fn = filename;
+  if (fn.size() > 2 &&
+#ifdef _WIN32
+      fn[1] != ':'
+#else
+      fn[0] != '/'
+#endif
+      ) {
+    fn = base::join_path(base::get_current_path(), fn);
+  }
+  fn = base::get_canonical_path(fn);
+  return fn;
+}
+
 bool is_path_separator(std::string::value_type chr)
 {
   return (chr == '\\' || chr == '/');
