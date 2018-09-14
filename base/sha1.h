@@ -22,8 +22,9 @@ namespace base {
     Sha1();
     explicit Sha1(const std::vector<uint8_t>& digest);
 
-    // Calculates the SHA1 of the given file.
+    // Calculates the SHA1 of the given file or string.
     static Sha1 calculateFromFile(const std::string& fileName);
+    static Sha1 calculateFromString(const std::string& text);
 
     bool operator==(const Sha1& other) const;
     bool operator!=(const Sha1& other) const;

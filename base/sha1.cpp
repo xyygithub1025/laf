@@ -54,6 +54,19 @@ Sha1 Sha1::calculateFromFile(const std::string& fileName)
   return Sha1(digest);
 }
 
+// Calculates the SHA1 of the given string.
+Sha1 Sha1::calculateFromString(const std::string& text)
+{
+  SHA1Context sha;
+  SHA1Reset(&sha);
+  SHA1Input(&sha, (uint8_t*)text.c_str(), (unsigned int)text.size());
+
+  std::vector<uint8_t> digest(HashSize);
+  SHA1Result(&sha, &digest[0]);
+
+  return Sha1(digest);
+}
+
 bool Sha1::operator==(const Sha1& other) const
 {
   return m_digest == other.m_digest;
