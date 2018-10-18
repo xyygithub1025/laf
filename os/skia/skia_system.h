@@ -132,12 +132,8 @@ public:
   std::unique_ptr<ColorSpaceConversion> convertBetweenColorSpace(
     const os::ColorSpacePtr& src,
     const os::ColorSpacePtr& dst) override {
-    auto p = std::unique_ptr<SkiaColorSpaceConversion>(
+    return std::unique_ptr<SkiaColorSpaceConversion>(
       new SkiaColorSpaceConversion(src, dst));
-    if (p->isValid())
-      return p;
-    else
-      return nullptr;
   }
 
 private:

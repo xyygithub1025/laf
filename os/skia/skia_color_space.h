@@ -12,7 +12,6 @@
 #include "os/color_space.h"
 
 #include "SkColorSpace.h"
-#include "SkColorSpaceXform.h"
 
 namespace os {
 
@@ -35,16 +34,11 @@ public:
   SkiaColorSpaceConversion(const os::ColorSpacePtr& srcColorSpace,
                            const os::ColorSpacePtr& dstColorSpace);
 
-  bool isValid() const { return m_xform != nullptr; }
-
   bool convert(uint32_t* dst, const uint32_t* src, int n) override;
 
 private:
-  // Both pointers just to keep a reference to them
   os::ColorSpacePtr m_srcCS;
   os::ColorSpacePtr m_dstCS;
-
-  std::unique_ptr<SkColorSpaceXform> m_xform;
 };
 
 os::ColorSpacePtr main_screen_color_space();

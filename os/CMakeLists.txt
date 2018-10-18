@@ -78,6 +78,7 @@ if(LAF_OS_BACKEND STREQUAL "skia")
   find_path(SKIA_GPU_INCLUDE_DIR GrContext.h HINTS "${SKIA_DIR}/include/gpu")
   find_path(SKIA_GPU2_INCLUDE_DIR gl/GrGLDefines.h HINTS "${SKIA_DIR}/src/gpu")
   find_path(SKIA_ANGLE_INCLUDE_DIR angle_gl.h HINTS "${SKIA_DIR}/third_party/externals/angle2/include")
+  find_path(SKIA_SKCMS_INCLUDE_DIR skcms.h HINTS "${SKIA_DIR}/third_party/skcms")
 
   include_directories(
     ${SKIA_CONFIG_INCLUDE_DIR}
@@ -86,7 +87,8 @@ if(LAF_OS_BACKEND STREQUAL "skia")
     ${SKIA_UTILS_INCLUDE_DIR}
     ${SKIA_CODEC_INCLUDE_DIR}
     ${SKIA_GPU_INCLUDE_DIR}
-    ${SKIA_GPU2_INCLUDE_DIR})
+    ${SKIA_GPU2_INCLUDE_DIR}
+    ${SKIA_SKCMS_INCLUDE_DIR})
   if(WIN32)
     include_directories(${SKIA_ANGLE_INCLUDE_DIR})
   endif()

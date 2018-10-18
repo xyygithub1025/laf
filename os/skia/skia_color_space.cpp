@@ -10,13 +10,19 @@
 
 #include "os/skia/skia_color_space.h"
 
+#include "SkImageInfo.h"
 #include "SkString.h"
+#include "skcms.h"
 
 #include <algorithm>
 
 // Defined in skia/src/core/SkICC.cpp
-extern SkString SkICCGetColorProfileTag(const SkColorSpaceTransferFn& fn,
-                                        const SkMatrix44& toXYZD50);
+const char* get_color_profile_description(const SkColorSpaceTransferFn& fn,
+                                          const float toXYZD50[9]);
+
+// Defined in skia/src/core/SkConvertPixels.cpp
+extern void SkConvertPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
+                            const SkImageInfo& srcInfo, const void* srcPixels, size_t srcRowBytes);
 
 namespace os {
 
@@ -97,8 +103,11 @@ SkiaColorSpace::SkiaColorSpace(const gfx::ColorSpacePtr& gfxcs)
       break;
 
     case gfx::ColorSpace::ICC: {
-      m_skcs = SkColorSpace::MakeICC(m_gfxcs->iccData(),
-                                     m_gfxcs->iccSize());
+      skcms_ICCProfile icc;
+      if (skcms_Parse(m_gfxcs->iccData(),
+                      m_gfxcs->iccSize(), &icc)) {
+        m_skcs = SkColorSpace::Make(icc);
+      }
       break;
     }
   }
@@ -110,8 +119,15 @@ SkiaColorSpace::SkiaColorSpace(const gfx::ColorSpacePtr& gfxcs)
     SkMatrix44 toXYZD50(SkMatrix44::kIdentity_Constructor);
     if (m_skcs->isNumericalTransferFn(&fn) &&
         m_skcs->toXYZD50(&toXYZD50)) {
-      SkString desc = SkICCGetColorProfileTag(fn, toXYZD50);
-      m_gfxcs->setName(desc.c_str());
+      float m33[9];
+      for (int r=0; r<3; ++r) {
+        for (int c=0; c<3; ++c) {
+          m33[3*r+c] = toXYZD50.get(r,c);
+        }
+      }
+      const char* desc = get_color_profile_description(fn, m33);
+      if (desc)
+        m_gfxcs->setName(desc);
     }
   }
 }
@@ -124,17 +140,17 @@ SkiaColorSpaceConversion::SkiaColorSpaceConversion(
 {
   ASSERT(srcColorSpace);
   ASSERT(dstColorSpace);
-  m_xform =
-    SkColorSpaceXform::New(
-      static_cast<const SkiaColorSpace*>(srcColorSpace.get())->skColorSpace().get(),
-      static_cast<const SkiaColorSpace*>(dstColorSpace.get())->skColorSpace().get());
 }
 
 bool SkiaColorSpaceConversion::convert(uint32_t* dst, const uint32_t* src, int n)
 {
-  return m_xform->apply(SkColorSpaceXform::kRGBA_8888_ColorFormat, dst,
-                        SkColorSpaceXform::kRGBA_8888_ColorFormat, src, n,
-                        kUnpremul_SkAlphaType);
+  auto dstInfo = SkImageInfo::Make(n, 1, kRGBA_8888_SkColorType, kUnpremul_SkAlphaType,
+                                   static_cast<const SkiaColorSpace*>(m_dstCS.get())->skColorSpace());
+  auto srcInfo = SkImageInfo::Make(n, 1, kRGBA_8888_SkColorType, kUnpremul_SkAlphaType,
+                                   static_cast<const SkiaColorSpace*>(m_srcCS.get())->skColorSpace());
+  SkConvertPixels(dstInfo, dst, 4*n,
+                  srcInfo, src, 4*n);
+  return true;
 }
 
 } // namespace os

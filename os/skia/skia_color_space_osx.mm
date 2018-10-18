@@ -15,7 +15,7 @@
 
 namespace os {
 
-os::ColorSpacePtr screen_color_space(NSScreen* screen)
+static os::ColorSpacePtr screen_color_space(NSScreen* screen)
 {
   os::ColorSpacePtr osCS;
   CGColorSpaceRef cgCS = [[screen colorSpace] CGColorSpace];
