@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (c) 2018  Igara Studio S.A.
 // Copyright (C) 2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -34,7 +35,8 @@ void ResizeSurface::create(Display* display)
 
   m_snapshot = new SkiaSurface;
   m_snapshot->create(surface->width(),
-                     surface->height());
+                     surface->height(),
+                     surface->colorSpace());
   m_snapshot->drawSurface(surface, 0, 0);
 }
 

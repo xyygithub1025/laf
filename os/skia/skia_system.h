@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2018  Igara Studio S.A.
 // Copyright (C) 2012-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -9,8 +10,10 @@
 #pragma once
 
 #include "base/base.h"
+#include "gfx/color_space.h"
 #include "gfx/size.h"
 #include "os/common/system.h"
+#include "os/skia/skia_color_space.h"
 #include "os/skia/skia_display.h"
 #include "os/skia/skia_surface.h"
 
@@ -29,6 +32,8 @@
 
 namespace os {
 
+void list_screen_color_spaces(std::vector<os::ColorSpacePtr>& list);
+
 class SkiaSystem : public SkiaSystemBase {
 public:
   SkiaSystem()
@@ -46,7 +51,8 @@ public:
       int(Capabilities::MultipleDisplays) |
       int(Capabilities::CanResizeDisplay) |
       int(Capabilities::DisplayScale) |
-      int(Capabilities::CustomNativeMouseCursor)
+      int(Capabilities::CustomNativeMouseCursor) |
+      int(Capabilities::ColorSpaces)
     // TODO enable this when the GPU support is ready
 #if 0 // SK_SUPPORT_GPU
       | int(Capabilities::GpuAccelerationSwitch)
@@ -86,15 +92,17 @@ public:
     return display;
   }
 
-  Surface* createSurface(int width, int height) override {
+  Surface* createSurface(int width, int height,
+                         const os::ColorSpacePtr& colorSpace) override {
     SkiaSurface* sur = new SkiaSurface;
-    sur->create(width, height);
+    sur->create(width, height, colorSpace);
     return sur;
   }
 
-  Surface* createRgbaSurface(int width, int height) override {
+  Surface* createRgbaSurface(int width, int height,
+                             const os::ColorSpacePtr& colorSpace) override {
     SkiaSurface* sur = new SkiaSurface;
-    sur->createRgba(width, height);
+    sur->createRgba(width, height, colorSpace);
     return sur;
   }
 
@@ -109,6 +117,27 @@ public:
   void setTranslateDeadKeys(bool state) override {
     if (m_defaultDisplay)
       m_defaultDisplay->setTranslateDeadKeys(state);
+  }
+
+  void listColorSpaces(std::vector<os::ColorSpacePtr>& list) override {
+    list.push_back(createColorSpace(gfx::ColorSpace::MakeNone()));
+    list.push_back(createColorSpace(gfx::ColorSpace::MakeSRGB()));
+    list_screen_color_spaces(list);
+  }
+
+  os::ColorSpacePtr createColorSpace(const gfx::ColorSpacePtr& cs) override {
+    return std::make_shared<SkiaColorSpace>(cs);
+  }
+
+  std::unique_ptr<ColorSpaceConversion> convertBetweenColorSpace(
+    const os::ColorSpacePtr& src,
+    const os::ColorSpacePtr& dst) override {
+    auto p = std::unique_ptr<SkiaColorSpaceConversion>(
+      new SkiaColorSpaceConversion(src, dst));
+    if (p->isValid())
+      return p;
+    else
+      return nullptr;
   }
 
 private:

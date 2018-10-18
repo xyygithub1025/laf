@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (c) 2018  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -9,6 +10,7 @@
 #pragma once
 
 #include "gfx/point.h"
+#include "os/color_space.h"
 #include "os/display_handle.h"
 #include "os/native_cursor.h"
 #include "os/surface_list.h"
@@ -76,6 +78,9 @@ namespace os {
     // fingers as pan/scroll (true by default). If you want to pan
     // with one finger, call this function with false.
     virtual void setInterpretOneFingerGestureAsMouseMovement(bool state) = 0;
+
+    // Returns the color space of the display where the window is located.
+    virtual os::ColorSpacePtr colorSpace() const = 0;
 
     // Returns the HWND on Windows.
     virtual DisplayHandle nativeHandle() = 0;

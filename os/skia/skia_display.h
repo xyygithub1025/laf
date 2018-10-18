@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (c) 2018  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -10,6 +11,7 @@
 
 #include "os/display.h"
 #include "os/native_cursor.h"
+#include "os/skia/skia_color_space.h"
 #include "os/skia/skia_window.h"
 
 namespace os {
@@ -65,6 +67,8 @@ public:
 
   void setTranslateDeadKeys(bool state);
 
+  os::ColorSpacePtr colorSpace() const override { return m_colorSpace; }
+
   // Returns the HWND on Windows.
   DisplayHandle nativeHandle() override;
 
@@ -75,6 +79,7 @@ private:
   bool m_initialized;
   SkiaWindow m_window;
   SkiaSurface* m_surface;
+  os::ColorSpacePtr m_colorSpace;
   bool m_customSurface;
   NativeCursor m_nativeCursor;
 };

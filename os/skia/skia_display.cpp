@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (c) 2018  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -21,6 +22,7 @@ SkiaDisplay::SkiaDisplay(int width, int height, int scale)
   : m_initialized(false)
   , m_window(instance()->eventQueue(), this, width, height, scale)
   , m_surface(new SkiaSurface)
+  , m_colorSpace(main_screen_color_space())
   , m_customSurface(false)
   , m_nativeCursor(kArrowCursor)
 {
@@ -48,7 +50,7 @@ void SkiaDisplay::resetSkiaSurface()
 
   gfx::Size size = m_window.clientSize() / m_window.scale();
   m_surface = new SkiaSurface;
-  m_surface->create(size.w, size.h);
+  m_surface->create(size.w, size.h, m_colorSpace);
   m_customSurface = false;
 }
 
@@ -68,7 +70,7 @@ void SkiaDisplay::resize(const gfx::Size& size)
 
   m_surface->dispose();
   m_surface = new SkiaSurface;
-  m_surface->create(newSize.w, newSize.h);
+  m_surface->create(newSize.w, newSize.h, m_colorSpace);
 }
 
 void SkiaDisplay::dispose()

@@ -1,4 +1,5 @@
 # LAF GFX Library
+# Copyright (c) 2018  Igara Studio S.A.
 # Copyright (C) 2001-2017  David Capello
 
 if(NOT PIXMAN_LIBRARY)
@@ -14,6 +15,7 @@ if(PIXMAN_LIBRARY)
 endif()
 
 add_library(laf-gfx
+  color_space.cpp
   hsl.cpp
   hsv.cpp
   rgb.cpp

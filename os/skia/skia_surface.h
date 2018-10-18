@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (c) 2018  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -12,6 +13,7 @@
 #include "gfx/clip.h"
 #include "os/common/generic_surface.h"
 #include "os/common/sprite_sheet_font.h"
+#include "os/skia/skia_color_space.h"
 
 #include "SkBitmap.h"
 #include "SkCanvas.h"
@@ -55,12 +57,14 @@ inline SkIRect to_skia(const gfx::Rect& rc) {
 class SkiaSurface : public Surface {
 public:
   SkiaSurface() : m_surface(nullptr)
+                , m_colorSpace(nullptr)
                 , m_canvas(nullptr)
                 , m_lock(0) {
   }
 
   SkiaSurface(const sk_sp<SkSurface>& surface)
     : m_surface(surface)
+    , m_colorSpace(nullptr)
     , m_canvas(nullptr)
     , m_lock(0)
   {
@@ -75,23 +79,28 @@ public:
       delete m_canvas;
   }
 
-  void create(int width, int height) {
+  void create(int width, int height,
+              const os::ColorSpacePtr& colorSpace) {
     ASSERT(!m_surface);
 
+    m_colorSpace = colorSpace;
+
     if (!m_bitmap.tryAllocPixels(
-          SkImageInfo::MakeN32(width, height, kOpaque_SkAlphaType,
-                               colorSpace())))
+          SkImageInfo::MakeN32(width, height, kOpaque_SkAlphaType, skColorSpace())))
       throw base::Exception("Cannot create Skia surface");
 
     m_bitmap.eraseColor(SK_ColorTRANSPARENT);
     rebuild();
   }
 
-  void createRgba(int width, int height) {
+  void createRgba(int width, int height,
+                  const os::ColorSpacePtr& colorSpace) {
     ASSERT(!m_surface);
 
+    m_colorSpace = colorSpace;
+
     if (!m_bitmap.tryAllocPixels(
-          SkImageInfo::MakeN32Premul(width, height, colorSpace())))
+          SkImageInfo::MakeN32Premul(width, height, skColorSpace())))
       throw base::Exception("Cannot create Skia surface");
 
     m_bitmap.eraseColor(SK_ColorTRANSPARENT);
@@ -121,6 +130,10 @@ public:
       return m_surface->height();
     else
       return m_bitmap.height();
+  }
+
+  const ColorSpacePtr& colorSpace() const override {
+    return m_colorSpace;
   }
 
   bool isDirectToScreen() const override {
@@ -169,7 +182,7 @@ public:
         {
           SkBitmap bitmap;
           if (!bitmap.tryAllocPixels(
-                SkImageInfo::MakeN32(8, 8, kOpaque_SkAlphaType, colorSpace()))) {
+                SkImageInfo::MakeN32(8, 8, kOpaque_SkAlphaType, skColorSpace()))) {
             throw base::Exception("Cannot create temporary Skia surface");
           }
 
@@ -307,7 +320,7 @@ public:
     SkColor c = 0;
 
     if (m_surface) {
-      SkImageInfo dstInfo = SkImageInfo::MakeN32Premul(1, 1, colorSpace());
+      SkImageInfo dstInfo = SkImageInfo::MakeN32Premul(1, 1, skColorSpace());
       uint32_t dstPixels;
       if (m_canvas->readPixels(dstInfo, &dstPixels, 4, x, y))
         c = dstPixels;
@@ -547,14 +560,19 @@ private:
     m_canvas = new SkCanvas(m_bitmap);
   }
 
-  static sk_sp<SkColorSpace> colorSpace();
+  sk_sp<SkColorSpace> skColorSpace() const {
+    if (m_colorSpace)
+      return static_cast<SkiaColorSpace*>(m_colorSpace.get())->skColorSpace();
+    else
+      return nullptr;
+  }
 
   SkBitmap m_bitmap;
   sk_sp<SkSurface> m_surface;
+  ColorSpacePtr m_colorSpace;
   SkCanvas* m_canvas;
   SkPaint m_paint;
   int m_lock;
-  static sk_sp<SkColorSpace> m_colorSpace;
 
 };
 

@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (c) 2018  Igara Studio S.A.
 // Copyright (C) 2016-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -20,8 +21,6 @@
 
 namespace os {
 
-sk_sp<SkColorSpace> SkiaSurface::m_colorSpace;
-
 // static
 Surface* SkiaSurface::loadSurface(const char* filename)
 {
@@ -37,8 +36,7 @@ Surface* SkiaSurface::loadSurface(const char* filename)
 
   SkImageInfo info = codec->getInfo()
     .makeColorType(kN32_SkColorType)
-    .makeAlphaType(kPremul_SkAlphaType)
-    .makeColorSpace(colorSpace());
+    .makeAlphaType(kPremul_SkAlphaType);
   SkBitmap bm;
   if (!bm.tryAllocPixels(info))
     return nullptr;
@@ -50,16 +48,6 @@ Surface* SkiaSurface::loadSurface(const char* filename)
   SkiaSurface* sur = new SkiaSurface();
   sur->swapBitmap(bm);
   return sur;
-}
-
-// static
-sk_sp<SkColorSpace> SkiaSurface::colorSpace()
-{
-#if 0 // TODO Add support to different color spaces
-  if (!m_colorSpace)
-    m_colorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
-#endif
-  return m_colorSpace;
 }
 
 } // namespace os

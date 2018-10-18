@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2018  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -11,12 +12,14 @@
 #include "base/string.h"
 #include "gfx/color.h"
 #include "gfx/fwd.h"
+#include "os/color_space.h"
 #include "os/surface_format.h"
 
 #include <string>
 
 namespace os {
 
+  class ColorSpace;
   class SurfaceLock;
 
   enum class DrawMode {
@@ -31,6 +34,7 @@ namespace os {
     virtual void dispose() = 0;
     virtual int width() const = 0;
     virtual int height() const = 0;
+    virtual const ColorSpacePtr& colorSpace() const = 0;
     virtual bool isDirectToScreen() const = 0;
 
     virtual int getSaveCount() const = 0;

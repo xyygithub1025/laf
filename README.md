@@ -29,3 +29,5 @@ Some functions in LAF depends on third party libraries:
 * Tests use the [Google Test](https://github.com/aseprite/googletest/tree/master/googletest)
   framework by Google Inc. licensed under
   [a BSD-like license](https://github.com/aseprite/googletest/blob/master/googletest/LICENSE).
+* Color spaces and the laf::os library use code from the [Skia library](https://skia.org)
+  by Google Inc. licensed under [a BSD-like license](https://github.com/aseprite/skia/blob/master/LICENSE).
