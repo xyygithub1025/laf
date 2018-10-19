@@ -51,7 +51,7 @@ namespace gfx {
     ColorSpace(const Type type,
                const Flag flags = NoFlags,
                const float gamma = 1.0,
-               std::vector<uint8_t>&& data = std::vector<uint8_t>());
+               std::vector<uint8_t>&& rawData = std::vector<uint8_t>());
 
     static ColorSpacePtr MakeNone();   // Use display color space
     static ColorSpacePtr MakeSRGB();
@@ -65,6 +65,7 @@ namespace gfx {
     static ColorSpacePtr MakeICC(std::vector<uint8_t>&& data);
 
     Type type() const { return m_type; }
+    Flag flags() const { return m_flags; }
 
     const std::string& name() const { return m_name; }
     void setName(const std::string& name) { m_name = name; }
@@ -110,6 +111,9 @@ namespace gfx {
     bool operator==(const ColorSpace& that) const = delete;
     bool operator!=(const ColorSpace& that) const = delete;
     bool nearlyEqual(const ColorSpace& that) const;
+
+    // This data can be used
+    const std::vector<uint8_t>& rawData() const { return m_data; }
 
   private:
     bool has(const Flag flag) const { return (m_flags & int(flag)) == int(flag); }
