@@ -130,6 +130,9 @@ SkiaColorSpace::SkiaColorSpace(const gfx::ColorSpacePtr& gfxcs)
         m_gfxcs->setName(desc);
     }
   }
+
+  if (m_gfxcs->name().empty())
+    m_gfxcs->setName("Custom Profile");
 }
 
 SkiaColorSpaceConversion::SkiaColorSpaceConversion(
