@@ -113,7 +113,7 @@ static bool nearly_equal(float x, float y) {
   // different encodings of what is clearly the same colorspace.  Some
   // experimentation with example files lead to this number:
   static constexpr float kTolerance = 1.0f / (1 << 11);
-  return std::fabsf(x - y) <= kTolerance;
+  return fabsf(x - y) <= kTolerance;
 }
 
 static bool nearly_equal(const ColorSpaceTransferFn& u,
