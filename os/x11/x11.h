@@ -9,6 +9,7 @@
 #pragma once
 
 #include "base/debug.h"
+#include "gfx/color_space.h"    // Include here avoid error with None
 
 #include <X11/Xlib.h>
 

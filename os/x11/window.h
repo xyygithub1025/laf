@@ -9,6 +9,7 @@
 #pragma once
 
 #include "base/time.h"
+#include "gfx/color_space.h"    // Include here avoid error with None
 #include "gfx/fwd.h"
 #include "gfx/size.h"
 #include "os/event.h"

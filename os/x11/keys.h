@@ -8,6 +8,7 @@
 #define OS_X11_KEYS_INCLUDED
 #pragma once
 
+#include "gfx/color_space.h"    // Include here avoid error with None
 #include "os/keys.h"
 #include <X11/X.h>
 
