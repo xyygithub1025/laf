@@ -8,7 +8,9 @@
 #include "config.h"
 #endif
 
+#include "gfx/color_space.h"
 #include "os/color_space.h"
+#include "os/system.h"
 
 #include <windows.h>
 
@@ -17,7 +19,7 @@ namespace os {
 os::ColorSpacePtr main_screen_color_space()
 {
   // TODO
-  return os::instance()->createColorSpace(gfx::ColorSpace::sRGB);
+  return os::instance()->createColorSpace(gfx::ColorSpace::MakeSRGB());
 }
 
 void list_screen_color_spaces(std::vector<os::ColorSpacePtr>& list)
