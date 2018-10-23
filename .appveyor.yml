@@ -22,6 +22,8 @@ cache: C:\tools\vcpkg\installed\
 install:
   - call "%VCVARS_FILE%" %VCVARS_ARG%
   - cd C:/tools/vcpkg
+  - git config user.email "you@example.com"
+  - git config user.name "Your Name"
   - git remote add aseprite https://github.com/aseprite/vcpkg.git
   - git pull aseprite aseprite
   - vcpkg install pixman freetype harfbuzz
