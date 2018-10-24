@@ -145,7 +145,7 @@ SkiaColorSpaceConversion::SkiaColorSpaceConversion(
   ASSERT(dstColorSpace);
 }
 
-bool SkiaColorSpaceConversion::convert(uint32_t* dst, const uint32_t* src, int n)
+bool SkiaColorSpaceConversion::convertRgba(uint32_t* dst, const uint32_t* src, int n)
 {
   auto dstInfo = SkImageInfo::Make(n, 1, kRGBA_8888_SkColorType, kUnpremul_SkAlphaType,
                                    static_cast<const SkiaColorSpace*>(m_dstCS.get())->skColorSpace());
@@ -153,6 +153,17 @@ bool SkiaColorSpaceConversion::convert(uint32_t* dst, const uint32_t* src, int n
                                    static_cast<const SkiaColorSpace*>(m_srcCS.get())->skColorSpace());
   SkConvertPixels(dstInfo, dst, 4*n,
                   srcInfo, src, 4*n);
+  return true;
+}
+
+bool SkiaColorSpaceConversion::convertGray(uint8_t* dst, const uint8_t* src, int n)
+{
+  auto dstInfo = SkImageInfo::Make(n, 1, kGray_8_SkColorType, kOpaque_SkAlphaType,
+                                   static_cast<const SkiaColorSpace*>(m_dstCS.get())->skColorSpace());
+  auto srcInfo = SkImageInfo::Make(n, 1, kGray_8_SkColorType, kOpaque_SkAlphaType,
+                                   static_cast<const SkiaColorSpace*>(m_srcCS.get())->skColorSpace());
+  SkConvertPixels(dstInfo, dst, n,
+                  srcInfo, src, n);
   return true;
 }
 

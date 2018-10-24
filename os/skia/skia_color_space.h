@@ -34,7 +34,8 @@ public:
   SkiaColorSpaceConversion(const os::ColorSpacePtr& srcColorSpace,
                            const os::ColorSpacePtr& dstColorSpace);
 
-  bool convert(uint32_t* dst, const uint32_t* src, int n) override;
+  bool convertRgba(uint32_t* dst, const uint32_t* src, int n) override;
+  bool convertGray(uint8_t* dst, const uint8_t* src, int n) override;
 
 private:
   os::ColorSpacePtr m_srcCS;

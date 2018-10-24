@@ -27,7 +27,9 @@ namespace os {
   public:
     virtual ~ColorSpaceConversion() { }
     // Transform RGBA pixels between two color spaces.
-    virtual bool convert(uint32_t* dst, const uint32_t* src, int n) = 0;
+    virtual bool convertRgba(uint32_t* dst, const uint32_t* src, int n) = 0;
+    // Transform grayscale pixels (without alpha) between two color spaces.
+    virtual bool convertGray(uint8_t* dst, const uint8_t* src, int n) = 0;
   };
 
 } // namespace os
