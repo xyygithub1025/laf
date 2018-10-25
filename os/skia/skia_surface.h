@@ -336,8 +336,13 @@ public:
   }
 
   void putPixel(gfx::Color color, int x, int y) override {
-    m_paint.setColor(to_skia(color));
-    m_canvas->drawPoint(SkIntToScalar(x), SkIntToScalar(y), m_paint);
+    if (m_surface) {
+      m_paint.setColor(to_skia(color));
+      m_canvas->drawPoint(SkIntToScalar(x), SkIntToScalar(y), m_paint);
+    }
+    else {
+      m_bitmap.erase(to_skia(color), SkIRect::MakeXYWH(x, y, 1, 1));
+    }
   }
 
   void drawHLine(gfx::Color color, int x, int y, int w) override {
