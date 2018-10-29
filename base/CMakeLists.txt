@@ -35,6 +35,7 @@ set(BASE_SOURCES
   dll.cpp
   errno_string.cpp
   exception.cpp
+  file_content.cpp
   file_handle.cpp
   fs.cpp
   launcher.cpp
