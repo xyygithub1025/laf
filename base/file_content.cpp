@@ -14,6 +14,7 @@
 
 #include <algorithm>
 #include <cstdio>
+#include <stdexcept>
 
 namespace base {
 
