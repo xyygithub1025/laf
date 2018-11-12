@@ -127,6 +127,12 @@ using namespace os;
       [NSArray arrayWithObjects:
         NSFilenamesPboardType,
         nil]];
+
+    // Create a CALayer for backing content with async drawing. This
+    // fixes performance issues on Retina displays with wide color
+    // spaces (like Display P3).
+    self.wantsLayer = true;
+    self.layer.drawsAsynchronously = true;
   }
   return self;
 }
