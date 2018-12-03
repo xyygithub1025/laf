@@ -25,7 +25,7 @@ os::ColorSpacePtr convert_nscolorspace_to_os_colorspace(NSColorSpace* nsColorSpa
                                             CFDataGetLength(icc));
 
       gfxCS->setName(
-        std::string("Display ICC Profile: ") +
+        std::string("Display Profile: ") +
         [[nsColorSpace localizedName] UTF8String]);
 
       osCS = os::instance()->createColorSpace(gfxCS);
