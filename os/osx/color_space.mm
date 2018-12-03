@@ -35,7 +35,7 @@ os::ColorSpacePtr convert_nscolorspace_to_os_colorspace(NSColorSpace* nsColorSpa
   return osCS;
 }
 
-void list_osx_displays_color_spaces(std::vector<os::ColorSpacePtr>& list)
+void list_display_colorspaces(std::vector<os::ColorSpacePtr>& list)
 {
   // One color profile for each screen
   for (NSScreen* screen in [NSScreen screens]) {

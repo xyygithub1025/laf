@@ -25,6 +25,7 @@
 #include "gfx/size.h"
 #include "os/event.h"
 #include "os/native_cursor.h"
+#include "os/win/color_space.h"
 #include "os/win/keys.h"
 #include "os/win/system.h"
 #include "os/win/window_dde.h"
@@ -205,36 +206,12 @@ os::ColorSpacePtr WinWindow::colorSpace()
 {
   if (m_hwnd) {
     HMONITOR monitor = MonitorFromWindow(m_hwnd, MONITOR_DEFAULTTONEAREST);
-    MONITORINFOEX mi;
-    ZeroMemory(&mi, sizeof(MONITORINFOEX));
-    mi.cbSize = sizeof(MONITORINFOEX);
-    GetMonitorInfo(monitor, &mi);
-    HDC hdc = CreateDC(mi.szDevice, nullptr, nullptr, nullptr);
-    if (hdc) {
-      std::string iccFilename;
-      {
-        DWORD length = MAX_PATH;
-        std::vector<TCHAR> str(length+1);
-        if (GetICMProfile(hdc, &length, &str[0]))
-          iccFilename = base::to_utf8(&str[0]);
-        DeleteDC(hdc);
-      }
-      if (m_lastICCProfile != iccFilename) {
-        m_lastICCProfile = iccFilename;
-        if (!iccFilename.empty()) {
-          auto buf = base::read_file_content(iccFilename);
-          m_lastColorProfile = os::instance()->createColorSpace(gfx::ColorSpace::MakeICC(std::move(buf)));
-          if (m_lastColorProfile &&
-              m_lastColorProfile->gfxColorSpace()->name() == "Custom Profile") {
-            m_lastColorProfile->gfxColorSpace()
-              ->setName("Display Profile: " +
-                        base::get_file_title(iccFilename));
-          }
-        }
-      }
+    std::string iccFilename = get_hmonitor_icc_filename(monitor);
+    if (m_lastICCProfile != iccFilename) {
+      m_lastICCProfile = iccFilename;
+      if (!iccFilename.empty())
+        m_lastColorProfile = get_colorspace_from_icc_file(iccFilename);
     }
-    else
-      m_lastColorProfile = nullptr;
   }
   // sRGB by default
   if (!m_lastColorProfile)

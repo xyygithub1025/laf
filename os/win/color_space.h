@@ -4,8 +4,8 @@
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
 
-#ifndef OS_OSX_COLOR_SPACE_H_INCLUDED
-#define OS_OSX_COLOR_SPACE_H_INCLUDED
+#ifndef OS_WIN_COLOR_SPACE_H_INCLUDED
+#define OS_WIN_COLOR_SPACE_H_INCLUDED
 #pragma once
 
 #include "os/color_space.h"
@@ -18,10 +18,9 @@
 
 namespace os {
 
-#ifdef __OBJC__
-os::ColorSpacePtr convert_nscolorspace_to_os_colorspace(NSColorSpace* nsColorSpace);
-#endif
-
+std::string get_hmonitor_icc_filename(HMONITOR monitor);
+os::ColorSpacePtr get_colorspace_from_icc_file(const std::string& iccFilename);
+os::ColorSpacePtr get_hmonitor_colorspace(HMONITOR monitor);
 void list_display_colorspaces(std::vector<os::ColorSpacePtr>& list);
 
 } // namespace os

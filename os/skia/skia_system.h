@@ -18,6 +18,7 @@
 #include "os/skia/skia_surface.h"
 
 #ifdef _WIN32
+  #include "os/win/color_space.h"
   #include "os/win/system.h"
   #define SkiaSystemBase WindowSystem
 #elif __APPLE__
@@ -122,8 +123,8 @@ public:
     list.push_back(createColorSpace(gfx::ColorSpace::MakeNone()));
     list.push_back(createColorSpace(gfx::ColorSpace::MakeSRGB()));
 
-#if __APPLE__
-    list_osx_displays_color_spaces(list);
+#if defined(_WIN32) || defined(__APPLE__)
+    list_display_colorspaces(list);
 #endif
   }
 
