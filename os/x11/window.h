@@ -73,6 +73,7 @@ protected:
   virtual void onResize(const gfx::Size& sz) = 0;
 
 private:
+  void setWMClass(const std::string& res_class);
   bool setX11Cursor(::Cursor xcursor);
   static void addWindow(X11Window* window);
   static void removeWindow(X11Window* window);

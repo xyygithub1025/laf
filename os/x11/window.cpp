@@ -29,6 +29,10 @@
 
 #define LAF_X11_DOUBLE_CLICK_TIMEOUT 250
 
+// TODO the window name should be customized from the CMakeLists.txt
+//      properties (see OS_WND_CLASS_NAME too)
+#define LAF_X11_WM_CLASS "Aseprite"
+
 namespace os {
 
 namespace {
@@ -170,6 +174,8 @@ X11Window::X11Window(::Display* display, int width, int height, int scale)
     CopyFromParent,
     CWEventMask,
     &swa);
+
+  setWMClass(LAF_X11_WM_CLASS);
 
   XMapWindow(m_display, m_window);
   XSetWMProtocols(m_display, m_window, &wmDeleteMessage, 1);
@@ -450,6 +456,15 @@ bool X11Window::setNativeMouseCursor(const os::Surface* surface,
   }
 
   return setX11Cursor(xcursor);
+}
+
+void X11Window::setWMClass(const std::string& res_class)
+{
+  std::string res_name = base::string_to_lower(res_class);
+  XClassHint ch;
+  ch.res_name = (char*)res_name.c_str();
+  ch.res_class = (char*)res_class.c_str();
+  XSetClassHint(m_display, m_window, &ch);
 }
 
 bool X11Window::setX11Cursor(::Cursor xcursor)

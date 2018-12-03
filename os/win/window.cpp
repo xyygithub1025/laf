@@ -30,6 +30,8 @@
 #include "os/win/system.h"
 #include "os/win/window_dde.h"
 
+// TODO the window name should be customized from the CMakeLists.txt
+//      properties (see LAF_X11_WM_CLASS too)
 #define OS_WND_CLASS_NAME L"Aseprite.Window"
 
 #define KEY_TRACE(...)
