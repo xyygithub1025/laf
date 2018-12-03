@@ -541,8 +541,6 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
         // Attach Wacom context
         m_hpenctx = system()->penApi().open(m_hwnd);
       }
-
-      checkColorSpaceChange();
       break;
 
     case WM_DESTROY:
@@ -553,6 +551,11 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
         system()->penApi().close(m_hpenctx);
         m_hpenctx = nullptr;
       }
+      break;
+
+    case WM_SHOWWINDOW:
+      if (wparam)
+        checkColorSpaceChange();
       break;
 
     case WM_SETCURSOR:
