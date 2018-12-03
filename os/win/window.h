@@ -74,12 +74,14 @@ namespace os {
     void sendDelayedTouchEvents();
     void clearDelayedTouchEvents();
     void killTouchTimer();
+    void checkColorSpaceChange();
 
     virtual void onQueueEvent(Event& ev) { }
     virtual void onResize(const gfx::Size& sz) { }
     virtual void onStartResizing() { }
     virtual void onEndResizing() { }
     virtual void onPaint(HDC hdc) { }
+    virtual void onChangeColorSpace() { }
 
     static void registerClass();
     static HWND createHwnd(WinWindow* self, int width, int height);
@@ -101,6 +103,10 @@ namespace os {
     bool m_hasMouse;
     bool m_captureMouse;
     bool m_customHcursor;
+
+    // To change the color profile
+    std::string m_lastICCProfile;
+    os::ColorSpacePtr m_lastColorProfile;
 
     // Windows 8 pointer API
     bool m_usePointerApi;

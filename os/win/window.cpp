@@ -18,7 +18,10 @@
 
 #include "base/base.h"
 #include "base/debug.h"
+#include "base/file_content.h"
+#include "base/fs.h"
 #include "base/log.h"
+#include "base/string.h"
 #include "gfx/size.h"
 #include "os/event.h"
 #include "os/native_cursor.h"
@@ -200,8 +203,43 @@ void WinWindow::queueEvent(Event& ev)
 
 os::ColorSpacePtr WinWindow::colorSpace()
 {
-  // TODO get the window color space
-  return os::instance()->createColorSpace(gfx::ColorSpace::MakeSRGB());
+  if (m_hwnd) {
+    HMONITOR monitor = MonitorFromWindow(m_hwnd, MONITOR_DEFAULTTONEAREST);
+    MONITORINFOEX mi;
+    ZeroMemory(&mi, sizeof(MONITORINFOEX));
+    mi.cbSize = sizeof(MONITORINFOEX);
+    GetMonitorInfo(monitor, &mi);
+    HDC hdc = CreateDC(mi.szDevice, nullptr, nullptr, nullptr);
+    if (hdc) {
+      std::string iccFilename;
+      {
+        DWORD length = MAX_PATH;
+        std::vector<TCHAR> str(length+1);
+        if (GetICMProfile(hdc, &length, &str[0]))
+          iccFilename = base::to_utf8(&str[0]);
+        DeleteDC(hdc);
+      }
+      if (m_lastICCProfile != iccFilename) {
+        m_lastICCProfile = iccFilename;
+        if (!iccFilename.empty()) {
+          auto buf = base::read_file_content(iccFilename);
+          m_lastColorProfile = os::instance()->createColorSpace(gfx::ColorSpace::MakeICC(std::move(buf)));
+          if (m_lastColorProfile &&
+              m_lastColorProfile->gfxColorSpace()->name() == "Custom Profile") {
+            m_lastColorProfile->gfxColorSpace()
+              ->setName("Display Profile: " +
+                        base::get_file_title(iccFilename));
+          }
+        }
+      }
+    }
+    else
+      m_lastColorProfile = nullptr;
+  }
+  // sRGB by default
+  if (!m_lastColorProfile)
+    m_lastColorProfile = os::instance()->createColorSpace(gfx::ColorSpace::MakeSRGB());
+  return m_lastColorProfile;
 }
 
 void WinWindow::setScale(int scale)
@@ -526,6 +564,8 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
         // Attach Wacom context
         m_hpenctx = system()->penApi().open(m_hwnd);
       }
+
+      checkColorSpaceChange();
       break;
 
     case WM_DESTROY:
@@ -553,6 +593,13 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
       // Don't close the window, it must be closed manually after
       // the CloseDisplay event is processed.
       return 0;
+    }
+
+    case WM_ACTIVATE: {
+      if (wparam == WA_ACTIVE ||
+          wparam == WA_CLICKACTIVE)
+        checkColorSpaceChange();
+      break;
     }
 
     case WM_PAINT:
@@ -593,6 +640,7 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
       break;
 
     case WM_EXITSIZEMOVE:
+      checkColorSpaceChange();
       onEndResizing();
       break;
 
@@ -1548,6 +1596,14 @@ void WinWindow::killTouchTimer()
     m_touch->timerID = 0;
     TOUCH_TRACE(" - Kill timer\n");
   }
+}
+
+void WinWindow::checkColorSpaceChange()
+{
+  os::ColorSpacePtr oldColorSpace = m_lastColorProfile;
+  os::ColorSpacePtr newColorSpace = colorSpace();
+  if (oldColorSpace != newColorSpace)
+    onChangeColorSpace();
 }
 
 //static

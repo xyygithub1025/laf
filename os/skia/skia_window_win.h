@@ -36,6 +36,7 @@ private:
   void onPaint(HDC hdc) override;
   void onResize(const gfx::Size& sz) override;
   void onEndResizing() override;
+  void onChangeColorSpace() override;
   void paintHDC(HDC dc);
 
 #if SK_SUPPORT_GPU
