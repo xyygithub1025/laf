@@ -68,6 +68,7 @@ public:
   void setTranslateDeadKeys(bool state);
 
   os::ColorSpacePtr colorSpace() const override { return m_colorSpace; }
+  void setColorSpace(const os::ColorSpacePtr& colorSpace);
 
   // Returns the HWND on Windows.
   DisplayHandle nativeHandle() override;

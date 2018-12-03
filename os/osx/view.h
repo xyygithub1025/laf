@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2018  Igara Studio S.A.
 // Copyright (C) 2015-2016  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -21,6 +22,7 @@
 }
 - (id)initWithFrame:(NSRect)frameRect;
 - (BOOL)acceptsFirstResponder;
+- (void)viewDidChangeBackingProperties;
 - (void)viewDidHide;
 - (void)viewDidUnhide;
 - (void)viewDidMoveToWindow;

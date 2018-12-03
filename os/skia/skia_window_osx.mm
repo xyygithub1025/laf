@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2018  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -16,6 +17,8 @@
 #include "gfx/size.h"
 #include "os/event.h"
 #include "os/event_queue.h"
+#include "os/osx/color_space.h"
+#include "os/osx/event_queue.h"
 #include "os/osx/view.h"
 #include "os/osx/window.h"
 #include "os/skia/resize_surface.h"
@@ -71,6 +74,11 @@ public:
 
   gfx::Size restoredSize() const {
     return [m_window restoredSize];
+  }
+
+  os::ColorSpacePtr colorSpace() {
+    ASSERT(m_window);
+    return convert_nscolorspace_to_os_colorspace([m_window colorSpace]);
   }
 
   int scale() const {
@@ -209,6 +217,20 @@ public:
     ev.setType(Event::ResizeDisplay);
     ev.setDisplay(m_display);
     os::queue_event(ev);
+  }
+
+  void onChangeBackingProperties() override {
+    if (m_window) {
+      m_display->setColorSpace(colorSpace());
+
+      // Generate the resizing display event to redraw everything.
+      // TODO we could create a new event like Event::ColorSpaceChange,
+      // but the result would be the same, the display must be re-painted.
+      Event ev;
+      ev.setType(Event::ResizeDisplay);
+      ev.setDisplay(m_display);
+      os::queue_event(ev);
+    }
   }
 
 private:
@@ -383,10 +405,10 @@ private:
     }
   }
 
-  SkiaDisplay* m_display;
+  SkiaDisplay* m_display = nullptr;
   Backend m_backend;
   bool m_closing;
-  OSXWindow* m_window;
+  OSXWindow* m_window = nullptr;
   ResizeSurface m_resizeSurface;     // Surface used for live resizing.
 
 #if SK_SUPPORT_GPU
@@ -416,6 +438,14 @@ void SkiaWindow::destroyImpl()
 {
   delete m_impl;
   m_impl = nullptr;
+}
+
+ColorSpacePtr SkiaWindow::colorSpace()
+{
+  if (m_impl)
+    return m_impl->colorSpace();
+  else
+    return nullptr;
 }
 
 int SkiaWindow::scale() const

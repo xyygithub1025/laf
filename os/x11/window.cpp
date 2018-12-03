@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2018  Igara Studio S.A.
 // Copyright (C) 2017-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -15,6 +16,7 @@
 #include "gfx/rect.h"
 #include "os/event.h"
 #include "os/surface.h"
+#include "os/system.h"
 #include "os/x11/keys.h"
 #include "os/x11/x11.h"
 
@@ -200,6 +202,12 @@ X11Window::~X11Window()
 void X11Window::queueEvent(Event& ev)
 {
   onQueueEvent(ev);
+}
+
+os::ColorSpacePtr X11Window::colorSpace()
+{
+  // TODO get the window color space
+  return os::instance()->createColorSpace(gfx::ColorSpace::MakeSRGB());
 }
 
 void X11Window::setScale(const int scale)

@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2018  Igara Studio S.A.
 // Copyright (C) 2015-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -140,6 +141,16 @@ using namespace os;
 - (BOOL)acceptsFirstResponder
 {
   return YES;
+}
+
+- (void)viewDidChangeBackingProperties
+{
+  [super viewDidChangeBackingProperties];
+  if ([self window]) {
+    OSXWindowImpl* impl = [((OSXWindow*)[self window]) impl];
+    if (impl)
+      impl->onChangeBackingProperties();
+  }
 }
 
 - (void)viewDidHide

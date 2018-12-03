@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2018  Igara Studio S.A.
 // Copyright (C) 2012-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -29,6 +30,11 @@ public:
   virtual void onWindowChanged() = 0;
   virtual void onStartResizing() = 0;
   virtual void onEndResizing() = 0;
+
+  // This generally happens when the window is moved to another
+  // monitor with different scale (e.g. Retina vs non-Retina display),
+  // or when the color space changes.
+  virtual void onChangeBackingProperties() = 0;
 };
 
 @class OSXWindowDelegate;

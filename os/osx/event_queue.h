@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2018  Igara Studio S.A.
 // Copyright (C) 2015-2016  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -20,7 +21,10 @@ public:
   void queueEvent(const Event& ev) override;
 
 private:
+  void wakeUpQueue();
+
   base::concurrent_queue<Event> m_events;
+  bool m_sleeping = false;
 };
 
 typedef OSXEventQueue EventQueueImpl;

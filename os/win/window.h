@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2018  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -10,6 +11,7 @@
 
 #include "base/time.h"
 #include "gfx/size.h"
+#include "os/color_space.h"
 #include "os/event.h"
 #include "os/native_cursor.h"
 #include "os/pointer_type.h"
@@ -31,6 +33,7 @@ namespace os {
     ~WinWindow();
 
     void queueEvent(Event& ev);
+    os::ColorSpacePtr colorSpace();
     int scale() const { return m_scale; }
     void setScale(int scale);
     void setVisible(bool visible);

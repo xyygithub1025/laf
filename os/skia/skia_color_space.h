@@ -42,9 +42,6 @@ private:
   os::ColorSpacePtr m_dstCS;
 };
 
-os::ColorSpacePtr main_screen_color_space();
-void list_screen_color_spaces(std::vector<os::ColorSpacePtr>& list);
-
 } // namespace os
 
 #endif

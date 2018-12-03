@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2018  Igara Studio S.A.
 // Copyright (C) 2016-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -12,6 +13,7 @@
 #include "gfx/color_space.h"    // Include here avoid error with None
 #include "gfx/fwd.h"
 #include "gfx/size.h"
+#include "os/color_space.h"
 #include "os/event.h"
 #include "os/native_cursor.h"
 #include "os/surface_list.h"
@@ -34,6 +36,8 @@ public:
   ~X11Window();
 
   void queueEvent(Event& ev);
+
+  os::ColorSpacePtr colorSpace();
 
   int scale() const { return m_scale; }
   void setScale(const int scale);

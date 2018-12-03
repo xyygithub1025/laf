@@ -8,17 +8,16 @@
 #include "config.h"
 #endif
 
-#include "os/color_space.h"
-#include "os/system.h"
+#include "os/osx/color_space.h"
 
-#include <Cocoa/Cocoa.h>
+#include "os/system.h"
 
 namespace os {
 
-static os::ColorSpacePtr screen_color_space(NSScreen* screen)
+os::ColorSpacePtr convert_nscolorspace_to_os_colorspace(NSColorSpace* nsColorSpace)
 {
   os::ColorSpacePtr osCS;
-  CGColorSpaceRef cgCS = [[screen colorSpace] CGColorSpace];
+  CGColorSpaceRef cgCS = [nsColorSpace CGColorSpace];
   if (cgCS) {
     CFDataRef icc = CGColorSpaceCopyICCProfile(cgCS);
     if (icc) {
@@ -27,7 +26,7 @@ static os::ColorSpacePtr screen_color_space(NSScreen* screen)
 
       gfxCS->setName(
         std::string("Display ICC Profile: ") +
-        screen.colorSpace.localizedName.UTF8String);
+        [[nsColorSpace localizedName] UTF8String]);
 
       osCS = os::instance()->createColorSpace(gfxCS);
       CFRelease(icc);
@@ -36,16 +35,12 @@ static os::ColorSpacePtr screen_color_space(NSScreen* screen)
   return osCS;
 }
 
-os::ColorSpacePtr main_screen_color_space()
-{
-  return screen_color_space([NSScreen mainScreen]);
-}
-
-void list_screen_color_spaces(std::vector<os::ColorSpacePtr>& list)
+void list_osx_displays_color_spaces(std::vector<os::ColorSpacePtr>& list)
 {
   // One color profile for each screen
   for (NSScreen* screen in [NSScreen screens]) {
-    os::ColorSpacePtr osCS = screen_color_space(screen);
+    os::ColorSpacePtr osCS =
+      convert_nscolorspace_to_os_colorspace([screen colorSpace]);
     if (osCS)
       list.push_back(osCS);
   }

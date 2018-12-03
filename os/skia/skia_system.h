@@ -21,6 +21,7 @@
   #include "os/win/system.h"
   #define SkiaSystemBase WindowSystem
 #elif __APPLE__
+  #include "os/osx/color_space.h"
   #include "os/osx/system.h"
   #define SkiaSystemBase OSXSystem
 #else
@@ -31,8 +32,6 @@
 #include "SkGraphics.h"
 
 namespace os {
-
-void list_screen_color_spaces(std::vector<os::ColorSpacePtr>& list);
 
 class SkiaSystem : public SkiaSystemBase {
 public:
@@ -122,7 +121,10 @@ public:
   void listColorSpaces(std::vector<os::ColorSpacePtr>& list) override {
     list.push_back(createColorSpace(gfx::ColorSpace::MakeNone()));
     list.push_back(createColorSpace(gfx::ColorSpace::MakeSRGB()));
-    list_screen_color_spaces(list);
+
+#if __APPLE__
+    list_osx_displays_color_spaces(list);
+#endif
   }
 
   os::ColorSpacePtr createColorSpace(const gfx::ColorSpacePtr& cs) override {

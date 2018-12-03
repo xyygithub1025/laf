@@ -27,6 +27,7 @@ elseif(APPLE)
     list(APPEND LAF_OS_SOURCES
       osx/app.mm
       osx/app_delegate.mm
+      osx/color_space.mm
       osx/event_queue.mm
       osx/keys.mm
       osx/logger.mm
@@ -108,15 +109,12 @@ if(LAF_OS_BACKEND STREQUAL "skia")
 
   if(WIN32)
     list(APPEND LAF_OS_SOURCES
-      skia/skia_color_space_win.cpp
       skia/skia_window_win.cpp)
   elseif(APPLE)
     list(APPEND LAF_OS_SOURCES
-      skia/skia_color_space_osx.mm
       skia/skia_window_osx.mm)
   else()
     list(APPEND LAF_OS_SOURCES
-      skia/skia_color_space_x11.cpp
       skia/skia_window_x11.cpp)
   endif()
 endif()

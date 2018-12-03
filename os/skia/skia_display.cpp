@@ -22,7 +22,7 @@ SkiaDisplay::SkiaDisplay(int width, int height, int scale)
   : m_initialized(false)
   , m_window(instance()->eventQueue(), this, width, height, scale)
   , m_surface(new SkiaSurface)
-  , m_colorSpace(main_screen_color_space())
+  , m_colorSpace(m_window.colorSpace())
   , m_customSurface(false)
   , m_nativeCursor(kArrowCursor)
 {
@@ -202,6 +202,14 @@ void SkiaDisplay::setInterpretOneFingerGestureAsMouseMovement(bool state)
 void SkiaDisplay::setTranslateDeadKeys(bool state)
 {
   m_window.setTranslateDeadKeys(state);
+}
+
+void SkiaDisplay::setColorSpace(const os::ColorSpacePtr& colorSpace)
+{
+  ASSERT(colorSpace);
+  m_colorSpace = colorSpace;
+  if (m_surface)
+    resetSkiaSurface();
 }
 
 DisplayHandle SkiaDisplay::nativeHandle()

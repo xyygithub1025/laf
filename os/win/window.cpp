@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2018  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -195,6 +196,12 @@ WinWindow::~WinWindow()
 void WinWindow::queueEvent(Event& ev)
 {
   onQueueEvent(ev);
+}
+
+os::ColorSpacePtr WinWindow::colorSpace()
+{
+  // TODO get the window color space
+  return os::instance()->createColorSpace(gfx::ColorSpace::MakeSRGB());
 }
 
 void WinWindow::setScale(int scale)
