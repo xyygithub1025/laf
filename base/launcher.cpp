@@ -1,5 +1,6 @@
 // LAF Base Library
-// Copyright (c) 2001-2016 David Capello
+// Copyright (c) 2018  Igara Studio S.A.
+// Copyright (c) 2001-2016  David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -82,7 +83,7 @@ bool open_file(const std::string& file)
   #if __APPLE__
     ret = std::system(("open \"" + file + "\"").c_str());
   #else
-    ret = std::system(("xdg-open \"" + file + "\"").c_str());
+    ret = std::system(("setsid xdg-open \"" + file + "\"").c_str());
   #endif
 
 #endif
@@ -123,7 +124,7 @@ bool open_folder(const std::string& _file)
     if (!base::is_directory(file))
       file = base::get_file_path(file);
 
-    int ret = std::system(("xdg-open \"" + file + "\"").c_str());
+    int ret = std::system(("setsid xdg-open \"" + file + "\"").c_str());
     return (ret == 0);
 
   #endif
