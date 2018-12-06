@@ -596,8 +596,15 @@ void X11Window::processX11Event(XEvent& event)
       Event ev;
 
       if (is_mouse_wheel_button(event.xbutton.button)) {
-        ev.setType(Event::MouseWheel);
-        ev.setWheelDelta(get_mouse_wheel_delta(event.xbutton.button));
+        if (event.type == ButtonPress) {
+          ev.setType(Event::MouseWheel);
+          ev.setWheelDelta(get_mouse_wheel_delta(event.xbutton.button));
+        }
+        else {
+          // Ignore ButtonRelese for the mouse wheel to avoid
+          // duplicating MouseWheel event effects.
+          break;
+        }
       }
       else {
         ev.setType(event.type == ButtonPress? Event::MouseDown:
