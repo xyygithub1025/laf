@@ -58,9 +58,9 @@ os::ColorSpacePtr get_hmonitor_colorspace(HMONITOR monitor)
   return osCS;
 }
 
-static BOOL list_display_colorspaces_enumproc(HMONITOR monitor,
-                                              HDC hdc, LPRECT rc,
-                                              LPARAM data)
+static BOOL CALLBACK list_display_colorspaces_enumproc(HMONITOR monitor,
+                                                       HDC hdc, LPRECT rc,
+                                                       LPARAM data)
 {
   auto list = (std::vector<os::ColorSpacePtr>*)data;
   auto osCS = get_hmonitor_colorspace(monitor);
