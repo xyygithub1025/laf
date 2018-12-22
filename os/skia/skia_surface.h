@@ -82,6 +82,8 @@ public:
   void create(int width, int height,
               const os::ColorSpacePtr& colorSpace) {
     ASSERT(!m_surface);
+    ASSERT(width > 0);
+    ASSERT(height > 0);
 
     m_colorSpace = colorSpace;
 
@@ -96,6 +98,8 @@ public:
   void createRgba(int width, int height,
                   const os::ColorSpacePtr& colorSpace) {
     ASSERT(!m_surface);
+    ASSERT(width > 0);
+    ASSERT(height > 0);
 
     m_colorSpace = colorSpace;
 
