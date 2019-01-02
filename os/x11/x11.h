@@ -23,6 +23,13 @@ public:
   X11() {
     ASSERT(m_instance == nullptr);
     m_instance = this;
+
+    // TODO We shouldn't need to call this function (because we
+    // shouldn't be using the m_display from different threads), but
+    // it might be necessary?
+    // https://github.com/aseprite/aseprite/issues/1962
+    XInitThreads();
+
     m_display = XOpenDisplay(nullptr);
     m_xim = XOpenIM(m_display, nullptr, nullptr, nullptr);
   }
