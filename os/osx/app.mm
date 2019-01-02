@@ -16,8 +16,6 @@
 #include "base/thread.h"
 #include "os/osx/app_delegate.h"
 
-extern int app_main(int argc, char* argv[]);
-
 namespace os {
 
 class OSXApp::Impl {

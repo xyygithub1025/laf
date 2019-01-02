@@ -8,10 +8,6 @@
 #define OS_OSX_APP_H_INCLUDED
 #pragma once
 
-namespace base {
-  class thread;
-}
-
 namespace os {
 
   class OSXApp {
