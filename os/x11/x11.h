@@ -37,7 +37,7 @@ public:
   ~X11() {
     ASSERT(m_instance == this);
     if (m_xim) XCloseIM(m_xim);
-    XCloseDisplay(m_display);
+    if (m_display) XCloseDisplay(m_display);
     m_instance = nullptr;
   }
 
