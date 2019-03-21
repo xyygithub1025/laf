@@ -50,6 +50,7 @@
 // This is executed in the main thread.
 - (void)runModal
 {
+  [[[NSApplication sharedApplication] mainMenu] setAutoenablesItems:NO];
   os::NativeCursor oldCursor = display->nativeMouseCursor();
   display->setNativeMouseCursor(os::kArrowCursor);
 
@@ -70,6 +71,7 @@
   display->setNativeMouseCursor(oldCursor);
   NSWindow *window = (__bridge NSWindow *)display->nativeHandle();
   [window makeKeyAndOrderFront:nil];
+  [[[NSApplication sharedApplication] mainMenu] setAutoenablesItems:YES];
 }
 
 - (int)result
