@@ -68,6 +68,8 @@
   }
 
   display->setNativeMouseCursor(oldCursor);
+  NSWindow *window = (__bridge NSWindow *)display->nativeHandle();
+  [window makeKeyAndOrderFront:nil];
 }
 
 - (int)result
