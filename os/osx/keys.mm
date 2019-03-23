@@ -386,9 +386,10 @@ KeyScancode scancode_from_nsevent(NSEvent* event)
 }
 
 // Based on code from:
-// http://stackoverflow.com/questions/22566665/how-to-capture-unicode-from-key-events-without-an-nstextview
-// http://stackoverflow.com/questions/12547007/convert-key-code-into-key-equivalent-string
-// http://stackoverflow.com/questions/8263618/convert-virtual-key-code-to-unicode-string
+// * http://stackoverflow.com/questions/22566665/how-to-capture-unicode-from-key-events-without-an-nstextview
+// * http://stackoverflow.com/questions/12547007/convert-key-code-into-key-equivalent-string
+// * http://stackoverflow.com/questions/8263618/convert-virtual-key-code-to-unicode-string
+// * MacKeycodeAndModifiersToCharacter() function from Chromium
 //
 // If "deadKeyState" is = nullptr, it doesn't process dead keys.
 CFStringRef get_unicode_from_key_code(const UInt16 keyCode,
@@ -409,13 +410,28 @@ CFStringRef get_unicode_from_key_code(const UInt16 keyCode,
   UniChar output[4];
   UniCharCount length;
 
+  // Convert NSEvent modifiers to format UCKeyTranslate accepts. See
+  // docs on UCKeyTranslate for more info.
+  int unicode_modifiers = 0;
+  if (modifierFlags & NSEventModifierFlagShift)
+    unicode_modifiers |= shiftKey;
+  if (modifierFlags & NSEventModifierFlagCapsLock)
+    unicode_modifiers |= alphaLock;
+  // if (modifierFlags & NSEventModifierFlagControl)
+  //   unicode_modifiers |= controlKey;
+  if (modifierFlags & NSEventModifierFlagOption)
+    unicode_modifiers |= optionKey;
+  // if (modifierFlags & NSEventModifierFlagCommand)
+  //   unicode_modifiers |= cmdKey;
+  UInt32 modifier_key_state = (unicode_modifiers >> 8) & 0xFF;
+
   // Reference here:
   // https://developer.apple.com/reference/coreservices/1390584-uckeytranslate?language=objc
   UCKeyTranslate(
     keyLayout,
     keyCode,
     kUCKeyActionDown,
-    ((modifierFlags >> 16) & 0xFF),
+    modifier_key_state,
     LMGetKbdType(),
     (deadKeyState ? 0: kUCKeyTranslateNoDeadKeysMask),
     &deadKeyStateWrap,
