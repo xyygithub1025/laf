@@ -1,4 +1,5 @@
 // LAF Gfx Library
+// Copyright (C) 2019  Igara Studio S.A.
 // Copyright (C) 2001-2013 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -45,6 +46,16 @@ TEST(Rect, Shrink)
   EXPECT_EQ(Rect(11, 21, 28, 38), Rect(10, 20, 30, 40).shrink(1));
   EXPECT_EQ(Rect(11, 22, 26, 34), Rect(10, 20, 30, 40).shrink(Border(1, 2, 3, 4)));
   EXPECT_EQ(Rect(11, 22, 26, 34), Rect(10, 20, 30, 40) - Border(1, 2, 3, 4));
+}
+
+TEST(Rect, FitIn)
+{
+  EXPECT_EQ(Rect(10, 10, 8, 8), Rect(0, 0, 4, 4).fitIn(Rect(10, 10, 8, 8)));
+  EXPECT_EQ(Rect(10, 10, 4, 4), Rect(0, 0, 8, 8).fitIn(Rect(10, 10, 4, 4)));
+
+  EXPECT_EQ(Rect(10, 10, 8, 4), Rect(0, 0, 16, 8).fitIn(Rect(10, 10, 8, 4)));
+  EXPECT_EQ(Rect(10, 12, 8, 4), Rect(0, 0, 16, 8).fitIn(Rect(10, 10, 8, 8)));
+  EXPECT_EQ(Rect(13, 10, 2, 4), Rect(0, 0, 8, 16).fitIn(Rect(10, 10, 8, 4)));
 }
 
 int main(int argc, char** argv)

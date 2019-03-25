@@ -1,4 +1,5 @@
 // LAF Gfx Library
+// Copyright (C) 2019  Igara Studio S.A.
 // Copyright (C) 2001-2017 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -353,6 +354,22 @@ public:
     return
       x != rc.x || w != rc.w ||
       y != rc.y || h != rc.h;
+  }
+
+  RectT& fitIn(const RectT& bounds) {
+    if (w < h) {
+      w = w * bounds.h / h;
+      x = bounds.x + bounds.w/2 - w/2;
+      y = bounds.y;
+      h = bounds.h;
+    }
+    else {
+      h = h * bounds.w / w;
+      y = bounds.y + bounds.h/2 - h/2;
+      x = bounds.x;
+      w = bounds.w;
+    }
+    return *this;
   }
 
 };
