@@ -95,6 +95,22 @@ TEST(PackingRects, KeepSameRectsOrder)
   EXPECT_EQ(Rect(0, 0, 30, 30), pr[2]);
 }
 
+TEST(PackingRects, BorderAndShapePadding)
+{
+  PackingRects pr(10, 3);
+  pr.add(Size(200, 100));
+  pr.add(Size(200, 100));
+  pr.add(Size(200, 100));
+
+  EXPECT_FALSE(pr.pack(Size(220, 325)));
+  EXPECT_FALSE(pr.pack(Size(219, 326)));
+  EXPECT_TRUE(pr.pack(Size(220, 326)));
+
+  EXPECT_EQ(Rect(10, 10, 200, 100), pr[0]);
+  EXPECT_EQ(Rect(10, 113, 200, 100), pr[1]);
+  EXPECT_EQ(Rect(10, 216, 200, 100), pr[2]);
+}
+
 #endif
 
 int main(int argc, char** argv)
