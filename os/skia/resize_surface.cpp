@@ -33,6 +33,13 @@ void ResizeSurface::create(Display* display)
   const SkiaSurface* surface =
     static_cast<SkiaSurface*>(display->getSurface());
 
+  // Sometimes on X11 when the window is just created, the display
+  // surface can have width == 0. So there is no need to create a
+  // snapshot of the recently created window in this case.
+  if (surface->width() == 0 ||
+      surface->height() == 0)
+    return;
+
   m_snapshot = new SkiaSurface;
   m_snapshot->create(surface->width(),
                      surface->height(),
