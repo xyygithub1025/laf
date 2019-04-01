@@ -17,6 +17,11 @@ namespace gfx {
   // TODO add support for rotations
   class PackingRects {
   public:
+    PackingRects(int borderPadding = 0, int shapePadding = 0) :
+      m_borderPadding(borderPadding),
+      m_shapePadding(shapePadding) {
+    }
+
     typedef std::vector<Rect> Rects;
     typedef Rects::const_iterator const_iterator;
 
@@ -44,6 +49,9 @@ namespace gfx {
     const Rect& bounds() const { return m_bounds; }
 
   private:
+    int m_borderPadding;
+    int m_shapePadding;
+
     Rect m_bounds;
     Rects m_rects;
   };

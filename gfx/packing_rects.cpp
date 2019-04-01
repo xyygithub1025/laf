@@ -64,7 +64,7 @@ static bool by_area(const Rect* a, const Rect* b) {
 
 bool PackingRects::pack(const Size& size)
 {
-  m_bounds = Rect(size);
+  m_bounds = Rect(size).shrink(m_borderPadding);
 
   // We cannot sort m_rects because we want to
   std::vector<Rect*> rectPtrs(m_rects.size());
@@ -77,13 +77,22 @@ bool PackingRects::pack(const Size& size)
   for (auto rcPtr : rectPtrs) {
     gfx::Rect& rc = *rcPtr;
 
+    // The rectangles are treated as its original size during placement,
+    // but occupies an extra border of <shapePadding> pixels once its
+    // position has been determined.
+    // This ensures that all rectangles are padded by <sp> pixels,
+    // and are still placed correctly near edges, e.g. when remaining
+    // horizontal space is between <width> and <width>+<shapePadding>.
     for (int v=0; v<=m_bounds.h-rc.h; ++v) {
       for (int u=0; u<=m_bounds.w-rc.w; ++u) {
-        gfx::Rect possible(u, v, rc.w, rc.h);
+        gfx::Rect possible(m_bounds.x + u, m_bounds.y + v, rc.w, rc.h);
         Region::Overlap overlap = rgn.contains(possible);
         if (overlap == Region::In) {
           rc = possible;
-          rgn.createSubtraction(rgn, gfx::Region(rc));
+          rgn.createSubtraction(
+            rgn,
+            gfx::Region(Rect(rc).inflate(m_shapePadding))
+          );
           goto next_rc;
         }
       }
