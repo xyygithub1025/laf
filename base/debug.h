@@ -12,33 +12,7 @@
 int base_assert(const char* condition, const char* file, int lineNum);
 void base_trace(const char* msg, ...);
 
-#undef ASSERT
-#undef TRACE
-
-#ifdef _DEBUG
-  #ifdef _WIN32
-    #include <crtdbg.h>
-    #define base_break() _CrtDbgBreak()
-  #else
-    #include <signal.h>
-    #define base_break() raise(SIGTRAP)
-  #endif
-
-  #define ASSERT(condition) {                                             \
-    if (!(condition)) {                                                   \
-      if (base_assert(#condition, __FILE__, __LINE__)) {                  \
-        base_break();                                                     \
-      }                                                                   \
-    }                                                                     \
-  }
-
-  #define TRACE base_trace
-#else
-  #define ASSERT(condition)
-  #define TRACE(...)
-#endif
-
-#if defined(__cplusplus) && defined(_DEBUG)
+#ifdef __cplusplus
   #include <sstream>
   #include <string>
 
@@ -66,9 +40,34 @@ void base_trace(const char* msg, ...);
     s.push_back('\n');
     base_trace(s.c_str());
   }
+#endif
 
+#undef ASSERT
+#undef TRACE
+#undef TRACEARGS
+
+#ifdef _DEBUG
+  #ifdef _WIN32
+    #include <crtdbg.h>
+    #define base_break() _CrtDbgBreak()
+  #else
+    #include <signal.h>
+    #define base_break() raise(SIGTRAP)
+  #endif
+
+  #define ASSERT(condition) {                                             \
+    if (!(condition)) {                                                   \
+      if (base_assert(#condition, __FILE__, __LINE__)) {                  \
+        base_break();                                                     \
+      }                                                                   \
+    }                                                                     \
+  }
+
+  #define TRACE base_trace
   #define TRACEARGS base_trace_args
 #else
+  #define ASSERT(condition)
+  #define TRACE(...)
   #define TRACEARGS(...)
 #endif
 
