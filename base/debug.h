@@ -44,7 +44,7 @@ void base_trace(const char* msg, ...);
 
   template<typename Arg>
   void base_args_to_string_step(std::stringstream& s, Arg&& arg) {
-    s << arg;
+    s << std::forward<Arg>(arg);
   }
 
   template<typename Arg, typename... Args>
