@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (c) 2018  Igara Studio S.A.
+// Copyright (c) 2018-2019  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -547,6 +547,89 @@ public:
     m_canvas->drawBitmapRect(
       ((SkiaSurface*)src)->m_bitmap,
       srcRect, dstRect, &paint);
+  }
+
+  void drawSurfaceNine(os::Surface* surface,
+                       const gfx::Rect& src,
+                       const gfx::Rect& _center,
+                       const gfx::Rect& dst,
+                       const os::Paint* paint) override {
+    gfx::Rect center(_center);
+    SkIRect srcRect = SkIRect::MakeXYWH(src.x, src.y, src.w, src.h);
+    SkRect dstRect = SkRect::Make(SkIRect::MakeXYWH(dst.x, dst.y, dst.w, dst.h));
+
+    SkPaint skPaint;
+    skPaint.setBlendMode(SkBlendMode::kSrcOver);
+    if (paint && paint->color() != gfx::ColorNone) {
+      sk_sp<SkColorFilter> colorFilter(
+        SkColorFilter::MakeModeFilter(to_skia(paint->color()),
+                                      SkBlendMode::kSrcIn));
+      skPaint.setColorFilter(colorFilter);
+    }
+
+    int xdivs[2] = { src.x+center.x, src.x+center.x2() };
+    int ydivs[2] = { src.y+center.y, src.y+center.y2() };
+    SkCanvas::Lattice::RectType rectTypes[9] =
+      { SkCanvas::Lattice::kDefault,
+        SkCanvas::Lattice::kDefault,
+        SkCanvas::Lattice::kDefault,
+        SkCanvas::Lattice::kDefault,
+        (paint && paint->hasFlags(Paint::kNineWithoutCenter) ?
+         SkCanvas::Lattice::kTransparent:
+         SkCanvas::Lattice::kDefault),
+        SkCanvas::Lattice::kDefault,
+        SkCanvas::Lattice::kDefault,
+        SkCanvas::Lattice::kDefault,
+        SkCanvas::Lattice::kDefault };
+
+    // Without left side
+    if (center.x == 0) {
+      srcRect.fLeft -= SkIntToScalar(1);
+      dstRect.fLeft -= SkIntToScalar(1);
+      rectTypes[0] =
+      rectTypes[3] =
+      rectTypes[6] = SkCanvas::Lattice::kTransparent;
+    }
+
+    // Without right side
+    if (center.x2() == src.w) {
+      srcRect.fRight += SkIntToScalar(1);
+      dstRect.fRight += SkIntToScalar(1);
+      rectTypes[2] =
+      rectTypes[5] =
+      rectTypes[8] = SkCanvas::Lattice::kTransparent;
+    }
+
+    // Without top side
+    if (center.y == 0) {
+      srcRect.fTop -= SkIntToScalar(1);
+      dstRect.fTop -= SkIntToScalar(1);
+      rectTypes[0] =
+      rectTypes[1] =
+      rectTypes[2] = SkCanvas::Lattice::kTransparent;
+    }
+
+    // Without bottom side
+    if (center.y2() == src.h) {
+      srcRect.fBottom += SkIntToScalar(1);
+      srcRect.fBottom += SkIntToScalar(1);
+      rectTypes[6] =
+      rectTypes[7] =
+      rectTypes[8] = SkCanvas::Lattice::kTransparent;
+    }
+
+    SkCanvas::Lattice lattice;
+    lattice.fXDivs = xdivs;
+    lattice.fYDivs = ydivs;
+    lattice.fRectTypes = rectTypes;
+    lattice.fXCount = 2;
+    lattice.fYCount = 2;
+    lattice.fBounds = &srcRect;
+    lattice.fColors = nullptr;
+
+    m_canvas->drawBitmapLattice(
+      ((SkiaSurface*)surface)->m_bitmap,
+      lattice, dstRect, &skPaint);
   }
 
   SkBitmap& bitmap() { return m_bitmap; }

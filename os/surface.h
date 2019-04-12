@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018  Igara Studio S.A.
+// Copyright (C) 2018-2019  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -13,6 +13,7 @@
 #include "gfx/color.h"
 #include "gfx/fwd.h"
 #include "os/color_space.h"
+#include "os/paint.h"
 #include "os/surface_format.h"
 
 #include <string>
@@ -74,6 +75,11 @@ namespace os {
     virtual void drawRgbaSurface(const Surface* src, int srcx, int srcy, int dstx, int dsty, int width, int height) = 0;
     virtual void drawRgbaSurface(const Surface* surface, const gfx::Rect& srcRect, const gfx::Rect& dstRect) = 0;
     virtual void drawColoredRgbaSurface(const Surface* src, gfx::Color fg, gfx::Color bg, const gfx::Clip& clip) = 0;
+    virtual void drawSurfaceNine(os::Surface* surface,
+                                 const gfx::Rect& src,
+                                 const gfx::Rect& center,
+                                 const gfx::Rect& dst,
+                                 const os::Paint* paint) = 0;
 
     virtual void applyScale(int scaleFactor) = 0;
     virtual void* nativeHandle() = 0;
