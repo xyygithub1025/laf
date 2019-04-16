@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2019  Igara Studio S.A.
 // Copyright (C) 2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -39,7 +40,7 @@ namespace os {
 class EventQueueWithResizeDisplay : public EventQueue {
 public:
   // This should be called at the beginning of getEvent() member.
-  void checkResizeDisplayEventEvent(bool& canWait) {
+  void checkResizeDisplayEvent(bool& canWait) {
     if (m_resizeEvent.type() != Event::None) {
       canWait = false;
       // Wait 100ms to enqueue the event
