@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (c) 2018  Igara Studio S.A.
+// Copyright (c) 2018-2019  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -49,8 +49,10 @@ namespace os {
     // You must not dispose this surface.
     virtual Surface* getSurface() = 0;
 
-    // Flips all graphics in the surface to the real display.
-    virtual void flip(const gfx::Rect& bounds) = 0;
+    // Invalidates part of the display to be redraw in the future by
+    // the OS painting messages. The region must be in non-scaled
+    // coordinates.
+    virtual void invalidateRegion(const gfx::Region& rgn) = 0;
 
     virtual void maximize() = 0;
     virtual bool isMaximized() const = 0;

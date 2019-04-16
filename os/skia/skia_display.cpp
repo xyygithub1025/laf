@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (c) 2018  Igara Studio S.A.
+// Copyright (c) 2018-2019  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -117,9 +117,9 @@ Surface* SkiaDisplay::getSurface()
 // Flips all graphics in the surface to the real display.  Returns
 // false if the flip couldn't be done because the display was
 // resized.
-void SkiaDisplay::flip(const gfx::Rect& bounds)
+void SkiaDisplay::invalidateRegion(const gfx::Region& rgn)
 {
-  m_window.updateWindow(bounds);
+  m_window.invalidateRegion(rgn);
 }
 
 void SkiaDisplay::maximize()

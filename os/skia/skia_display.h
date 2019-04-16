@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (c) 2018  Igara Studio S.A.
+// Copyright (c) 2018-2019  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -44,8 +44,10 @@ public:
   // You must not dispose this surface.
   Surface* getSurface() override;
 
-  // Flips all graphics in the surface to the real display.
-  void flip(const gfx::Rect& bounds) override;
+  // Invalidate parts of the OS window to be updated in the future
+  // with paint messages.
+  void invalidateRegion(const gfx::Region& rgn) override;
+
   void maximize() override;
   bool isMaximized() const override;
   bool isMinimized() const override;

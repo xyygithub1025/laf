@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018  Igara Studio S.A.
+// Copyright (C) 2018-2019  Igara Studio S.A.
 // Copyright (C) 2016-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -50,7 +50,7 @@ public:
   void captureMouse();
   void releaseMouse();
   void setMousePosition(const gfx::Point& position);
-  void updateWindow(const gfx::Rect& bounds);
+  void invalidateRegion(const gfx::Region& rgn);
   bool setNativeMouseCursor(NativeCursor cursor);
   bool setNativeMouseCursor(const os::Surface* surface,
                             const gfx::Point& focus,

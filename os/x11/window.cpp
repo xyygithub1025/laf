@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018  Igara Studio S.A.
+// Copyright (C) 2018-2019  Igara Studio S.A.
 // Copyright (C) 2017-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -14,6 +14,7 @@
 #include "base/debug.h"
 #include "base/string.h"
 #include "gfx/rect.h"
+#include "gfx/region.h"
 #include "os/event.h"
 #include "os/surface.h"
 #include "os/system.h"
@@ -316,12 +317,13 @@ void X11Window::setMousePosition(const gfx::Point& position)
                position.x*m_scale, position.y*m_scale);
 }
 
-void X11Window::updateWindow(const gfx::Rect& unscaledBounds)
+void X11Window::invalidateRegion(const gfx::Region& rgn)
 {
-  onPaint(gfx::Rect(unscaledBounds.x*m_scale,
-                    unscaledBounds.y*m_scale,
-                    unscaledBounds.w*m_scale,
-                    unscaledBounds.h*m_scale));
+  gfx::Rect bounds = rgn.bounds();
+  onPaint(gfx::Rect(bounds.x*m_scale,
+                    bounds.y*m_scale,
+                    bounds.w*m_scale,
+                    bounds.h*m_scale));
 }
 
 bool X11Window::setNativeMouseCursor(NativeCursor cursor)

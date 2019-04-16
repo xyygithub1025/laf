@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018  Igara Studio S.A.
+// Copyright (C) 2018-2019  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -50,7 +50,7 @@ namespace os {
     bool setNativeMouseCursor(const os::Surface* surface,
                               const gfx::Point& focus,
                               const int scale);
-    void updateWindow(const gfx::Rect& bounds);
+    void invalidateRegion(const gfx::Region& rgn);
     std::string getLayout();
 
     void setLayout(const std::string& layout);

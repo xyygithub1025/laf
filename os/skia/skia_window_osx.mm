@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018  Igara Studio S.A.
+// Copyright (C) 2018-2019  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -14,6 +14,7 @@
 #include "os/skia/skia_window_osx.h"
 
 #include "base/log.h"
+#include "gfx/region.h"
 #include "gfx/size.h"
 #include "os/event.h"
 #include "os/event_queue.h"
@@ -124,8 +125,9 @@ public:
                                      scale:scale] ? true: false);
   }
 
-  void updateWindow(const gfx::Rect& bounds) {
+  void invalidateRegion(const gfx::Region& rgn) {
     @autoreleasepool {
+      gfx::Rect bounds = rgn.bounds(); // TODO
       int scale = this->scale();
       NSView* view = m_window.contentView;
       [view setNeedsDisplayInRect:
@@ -540,10 +542,10 @@ bool SkiaWindow::setNativeMouseCursor(const Surface* surface,
     return false;
 }
 
-void SkiaWindow::updateWindow(const gfx::Rect& bounds)
+void SkiaWindow::invalidateRegion(const gfx::Region& rgn)
 {
   if (m_impl)
-    m_impl->updateWindow(bounds);
+    m_impl->invalidateRegion(rgn);
 }
 
 void SkiaWindow::setTranslateDeadKeys(bool state)

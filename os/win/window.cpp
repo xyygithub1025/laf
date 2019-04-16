@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018  Igara Studio S.A.
+// Copyright (C) 2018-2019  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -22,6 +22,7 @@
 #include "base/fs.h"
 #include "base/log.h"
 #include "base/string.h"
+#include "gfx/region.h"
 #include "gfx/size.h"
 #include "os/event.h"
 #include "os/native_cursor.h"
@@ -431,14 +432,42 @@ bool WinWindow::setNativeMouseCursor(const os::Surface* surface,
   return setCursor(hcursor, true);
 }
 
-void WinWindow::updateWindow(const gfx::Rect& bounds)
+void WinWindow::invalidateRegion(const gfx::Region& rgn)
 {
-  RECT rc = { bounds.x*m_scale,
-              bounds.y*m_scale,
-              bounds.x*m_scale+bounds.w*m_scale,
-              bounds.y*m_scale+bounds.h*m_scale };
+#if 0 // Invalidating the region generates a flicker, because it looks
+      // like regions are then painted and refreshed on the screen
+      // without synchronization or double-buffering (not even
+      // WS_EX_COMPOSITED fixes the issue).
+  HRGN hrgn = nullptr;
+  for (const gfx::Rect& rc : rgn) {
+    HRGN rcHrgn = CreateRectRgn(
+      rc.x*m_scale,
+      rc.y*m_scale,
+      rc.x*m_scale+rc.w*m_scale,
+      rc.y*m_scale+rc.h*m_scale);
+    if (!hrgn)
+      hrgn = rcHrgn;
+    else
+      CombineRgn(hrgn, hrgn, rcHrgn, RGN_OR);
+  }
+  if (hrgn) {
+    InvalidateRgn(m_hwnd, hrgn, FALSE);
+    DeleteObject(hrgn);
+  }
+#elif 0 // Same flicker
+  gfx::Rect bounds = rgn.bounds();
+  RECT rc = {
+    bounds.x*m_scale,
+    bounds.y*m_scale,
+    bounds.x*m_scale+bounds.w*m_scale,
+    bounds.y*m_scale+bounds.h*m_scale };
   InvalidateRect(m_hwnd, &rc, FALSE);
-  UpdateWindow(m_hwnd);
+#else  // Only way to avoid the flicker is invalidating the whole window.
+       // TODO we should review this, it's almost sure that flicker
+       //      is a problem from our side and there is a better way
+       //      to handle it.
+  InvalidateRect(m_hwnd, nullptr, FALSE);
+#endif
 }
 
 std::string WinWindow::getLayout()
