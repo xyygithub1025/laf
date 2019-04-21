@@ -1,4 +1,5 @@
 // LAF Base Library
+// Copyright (C) 2019  Igara Studio S.A.
 // Copyright (c) 2001-2016 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -16,8 +17,11 @@
 
 namespace base {
 
+Version::Version()
+{
+}
+
 Version::Version(const std::string& from)
-  : m_prereleaseDigit(0)
 {
   std::string::size_type i = 0;
   std::string::size_type j = 0;
@@ -88,6 +92,12 @@ bool Version::operator<(const Version& other) const
   }
 
   return false;
+}
+
+bool Version::operator==(const Version& other) const
+{
+  return (m_digits == other.m_digits &&
+          m_prerelease == other.m_prerelease);
 }
 
 std::string Version::str() const
