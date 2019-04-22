@@ -31,15 +31,15 @@ Version::Version(const std::string& from)
          (k == std::string::npos || j < k)) {
     j = from.find('.', i);
 
-    std::string digit;
+    std::string number;
     if (j != std::string::npos) {
-      digit = from.substr(i, j - i);
+      number = from.substr(i, j - i);
       i = j+1;
     }
     else
-      digit = from.substr(i);
+      number = from.substr(i);
 
-    m_digits.push_back(convert_to<int>(digit));
+    m_numbers.push_back(convert_to<int>(number));
   }
 
   if (k != std::string::npos) {
@@ -47,48 +47,48 @@ Version::Version(const std::string& from)
     for (; k < from.size() && !std::isdigit(from[k]); ++k)
       ;
     if (k < from.size()) {
-      m_prereleaseDigit = convert_to<int>(from.substr(k));
-      m_prerelease = from.substr(k0, k - k0);
+      m_prereleaseNumber = convert_to<int>(from.substr(k));
+      m_prereleaseLabel = from.substr(k0, k - k0);
     }
     else
-      m_prerelease = from.substr(k0);
+      m_prereleaseLabel = from.substr(k0);
   }
 
-  while (!m_prerelease.empty() &&
-         m_prerelease[m_prerelease.size()-1] == '.')
-    m_prerelease.erase(m_prerelease.size()-1);
+  while (!m_prereleaseLabel.empty() &&
+         m_prereleaseLabel[m_prereleaseLabel.size()-1] == '.')
+    m_prereleaseLabel.erase(m_prereleaseLabel.size()-1);
 }
 
 bool Version::operator<(const Version& other) const
 {
-  Digits::const_iterator
-    it1 = m_digits.begin(), end1 = m_digits.end(),
-    it2 = other.m_digits.begin(), end2 = other.m_digits.end();
+  Numbers::const_iterator
+    it1 = m_numbers.begin(), end1 = m_numbers.end(),
+    it2 = other.m_numbers.begin(), end2 = other.m_numbers.end();
 
   while (it1 != end1 || it2 != end2) {
-    int digit1 = (it1 != end1 ? *it1++: 0);
-    int digit2 = (it2 != end2 ? *it2++: 0);
+    int number1 = (it1 != end1 ? *it1++: 0);
+    int number2 = (it2 != end2 ? *it2++: 0);
 
-    if (digit1 < digit2)
+    if (number1 < number2)
       return true;
-    else if (digit1 > digit2)
+    else if (number1 > number2)
       return false;
   }
 
-  if (m_prerelease.empty()) {
+  if (m_prereleaseLabel.empty()) {
     return false;
   }
-  else if (other.m_prerelease.empty()) {
+  else if (other.m_prereleaseLabel.empty()) {
     return true;
   }
   else {
-    int res = m_prerelease.compare(other.m_prerelease);
+    int res = m_prereleaseLabel.compare(other.m_prereleaseLabel);
     if (res < 0)
       return true;
     else if (res > 0)
       return false;
     else
-      return (m_prereleaseDigit < other.m_prereleaseDigit);
+      return (m_prereleaseNumber < other.m_prereleaseNumber);
   }
 
   return false;
@@ -96,23 +96,23 @@ bool Version::operator<(const Version& other) const
 
 bool Version::operator==(const Version& other) const
 {
-  return (m_digits == other.m_digits &&
-          m_prerelease == other.m_prerelease);
+  return (m_numbers == other.m_numbers &&
+          m_prereleaseLabel == other.m_prereleaseLabel);
 }
 
 std::string Version::str() const
 {
   std::string res;
-  for (auto digit : m_digits) {
+  for (auto number : m_numbers) {
     if (!res.empty())
       res.push_back('.');
-    res += base::convert_to<std::string>(digit);
+    res += base::convert_to<std::string>(number);
   }
-  if (!m_prerelease.empty()) {
+  if (!m_prereleaseLabel.empty()) {
     res.push_back('-');
-    res += m_prerelease;
-    if (m_prereleaseDigit)
-      res += base::convert_to<std::string>(m_prereleaseDigit);
+    res += m_prereleaseLabel;
+    if (m_prereleaseNumber)
+      res += base::convert_to<std::string>(m_prereleaseNumber);
   }
   return res;
 }

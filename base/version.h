@@ -16,7 +16,7 @@ namespace base {
 
   class Version {
   public:
-    typedef std::vector<int> Digits;
+    typedef std::vector<int> Numbers;
 
     Version();
     explicit Version(const std::string& from);
@@ -25,16 +25,16 @@ namespace base {
     bool operator==(const Version& other) const;
     bool operator!=(const Version& other) const { return !operator==(other); }
 
-    const Digits& digits() const { return m_digits; }
-    const std::string& prerelease() const { return m_prerelease; }
-    const int prereleaseDigit() const { return m_prereleaseDigit; }
+    const Numbers& numbers() const { return m_numbers; }
+    const std::string& prereleaseLabel() const { return m_prereleaseLabel; }
+    const int prereleaseNumber() const { return m_prereleaseNumber; }
 
     std::string str() const;
 
   private:
-    Digits m_digits;
-    std::string m_prerelease; // alpha, beta, dev, rc (empty if it's official release)
-    int m_prereleaseDigit = 0;
+    Numbers m_numbers;
+    std::string m_prereleaseLabel; // alpha, beta, dev, rc (empty if it's official release)
+    int m_prereleaseNumber = 0;
   };
 
 }
