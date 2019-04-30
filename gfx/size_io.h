@@ -15,8 +15,8 @@ namespace gfx {
 
   inline std::ostream& operator<<(std::ostream& os, const Size& size) {
     return os << "("
-              << size.x << ", "
-              << size.y << ")";
+              << size.w << ", "
+              << size.h << ")";
   }
 
   inline std::istream& operator>>(std::istream& in, Size& size) {
@@ -27,8 +27,8 @@ namespace gfx {
       return in;
 
     char chr;
-    in >> size.x >> chr
-       >> size.y;
+    in >> size.w >> chr
+       >> size.h;
 
     return in;
   }
