@@ -12,6 +12,18 @@
 
 #include <math.h>
 
+#ifdef _MSC_VER
+  #define LAF_NORETURN(ret, name, args) __declspec(noreturn) ret name args
+#else
+  #define LAF_NORETURN(ret, name, args) ret name args __attribute__((noreturn))
+#endif
+
+#if defined(__clang__) && __has_feature(attribute_analyzer_noreturn)
+  #define LAF_ANALYZER_NORETURN __attribute__((analyzer_noreturn))
+#else
+  #define LAF_ANALYZER_NORETURN
+#endif
+
 #undef NULL
 #ifdef __cplusplus
   #define NULL nullptr

@@ -9,7 +9,9 @@
 #define BASE_DEBUG_H_INCLUDED
 #pragma once
 
-int base_assert(const char* condition, const char* file, int lineNum);
+#include "base/base.h"
+
+int base_assert(const char* condition, const char* file, int lineNum) LAF_ANALYZER_NORETURN;
 void base_trace(const char* msg, ...);
 
 #ifdef __cplusplus
