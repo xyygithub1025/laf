@@ -18,10 +18,12 @@
   #define LAF_NORETURN(ret, name, args) ret name args __attribute__((noreturn))
 #endif
 
-#if defined(__clang__) && __has_feature(attribute_analyzer_noreturn)
-  #define LAF_ANALYZER_NORETURN __attribute__((analyzer_noreturn))
-#else
-  #define LAF_ANALYZER_NORETURN
+#define LAF_ANALYZER_NORETURN
+#if defined(__clang__)
+  #if __has_feature(attribute_analyzer_noreturn)
+    #undef LAF_ANALYZER_NORETURN
+    #define LAF_ANALYZER_NORETURN __attribute__((analyzer_noreturn))
+  #endif
 #endif
 
 #undef NULL
