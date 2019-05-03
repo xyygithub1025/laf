@@ -83,8 +83,10 @@ namespace gfx {
     const_iterator end() const;
 
     bool isEmpty() const;
-    Rect bounds() const;
+    bool isRect() const;
+    bool isComplex() const;
     std::size_t size() const;
+    Rect bounds() const;
 
     void clear();
 
@@ -97,9 +99,6 @@ namespace gfx {
 
     bool contains(const PointT<int>& pt) const;
     Overlap contains(const Rect& rect) const;
-
-    Rect operator[](int i);
-    const Rect operator[](int i) const;
 
     Region& operator+=(const Region& b) { return createUnion(*this, b); }
     Region& operator|=(const Region& b) { return createUnion(*this, b); }

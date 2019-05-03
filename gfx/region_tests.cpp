@@ -35,12 +35,14 @@ ostream& operator<<(ostream& os, const Region& rgn)
 
 TEST(Region, Ctor)
 {
-  EXPECT_EQ(0, Region().size());
-  EXPECT_TRUE(Region(Rect(0, 0, 0, 0)).isEmpty());
   EXPECT_TRUE(Region().isEmpty());
   ASSERT_EQ(0, Region(Rect(0, 0, 0, 0)).size());
+  EXPECT_TRUE(Region(Rect(0, 0, 0, 0)).isEmpty());
   ASSERT_EQ(1, Region(Rect(0, 0, 1, 1)).size());
-  EXPECT_EQ(Rect(2, 3, 4, 5), Region(Rect(2, 3, 4, 5))[0]);
+  EXPECT_FALSE(Region(Rect(0, 0, 1, 1)).isEmpty());
+  EXPECT_TRUE(Region(Rect(0, 0, 1, 1)).isRect());
+  EXPECT_FALSE(Region(Rect(0, 0, 1, 1)).isComplex());
+  EXPECT_EQ(Rect(2, 3, 4, 5), Region(Rect(2, 3, 4, 5)).bounds());
 }
 
 TEST(Region, Equal)
@@ -48,16 +50,17 @@ TEST(Region, Equal)
   Region a;
   a = Rect(2, 3, 4, 5);
   EXPECT_EQ(Rect(2, 3, 4, 5), a.bounds());
-  EXPECT_EQ(Rect(2, 3, 4, 5), a[0]);
+  EXPECT_EQ(Rect(2, 3, 4, 5), *a.begin());
   EXPECT_FALSE(a.isEmpty());
+  EXPECT_TRUE(a.isRect());
 
   a = Rect(6, 7, 8, 9);
   EXPECT_EQ(Rect(6, 7, 8, 9), a.bounds());
-  EXPECT_EQ(Rect(6, 7, 8, 9), a[0]);
+  EXPECT_EQ(Rect(6, 7, 8, 9), *a.begin());
 
   Region b;
   b = a;
-  EXPECT_EQ(Rect(6, 7, 8, 9), b[0]);
+  EXPECT_EQ(Rect(6, 7, 8, 9), *b.begin());
 
   b = Rect(0, 0, 0, 0);
   EXPECT_TRUE(b.isEmpty());
@@ -67,8 +70,12 @@ TEST(Region, Clear)
 {
   Region a(Rect(2, 3, 4, 5));
   EXPECT_FALSE(a.isEmpty());
+  EXPECT_TRUE(a.isRect());
+  EXPECT_FALSE(a.isComplex());
   a.clear();
   EXPECT_TRUE(a.isEmpty());
+  EXPECT_FALSE(a.isRect());
+  EXPECT_FALSE(a.isComplex());
 }
 
 TEST(Region, Union)
@@ -79,8 +86,8 @@ TEST(Region, Union)
   EXPECT_EQ(Rect(2, 3, 8, 5), Region().createUnion(b, a).bounds());
   ASSERT_EQ(1, Region().createUnion(a, b).size());
   ASSERT_EQ(1, Region().createUnion(b, a).size());
-  EXPECT_EQ(Rect(2, 3, 8, 5), Region().createUnion(a, b)[0]);
-  EXPECT_EQ(Rect(2, 3, 8, 5), Region().createUnion(b, a)[0]);
+  EXPECT_EQ(Rect(2, 3, 8, 5), *(Region().createUnion(a, b).begin()));
+  EXPECT_EQ(Rect(2, 3, 8, 5), *(Region().createUnion(b, a).begin()));
 }
 
 TEST(Region, ContainsPoint)
@@ -101,6 +108,8 @@ TEST(Region, Iterators)
   Region a;
   a.createUnion(a, Region(Rect(0, 0, 32, 64)));
   a.createUnion(a, Region(Rect(0, 0, 64, 32)));
+  EXPECT_TRUE(a.isComplex());
+  EXPECT_TRUE(a.size() > 1);
   int c = 0;
   for (Region::iterator it=a.begin(), end=a.end(); it!=end; ++it) {
     ++c;

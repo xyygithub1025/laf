@@ -99,17 +99,27 @@ Region::const_iterator Region::end() const
 
 bool Region::isEmpty() const
 {
-  return pixman_region32_not_empty(&m_region) ? false: true;
+  return (pixman_region32_not_empty(&m_region) ? false: true);
 }
 
-Rect Region::bounds() const
+bool Region::isRect() const
 {
-  return to_rect(*pixman_region32_extents(&m_region));
+  return (size() == 1);
+}
+
+bool Region::isComplex() const
+{
+  return (size() > 1);
 }
 
 std::size_t Region::size() const
 {
   return pixman_region32_n_rects(&m_region);
+}
+
+Rect Region::bounds() const
+{
+  return to_rect(*pixman_region32_extents(&m_region));
 }
 
 void Region::clear()
@@ -159,18 +169,6 @@ Region::Overlap Region::contains(const Rect& rect) const
 
   pixman_box32 box = { rect.x, rect.y, rect.x2(), rect.y2() };
   return (Region::Overlap)pixman_region32_contains_rectangle(&m_region, &box);
-}
-
-Rect Region::operator[](int i)
-{
-  ASSERT(i >= 0 && i < (int)size());
-  return to_rect(pixman_region32_rectangles(&m_region, NULL)[i]);
-}
-
-const Rect Region::operator[](int i) const
-{
-  ASSERT(i >= 0 && i < (int)size());
-  return to_rect(pixman_region32_rectangles(&m_region, NULL)[i]);
 }
 
 } // namespace gfx
