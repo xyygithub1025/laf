@@ -29,7 +29,7 @@ public:
              int width, int height, int scale);
   ~SkiaWindow();
 
-  os::ColorSpacePtr colorSpace();
+  os::ColorSpacePtr colorSpace() const;
   int scale() const;
   void setScale(int scale);
   void setVisible(bool visible);

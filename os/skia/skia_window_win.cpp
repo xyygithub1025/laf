@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2019  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -380,9 +381,8 @@ void SkiaWindow::onEndResizing()
 
 void SkiaWindow::onChangeColorSpace()
 {
-  if (m_display) {
-    m_display->setColorSpace(this->colorSpace());
-  }
+  if (m_display)
+    m_display->setColorSpace(colorSpace());
 }
 
 } // namespace os

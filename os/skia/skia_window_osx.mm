@@ -77,7 +77,7 @@ public:
     return [m_window restoredSize];
   }
 
-  os::ColorSpacePtr colorSpace() {
+  os::ColorSpacePtr colorSpace() const {
     ASSERT(m_window);
     if (auto defaultCS = os::instance()->displaysColorSpace())
       return defaultCS;
@@ -436,7 +436,7 @@ void SkiaWindow::destroyImpl()
   m_impl = nullptr;
 }
 
-ColorSpacePtr SkiaWindow::colorSpace()
+ColorSpacePtr SkiaWindow::colorSpace() const
 {
   if (m_impl)
     return m_impl->colorSpace();

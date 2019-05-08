@@ -33,7 +33,7 @@ namespace os {
     ~WinWindow();
 
     void queueEvent(Event& ev);
-    os::ColorSpacePtr colorSpace();
+    os::ColorSpacePtr colorSpace() const;
     int scale() const { return m_scale; }
     void setScale(int scale);
     void setVisible(bool visible);
@@ -105,8 +105,8 @@ namespace os {
     bool m_customHcursor;
 
     // To change the color profile
-    std::string m_lastICCProfile;
-    os::ColorSpacePtr m_lastColorProfile;
+    mutable std::string m_lastICCProfile;
+    mutable os::ColorSpacePtr m_lastColorProfile;
 
     // Windows 8 pointer API
     bool m_usePointerApi;

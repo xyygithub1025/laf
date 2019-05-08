@@ -211,7 +211,7 @@ void X11Window::queueEvent(Event& ev)
   onQueueEvent(ev);
 }
 
-os::ColorSpacePtr X11Window::colorSpace()
+os::ColorSpacePtr X11Window::colorSpace() const
 {
   // TODO get the window color space
   return os::instance()->createColorSpace(gfx::ColorSpace::MakeSRGB());

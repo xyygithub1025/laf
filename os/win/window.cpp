@@ -243,7 +243,7 @@ void WinWindow::queueEvent(Event& ev)
   onQueueEvent(ev);
 }
 
-os::ColorSpacePtr WinWindow::colorSpace()
+os::ColorSpacePtr WinWindow::colorSpace() const
 {
   if (auto defaultCS = os::instance()->displaysColorSpace())
     return defaultCS;
