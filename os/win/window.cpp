@@ -70,7 +70,9 @@ static PointerType wt_packet_pkcursor_to_pointer_type(int pkCursor)
   return PointerType::Unknown;
 }
 
-static BOOL log_monitor_info(HMONITOR monitor, HDC hdc, LPRECT rc, LPARAM lparam)
+static BOOL CALLBACK log_monitor_info(HMONITOR monitor,
+                                      HDC hdc, LPRECT rc,
+                                      LPARAM lparam)
 {
   MONITORINFOEXA mi;
   memset((void*)&mi, 0, sizeof(mi));
