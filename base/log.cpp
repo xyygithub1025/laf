@@ -78,6 +78,11 @@ void base::set_log_level(LogLevel level)
   log_level = level;
 }
 
+LogLevel base::get_log_level()
+{
+  return log_level;
+}
+
 std::ostream& base::get_log_stream(LogLevel level)
 {
   ASSERT(level != NONE);

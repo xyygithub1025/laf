@@ -70,6 +70,25 @@ static PointerType wt_packet_pkcursor_to_pointer_type(int pkCursor)
   return PointerType::Unknown;
 }
 
+static BOOL log_monitor_info(HMONITOR monitor, HDC hdc, LPRECT rc, LPARAM lparam)
+{
+  MONITORINFOEXA mi;
+  memset((void*)&mi, 0, sizeof(mi));
+  mi.cbSize = sizeof(mi);
+  if (GetMonitorInfoA(monitor, &mi)) {
+    std::string iccFilename = get_hmonitor_icc_filename(monitor);
+
+    auto rc = mi.rcMonitor;
+    LOG("WIN: - Monitor %dx%d%s: %s (icc=%s)\n",
+        rc.right - rc.left,
+        rc.bottom - rc.top,
+        (mi.dwFlags & MONITORINFOF_PRIMARY ? " (primary)": ""),
+        mi.szDevice,
+        iccFilename.c_str());
+  }
+  return TRUE;
+}
+
 WinWindow::Touch::Touch()
   : fingers(0)
   , canBeMouse(false)
@@ -188,6 +207,23 @@ WinWindow::WinWindow(int width, int height, int scale)
   // add the scrollbars to the window. (As the T type could not be
   // fully initialized yet.)
   m_isCreated = true;
+
+  // Log information about the system (for debugging/user support
+  // purposes in case the window doesn't display anything)
+  if (base::get_log_level() >= INFO) {
+    LOG("WIN: Clean boot: %d\n", GetSystemMetrics(SM_CLEANBOOT));
+    LOG("WIN: Special modes:%s%s%s%s%s%s\n",
+        GetSystemMetrics(SM_MOUSEPRESENT) ? " Mouse": "",
+        GetSystemMetrics(SM_SWAPBUTTON) ? " SwappedButtons": "",
+        GetSystemMetrics(SM_TABLETPC) ? " TabletPC": "",
+        GetSystemMetrics(SM_DIGITIZER) ? " Digitizer": "",
+        GetSystemMetrics(SM_SYSTEMDOCKED) ? " Docked": "",
+        GetSystemMetrics(SM_IMMENABLED) ? " IMM": "");
+    LOG("WIN: Monitors: %d%s:\n",
+        GetSystemMetrics(SM_CMONITORS),
+        GetSystemMetrics(SM_SAMEDISPLAYFORMAT) ? ", same display format": "");
+    EnumDisplayMonitors(nullptr, nullptr, log_monitor_info, 0);
+  }
 }
 
 WinWindow::~WinWindow()

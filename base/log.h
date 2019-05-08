@@ -33,6 +33,7 @@ namespace base {
 
   void set_log_filename(const char* filename);
   void set_log_level(LogLevel level);
+  LogLevel get_log_level();
 
   std::ostream& get_log_stream(LogLevel level);
 
