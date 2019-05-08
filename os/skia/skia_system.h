@@ -145,7 +145,8 @@ public:
     m_displayCS = cs;
     if (m_defaultDisplay) {
       m_defaultDisplay->setColorSpace(
-        m_displayCS ? m_displayCS: m_defaultDisplay->colorSpace());
+        m_displayCS ? m_displayCS:
+                      m_defaultDisplay->currentMonitorColorSpace());
     }
   }
 

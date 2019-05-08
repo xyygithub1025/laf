@@ -71,6 +71,7 @@ public:
 
   os::ColorSpacePtr colorSpace() const override { return m_colorSpace; }
   void setColorSpace(const os::ColorSpacePtr& colorSpace);
+  os::ColorSpacePtr currentMonitorColorSpace() const;
 
   // Returns the HWND on Windows.
   DisplayHandle nativeHandle() override;
