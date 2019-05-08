@@ -141,11 +141,12 @@ public:
       new SkiaColorSpaceConversion(src, dst));
   }
 
-  void setDisplaysColorSpace(
-    const os::ColorSpacePtr& cs) override {
+  void setDisplaysColorSpace(const os::ColorSpacePtr& cs) override {
     m_displayCS = cs;
-    if (m_defaultDisplay)
-      m_defaultDisplay->setColorSpace(m_displayCS);
+    if (m_defaultDisplay) {
+      m_defaultDisplay->setColorSpace(
+        m_displayCS ? m_displayCS: m_defaultDisplay->colorSpace());
+    }
   }
 
   os::ColorSpacePtr displaysColorSpace() override {
