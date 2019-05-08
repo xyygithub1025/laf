@@ -89,6 +89,8 @@ public:
     SkiaDisplay* display = new SkiaDisplay(width, height, scale);
     if (!m_defaultDisplay)
       m_defaultDisplay = display;
+    if (display && m_displayCS)
+      display->setColorSpace(m_displayCS);
     return display;
   }
 
@@ -139,9 +141,21 @@ public:
       new SkiaColorSpaceConversion(src, dst));
   }
 
+  void setDisplaysColorSpace(
+    const os::ColorSpacePtr& cs) override {
+    m_displayCS = cs;
+    if (m_defaultDisplay)
+      m_defaultDisplay->setColorSpace(m_displayCS);
+  }
+
+  os::ColorSpacePtr displaysColorSpace() override {
+    return m_displayCS;
+  }
+
 private:
   SkiaDisplay* m_defaultDisplay;
   bool m_gpuAcceleration;
+  ColorSpacePtr m_displayCS;
 };
 
 } // namespace os

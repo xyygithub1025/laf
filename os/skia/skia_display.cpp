@@ -11,6 +11,7 @@
 
 #include "os/skia/skia_display.h"
 
+#include "base/debug.h"
 #include "os/event.h"
 #include "os/event_queue.h"
 #include "os/skia/skia_surface.h"
@@ -210,6 +211,18 @@ void SkiaDisplay::setColorSpace(const os::ColorSpacePtr& colorSpace)
   m_colorSpace = colorSpace;
   if (m_surface)
     resetSkiaSurface();
+
+  // Generate the resizing display event to redraw everything.
+  // TODO we could create a new event like Event::ColorSpaceChange,
+  // but the result would be the same, the display must be re-painted.
+  Event ev;
+  ev.setType(Event::ResizeDisplay);
+  ev.setDisplay(this);
+  os::queue_event(ev);
+
+  TRACE("SkiaDisplay::setColorSpace %s\n",
+        colorSpace ? colorSpace->gfxColorSpace()->name().c_str():
+                     "nullptr");
 }
 
 DisplayHandle SkiaDisplay::nativeHandle()

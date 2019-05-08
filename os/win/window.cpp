@@ -243,6 +243,9 @@ void WinWindow::queueEvent(Event& ev)
 
 os::ColorSpacePtr WinWindow::colorSpace()
 {
+  if (auto defaultCS = os::instance()->displaysColorSpace())
+    return defaultCS;
+
   if (m_hwnd) {
     HMONITOR monitor = MonitorFromWindow(m_hwnd, MONITOR_DEFAULTTONEAREST);
     std::string iccFilename = get_hmonitor_icc_filename(monitor);

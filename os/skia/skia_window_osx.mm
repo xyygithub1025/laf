@@ -79,6 +79,9 @@ public:
 
   os::ColorSpacePtr colorSpace() {
     ASSERT(m_window);
+    if (auto defaultCS = os::instance()->displaysColorSpace())
+      return defaultCS;
+
     return convert_nscolorspace_to_os_colorspace([m_window colorSpace]);
   }
 
@@ -222,17 +225,8 @@ public:
   }
 
   void onChangeBackingProperties() override {
-    if (m_window) {
+    if (m_window && m_display)
       m_display->setColorSpace(colorSpace());
-
-      // Generate the resizing display event to redraw everything.
-      // TODO we could create a new event like Event::ColorSpaceChange,
-      // but the result would be the same, the display must be re-painted.
-      Event ev;
-      ev.setType(Event::ResizeDisplay);
-      ev.setDisplay(m_display);
-      os::queue_event(ev);
-    }
   }
 
 private:

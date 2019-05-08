@@ -382,14 +382,6 @@ void SkiaWindow::onChangeColorSpace()
 {
   if (m_display) {
     m_display->setColorSpace(this->colorSpace());
-
-    // Generate the resizing display event to redraw everything.
-    // TODO we could create a new event like Event::ColorSpaceChange,
-    // but the result would be the same, the display must be re-painted.
-    Event ev;
-    ev.setType(Event::ResizeDisplay);
-    ev.setDisplay(m_display);
-    os::queue_event(ev);
   }
 }
 
