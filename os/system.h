@@ -94,8 +94,7 @@ namespace os {
     // Set a default color profile for all displays (nullptr to use
     // the active monitor color profile and change it dynamically when
     // the window changes to another monitor).
-    virtual void setDisplaysColorSpace(
-      const os::ColorSpacePtr& cs) = 0;
+    virtual void setDisplaysColorSpace(const os::ColorSpacePtr& cs) = 0;
     virtual os::ColorSpacePtr displaysColorSpace() = 0;
   };
 

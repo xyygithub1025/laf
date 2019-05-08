@@ -48,6 +48,8 @@ public:
   os::ColorSpacePtr createColorSpace(const gfx::ColorSpacePtr& cs) override { return nullptr; }
   std::unique_ptr<ColorSpaceConversion> convertBetweenColorSpace(
     const os::ColorSpacePtr& src, const os::ColorSpacePtr& dst) override { return nullptr; }
+  void setDisplaysColorSpace(const os::ColorSpacePtr& cs) override { }
+  os::ColorSpacePtr displaysColorSpace() override { return nullptr; }
 };
 
 System* create_system_impl() {
