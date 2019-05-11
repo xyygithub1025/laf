@@ -1,5 +1,6 @@
 // LAF Base Library
-// Copyright (c) 2001-2016 David Capello
+// Copyright (C) 2019  Igara Studio S.A.
+// Copyright (C) 2001-2016  David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -23,6 +24,18 @@ TEST(Thread, Joinable)
   thread t(&nothing);
   EXPECT_TRUE(t.joinable());
   t.join();
+}
+
+TEST(Thread, NativeHandle)
+{
+  thread::native_id_type a = this_thread::native_id();
+  thread::native_id_type b;
+
+  thread t([&b]{ b = this_thread::native_id(); });
+  t.join();
+
+  EXPECT_NE(a, b);
+  EXPECT_EQ(a, this_thread::native_id());
 }
 
 //////////////////////////////////////////////////////////////////////

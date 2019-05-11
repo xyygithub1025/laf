@@ -1,5 +1,6 @@
 // LAF Base Library
-// Copyright (c) 2001-2016 David Capello
+// Copyright (C) 2019  Igara Studio S.A.
+// Copyright (C) 2001-2016  David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -48,6 +49,9 @@ namespace base {
 
 thread::thread()
   : m_native_handle((native_handle_type)0)
+#ifdef _WIN32
+  , m_native_id((native_id_type)0)
+#endif
 {
 }
 
@@ -86,9 +90,17 @@ void thread::detach()
   }
 }
 
-thread::native_handle_type thread::native_handle()
+thread::native_id_type thread::native_id() const
 {
-  return m_native_handle;
+#ifdef _WIN32
+
+  return m_native_id;
+
+#else
+
+  return (thread::native_id_type)m_native_handle;
+
+#endif
 }
 
 void thread::launch_thread(func_wrapper* f)
@@ -97,9 +109,11 @@ void thread::launch_thread(func_wrapper* f)
 
 #ifdef _WIN32
 
-  DWORD native_id;
+  static_assert(sizeof(DWORD) == sizeof(native_id_type),
+                "native_id_type must match DWORD size on Windows");
+
   m_native_handle = ::CreateThread(NULL, 0, win32_thread_proxy, (LPVOID)f,
-                                   CREATE_SUSPENDED, &native_id);
+                                   CREATE_SUSPENDED, (LPDWORD)&m_native_id);
   ResumeThread(m_native_handle);
 
 #else
@@ -155,15 +169,15 @@ void this_thread::sleep_for(double seconds)
 #endif
 }
 
-thread::native_handle_type this_thread::native_handle()
+thread::native_id_type this_thread::native_id()
 {
 #ifdef _WIN32
 
-  return GetCurrentThread();
+  return (thread::native_id_type)GetCurrentThreadId();
 
 #else
 
-  return (void*)pthread_self();
+  return (thread::native_id_type)pthread_self();
 
 #endif
 }
