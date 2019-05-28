@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2019  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -13,6 +14,8 @@
 #include "gfx/size.h"
 #include "os/keys.h"
 #include "os/pointer_type.h"
+
+#include <functional>
 
 #pragma push_macro("None")
 #undef None // Undefine the X11 None macro
@@ -38,6 +41,7 @@ namespace os {
       KeyDown,
       KeyUp,
       TouchMagnify,
+      Callback,
     };
 
     enum MouseButton {
@@ -92,6 +96,7 @@ namespace os {
     void setType(Type type) { m_type = type; }
     void setDisplay(Display* display) { m_display = display; }
     void setFiles(const base::paths& files) { m_files = files; }
+    void setCallback(std::function<void()>&& func) { m_callback = std::move(func); }
 
     void setScancode(KeyScancode scancode) { m_scancode = scancode; }
     void setModifiers(KeyModifiers modifiers) { m_modifiers = modifiers; }
@@ -106,10 +111,13 @@ namespace os {
     void setMagnification(double magnification) { m_magnification = magnification; }
     void setPressure(double pressure) { m_pressure = pressure; }
 
+    void execCallback() { if (m_callback) m_callback(); }
+
   private:
     Type m_type;
     Display* m_display;
     base::paths m_files;
+    std::function<void()> m_callback;
     KeyScancode m_scancode;
     KeyModifiers m_modifiers;
     int m_unicodeChar;

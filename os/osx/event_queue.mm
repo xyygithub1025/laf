@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018  Igara Studio S.A.
+// Copyright (C) 2018-2019  Igara Studio S.A.
 // Copyright (C) 2015-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -51,7 +51,7 @@ void OSXEventQueue::getEvent(Event& ev, bool canWait)
 
     if (!m_events.try_pop(ev)) {
       if (canWait) {
-        EV_TRACE("EV: Wait for events...\n");
+        EV_TRACE("EV: Waiting for events\n");
 
         // Wait until there is a Cocoa event in queue
         m_sleeping = true;
@@ -61,7 +61,7 @@ void OSXEventQueue::getEvent(Event& ev, bool canWait)
                                    dequeue:YES];
         m_sleeping = false;
 
-        EV_TRACE("EV: Wake up!\n");
+        EV_TRACE("EV: Event received!\n");
         goto retry;
       }
     }
@@ -87,6 +87,8 @@ void OSXEventQueue::queueEvent(const Event& ev)
 
 void OSXEventQueue::wakeUpQueue()
 {
+  EV_TRACE("EV: Force queue wake up!\n");
+
   @autoreleasepool {
     NSApplication* app = [NSApplication sharedApplication];
     if (!app)

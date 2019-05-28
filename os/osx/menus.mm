@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2019  Igara Studio S.A.
 // Copyright (C) 2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -8,6 +9,8 @@
 
 #include "base/debug.h"
 #include "base/string.h"
+#include "os/event.h"
+#include "os/event_queue.h"
 #include "os/osx/menus.h"
 #include "os/shortcut.h"
 
@@ -86,7 +89,19 @@ private:
 }
 - (void)executeMenuItem:(id)sender
 {
-  original->execute();
+  // Execute menu item option in a synchronized way from the events
+  // queue processing.
+  //
+  // Note: It looks like we cannot directly call original->execute()
+  // here, because if the callback invalidates some Display region
+  // (SkiaWindow::invalidateRegion()) the display is not updated
+  // inmediately when the event queue is locked/waiting for events
+  // (OSXEventQueue::getEvent with canWait=true) until we move the
+  // mouse (i.e. some kind of event is generated).
+  os::Event ev;
+  ev.setType(os::Event::Callback);
+  ev.setCallback([self]{ original->execute(); });
+  os::queue_event(ev);
 }
 - (void)validateMenuItem
 {
