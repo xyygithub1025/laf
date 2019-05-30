@@ -1,4 +1,5 @@
 # LAF Base Library
+# Copyright (C) 2019  Igara Studio S.A.
 # Copyright (c) 2001-2018 David Capello
 
 include(CheckIncludeFiles)
@@ -54,7 +55,9 @@ set(BASE_SOURCES
   split_string.cpp
   string.cpp
   system_console.cpp
+  task.cpp
   thread.cpp
+  thread_pool.cpp
   time.cpp
   version.cpp)
 
