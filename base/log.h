@@ -32,18 +32,19 @@ enum LogLevel {
 namespace base {
 
   void set_log_filename(const char* filename);
-  void set_log_level(LogLevel level);
+  void set_log_level(const LogLevel level);
   LogLevel get_log_level();
 
-  std::ostream& get_log_stream(LogLevel level);
+  std::ostream& get_log_stream(const LogLevel level);
 
 } // namespace base
 
 // E.g. LOG("text in information log level\n");
 std::ostream& LOG(const char* format, ...);
+std::ostream& LOG(const LogLevel level, const char* format, ...);
 
 // E.g. LOG(INFO) << "some information\n";
-inline std::ostream& LOG(LogLevel level) {
+inline std::ostream& LOG(const LogLevel level) {
   return base::get_log_stream(level);
 }
 
