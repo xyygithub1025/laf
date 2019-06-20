@@ -10,6 +10,12 @@
 
 #include <Cocoa/Cocoa.h>
 
+@interface OSXNSApplication : NSApplication
+
+- (void)sendEvent:(NSEvent *)event;
+
+@end
+
 @interface OSXAppDelegate : NSObject<NSApplicationDelegate>
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication*)sender;
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication*)app;
