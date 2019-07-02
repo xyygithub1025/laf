@@ -130,6 +130,9 @@ public:
           [panel setAllowsOtherFileTypes:NO];
       }
 
+      // Always show the extension
+      [panel setExtensionHidden:NO];
+
       std::string defPath = base::get_file_path(m_filename);
       std::string defName = base::get_file_name(m_filename);
       if (!defPath.empty())
