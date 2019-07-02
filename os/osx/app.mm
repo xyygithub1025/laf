@@ -21,7 +21,7 @@ namespace os {
 class OSXApp::Impl {
 public:
   bool init() {
-    m_app = [NSApplication sharedApplication];
+    m_app = [OSXNSApplication sharedApplication];
     m_appDelegate = [OSXAppDelegate new];
 
     [m_app setActivationPolicy:NSApplicationActivationPolicyRegular];
