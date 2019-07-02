@@ -118,13 +118,6 @@ public:
       [panel setTitle:[NSString stringWithUTF8String:m_title.c_str()]];
       [panel setCanCreateDirectories:YES];
 
-      std::string defPath = base::get_file_path(m_filename);
-      std::string defName = base::get_file_name(m_filename);
-      if (!defPath.empty())
-        [panel setDirectoryURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:defPath.c_str()]]];
-      if (!defName.empty())
-        [panel setNameFieldStringValue:[NSString stringWithUTF8String:defName.c_str()]];
-
       if (m_type != Type::OpenFolder && !m_filters.empty()) {
         NSMutableArray* types = [[NSMutableArray alloc] init];
         // The first extension in the array is used as the default one.
@@ -136,6 +129,13 @@ public:
         if (m_type == Type::SaveFile)
           [panel setAllowsOtherFileTypes:NO];
       }
+
+      std::string defPath = base::get_file_path(m_filename);
+      std::string defName = base::get_file_name(m_filename);
+      if (!defPath.empty())
+        [panel setDirectoryURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:defPath.c_str()]]];
+      if (!defName.empty())
+        [panel setNameFieldStringValue:[NSString stringWithUTF8String:defName.c_str()]];
 
       OpenSaveHelper* helper = [OpenSaveHelper new];
       [helper setPanel:panel];
