@@ -1,4 +1,5 @@
 // LAF Gfx Library
+// Copyright (C) 2019  Igara Studio S.A.
 // Copyright (C) 2001-2014 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -10,7 +11,7 @@
 
 #include <gtest/gtest.h>
 
-#ifdef HAVE_PIXMAN
+#ifdef LAF_WITH_REGION
 
 #include "gfx/packing_rects.h"
 #include "gfx/rect_io.h"
@@ -111,7 +112,7 @@ TEST(PackingRects, BorderAndShapePadding)
   EXPECT_EQ(Rect(10, 216, 200, 100), pr[2]);
 }
 
-#endif
+#endif  // LAF_WITH_REGION
 
 int main(int argc, char** argv)
 {

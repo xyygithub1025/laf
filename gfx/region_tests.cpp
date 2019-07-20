@@ -1,4 +1,5 @@
 // LAF Gfx Library
+// Copyright (C) 2019  Igara Studio S.A.
 // Copyright (C) 2001-2016 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -10,7 +11,7 @@
 
 #include <gtest/gtest.h>
 
-#ifdef HAVE_PIXMAN
+#ifdef LAF_WITH_REGION
 
 #include "gfx/point.h"
 #include "gfx/rect_io.h"
@@ -123,7 +124,7 @@ TEST(Region, Iterators)
   EXPECT_EQ(2, c);
 }
 
-#endif  //  HAVE_PIXMAN
+#endif  // LAF_WITH_REGION
 
 int main(int argc, char** argv)
 {

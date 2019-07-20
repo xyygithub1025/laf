@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2019  Igara Studio S.A.
 // Copyright (C) 2012-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -8,6 +9,10 @@
 #define OS_H_INCLUDED
 #pragma once
 
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "gfx/region.h"
+#include "gfx/size.h"
 #include "os/capabilities.h"
 #include "os/display.h"
 #include "os/display_handle.h"

@@ -1,3 +1,4 @@
+# Copyright (C) 2019  Igara Studio S.A.
 # Copyright (C) 2016  David Capello
 # Find tests and add rules to compile them and run them
 
@@ -20,7 +21,7 @@ function(laf_find_tests dir dependencies)
         PROPERTIES LINK_FLAGS -ENTRY:"mainCRTStartup")
     endif()
 
-    target_link_libraries(${testname} gtest ${ARGV} ${PLATFORM_LIBS})
+    target_link_libraries(${testname} gtest ${ARGV} ${LAF_OS_PLATFORM_LIBS})
 
     if(extra_definitions)
       set_target_properties(${testname}

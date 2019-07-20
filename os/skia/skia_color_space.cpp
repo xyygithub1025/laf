@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018  Igara Studio S.A.
+// Copyright (C) 2018-2019  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -9,6 +9,8 @@
 #endif
 
 #include "os/skia/skia_color_space.h"
+
+#include "base/debug.h"
 
 #include "SkImageInfo.h"
 #include "SkString.h"

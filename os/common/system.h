@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2019  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -20,8 +21,10 @@
   #include "os/native_dialogs.h"
 #endif
 
+#ifdef LAF_FREETYPE
 #include "ft/lib.h"
 #include "os/common/freetype_font.h"
+#endif
 #include "os/common/sprite_sheet_font.h"
 #include "os/event_queue.h"
 #include "os/menus.h"
@@ -127,9 +130,13 @@ public:
   }
 
   Font* loadTrueTypeFont(const char* filename, int height) override {
+#ifdef LAF_FREETYPE
     if (!m_ft)
       m_ft.reset(new ft::Lib());
     return load_free_type_font(*m_ft.get(), filename, height);
+#else
+    return nullptr;
+#endif
   }
 
   KeyModifiers keyModifiers() override {
@@ -153,7 +160,9 @@ private:
 #endif
   NativeDialogs* m_nativeDialogs;
   Menus* m_menus;
+#ifdef LAF_FREETYPE
   std::unique_ptr<ft::Lib> m_ft;
+#endif
 };
 
 } // namespace os

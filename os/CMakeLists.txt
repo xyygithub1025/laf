@@ -1,5 +1,5 @@
 # LAF OS
-# Copyright (C) 2018  Igara Studio S.A.
+# Copyright (C) 2018-2019  Igara Studio S.A.
 # Copyright (C) 2012-2018  David Capello
 
 ######################################################################
@@ -7,9 +7,7 @@
 
 set(LAF_OS_SOURCES
   common/event_queue.cpp
-  common/freetype_font.cpp
   common/main.cpp
-  draw_text.cpp
   system.cpp)
 if(WIN32)
   list(APPEND LAF_OS_SOURCES
@@ -52,62 +50,13 @@ endif()
 ######################################################################
 # Skia backend
 
-if(LAF_OS_BACKEND STREQUAL "skia")
-  set(SKIA_DIR "" CACHE PATH "Skia source code directory")
-
-  if(NOT SKIA_DIR)
-    set(SKIA_OUT_DIR "" CACHE PATH "Skia output directory")
-  else()
-    if(CMAKE_BUILD_TYPE STREQUAL Debug)
-      set(SKIA_OUT_DIR "${SKIA_DIR}/out/Debug" CACHE PATH "Skia output directory")
-    else()
-      set(SKIA_OUT_DIR "${SKIA_DIR}/out/Release" CACHE PATH "Skia output directory")
-    endif()
-  endif()
-
-  find_library(SKIA_LIBRARY skia PATH "${SKIA_OUT_DIR}")
-  if(WIN32)
-    find_library(SKIA_OPENGL_LIBRARY opengl32)
-  else()
-    find_library(SKIA_OPENGL_LIBRARY opengl NAMES GL)
-  endif()
-
-  find_path(SKIA_CONFIG_INCLUDE_DIR SkUserConfig.h HINTS "${SKIA_DIR}/include/config")
-  find_path(SKIA_CORE_INCLUDE_DIR SkCanvas.h HINTS "${SKIA_DIR}/include/core")
-  find_path(SKIA_UTILS_INCLUDE_DIR SkRandom.h HINTS "${SKIA_DIR}/include/utils")
-  find_path(SKIA_CODEC_INCLUDE_DIR SkCodec.h HINTS "${SKIA_DIR}/include/codec")
-  find_path(SKIA_EFFECTS_INCLUDE_DIR SkImageSource.h HINTS "${SKIA_DIR}/include/effects")
-  find_path(SKIA_GPU_INCLUDE_DIR GrContext.h HINTS "${SKIA_DIR}/include/gpu")
-  find_path(SKIA_GPU2_INCLUDE_DIR gl/GrGLDefines.h HINTS "${SKIA_DIR}/src/gpu")
-  find_path(SKIA_ANGLE_INCLUDE_DIR angle_gl.h HINTS "${SKIA_DIR}/third_party/externals/angle2/include")
-  find_path(SKIA_SKCMS_INCLUDE_DIR skcms.h HINTS "${SKIA_DIR}/third_party/skcms")
-
-  include_directories(
-    ${SKIA_CONFIG_INCLUDE_DIR}
-    ${SKIA_CORE_INCLUDE_DIR}
-    ${SKIA_PORTS_INCLUDE_DIR}
-    ${SKIA_UTILS_INCLUDE_DIR}
-    ${SKIA_CODEC_INCLUDE_DIR}
-    ${SKIA_GPU_INCLUDE_DIR}
-    ${SKIA_GPU2_INCLUDE_DIR}
-    ${SKIA_SKCMS_INCLUDE_DIR})
-  if(WIN32)
-    include_directories(${SKIA_ANGLE_INCLUDE_DIR})
-  endif()
-
-  set(SKIA_LIBRARIES
-    ${SKIA_LIBRARY}
-    ${SKIA_OPENGL_LIBRARY}
-    ${LAF_FREETYPE_LIBRARIES}
-    CACHE INTERNAL "Skia libraries")
-
+if(LAF_BACKEND STREQUAL "skia")
   list(APPEND LAF_OS_SOURCES
     skia/os.cpp
     skia/resize_surface.cpp
     skia/skia_color_space.cpp
     skia/skia_display.cpp
     skia/skia_surface.cpp)
-
   if(WIN32)
     list(APPEND LAF_OS_SOURCES
       skia/skia_window_win.cpp)
@@ -123,7 +72,7 @@ endif()
 ######################################################################
 # None backend
 
-if(LAF_OS_BACKEND STREQUAL "none")
+if(LAF_BACKEND STREQUAL "none")
   list(APPEND LAF_OS_SOURCES
     none/os.cpp)
 endif()
@@ -131,7 +80,15 @@ endif()
 ######################################################################
 
 add_library(laf-os ${LAF_OS_SOURCES})
-target_link_libraries(laf-os laf-ft laf-gfx laf-base)
+target_link_libraries(laf-os laf-gfx laf-base)
+if(laf-ft)
+  target_link_libraries(laf-os laf-ft)
+  target_compile_definitions(laf-os PRIVATE
+    LAF_FREETYPE)
+  set(LAF_OS_SOURCES
+    common/freetype_font.cpp
+    draw_text.cpp)
+endif()
 
 set(LAF_OS_PLATFORM_LIBS)
 if(WIN32)
@@ -174,48 +131,23 @@ endif()
 
 target_link_libraries(laf-os ${LAF_OS_PLATFORM_LIBS})
 
-if(LAF_OS_BACKEND STREQUAL "skia")
-  target_compile_definitions(laf-os PRIVATE
-    SK_INTERNAL
-    SK_GAMMA_SRGB
-    SK_GAMMA_APPLY_TO_A8
-    SK_SCALAR_TO_FLOAT_EXCLUDED
-    SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1
-    SK_SUPPORT_OPENCL=0
-    SK_FORCE_DISTANCE_FIELD_TEXT=0
-    GR_GL_FUNCTION_TYPE=__stdcall
-    SK_SUPPORT_GPU=0) # TODO change this to 1
-  if(WIN32)
-    target_compile_definitions(laf-os PRIVATE SK_BUILD_FOR_WIN32
-      _CRT_SECURE_NO_WARNINGS)
-  elseif(APPLE)
-    target_compile_definitions(laf-os PRIVATE SK_BUILD_FOR_MAC)
-  else()
-    target_compile_definitions(laf-os PRIVATE SK_SAMPLES_FOR_X)
-  endif()
-
-  target_link_libraries(laf-os ${SKIA_LIBRARIES})
-
-  if(UNIX AND NOT APPLE)
-    # Needed for SkFontMgr on Linux
-    find_library(FONTCONFIG_LIBRARY fontconfig)
-    target_link_libraries(laf-os ${FONTCONFIG_LIBRARY})
-  endif()
+if(LAF_BACKEND STREQUAL "skia")
+  target_link_libraries(laf-os skia)
 endif()
 
-set(_LAF_OS_BACKEND_INITIAL_LINK_FLAGS "")
+set(_LAF_BACKEND_INITIAL_LINK_FLAGS "")
 if(MSVC)
   # Linking with "wsetargv.obj" to add support to expand filename
   # wildcards in argc/argv.
-  if(LAF_OS_BACKEND STREQUAL "skia")
-    set(_LAF_OS_BACKEND_INITIAL_LINK_FLAGS "-LINK wsetargv.obj -ENTRY:\"wWinMainCRTStartup\"")
+  if(LAF_BACKEND STREQUAL "skia")
+    set(_LAF_BACKEND_INITIAL_LINK_FLAGS "-LINK wsetargv.obj -ENTRY:\"wWinMainCRTStartup\"")
   else()
-    set(_LAF_OS_BACKEND_INITIAL_LINK_FLAGS "-LINK wsetargv.obj -ENTRY:\"wmainCRTStartup\"")
+    set(_LAF_BACKEND_INITIAL_LINK_FLAGS "-LINK wsetargv.obj -ENTRY:\"wmainCRTStartup\"")
   endif()
 endif()
-set(LAF_OS_BACKEND_LINK_FLAGS "${_LAF_OS_BACKEND_INITIAL_LINK_FLAGS}"
+set(LAF_BACKEND_LINK_FLAGS "${_LAF_BACKEND_INITIAL_LINK_FLAGS}"
   CACHE STRING "Extra flags to link an application that uses laf-os")
-mark_as_advanced(LAF_OS_BACKEND_LINK_FLAGS)
+mark_as_advanced(LAF_BACKEND_LINK_FLAGS)
 
 if(LAF_WITH_TESTS)
   laf_find_tests(. laf-os)
