@@ -29,7 +29,7 @@ int app_main(int argc, char* argv[])
   display->setTitleBar("Hello World");
 
   // On macOS: With finishLaunching() we start processing
-  // NSApplicationDelegate events. After calling this we'll starth
+  // NSApplicationDelegate events. After calling this we'll start
   // receiving os::Event::DropFiles events. It's a way to say "ok
   // we're ready to process messages"
   system->finishLaunching();
