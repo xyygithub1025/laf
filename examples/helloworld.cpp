@@ -16,14 +16,21 @@ void draw_display(os::Display* display)
   surface->drawLine(gfx::rgba(0, 128, 0), gfx::Point(rc.w/2, 0), gfx::Point(rc.w/2, rc.h));
   surface->drawLine(gfx::rgba(0, 0, 255), gfx::Point(rc.w  , 0), gfx::Point(     0, rc.h));
 
+  os::Paint paint;
+  paint.color(gfx::rgba(255, 255, 255));
+  paint.setFlags(os::Paint::kCenterAlign);
+  surface->drawText("Hello World", rc.center(), &paint);
+
   // Invalidates the whole display to show it on the screen.
   display->invalidateRegion(gfx::Region(rc));
 }
 
 int app_main(int argc, char* argv[])
 {
+  const int pixelScale = 2;
+
   os::ScopedHandle<os::System> system(os::create_system());
-  os::ScopedHandle<os::Display> display(system->createDisplay(400, 300, 1));
+  os::ScopedHandle<os::Display> display(system->createDisplay(400, 300, pixelScale));
 
   display->setNativeMouseCursor(os::kArrowCursor);
   display->setTitleBar("Hello World");
@@ -40,13 +47,15 @@ int app_main(int argc, char* argv[])
   // bundle or enclose it in something like #ifdef _DEBUG/#endif
   system->activateApp();
 
-  // Print something on the window
-  draw_display(display);
-
   // Wait until a key is pressed or the window is closed
   os::EventQueue* queue = system->eventQueue();
   bool running = true;
+  bool redraw = true;
   while (running) {
+    if (redraw) {
+      redraw = false;
+      draw_display(display);
+    }
     // Wait for an event in the queue, the "true" parameter indicates
     // that we'll wait for a new event, and the next line will not be
     // processed until we receive a new event. If we use "false" and
@@ -61,12 +70,28 @@ int app_main(int argc, char* argv[])
         break;
 
       case os::Event::KeyDown:
-        if (ev.scancode() == os::kKeyEsc)
-          running = false;
+        switch (ev.scancode()) {
+          case os::kKeyEsc:
+            running = false;
+            break;
+          case os::kKey1:
+          case os::kKey2:
+          case os::kKey3:
+          case os::kKey4:
+          case os::kKey5:
+          case os::kKey6:
+          case os::kKey7:
+          case os::kKey8:
+          case os::kKey9:
+            // Set scale
+            display->setScale(1 + (int)(ev.scancode() - os::kKey1));
+            redraw = true;
+            break;
+        }
         break;
 
       case os::Event::ResizeDisplay:
-        draw_display(display);
+        redraw = true;
         break;
 
       default:

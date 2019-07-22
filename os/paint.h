@@ -17,6 +17,8 @@ namespace os {
     enum Flags {
       kNone = 0,
       kNineWithoutCenter = 1,
+      kCenterAlign = 2,
+      kEndAlign = 4,
     };
 
     Flags flags() const { return m_flags; }

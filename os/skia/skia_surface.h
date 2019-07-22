@@ -24,6 +24,7 @@
 #include "SkSurface.h"
 
 #include "include/private/SkColorData.h"
+#include "include/utils/SkTextUtils.h"
 
 namespace os {
 
@@ -183,7 +184,6 @@ public:
           sk_sp<SkShader> shader(
             bitmap.makeShader(SkTileMode::kRepeat,
                               SkTileMode::kRepeat));
-
           m_paint.setShader(shader);
         }
         break;
@@ -610,6 +610,40 @@ public:
     m_canvas->drawBitmapLattice(
       ((SkiaSurface*)surface)->m_bitmap,
       lattice, dstRect, &skPaint);
+  }
+
+  void drawText(const std::string& text,
+                const gfx::Point& pos,
+                const os::Paint* paint) override {
+    SkPaint skPaint;
+    SkTextUtils::Align align;
+    if (paint) {
+      if (paint->color() != gfx::ColorNone)
+        skPaint.setColor(to_skia(paint->color()));
+
+      if (paint->hasFlags(Paint::kCenterAlign))
+        align = SkTextUtils::kCenter_Align;
+      else if (paint->hasFlags(Paint::kEndAlign))
+        align = SkTextUtils::kRight_Align;
+      else
+        align = SkTextUtils::kLeft_Align;
+    }
+    else {
+      align = SkTextUtils::kLeft_Align;
+    }
+
+    SkTextUtils::Draw(m_canvas, text.c_str(), text.size(),
+                      SkTextEncoding::kUTF8,
+                      SkIntToScalar(pos.x),
+                      SkIntToScalar(pos.y),
+                      SkFont(), // wrap SkFont with os::Font
+                      skPaint, align);
+  }
+
+  int measureText(const std::string& text) const {
+    return SkFont().measureText(text.c_str(),
+                                text.size(),
+                                SkTextEncoding::kUTF8, nullptr);
   }
 
   SkBitmap& bitmap() { return m_bitmap; }

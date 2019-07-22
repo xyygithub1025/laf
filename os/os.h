@@ -26,6 +26,7 @@
 #include "os/menus.h"
 #include "os/native_cursor.h"
 #include "os/native_dialogs.h"
+#include "os/paint.h"
 #include "os/pointer_type.h"
 #include "os/scoped_handle.h"
 #include "os/shortcut.h"
