@@ -77,20 +77,17 @@ public:
         else {
           m_nextEscCloses = false;
         }
-        logLine("KeyDown scancode=%d unicode=%d (%c)%s",
+        //[[fallthrough]];
+      case os::Event::KeyUp: {
+        wchar_t wideUnicode[2] = { ev.unicodeChar(), 0 };
+        logLine("%s scancode=%d unicode=%d (%s)%s",
+                (ev.type() == os::Event::KeyDown ? "KeyDown": "KeyUp"),
                 ev.scancode(),
                 ev.unicodeChar(),
-                ev.unicodeChar() ? ev.unicodeChar(): ' ',
+                base::to_utf8(wideUnicode).c_str(),
                 modifiersToString(ev.modifiers()).c_str());
         break;
-
-      case os::Event::KeyUp:
-        logLine("KeyUp scancode=%d unicode=%d (%c)%s",
-                ev.scancode(),
-                ev.unicodeChar(),
-                ev.unicodeChar() ? ev.unicodeChar(): ' ',
-                modifiersToString(ev.modifiers()).c_str());
-        break;
+      }
 
       case os::Event::TouchMagnify:
         logLine("TouchMagnify %.4g",
