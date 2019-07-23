@@ -19,8 +19,8 @@
 #include <algorithm>
 
 // Defined in skia/src/core/SkICC.cpp
-const char* get_color_profile_description(const SkColorSpaceTransferFn& fn,
-                                          const float toXYZD50[9]);
+const char* get_color_profile_description(const skcms_TransferFunction& fn,
+                                          const skcms_Matrix3x3& toXYZD50);
 
 // Defined in skia/src/core/SkConvertPixels.cpp
 extern void SkConvertPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
@@ -52,51 +52,46 @@ SkiaColorSpace::SkiaColorSpace(const gfx::ColorSpacePtr& gfxcs)
         if (gfxcs->gamma() == 1.0)
           m_skcs = SkColorSpace::MakeSRGBLinear();
         else {
-          SkColorSpaceTransferFn fn;
-          fn.fA = 1.0f;
-          fn.fB = fn.fC = fn.fD = fn.fE = fn.fF = 0.0f;
-          fn.fG = gfxcs->gamma();
-          m_skcs = SkColorSpace::MakeRGB(fn, SkColorSpace::kSRGB_Gamut);
+          skcms_TransferFunction fn;
+          fn.a = 1.0f;
+          fn.b = fn.c = fn.d = fn.e = fn.f = 0.0f;
+          fn.g = gfxcs->gamma();
+          m_skcs = SkColorSpace::MakeRGB(fn, SkNamedGamut::kSRGB);
         }
       }
       else {
-        SkColorSpaceTransferFn skFn;
-        SkMatrix44 toXYZD50(SkMatrix44::kUninitialized_Constructor);
+        skcms_TransferFunction skFn;
+        skcms_Matrix3x3 toXYZD50;
 
         if (m_gfxcs->hasPrimaries()) {
           const gfx::ColorSpacePrimaries* primaries = m_gfxcs->primaries();
-          SkColorSpacePrimaries skPrimaries;
-          skPrimaries.fRX = primaries->rx;
-          skPrimaries.fRY = primaries->ry;
-          skPrimaries.fGX = primaries->gx;
-          skPrimaries.fGY = primaries->gy;
-          skPrimaries.fBX = primaries->bx;
-          skPrimaries.fBY = primaries->by;
-          skPrimaries.fWX = primaries->wx;
-          skPrimaries.fWY = primaries->wy;
-
-          if (!skPrimaries.toXYZD50(&toXYZD50))
-            toXYZD50.set3x3RowMajorf(gSRGB_toXYZD50);
+          if (!skcms_PrimariesToXYZD50(primaries->rx, primaries->ry,
+                                       primaries->gx, primaries->gy,
+                                       primaries->bx, primaries->by,
+                                       primaries->wx, primaries->wy, &toXYZD50)) {
+            toXYZD50 = skcms_sRGB_profile()->toXYZD50;
+          }
         }
 
         if (m_gfxcs->hasTransferFn()) {
           const gfx::ColorSpaceTransferFn* fn = m_gfxcs->transferFn();
-          skFn.fG = fn->g;
-          skFn.fA = fn->a;
-          skFn.fB = fn->b;
-          skFn.fC = fn->c;
-          skFn.fD = fn->d;
-          skFn.fE = fn->e;
-          skFn.fF = fn->f;
+          skFn.g = fn->g;
+          skFn.a = fn->a;
+          skFn.b = fn->b;
+          skFn.c = fn->c;
+          skFn.d = fn->d;
+          skFn.e = fn->e;
+          skFn.f = fn->f;
         }
 
         if (m_gfxcs->hasTransferFn()) {
-          if (!m_gfxcs->hasPrimaries())
-            toXYZD50.set3x3RowMajorf(gSRGB_toXYZD50);
+          if (!m_gfxcs->hasPrimaries()) {
+            toXYZD50 = skcms_sRGB_profile()->toXYZD50;
+          }
           m_skcs = SkColorSpace::MakeRGB(skFn, toXYZD50);
         }
         else if (m_gfxcs->hasPrimaries()) {
-          m_skcs = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma, toXYZD50);
+          m_skcs = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, toXYZD50);
         }
         else {
           m_skcs = SkColorSpace::MakeSRGB();
@@ -117,17 +112,11 @@ SkiaColorSpace::SkiaColorSpace(const gfx::ColorSpacePtr& gfxcs)
   // TODO read color profile name from ICC data
 
   if (m_skcs && m_gfxcs->name().empty()) {
-    SkColorSpaceTransferFn fn;
-    SkMatrix44 toXYZD50(SkMatrix44::kIdentity_Constructor);
+    skcms_TransferFunction fn;
+    skcms_Matrix3x3 toXYZD50;
     if (m_skcs->isNumericalTransferFn(&fn) &&
         m_skcs->toXYZD50(&toXYZD50)) {
-      float m33[9];
-      for (int r=0; r<3; ++r) {
-        for (int c=0; c<3; ++c) {
-          m33[3*r+c] = toXYZD50.get(r,c);
-        }
-      }
-      const char* desc = get_color_profile_description(fn, m33);
+      const char* desc = get_color_profile_description(fn, toXYZD50);
       if (desc)
         m_gfxcs->setName(desc);
     }

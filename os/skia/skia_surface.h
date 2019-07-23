@@ -23,26 +23,7 @@
 #include "SkRegion.h"
 #include "SkSurface.h"
 
-#ifndef SK_BGRA_B32_SHIFT
-  #ifdef SK_CPU_BENDIAN
-    #define SK_BGRA_B32_SHIFT   24
-    #define SK_BGRA_G32_SHIFT   16
-    #define SK_BGRA_R32_SHIFT   8
-    #define SK_BGRA_A32_SHIFT   0
-  #else
-    #define SK_BGRA_B32_SHIFT   0
-    #define SK_BGRA_G32_SHIFT   8
-    #define SK_BGRA_R32_SHIFT   16
-    #define SK_BGRA_A32_SHIFT   24
-  #endif
-#endif
-
-#ifndef SK_A4444_SHIFT
-  #define SK_R4444_SHIFT    12
-  #define SK_G4444_SHIFT    8
-  #define SK_B4444_SHIFT    4
-  #define SK_A4444_SHIFT    0
-#endif
+#include "include/private/SkColorData.h"
 
 namespace os {
 
@@ -200,10 +181,9 @@ public:
           }
 
           sk_sp<SkShader> shader(
-            SkShader::MakeBitmapShader(
-              bitmap,
-              SkShader::kRepeat_TileMode,
-              SkShader::kRepeat_TileMode));
+            bitmap.makeShader(SkTileMode::kRepeat,
+                              SkTileMode::kRepeat));
+
           m_paint.setShader(shader);
         }
         break;
@@ -541,7 +521,7 @@ public:
     }
 
     sk_sp<SkColorFilter> colorFilter(
-      SkColorFilter::MakeModeFilter(to_skia(fg), SkBlendMode::kSrcIn));
+      SkColorFilters::Blend(to_skia(fg), SkBlendMode::kSrcIn));
     paint.setColorFilter(colorFilter);
 
     m_canvas->drawBitmapRect(
@@ -562,8 +542,8 @@ public:
     skPaint.setBlendMode(SkBlendMode::kSrcOver);
     if (paint && paint->color() != gfx::ColorNone) {
       sk_sp<SkColorFilter> colorFilter(
-        SkColorFilter::MakeModeFilter(to_skia(paint->color()),
-                                      SkBlendMode::kSrcIn));
+        SkColorFilters::Blend(to_skia(paint->color()),
+                              SkBlendMode::kSrcIn));
       skPaint.setColorFilter(colorFilter);
     }
 

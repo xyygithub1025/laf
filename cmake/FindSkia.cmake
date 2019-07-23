@@ -22,6 +22,18 @@ else()
   find_library(SKIA_OPENGL_LIBRARY opengl NAMES GL)
 endif()
 
+if(NOT FREETYPE_LIBRARIES)
+  set(FREETYPE_FOUND ON)
+  find_library(FREETYPE_LIBRARY freetype2 PATH "${SKIA_OUT_DIR}")
+  set(FREETYPE_LIBRARIES ${FREETYPE_LIBRARY})
+  set(FREETYPE_INCLUDE_DIRS ${SKIA_DIR}/third_party/externals/freetype/include)
+endif()
+if(NOT HARFBUZZ_LIBRARIES)
+  find_library(HARFBUZZ_LIBRARY harfbuzz PATH "${SKIA_OUT_DIR}")
+  set(HARFBUZZ_LIBRARIES ${HARFBUZZ_LIBRARY})
+  set(HARFBUZZ_INCLUDE_DIRS ${SKIA_DIR}/third_party/externals/harfbuzz/src)
+endif()
+
 find_path(SKIA_CONFIG_INCLUDE_DIR SkUserConfig.h HINTS "${SKIA_DIR}/include/config")
 find_path(SKIA_CORE_INCLUDE_DIR SkCanvas.h HINTS "${SKIA_DIR}/include/core")
 find_path(SKIA_UTILS_INCLUDE_DIR SkRandom.h HINTS "${SKIA_DIR}/include/utils")
@@ -30,9 +42,13 @@ find_path(SKIA_EFFECTS_INCLUDE_DIR SkImageSource.h HINTS "${SKIA_DIR}/include/ef
 find_path(SKIA_GPU_INCLUDE_DIR GrContext.h HINTS "${SKIA_DIR}/include/gpu")
 find_path(SKIA_GPU2_INCLUDE_DIR gl/GrGLDefines.h HINTS "${SKIA_DIR}/src/gpu")
 find_path(SKIA_ANGLE_INCLUDE_DIR angle_gl.h HINTS "${SKIA_DIR}/third_party/externals/angle2/include")
-find_path(SKIA_SKCMS_INCLUDE_DIR skcms.h HINTS "${SKIA_DIR}/third_party/skcms")
+find_path(SKIA_SKCMS_INCLUDE_DIR skcms.h
+  HINTS
+  "${SKIA_DIR}/third_party/skcms"
+  "${SKIA_DIR}/include/third_party/skcms")
 
 include_directories(
+  ${SKIA_DIR}
   ${SKIA_CONFIG_INCLUDE_DIR}
   ${SKIA_CORE_INCLUDE_DIR}
   ${SKIA_PORTS_INCLUDE_DIR}

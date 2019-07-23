@@ -36,14 +36,24 @@ if(LAF_WITH_TESTS)
   include(LafFindTests)
 endif()
 
+# Find libraries
 if(LAF_BACKEND STREQUAL "skia")
   include(FindSkia)
+else()
+  if(NOT FREETYPE_LIBRARIES)
+    find_package(Freetype)
+  endif()
+  if(NOT HARFBUZZ_LIBRARIES)
+    find_package(HarfBuzz)
+  endif()
 endif()
 
 add_subdirectory(third_party)
 add_subdirectory(base)
 add_subdirectory(gfx)
-add_subdirectory(ft)
+if(FREETYPE_LIBRARIES AND HARFBUZZ_LIBRARIES)
+  add_subdirectory(ft)
+endif()
 add_subdirectory(os)
 if(LAF_WITH_EXAMPLES)
   add_subdirectory(examples)
@@ -61,8 +71,8 @@ if(NOT LAF_CONF_PRINTED)
     "=== LAF CONFIGURATION ===\n"
     " Backend:  ${LAF_BACKEND}\n"
     " Pixman:   ${PIXMAN_LIBRARY}\n"
-    " FreeType: ${LAF_FREETYPE_LIBRARIES}\n"
-    " HarfBuzz: ${LAF_HARFBUZZ_LIBRARIES}\n"
+    " FreeType: ${FREETYPE_LIBRARIES}\n"
+    " HarfBuzz: ${HARFBUZZ_LIBRARIES}\n"
     "=========================")
   if(LAF_BACKEND STREQUAL "skia")
     message(" Skia dir: ${SKIA_DIR}")
