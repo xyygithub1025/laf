@@ -640,7 +640,7 @@ public:
                       skPaint, align);
   }
 
-  int measureText(const std::string& text) const {
+  int measureText(const std::string& text) const override {
     return SkFont().measureText(text.c_str(),
                                 text.size(),
                                 SkTextEncoding::kUTF8, nullptr);
