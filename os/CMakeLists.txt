@@ -8,6 +8,7 @@
 set(LAF_OS_SOURCES
   common/event_queue.cpp
   common/main.cpp
+  display.cpp
   system.cpp)
 if(WIN32)
   list(APPEND LAF_OS_SOURCES

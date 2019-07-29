@@ -10,7 +10,7 @@ void draw_display(os::Display* display)
 {
   os::Surface* surface = display->getSurface();
   os::SurfaceLock lock(surface);
-  const gfx::Rect rc(0, 0, surface->width(), surface->height());
+  const gfx::Rect rc = surface->bounds();
   surface->fillRect(gfx::rgba(0, 0, 0), rc);
 
   os::Paint paint;

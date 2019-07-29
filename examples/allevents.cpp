@@ -123,8 +123,7 @@ private:
   void scrollAndDrawLog(const int newlines) {
     os::Surface* surface = m_display->getSurface();
     os::SurfaceLock lock(surface);
-
-    const gfx::Rect rc(0, 0, surface->width(), surface->height());
+    const gfx::Rect rc = surface->bounds();
 
     // Scroll old lines
     int i;

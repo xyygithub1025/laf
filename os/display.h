@@ -30,6 +30,7 @@ namespace os {
     // Returns the real and current display's size (without scale applied).
     virtual int width() const = 0;
     virtual int height() const = 0;
+    gfx::Rect bounds() const;
 
     // Returns the display when it was not maximized.
     virtual int originalWidth() const = 0;
@@ -53,6 +54,7 @@ namespace os {
     // the OS painting messages. The region must be in non-scaled
     // coordinates.
     virtual void invalidateRegion(const gfx::Region& rgn) = 0;
+    void invalidate();
 
     virtual void maximize() = 0;
     virtual bool isMaximized() const = 0;

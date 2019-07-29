@@ -35,6 +35,7 @@ namespace os {
     virtual void dispose() = 0;
     virtual int width() const = 0;
     virtual int height() const = 0;
+    gfx::Rect bounds() const { return gfx::Rect(0, 0, width(), height()); }
     virtual const ColorSpacePtr& colorSpace() const = 0;
     virtual bool isDirectToScreen() const = 0;
 
