@@ -9,5 +9,6 @@ if(LAF_BACKEND STREQUAL "skia")
   endfunction()
 
   laf_add_example(allevents)
+  laf_add_example(complextextlayout)
   laf_add_example(helloworld)
 endif()

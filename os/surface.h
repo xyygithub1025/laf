@@ -81,12 +81,6 @@ namespace os {
                                  const gfx::Rect& dst,
                                  const os::Paint* paint) = 0;
 
-    virtual void drawText(const std::string& text,
-                          const gfx::Point& pos,
-                          const os::Paint* paint = nullptr) = 0;
-
-    virtual int measureText(const std::string& text) const = 0;
-
     virtual void applyScale(int scaleFactor) = 0;
     virtual void* nativeHandle() = 0;
   };

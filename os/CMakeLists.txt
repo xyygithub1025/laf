@@ -56,6 +56,8 @@ if(LAF_BACKEND STREQUAL "skia")
     skia/resize_surface.cpp
     skia/skia_color_space.cpp
     skia/skia_display.cpp
+    skia/skia_draw_text.cpp
+    skia/skia_draw_text_with_shaper.cpp
     skia/skia_surface.cpp)
   if(WIN32)
     list(APPEND LAF_OS_SOURCES
@@ -132,7 +134,7 @@ endif()
 target_link_libraries(laf-os ${LAF_OS_PLATFORM_LIBS})
 
 if(LAF_BACKEND STREQUAL "skia")
-  target_link_libraries(laf-os skia)
+  target_link_libraries(laf-os skia skshaper)
 endif()
 
 set(_LAF_BACKEND_INITIAL_LINK_FLAGS "")

@@ -144,7 +144,8 @@ private:
     os::Paint paint;
     paint.color(gfx::rgba(255, 255, 255));
     for (; i<m_textLog.size(); ++i)
-      surface->drawText(m_textLog[i], gfx::Point(0, (1+i)*m_lineHeight), &paint);
+      os::draw_text(surface, nullptr, m_textLog[i],
+                    gfx::Point(0, (1+i)*m_lineHeight), &paint);
 
     gfx::Rgb rgb(gfx::Hsv(m_hue, 1.0, 1.0));
     surface->fillRect(gfx::rgba(rgb.red(), rgb.green(), rgb.blue()),

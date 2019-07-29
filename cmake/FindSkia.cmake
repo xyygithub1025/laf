@@ -14,14 +14,16 @@ else()
   endif()
 endif()
 
+# Skia library
 find_library(SKIA_LIBRARY skia PATH "${SKIA_OUT_DIR}")
-add_library(skia INTERFACE)
 if(WIN32)
   find_library(SKIA_OPENGL_LIBRARY opengl32)
 else()
   find_library(SKIA_OPENGL_LIBRARY opengl NAMES GL)
 endif()
 
+# SkShaper module + freetype + harfbuzz
+find_library(SKSHAPER_LIBRARY skshaper PATH "${SKIA_OUT_DIR}")
 if(NOT FREETYPE_LIBRARIES)
   set(FREETYPE_FOUND ON)
   find_library(FREETYPE_LIBRARY freetype2 PATH "${SKIA_OUT_DIR}")
@@ -66,8 +68,8 @@ set(SKIA_LIBRARIES
   ${SKIA_OPENGL_LIBRARY}
   CACHE INTERNAL "Skia libraries")
 
+add_library(skia INTERFACE)
 target_link_libraries(skia INTERFACE ${SKIA_LIBRARIES})
-
 target_compile_definitions(skia INTERFACE
   SK_INTERNAL
   SK_GAMMA_SRGB
@@ -103,3 +105,6 @@ if(UNIX AND NOT APPLE)
   target_link_libraries(skia INTERFACE
     ${FONTCONFIG_LIBRARY})
 endif()
+
+add_library(skshaper INTERFACE)
+target_link_libraries(skshaper INTERFACE ${SKSHAPER_LIBRARY})

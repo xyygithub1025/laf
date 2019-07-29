@@ -16,7 +16,9 @@ namespace os {
 
   class Font;
   class Surface;
-  class SurfaceLock;
+  class Paint;
+
+  enum class TextAlign { Left, Center, Right };
 
   class DrawTextDelegate {
   public:
@@ -48,6 +50,25 @@ namespace os {
                       gfx::Color fg, gfx::Color bg,
                       int x, int y,
                       DrawTextDelegate* delegate);
+
+  // Uses SkTextUtils::Draw() to draw text (doesn't depend on harfbuzz
+  // or big dependencies, useful to print English text).
+  void draw_text(Surface* surface, Font* font,
+                 const std::string& text,
+                 const gfx::Point& pos,
+                 const Paint* paint = nullptr,
+                 const TextAlign textAlign = TextAlign::Left);
+
+  // Uses SkShaper::Make() to draw text (harfbuzz if available),
+  // useful for right-to-left languages. Avoid this function if you
+  // are not going to translate your app to non-English languages
+  // (prefer os::draw_text() when possible).
+  void draw_text_with_shaper(
+    Surface* surface, Font* font,
+    const std::string& text,
+    const gfx::Point& pos,
+    const Paint* paint = nullptr,
+    const TextAlign textAlign = TextAlign::Left);
 
 } // namespace os
 

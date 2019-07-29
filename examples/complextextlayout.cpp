@@ -12,14 +12,24 @@ void draw_display(os::Display* display)
   os::SurfaceLock lock(surface);
   const gfx::Rect rc(0, 0, surface->width(), surface->height());
   surface->fillRect(gfx::rgba(0, 0, 0), rc);
-  surface->drawLine(gfx::rgba(255, 0, 0), gfx::Point(0     , 0), gfx::Point(  rc.w, rc.h));
-  surface->drawLine(gfx::rgba(0, 128, 0), gfx::Point(rc.w/2, 0), gfx::Point(rc.w/2, rc.h));
-  surface->drawLine(gfx::rgba(0, 0, 255), gfx::Point(rc.w  , 0), gfx::Point(     0, rc.h));
 
   os::Paint paint;
   paint.color(gfx::rgba(255, 255, 255));
-  os::draw_text(surface, nullptr, "Hello World", rc.center(),
-                &paint, os::TextAlign::Center);
+
+  const wchar_t* lines[] = { L"English",
+                             L"Русский язык", // Russian
+                             L"汉语",         // Simplified Chinese
+                             L"日本語",       // Japanese
+                             L"한국어",       // Korean
+                             L"العَرَبِيَّة‎"  };     // Arabic
+
+  gfx::Point pt(0, 0);
+  for (auto line : lines) {
+    os::draw_text_with_shaper(
+      surface, nullptr, base::to_utf8(line), pt, &paint);
+    pt.x += 0;
+    pt.y += 32;
+  }
 
   // Invalidates the whole display to show it on the screen.
   display->invalidateRegion(gfx::Region(rc));
@@ -27,24 +37,13 @@ void draw_display(os::Display* display)
 
 int app_main(int argc, char* argv[])
 {
-  const int pixelScale = 2;
-
   os::ScopedHandle<os::System> system(os::create_system());
-  os::ScopedHandle<os::Display> display(system->createDisplay(400, 300, pixelScale));
+  os::ScopedHandle<os::Display> display(system->createDisplay(400, 300, 1));
 
   display->setNativeMouseCursor(os::kArrowCursor);
-  display->setTitleBar("Hello World");
+  display->setTitleBar("CTL");
 
-  // On macOS: With finishLaunching() we start processing
-  // NSApplicationDelegate events. After calling this we'll start
-  // receiving os::Event::DropFiles events. It's a way to say "ok
-  // we're ready to process messages"
   system->finishLaunching();
-
-  // On macOS, when we compile the program outside an app bundle, we
-  // must active the app explicitly if we want to put the app on the
-  // front. Remove this if you're planning to distribute your app on a
-  // bundle or enclose it in something like #ifdef _DEBUG/#endif
   system->activateApp();
 
   // Wait until a key is pressed or the window is closed
@@ -86,6 +85,9 @@ int app_main(int argc, char* argv[])
             // Set scale
             display->setScale(1 + (int)(ev.scancode() - os::kKey1));
             redraw = true;
+            break;
+          default:
+            // Do nothing for other cases
             break;
         }
         break;
