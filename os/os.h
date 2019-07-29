@@ -15,7 +15,6 @@
 #include "gfx/size.h"
 #include "os/capabilities.h"
 #include "os/display.h"
-#include "os/display_handle.h"
 #include "os/draw_text.h"
 #include "os/error.h"
 #include "os/event.h"

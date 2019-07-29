@@ -17,7 +17,7 @@ using namespace os;
 
 TEST(System, CtorDtor)
 {
-  ScopedHandle<System> sys(create_system());
+  SystemHandle sys(create_system());
 }
 
 int app_main(int argc, char* argv[])

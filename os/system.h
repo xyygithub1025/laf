@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018  Igara Studio S.A.
+// Copyright (C) 2018-2019  Igara Studio S.A.
 // Copyright (C) 2012-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -13,6 +13,7 @@
 #include "os/capabilities.h"
 #include "os/color_space.h"
 #include "os/keys.h"
+#include "os/scoped_handle.h"
 
 #include <memory>
 #include <stdexcept>
@@ -97,6 +98,8 @@ namespace os {
     virtual void setDisplaysColorSpace(const os::ColorSpacePtr& cs) = 0;
     virtual os::ColorSpacePtr displaysColorSpace() = 0;
   };
+
+  typedef ScopedHandle<System> SystemHandle;
 
   System* create_system();
   System* instance();

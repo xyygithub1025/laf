@@ -40,8 +40,8 @@ void draw_display(os::Display* display)
 
 int app_main(int argc, char* argv[])
 {
-  os::ScopedHandle<os::System> system(os::create_system());
-  os::ScopedHandle<os::Display> display(system->createDisplay(400, 300, 1));
+  os::SystemHandle system(os::create_system());
+  os::DisplayHandle display(system->createDisplay(400, 300, 1));
 
   display->setNativeMouseCursor(os::kArrowCursor);
   display->setTitle("CTL");

@@ -11,8 +11,8 @@
 
 #include "gfx/point.h"
 #include "os/color_space.h"
-#include "os/display_handle.h"
 #include "os/native_cursor.h"
+#include "os/scoped_handle.h"
 #include "os/surface_list.h"
 
 #include <string>
@@ -24,6 +24,8 @@ namespace os {
   // A display or window to show graphics.
   class Display {
   public:
+    typedef void* NativeHandle;
+
     virtual ~Display() { }
     virtual void dispose() = 0;
 
@@ -87,8 +89,10 @@ namespace os {
     virtual os::ColorSpacePtr colorSpace() const = 0;
 
     // Returns the HWND on Windows.
-    virtual DisplayHandle nativeHandle() = 0;
+    virtual NativeHandle nativeHandle() = 0;
   };
+
+  typedef ScopedHandle<Display> DisplayHandle;
 
 } // namespace os
 

@@ -16,6 +16,7 @@
 #include "gfx/rect.h"
 #include "os/color_space.h"
 #include "os/paint.h"
+#include "os/scoped_handle.h"
 #include "os/surface_format.h"
 
 #include <string>
@@ -137,6 +138,8 @@ namespace os {
   private:
     Surface* m_surface;
   };
+
+  typedef ScopedHandle<Surface> SurfaceHandle;
 
 } // namespace os
 

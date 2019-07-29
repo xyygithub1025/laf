@@ -74,7 +74,7 @@ public:
   os::ColorSpacePtr currentMonitorColorSpace() const;
 
   // Returns the HWND on Windows.
-  DisplayHandle nativeHandle() override;
+  NativeHandle nativeHandle() override;
 
 private:
   // Flag used to avoid accessing to an invalid m_surface in the first

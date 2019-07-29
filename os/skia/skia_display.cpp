@@ -230,9 +230,9 @@ os::ColorSpacePtr SkiaDisplay::currentMonitorColorSpace() const
   return m_window.colorSpace();
 }
 
-DisplayHandle SkiaDisplay::nativeHandle()
+Display::NativeHandle SkiaDisplay::nativeHandle()
 {
-  return (DisplayHandle)m_window.handle();
+  return (NativeHandle)m_window.handle();
 }
 
 } // namespace os

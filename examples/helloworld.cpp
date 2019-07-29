@@ -32,8 +32,8 @@ int app_main(int argc, char* argv[])
 {
   const int pixelScale = 2;
 
-  os::ScopedHandle<os::System> system(os::create_system());
-  os::ScopedHandle<os::Display> display(system->createDisplay(400, 300, pixelScale));
+  os::SystemHandle system(os::create_system());
+  os::DisplayHandle display(system->createDisplay(400, 300, pixelScale));
 
   display->setNativeMouseCursor(os::kArrowCursor);
   display->setTitle("Hello World");

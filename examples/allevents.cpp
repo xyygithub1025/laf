@@ -206,7 +206,7 @@ private:
     return s;
   }
 
-  os::ScopedHandle<os::Display> m_display;
+  os::DisplayHandle m_display;
   std::vector<std::string> m_textLog;
   size_t m_oldLogSize = 0;
   int m_lineHeight = 12;
@@ -219,7 +219,7 @@ private:
 
 int app_main(int argc, char* argv[])
 {
-  os::ScopedHandle<os::System> system(os::create_system());
+  os::SystemHandle system(os::create_system());
   LogWindow window(system);
 
   system->finishLaunching();
