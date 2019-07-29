@@ -90,8 +90,7 @@ void thread_pool::worker()
     }
     // TODO handle exceptions in a better way
     catch (const std::exception& e) {
-      LOG(FATAL, "Exception from worker '%s': %s",
-          typeid(e).name(), e.what());
+      LOG(FATAL, "Exception from worker: %s", e.what());
       ASSERT(false);
     }
     catch (...) {
