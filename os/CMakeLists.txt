@@ -52,6 +52,9 @@ endif()
 # Skia backend
 
 if(LAF_BACKEND STREQUAL "skia")
+  if(APPLE)
+    add_definitions(-Wno-c++14-extensions)
+  endif()
   list(APPEND LAF_OS_SOURCES
     skia/os.cpp
     skia/resize_surface.cpp

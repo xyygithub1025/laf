@@ -125,19 +125,26 @@ private:
     os::SurfaceLock lock(surface);
     const gfx::Rect rc = surface->bounds();
 
+    os::Paint p;
+    p.style(os::Paint::Fill);
+    p.color(gfx::rgba(0, 0, 0, 8));
+
     // Scroll old lines
     int i;
     if (m_textLog.size() >= m_maxlines) {
       int h = m_lineHeight*newlines;
       surface->scrollTo(rc, 0, -h);
-      surface->fillRect(gfx::rgba(0, 0, 0, 8), gfx::Rect(rc.x, rc.y, rc.w, rc.h-h));
-      surface->fillRect(gfx::rgba(0, 0, 0), gfx::Rect(rc.x, rc.y+rc.h-h, rc.w, h));
+
+      surface->drawRect(gfx::Rect(rc.x, rc.y, rc.w, rc.h-h), p);
+      p.color(gfx::rgba(0, 0, 0));
+      surface->drawRect(gfx::Rect(rc.x, rc.y+rc.h-h, rc.w, h), p);
+
       i = (m_textLog.size()-newlines);
     }
     // First lines without scroll
     else {
       i = m_oldLogSize;
-      surface->fillRect(gfx::rgba(0, 0, 0, 8), gfx::Rect(rc.x, rc.y, rc.w, i*m_lineHeight));
+      surface->drawRect(gfx::Rect(rc.x, rc.y, rc.w, i*m_lineHeight), p);
     }
 
     os::Paint paint;
@@ -147,11 +154,9 @@ private:
                     gfx::Point(0, (1+i)*m_lineHeight), &paint);
 
     gfx::Rgb rgb(gfx::Hsv(m_hue, 1.0, 1.0));
-    surface->fillRect(gfx::rgba(rgb.red(), rgb.green(), rgb.blue()),
-                      gfx::Rect(m_mousePos.x-int(m_brushSize/2),
-                                m_mousePos.y-int(m_brushSize/2),
-                                int(m_brushSize),
-                                int(m_brushSize)));
+    paint.color(gfx::rgba(rgb.red(), rgb.green(), rgb.blue()));
+    paint.antialias(true);
+    surface->drawCircle(m_mousePos.x, m_mousePos.y, m_brushSize, paint);
 
     // Invalidates the whole display to show it on the screen.
     m_display->invalidateRegion(gfx::Region(rc));

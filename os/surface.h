@@ -10,8 +10,10 @@
 #pragma once
 
 #include "base/string.h"
+#include "gfx/clip.h"
 #include "gfx/color.h"
-#include "gfx/fwd.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
 #include "os/color_space.h"
 #include "os/paint.h"
 #include "os/surface_format.h"
@@ -60,12 +62,54 @@ namespace os {
     virtual gfx::Color getPixel(int x, int y) const = 0;
     virtual void putPixel(gfx::Color color, int x, int y) = 0;
 
-    virtual void drawHLine(gfx::Color color, int x, int y, int w) = 0;
-    virtual void drawVLine(gfx::Color color, int x, int y, int h) = 0;
-    virtual void drawLine(gfx::Color color, const gfx::Point& a, const gfx::Point& b) = 0;
+    virtual void drawLine(const float x0, const float y0,
+                          const float x1, const float y1,
+                          const os::Paint& paint) = 0;
 
-    virtual void drawRect(gfx::Color color, const gfx::Rect& rc) = 0;
-    virtual void fillRect(gfx::Color color, const gfx::Rect& rc) = 0;
+    void drawLine(const int x0, const int y0,
+                  const int x1, const int y1,
+                  const os::Paint& paint) {
+      drawLine(float(x0), float(y0),
+               float(x1), float(y1), paint);
+    }
+
+    void drawLine(const gfx::PointF& a, const gfx::PointF& b,
+                  const os::Paint& paint) {
+      drawLine(float(a.x), float(a.y),
+               float(b.x), float(b.y), paint);
+    }
+
+    void drawLine(const gfx::Point& a, const gfx::Point& b,
+                  const os::Paint& paint) {
+      drawLine(float(a.x), float(a.y),
+               float(b.x), float(b.y), paint);
+    }
+
+    virtual void drawRect(const gfx::RectF& rc,
+                          const os::Paint& paint) = 0;
+
+    void drawRect(const gfx::Rect& rc,
+                  const os::Paint& paint) {
+      drawRect(gfx::RectF(float(rc.x), float(rc.y),
+                          float(rc.w), float(rc.h)),
+               paint);
+    }
+
+    virtual void drawCircle(const float cx, const float cy,
+                            const float radius,
+                            const os::Paint& paint) = 0;
+
+    void drawCircle(const gfx::PointF& center,
+                    float radius,
+                    const os::Paint& paint) {
+      drawCircle(center.x, center.y, radius, paint);
+    }
+
+    void drawCircle(const gfx::Point& center,
+                    int radius,
+                    const os::Paint& paint) {
+      drawCircle(float(center.x), float(center.y), float(radius), paint);
+    }
 
     virtual void blitTo(Surface* dest, int srcx, int srcy, int dstx, int dsty, int width, int height) const = 0;
     virtual void scrollTo(const gfx::Rect& rc, int dx, int dy) = 0;

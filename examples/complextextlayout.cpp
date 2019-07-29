@@ -11,10 +11,13 @@ void draw_display(os::Display* display)
   os::Surface* surface = display->getSurface();
   os::SurfaceLock lock(surface);
   const gfx::Rect rc = surface->bounds();
-  surface->fillRect(gfx::rgba(0, 0, 0), rc);
 
-  os::Paint paint;
-  paint.color(gfx::rgba(255, 255, 255));
+  os::Paint p;
+  p.color(gfx::rgba(0, 0, 0));
+  p.style(os::Paint::Fill);
+  surface->drawRect(rc, p);
+
+  p.color(gfx::rgba(255, 255, 255));
 
   const wchar_t* lines[] = { L"English",
                              L"Русский язык", // Russian
@@ -23,12 +26,12 @@ void draw_display(os::Display* display)
                              L"한국어",       // Korean
                              L"العَرَبِيَّة‎"  };     // Arabic
 
-  gfx::Point pt(0, 0);
+  gfx::Point pos(0, 0);
   for (auto line : lines) {
     os::draw_text_with_shaper(
-      surface, nullptr, base::to_utf8(line), pt, &paint);
-    pt.x += 0;
-    pt.y += 32;
+      surface, nullptr, base::to_utf8(line), pos, &p);
+    pos.x += 0;
+    pos.y += 32;
   }
 
   // Invalidates the whole display to show it on the screen.

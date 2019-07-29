@@ -14,6 +14,7 @@
 #include "os/common/generic_surface.h"
 #include "os/common/sprite_sheet_font.h"
 #include "os/skia/skia_color_space.h"
+#include "os/skia/skia_helpers.h"
 
 #include "SkBitmap.h"
 #include "SkCanvas.h"
@@ -26,14 +27,6 @@
 #include "include/private/SkColorData.h"
 
 namespace os {
-
-inline SkColor to_skia(gfx::Color c) {
-  return SkColorSetARGB(gfx::geta(c), gfx::getr(c), gfx::getg(c), gfx::getb(c));
-}
-
-inline SkIRect to_skia(const gfx::Rect& rc) {
-  return SkIRect::MakeXYWH(rc.x, rc.y, rc.w, rc.h);
-}
 
 class SkiaSurface : public Surface {
 public:
@@ -328,38 +321,16 @@ public:
     }
   }
 
-  void drawHLine(gfx::Color color, int x, int y, int w) override {
-    m_paint.setColor(to_skia(color));
-    m_canvas->drawLine(
-      SkIntToScalar(x), SkIntToScalar(y),
-      SkIntToScalar(x+w), SkIntToScalar(y), m_paint);
-  }
+  void drawLine(const float x0, const float y0,
+                const float x1, const float y1,
+                const Paint& paint) override;
 
-  void drawVLine(gfx::Color color, int x, int y, int h) override {
-    m_paint.setColor(to_skia(color));
-    m_canvas->drawLine(
-      SkIntToScalar(x), SkIntToScalar(y),
-      SkIntToScalar(x), SkIntToScalar(y+h), m_paint);
-  }
+  void drawRect(const gfx::RectF& rc,
+                const Paint& paint) override;
 
-  void drawLine(gfx::Color color, const gfx::Point& a, const gfx::Point& b) override {
-    m_paint.setColor(to_skia(color));
-    m_canvas->drawLine(
-      SkIntToScalar(a.x), SkIntToScalar(a.y),
-      SkIntToScalar(b.x), SkIntToScalar(b.y), m_paint);
-  }
-
-  void drawRect(gfx::Color color, const gfx::Rect& rc) override {
-    m_paint.setColor(to_skia(color));
-    m_paint.setStyle(SkPaint::kStroke_Style);
-    m_canvas->drawIRect(to_skia(gfx::Rect(rc.x, rc.y, rc.w-1, rc.h-1)), m_paint);
-  }
-
-  void fillRect(gfx::Color color, const gfx::Rect& rc) override {
-    m_paint.setColor(to_skia(color));
-    m_paint.setStyle(SkPaint::kFill_Style);
-    m_canvas->drawIRect(to_skia(rc), m_paint);
-  }
+  void drawCircle(const float cx, const float cy,
+                  const float radius,
+                  const Paint& paint) override;
 
   void blitTo(Surface* _dst, int srcx, int srcy, int dstx, int dsty, int width, int height) const override {
     ASSERT(!m_bitmap.empty());

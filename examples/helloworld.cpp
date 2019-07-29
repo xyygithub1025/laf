@@ -11,15 +11,18 @@ void draw_display(os::Display* display)
   os::Surface* surface = display->getSurface();
   os::SurfaceLock lock(surface);
   const gfx::Rect rc = surface->bounds();
-  surface->fillRect(gfx::rgba(0, 0, 0), rc);
-  surface->drawLine(gfx::rgba(255, 0, 0), gfx::Point(0     , 0), gfx::Point(  rc.w, rc.h));
-  surface->drawLine(gfx::rgba(0, 128, 0), gfx::Point(rc.w/2, 0), gfx::Point(rc.w/2, rc.h));
-  surface->drawLine(gfx::rgba(0, 0, 255), gfx::Point(rc.w  , 0), gfx::Point(     0, rc.h));
 
-  os::Paint paint;
-  paint.color(gfx::rgba(255, 255, 255));
+  os::Paint p;
+  p.color(gfx::rgba(0, 0, 0));
+  p.style(os::Paint::Fill);
+  surface->drawRect(rc, p);
+
+  p.color(gfx::rgba(255, 0, 0)); surface->drawLine(0     , 0,   rc.w, rc.h, p);
+  p.color(gfx::rgba(0, 128, 0)); surface->drawLine(rc.w/2, 0, rc.w/2, rc.h, p);
+  p.color(gfx::rgba(0, 0, 255)); surface->drawLine(rc.w  , 0,      0, rc.h, p);
+  p.color(gfx::rgba(255, 255, 255));
   os::draw_text(surface, nullptr, "Hello World", rc.center(),
-                &paint, os::TextAlign::Center);
+                &p, os::TextAlign::Center);
 
   // Invalidates the whole display to show it on the screen.
   display->invalidateRegion(gfx::Region(rc));
@@ -86,6 +89,9 @@ int app_main(int argc, char* argv[])
             // Set scale
             display->setScale(1 + (int)(ev.scancode() - os::kKey1));
             redraw = true;
+            break;
+          default:
+            // Do nothing
             break;
         }
         break;

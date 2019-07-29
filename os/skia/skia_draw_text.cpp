@@ -10,6 +10,7 @@
 
 #include "os/draw_text.h"
 #include "os/paint.h"
+#include "os/skia/skia_helpers.h"
 #include "os/skia/skia_surface.h"
 
 #include "include/core/SkTextBlob.h"
@@ -25,10 +26,8 @@ void draw_text(Surface* surface, Font* font,
                const TextAlign textAlign)
 {
   SkPaint skPaint;
-  if (paint) {
-    if (paint->color() != gfx::ColorNone)
-      skPaint.setColor(to_skia(paint->color()));
-  }
+  if (paint)
+    to_skia(*paint, skPaint);
 
   SkFont skFont;                // wrap SkFont with os::Font
   SkTextUtils::Draw(

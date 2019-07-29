@@ -10,6 +10,7 @@
 
 #include "os/draw_text.h"
 #include "os/paint.h"
+#include "os/skia/skia_helpers.h"
 #include "os/skia/skia_surface.h"
 
 #include "include/core/SkTextBlob.h"
@@ -27,10 +28,8 @@ void draw_text_with_shaper(Surface* surface, Font* font,
                            const TextAlign textAlign)
 {
   SkPaint skPaint;
-  if (paint) {
-    if (paint->color() != gfx::ColorNone)
-      skPaint.setColor(to_skia(paint->color()));
-  }
+  if (paint)
+    to_skia(*paint, skPaint);
 
   // SkFont skFont(SkTypeface::MakeFromFile("/Library/Fonts/Arial Unicode.ttf"), SkIntToScalar(24));
   SkFont skFont(SkTypeface::MakeDefault(), SkIntToScalar(24));
