@@ -138,7 +138,7 @@ bool SkiaDisplay::isMinimized() const
   return m_window.isMinimized();
 }
 
-void SkiaDisplay::setTitleBar(const std::string& title)
+void SkiaDisplay::setTitle(const std::string& title)
 {
   m_window.setTitle(title);
 }

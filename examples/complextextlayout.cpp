@@ -41,7 +41,7 @@ int app_main(int argc, char* argv[])
   os::ScopedHandle<os::Display> display(system->createDisplay(400, 300, 1));
 
   display->setNativeMouseCursor(os::kArrowCursor);
-  display->setTitleBar("CTL");
+  display->setTitle("CTL");
 
   system->finishLaunching();
   system->activateApp();

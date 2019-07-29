@@ -19,7 +19,7 @@ public:
   LogWindow(os::System* system)
     : m_display(system->createDisplay(800, 600, 1)) {
     m_display->setNativeMouseCursor(os::kArrowCursor);
-    m_display->setTitleBar("All Events");
+    m_display->setTitle("All Events");
 
     recalcMaxLines();
 

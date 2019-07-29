@@ -58,7 +58,7 @@ namespace os {
     virtual bool isMaximized() const = 0;
     virtual bool isMinimized() const = 0;
 
-    virtual void setTitleBar(const std::string& title) = 0;
+    virtual void setTitle(const std::string& title) = 0;
     virtual void setIcons(const SurfaceList& icons) = 0;
 
     virtual NativeCursor nativeMouseCursor() = 0;

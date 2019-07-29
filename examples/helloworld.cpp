@@ -33,7 +33,7 @@ int app_main(int argc, char* argv[])
   os::ScopedHandle<os::Display> display(system->createDisplay(400, 300, pixelScale));
 
   display->setNativeMouseCursor(os::kArrowCursor);
-  display->setTitleBar("Hello World");
+  display->setTitle("Hello World");
 
   // On macOS: With finishLaunching() we start processing
   // NSApplicationDelegate events. After calling this we'll start

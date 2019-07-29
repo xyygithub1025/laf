@@ -51,7 +51,7 @@ public:
   void maximize() override;
   bool isMaximized() const override;
   bool isMinimized() const override;
-  void setTitleBar(const std::string& title) override;
+  void setTitle(const std::string& title) override;
   void setIcons(const SurfaceList& icons) override;
   NativeCursor nativeMouseCursor() override;
   bool setNativeMouseCursor(NativeCursor cursor) override;
