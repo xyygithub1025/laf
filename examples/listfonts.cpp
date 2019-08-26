@@ -6,6 +6,7 @@
 
 #include "os/os.h"
 
+#include <cassert>
 #include <cstdio>
 
 static const char* to_str(os::FontStyle::Weight weight)
