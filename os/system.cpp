@@ -17,10 +17,11 @@ static System* g_system = nullptr;
 
 System* create_system_impl();   // Defined on each back-end
 
-System* create_system()
+SystemHandle create_system()
 {
   ASSERT(!g_system);
-  return g_system = create_system_impl();
+  g_system = create_system_impl();
+  return SystemHandle(g_system);
 }
 
 System* instance()

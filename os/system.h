@@ -37,8 +37,9 @@ namespace os {
   };
 
   class System {
-  public:
+  protected:
     virtual ~System() { }
+  public:
     virtual void dispose() = 0;
     virtual void activateApp() = 0;
     virtual void finishLaunching() = 0;
@@ -107,7 +108,7 @@ namespace os {
 
   typedef ScopedHandle<System> SystemHandle;
 
-  System* create_system();
+  SystemHandle create_system();
   System* instance();
   void set_instance(System* system);
 
