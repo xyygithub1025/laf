@@ -20,7 +20,7 @@ ABI compatibility at this moment.
 
 `laf` requires:
 
-* A compiled version of Skia branch m71 (you can check the
+* A compiled version of Skia branch m76 (you can check the
   [instructions to compile Skia on Aseprite](https://github.com/aseprite/aseprite/blob/master/INSTALL.md#building-skia-dependency))
 * `freetype` and `harfbuzz` to draw text.
 * `pixman` in case that you are going to use `gfx::Region` without the
