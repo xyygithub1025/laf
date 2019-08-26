@@ -24,6 +24,7 @@ namespace os {
   class Display;
   class EventQueue;
   class Font;
+  class FontManager;
   class Logger;
   class Menus;
   class NativeDialogs;
@@ -65,6 +66,11 @@ namespace os {
     virtual Surface* createRgbaSurface(int width, int height, const os::ColorSpacePtr& colorSpace = nullptr) = 0;
     virtual Surface* loadSurface(const char* filename) = 0;
     virtual Surface* loadRgbaSurface(const char* filename) = 0;
+
+    // New font manager
+    virtual FontManager* fontManager() = 0;
+
+    // Old font functions (to be removed)
     virtual Font* loadSpriteSheetFont(const char* filename, int scale = 1) = 0;
     virtual Font* loadTrueTypeFont(const char* filename, int height) = 0;
 

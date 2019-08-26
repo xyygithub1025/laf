@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2019  Igara Studio S.A.
 // Copyright (C) 2012-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -8,14 +9,20 @@
 #define OS_FONT_H_INCLUDED
 #pragma once
 
+#include "base/ints.h"
+
 #include <string>
 
 namespace os {
 
+  class FontStyle;
+  class Typeface;
+
   enum class FontType {
-    kUnknown,
-    kSpriteSheet,
-    kTrueType,
+    Unknown,
+    SpriteSheet,                // SpriteSheet
+    FreeType,                   // FreeType
+    Native,                     // Skia
   };
 
   class Font {
@@ -31,15 +38,15 @@ namespace os {
     virtual void setAntialias(bool antialias) = 0;
     virtual bool hasCodePoint(int codepoint) const = 0;
 
-    os::Font* fallback() const {
+    Font* fallback() const {
       return m_fallback;
     }
-    void setFallback(os::Font* font) {
+    void setFallback(Font* font) {
       m_fallback = font;
     }
 
   private:
-    os::Font* m_fallback;
+    Font* m_fallback;
   };
 
 } // namespace os

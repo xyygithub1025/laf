@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2019  Igara Studio S.A.
 // Copyright (C) 2012-2013  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -14,6 +15,10 @@ namespace os {
   class ScopedHandle {
   public:
     ScopedHandle(T* handle) : m_handle(handle) { }
+    ScopedHandle(ScopedHandle&& that) {
+      m_handle = that.m_handle;
+      that.m_handle = nullptr;
+    }
     ~ScopedHandle() {
       if (m_handle)
         m_handle->dispose();

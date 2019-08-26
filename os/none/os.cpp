@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (c) 2018  Igara Studio S.A.
+// Copyright (c) 2018-2019  Igara Studio S.A.
 // Copyright (C) 2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -38,6 +38,7 @@ public:
                              const os::ColorSpacePtr& colorSpace) override { return nullptr; }
   Surface* loadSurface(const char* filename) override { return nullptr; }
   Surface* loadRgbaSurface(const char* filename) override { return nullptr; }
+  FontManager* fontManager() { return nullptr; }
   Font* loadSpriteSheetFont(const char* filename, int scale) override { return nullptr; }
   Font* loadTrueTypeFont(const char* filename, int height) override { return nullptr; }
   bool isKeyPressed(KeyScancode scancode) override { return false; }

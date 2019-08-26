@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018  Igara Studio S.A.
+// Copyright (C) 2018-2019  Igara Studio S.A.
 // Copyright (C) 2012-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -15,6 +15,7 @@
 #include "os/common/system.h"
 #include "os/skia/skia_color_space.h"
 #include "os/skia/skia_display.h"
+#include "os/skia/skia_font_manager.h"
 #include "os/skia/skia_surface.h"
 
 #ifdef _WIN32
@@ -31,6 +32,8 @@
 #endif
 
 #include "SkGraphics.h"
+
+#include <memory>
 
 namespace os {
 
@@ -116,6 +119,12 @@ public:
     return loadSurface(filename);
   }
 
+  FontManager* fontManager() override {
+    if (!m_fontManager)
+      m_fontManager.reset(new SkiaFontManager);
+    return m_fontManager.get();
+  }
+
   void setTranslateDeadKeys(bool state) override {
     if (m_defaultDisplay)
       m_defaultDisplay->setTranslateDeadKeys(state);
@@ -156,6 +165,7 @@ public:
 
 private:
   SkiaDisplay* m_defaultDisplay;
+  std::unique_ptr<SkiaFontManager> m_fontManager;
   bool m_gpuAcceleration;
   ColorSpacePtr m_displayCS;
 };

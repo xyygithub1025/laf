@@ -20,6 +20,9 @@
 #include "os/event.h"
 #include "os/event_queue.h"
 #include "os/font.h"
+#include "os/font_manager.h"
+#include "os/font_style.h"
+#include "os/font_style_set.h"
 #include "os/keys.h"
 #include "os/logger.h"
 #include "os/menus.h"
@@ -32,5 +35,6 @@
 #include "os/surface.h"
 #include "os/surface_format.h"
 #include "os/system.h"
+#include "os/typeface.h"
 
 #endif
