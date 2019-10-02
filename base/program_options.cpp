@@ -119,7 +119,10 @@ void ProgramOptions::parse(int argc, const char* argv[])
 
           if (it == m_options.end()) {
             std::stringstream msg;
-            msg << "Invalid option '-" << arg[j] << "'";
+            // Show the whole option (arg) as invalid just in case the
+            // user specified a "-long-option" with one "-" (instead
+            // of mnemonics).
+            msg << "Invalid option " << arg;
             throw InvalidProgramOption(msg.str());
           }
 
