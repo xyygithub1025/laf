@@ -44,6 +44,11 @@ namespace base {
     task_token& start(thread_pool& pool);
 
     bool running() const { return m_running; }
+
+    // Returns true when the task is completed (whether it was
+    // canceled or not). If this is true, it's safe to delete the task
+    // instance (it will not be used anymore by any othe background
+    // thread).
     bool completed() const { return m_completed; }
 
   private:
