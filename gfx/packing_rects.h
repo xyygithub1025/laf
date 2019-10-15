@@ -1,5 +1,6 @@
 // LAF Gfx Library
-// Copyright (C) 2001-2015 David Capello
+// Copyright (C) 2019  Igara Studio S.A.
+// Copyright (C) 2001-2015  David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -8,6 +9,7 @@
 #define GFX_TEXTURE_SIZE_H_INCLUDED
 #pragma once
 
+#include "base/task.h"
 #include "gfx/fwd.h"
 #include "gfx/rect.h"
 #include <vector>
@@ -38,12 +40,13 @@ namespace gfx {
     void add(const Rect& rc);
 
     // Returns the best size for the texture.
-    Size bestFit();
+    Size bestFit(base::task_token& token);
 
     // Rearrange all given rectangles to best fit a texture size.
     // Returns true if all rectangles were correctly arranged or false
     // if there is not enough space.
-    bool pack(const Size& size);
+    bool pack(const Size& size,
+              base::task_token& token);
 
     // Returns the bounds of the packed area.
     const Rect& bounds() const { return m_bounds; }

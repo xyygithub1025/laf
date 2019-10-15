@@ -20,10 +20,11 @@ using namespace gfx;
 
 TEST(PackingRects, Simple)
 {
+  base::task_token token;
   PackingRects pr;
   pr.add(Size(256, 128));
-  EXPECT_FALSE(pr.pack(Size(256, 120)));
-  EXPECT_TRUE(pr.pack(Size(256, 128)));
+  EXPECT_FALSE(pr.pack(Size(256, 120), token));
+  EXPECT_TRUE(pr.pack(Size(256, 128), token));
 
   EXPECT_EQ(Rect(0, 0, 256, 128), pr[0]);
   EXPECT_EQ(Rect(0, 0, 256, 128), pr.bounds());
@@ -31,10 +32,11 @@ TEST(PackingRects, Simple)
 
 TEST(PackingRects, SimpleTwoRects)
 {
+  base::task_token token;
   PackingRects pr;
   pr.add(Size(256, 128));
   pr.add(Size(256, 120));
-  EXPECT_TRUE(pr.pack(Size(256, 256)));
+  EXPECT_TRUE(pr.pack(Size(256, 256), token));
 
   EXPECT_EQ(Rect(0, 0, 256, 256), pr.bounds());
   EXPECT_EQ(Rect(0, 0, 256, 128), pr[0]);
@@ -43,18 +45,20 @@ TEST(PackingRects, SimpleTwoRects)
 
 TEST(PackingRects, BestFit)
 {
+  base::task_token token;
   PackingRects pr;
   pr.add(Size(10, 12));
-  pr.bestFit();
+  pr.bestFit(token);
   EXPECT_EQ(Rect(0, 0, 16, 16), pr.bounds());
 }
 
 TEST(PackingRects, BestFitTwoRects)
 {
+  base::task_token token;
   PackingRects pr;
   pr.add(Size(256, 128));
   pr.add(Size(256, 127));
-  pr.bestFit();
+  pr.bestFit(token);
 
   EXPECT_EQ(Rect(0, 0, 256, 256), pr.bounds());
   EXPECT_EQ(Rect(0, 0, 256, 128), pr[0]);
@@ -63,6 +67,7 @@ TEST(PackingRects, BestFitTwoRects)
 
 TEST(PackingRects, BestFit6Frames100x100)
 {
+  base::task_token token;
   PackingRects pr;
   pr.add(Size(100, 100));
   pr.add(Size(100, 100));
@@ -70,7 +75,7 @@ TEST(PackingRects, BestFit6Frames100x100)
   pr.add(Size(100, 100));
   pr.add(Size(100, 100));
   pr.add(Size(100, 100));
-  pr.bestFit();
+  pr.bestFit(token);
 
   EXPECT_EQ(Rect(0, 0, 512, 256), pr.bounds());
   EXPECT_EQ(Rect(0, 0, 100, 100), pr[0]);
@@ -83,11 +88,12 @@ TEST(PackingRects, BestFit6Frames100x100)
 
 TEST(PackingRects, KeepSameRectsOrder)
 {
+  base::task_token token;
   PackingRects pr;
   pr.add(Size(10, 10));
   pr.add(Size(20, 20));
   pr.add(Size(30, 30));
-  pr.bestFit();
+  pr.bestFit(token);
 
   EXPECT_EQ(Rect(0, 0, 64, 32), pr.bounds());
   EXPECT_EQ(Rect(50, 0, 10, 10), pr[0]);
@@ -97,14 +103,16 @@ TEST(PackingRects, KeepSameRectsOrder)
 
 TEST(PackingRects, BorderAndShapePadding)
 {
+  base::task_token token;
+
   PackingRects pr(10, 3);
   pr.add(Size(200, 100));
   pr.add(Size(200, 100));
   pr.add(Size(200, 100));
 
-  EXPECT_FALSE(pr.pack(Size(220, 325)));
-  EXPECT_FALSE(pr.pack(Size(219, 326)));
-  EXPECT_TRUE(pr.pack(Size(220, 326)));
+  EXPECT_FALSE(pr.pack(Size(220, 325), token));
+  EXPECT_FALSE(pr.pack(Size(219, 326), token));
+  EXPECT_TRUE(pr.pack(Size(220, 326), token));
 
   EXPECT_EQ(Rect(10, 10, 200, 100), pr[0]);
   EXPECT_EQ(Rect(10, 113, 200, 100), pr[1]);

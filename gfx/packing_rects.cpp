@@ -25,7 +25,7 @@ void PackingRects::add(const Rect& rc)
   m_rects.push_back(rc);
 }
 
-Size PackingRects::bestFit()
+Size PackingRects::bestFit(base::task_token& token)
 {
   Size size(0, 0);
 
@@ -40,9 +40,9 @@ Size PackingRects::bestFit()
   int h = 1;
   int z = 0;
   bool fit = false;
-  while (true) {
+  while (!token.canceled()) {
     if (w*h >= neededArea) {
-      fit = pack(Size(w, h));
+      fit = pack(Size(w, h), token);
       if (fit) {
         size = Size(w, h);
         break;
@@ -62,7 +62,8 @@ static bool by_area(const Rect* a, const Rect* b) {
   return a->w*a->h > b->w*b->h;
 }
 
-bool PackingRects::pack(const Size& size)
+bool PackingRects::pack(const Size& size,
+                        base::task_token& token)
 {
   m_bounds = Rect(size).shrink(m_borderPadding);
 
@@ -74,7 +75,12 @@ bool PackingRects::pack(const Size& size)
   std::sort(rectPtrs.begin(), rectPtrs.end(), by_area);
 
   gfx::Region rgn(m_bounds);
+  i = 0;
   for (auto rcPtr : rectPtrs) {
+    if (token.canceled())
+      return false;
+    token.set_progress(float(i) / int(rectPtrs.size()));
+
     gfx::Rect& rc = *rcPtr;
 
     // The rectangles are treated as its original size during placement,
@@ -85,6 +91,9 @@ bool PackingRects::pack(const Size& size)
     // horizontal space is between <width> and <width>+<shapePadding>.
     for (int v=0; v<=m_bounds.h-rc.h; ++v) {
       for (int u=0; u<=m_bounds.w-rc.w; ++u) {
+        if (token.canceled())
+          return false;
+
         gfx::Rect possible(m_bounds.x + u, m_bounds.y + v, rc.w, rc.h);
         Region::Overlap overlap = rgn.contains(possible);
         if (overlap == Region::In) {
@@ -99,6 +108,7 @@ bool PackingRects::pack(const Size& size)
     }
     return false; // There is not enough room for "rc"
   next_rc:;
+    ++i;
   }
 
   return true;
