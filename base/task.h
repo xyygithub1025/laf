@@ -19,17 +19,29 @@ namespace base {
 
   class task_token {
   public:
-    task_token() : m_canceled(false), m_progress(0.0f) { }
+    task_token()
+      : m_canceled(false)
+      , m_progress(0.0f)
+      , m_progress_min(0.0f)
+      , m_progress_max(1.0f) { }
 
     bool canceled() const { return m_canceled; }
     float progress() const { return m_progress; }
 
     void cancel() { m_canceled = true; }
-    void set_progress(float progress) { m_progress = progress; }
+    void set_progress(float p) {
+      m_progress = m_progress_min
+        + p / (m_progress_max - m_progress_min);
+    }
+    void set_progress_range(float min, float max) {
+      m_progress_min = min;
+      m_progress_max = max;
+    }
 
   private:
     std::atomic<bool> m_canceled;
     std::atomic<float> m_progress;
+    float m_progress_min, m_progress_max;
   };
 
   class task {
