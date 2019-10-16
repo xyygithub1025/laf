@@ -8,6 +8,7 @@
 #define BASE_TASK_H_INCLUDED
 #pragma once
 
+#include "base/debug.h"
 #include "base/thread_pool.h"
 
 #include <atomic>
@@ -30,8 +31,9 @@ namespace base {
 
     void cancel() { m_canceled = true; }
     void set_progress(float p) {
+      ASSERT(p >= 0.0f && p <= 1.0f);
       m_progress = m_progress_min
-        + p / (m_progress_max - m_progress_min);
+        + p * (m_progress_max - m_progress_min);
     }
     void set_progress_range(float min, float max) {
       m_progress_min = min;
