@@ -40,7 +40,9 @@ namespace gfx {
     void add(const Rect& rc);
 
     // Returns the best size for the texture.
-    Size bestFit(base::task_token& token);
+    Size bestFit(base::task_token& token,
+                 const int fixedWidth = 0,
+                 const int fixedHeight = 0);
 
     // Rearrange all given rectangles to best fit a texture size.
     // Returns true if all rectangles were correctly arranged or false

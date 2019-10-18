@@ -1,4 +1,5 @@
 // LAF Gfx Library
+// Copyright (C) 2019  Igara Studio S.A.
 // Copyright (C) 2001-2014 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -25,19 +26,26 @@ void PackingRects::add(const Rect& rc)
   m_rects.push_back(rc);
 }
 
-Size PackingRects::bestFit(base::task_token& token)
+Size PackingRects::bestFit(base::task_token& token,
+                           const int fixedWidth,
+                           const int fixedHeight)
 {
-  Size size(0, 0);
+  Size size(fixedWidth, fixedHeight);
+
+  // Nothing to do, the size is already specified
+  if (fixedWidth > 0 && fixedHeight > 0)
+    return size;
 
   // Calculate the amount of pixels that we need, the texture cannot
   // be smaller than that.
   int neededArea = 0;
   for (const auto& rc : m_rects) {
     neededArea += rc.w * rc.h;
+    size |= rc.size();
   }
 
-  int w = 1;
-  int h = 1;
+  int w = std::max(size.w, 1);
+  int h = std::max(size.h, 1);;
   int z = 0;
   bool fit = false;
   while (!token.canceled()) {
@@ -49,10 +57,18 @@ Size PackingRects::bestFit(base::task_token& token)
       }
     }
 
-    if ((++z) & 1)
+    if (fixedWidth == 0 && fixedHeight == 0) {
+      if ((++z) & 1)
+        w *= 2;
+      else
+        h *= 2;
+    }
+    else if (fixedWidth == 0) {
       w *= 2;
-    else
+    }
+    else {
       h *= 2;
+    }
   }
 
   return size;
