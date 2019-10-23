@@ -49,7 +49,7 @@ TEST(PackingRects, BestFit)
   PackingRects pr;
   pr.add(Size(10, 12));
   pr.bestFit(token);
-  EXPECT_EQ(Rect(0, 0, 16, 16), pr.bounds());
+  EXPECT_EQ(Rect(0, 0, 10, 12), pr.bounds());
 }
 
 TEST(PackingRects, BestFitTwoRects)
@@ -60,9 +60,9 @@ TEST(PackingRects, BestFitTwoRects)
   pr.add(Size(256, 127));
   pr.bestFit(token);
 
-  EXPECT_EQ(Rect(0, 0, 256, 256), pr.bounds());
+  EXPECT_EQ(Rect(0, 0, 512, 128), pr.bounds());
   EXPECT_EQ(Rect(0, 0, 256, 128), pr[0]);
-  EXPECT_EQ(Rect(0, 128, 256, 127), pr[1]);
+  EXPECT_EQ(Rect(256, 0, 256, 127), pr[1]);
 }
 
 TEST(PackingRects, BestFit6Frames100x100)
@@ -77,16 +77,16 @@ TEST(PackingRects, BestFit6Frames100x100)
   pr.add(Size(100, 100));
   pr.bestFit(token);
 
-  EXPECT_EQ(Rect(0, 0, 512, 256), pr.bounds());
+  EXPECT_EQ(Rect(0, 0, 300, 200), pr.bounds());
   EXPECT_EQ(Rect(0, 0, 100, 100), pr[0]);
   EXPECT_EQ(Rect(100, 0, 100, 100), pr[1]);
   EXPECT_EQ(Rect(200, 0, 100, 100), pr[2]);
-  EXPECT_EQ(Rect(300, 0, 100, 100), pr[3]);
-  EXPECT_EQ(Rect(400, 0, 100, 100), pr[4]);
-  EXPECT_EQ(Rect(0, 100, 100, 100), pr[5]);
+  EXPECT_EQ(Rect(0, 100, 100, 100), pr[3]);
+  EXPECT_EQ(Rect(100, 100, 100, 100), pr[4]);
+  EXPECT_EQ(Rect(200, 100, 100, 100), pr[5]);
 }
 
-TEST(PackingRects, KeepSameRectsOrder)
+TEST(PackingRects, SmallerRectanglesAtTheEnd)
 {
   base::task_token token;
   PackingRects pr;
@@ -95,7 +95,7 @@ TEST(PackingRects, KeepSameRectsOrder)
   pr.add(Size(30, 30));
   pr.bestFit(token);
 
-  EXPECT_EQ(Rect(0, 0, 64, 32), pr.bounds());
+  EXPECT_EQ(Rect(0, 0, 60, 30), pr.bounds());
   EXPECT_EQ(Rect(50, 0, 10, 10), pr[0]);
   EXPECT_EQ(Rect(30, 0, 20, 20), pr[1]);
   EXPECT_EQ(Rect(0, 0, 30, 30), pr[2]);
