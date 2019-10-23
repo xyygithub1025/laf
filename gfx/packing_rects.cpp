@@ -44,8 +44,10 @@ Size PackingRects::bestFit(base::task_token& token,
     size |= rc.size();
   }
 
-  int w = std::max(size.w, 1);
-  int h = std::max(size.h, 1);;
+  const int w0 = std::max(size.w, 1);
+  const int h0 = std::max(size.h, 1);
+  int w = w0;
+  int h = h0;
   int z = 0;
   bool fit = false;
   while (!token.canceled()) {
@@ -59,15 +61,15 @@ Size PackingRects::bestFit(base::task_token& token,
 
     if (fixedWidth == 0 && fixedHeight == 0) {
       if ((++z) & 1)
-        w *= 2;
+        w += w0;
       else
-        h *= 2;
+        h += h0;
     }
     else if (fixedWidth == 0) {
-      w *= 2;
+      w += w0;
     }
     else {
-      h *= 2;
+      h += h0;
     }
   }
 
