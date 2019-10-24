@@ -19,6 +19,7 @@ namespace os {
 class NoneSystem : public System {
 public:
   void dispose() override { delete this; }
+  void setAppMode(AppMode appMode) override { }
   void activateApp() override { }
   void finishLaunching() override { }
   Capabilities capabilities() const override { return (Capabilities)0; }

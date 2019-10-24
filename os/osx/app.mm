@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2019  Igara Studio S.A.
 // Copyright (C) 2012-2016  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -24,7 +25,6 @@ public:
     m_app = [OSXNSApplication sharedApplication];
     m_appDelegate = [OSXAppDelegate new];
 
-    [m_app setActivationPolicy:NSApplicationActivationPolicyRegular];
     [m_app setDelegate:m_appDelegate];
 
     // Don't activate the application ignoring other apps. This is
@@ -37,10 +37,13 @@ public:
     return true;
   }
 
-  // We might need to call this function when the app is launched from
-  // Steam. It appears that there is a bug on OS X Steam client where
-  // the app is launched, activated, and then the Steam client is
-  // activated again.
+  void setAppMode(AppMode appMode) {
+    switch (appMode) {
+      case AppMode::CLI: [m_app setActivationPolicy:NSApplicationActivationPolicyProhibited]; break;
+      case AppMode::GUI: [m_app setActivationPolicy:NSApplicationActivationPolicyRegular]; break;
+    }
+  }
+
   void activateApp() {
     [m_app activateIgnoringOtherApps:YES];
   }
@@ -78,6 +81,11 @@ OSXApp::~OSXApp()
 bool OSXApp::init()
 {
   return m_impl->init();
+}
+
+void OSXApp::setAppMode(AppMode appMode)
+{
+  m_impl->setAppMode(appMode);
 }
 
 void OSXApp::activateApp()
