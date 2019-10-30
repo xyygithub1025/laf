@@ -6,16 +6,45 @@
 
 #include "os/os.h"
 
-void draw_display(os::Display* display)
+#include <cstdio>
+
+class MyDrawTextDelegate : public os::DrawTextDelegate {
+  gfx::Point m_mousePos;
+public:
+  MyDrawTextDelegate(const gfx::Point& mousePos) : m_mousePos(mousePos) { }
+
+  void preProcessChar(const int index,
+                      const int codepoint,
+                      gfx::Color& fg,
+                      gfx::Color& bg,
+                      const gfx::Rect& charBounds) override {
+    if (charBounds.contains(m_mousePos)) {
+      fg = gfx::rgba(0, 0, 0);
+      bg = gfx::rgba(255, 255, 255);
+    }
+    else {
+      fg = gfx::rgba(255, 255, 255);
+      bg = gfx::rgba(0, 0, 0);
+    }
+  }
+};
+
+os::Font* font = nullptr;
+
+void draw_display(os::Display* display,
+                  const gfx::Point& mousePos)
 {
   os::Surface* surface = display->getSurface();
   os::SurfaceLock lock(surface);
   const gfx::Rect rc = surface->bounds();
 
+  os::Surface* backSurface = os::instance()->createSurface(rc.w, rc.h);
+  os::SurfaceLock lock2(backSurface);
+
   os::Paint p;
   p.color(gfx::rgba(0, 0, 0));
   p.style(os::Paint::Fill);
-  surface->drawRect(rc, p);
+  backSurface->drawRect(rc, p);
 
   p.color(gfx::rgba(255, 255, 255));
 
@@ -26,13 +55,23 @@ void draw_display(os::Display* display)
                              L"한국어",       // Korean
                              L"العَرَبِيَّة‎"  };     // Arabic
 
+  MyDrawTextDelegate delegate(mousePos);
   gfx::Point pos(0, 0);
   for (auto line : lines) {
-    os::draw_text_with_shaper(
-      surface, nullptr, base::to_utf8(line), pos, &p);
-    pos.x += 0;
+    std::string s = base::to_utf8(line);
+    base::utf8_const utf8(s);
+    os::draw_text(
+      backSurface, font,
+      utf8.begin(), utf8.end(),
+      gfx::rgba(255, 255, 255), gfx::ColorNone,
+      pos.x, pos.y,
+      &delegate);
+
     pos.y += 32;
   }
+
+  // Flip the back surface to the display surface
+  surface->drawSurface(backSurface, 0, 0);
 
   // Invalidates the whole display to show it on the screen.
   display->invalidateRegion(gfx::Region(rc));
@@ -43,6 +82,13 @@ int app_main(int argc, char* argv[])
   os::SystemHandle system(os::create_system());
   os::DisplayHandle display(system->createDisplay(400, 300, 1));
 
+  // TODO use new fonts (SkFont wrappers with system->fontManager())
+  font = os::instance()->loadTrueTypeFont("/Library/Fonts/Arial Unicode.ttf", 24);
+  if (!font) {
+    std::printf("Font not found\n");
+    return 1;
+  }
+
   display->setNativeMouseCursor(os::kArrowCursor);
   display->setTitle("CTL");
 
@@ -51,12 +97,13 @@ int app_main(int argc, char* argv[])
 
   // Wait until a key is pressed or the window is closed
   os::EventQueue* queue = system->eventQueue();
+  gfx::Point mousePos;
   bool running = true;
   bool redraw = true;
   while (running) {
     if (redraw) {
       redraw = false;
-      draw_display(display);
+      draw_display(display, mousePos);
     }
     // Wait for an event in the queue, the "true" parameter indicates
     // that we'll wait for a new event, and the next line will not be
@@ -96,6 +143,17 @@ int app_main(int argc, char* argv[])
         break;
 
       case os::Event::ResizeDisplay:
+        redraw = true;
+        break;
+
+      case os::Event::MouseEnter:
+      case os::Event::MouseMove:
+        mousePos = ev.position();
+        redraw = true;
+        break;
+
+      case os::Event::MouseLeave:
+        mousePos = gfx::Point(-1, -1);
         redraw = true;
         break;
 

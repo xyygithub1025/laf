@@ -21,11 +21,13 @@
 
 namespace os {
 
-void draw_text_with_shaper(Surface* surface, Font* font,
-                           const std::string& text,
-                           const gfx::Point& pos,
-                           const Paint* paint,
-                           const TextAlign textAlign)
+void draw_text_with_shaper(
+  Surface* surface, Font* font,
+  const std::string& text,
+  const gfx::Point& pos,
+  const Paint* paint,
+  const TextAlign textAlign,
+  DrawTextDelegate* delegate)
 {
   SkPaint skPaint;
   if (paint)

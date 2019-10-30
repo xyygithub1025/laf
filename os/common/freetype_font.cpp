@@ -42,7 +42,7 @@ void FreeTypeFont::dispose()
 
 FontType FreeTypeFont::type()
 {
-  return FontType::kTrueType;
+  return FontType::FreeType;
 }
 
 int FreeTypeFont::height() const

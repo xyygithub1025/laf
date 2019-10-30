@@ -56,11 +56,11 @@ retry:;
 
   switch (font->type()) {
 
-    case FontType::kUnknown:
+    case FontType::Unknown:
       // Do nothing
       break;
 
-    case FontType::kSpriteSheet: {
+    case FontType::SpriteSheet: {
       SpriteSheetFont* ssFont = static_cast<SpriteSheetFont*>(font);
       Surface* sheet = ssFont->getSurfaceSheet();
 
@@ -71,13 +71,14 @@ retry:;
 
       while (it != end) {
         int chr = *it;
-        if (delegate) {
-          int i = it-begin;
-          delegate->preProcessChar(i, chr, fg, bg);
-        }
-
         gfx::Rect charBounds = ssFont->getCharBounds(chr);
         gfx::Rect outCharBounds(x, y, charBounds.w, charBounds.h);
+
+        if (delegate) {
+          int i = it-begin;
+          delegate->preProcessChar(i, chr, fg, bg, outCharBounds);
+        }
+
         if (delegate && !delegate->preDrawChar(outCharBounds))
           break;
 
@@ -101,7 +102,7 @@ retry:;
       break;
     }
 
-    case FontType::kTrueType: {
+    case FontType::FreeType: {
       FreeTypeFont* ttFont = static_cast<FreeTypeFont*>(font);
       bool antialias = ttFont->face().antialias();
       int fg_alpha = gfx::geta(fg);
@@ -117,20 +118,24 @@ retry:;
       ft::ForEachGlyph<FreeTypeFont::Face> feg(ttFont->face());
       if (feg.initialize(it, end)) {
         do {
+          gfx::Rect origDstBounds;
+          auto glyph = feg.glyph();
+          if (glyph)
+            origDstBounds = gfx::Rect(
+              x + int(glyph->startX),
+              y + int(glyph->y),
+              int(glyph->endX) - int(glyph->startX),
+              int(glyph->bitmap->rows) ? int(glyph->bitmap->rows): 1);
+
           if (delegate) {
-            delegate->preProcessChar(feg.charIndex(),
-                                     feg.unicodeChar(), fg, bg);
+            delegate->preProcessChar(
+              feg.charIndex(),
+              feg.unicodeChar(),
+              fg, bg, origDstBounds);
           }
 
-          auto glyph = feg.glyph();
           if (!glyph)
             continue;
-
-          gfx::Rect origDstBounds(
-            x + int(glyph->startX),
-            y + int(glyph->y),
-            int(glyph->endX) - int(glyph->startX),
-            int(glyph->bitmap->rows) ? int(glyph->bitmap->rows): 1);
 
           if (delegate && !delegate->preDrawChar(origDstBounds))
             break;

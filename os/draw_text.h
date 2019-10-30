@@ -27,7 +27,9 @@ namespace os {
     // This is called before drawing the character.
     virtual void preProcessChar(const int index,
                                 const int codepoint,
-                                gfx::Color& fg, gfx::Color& bg) {
+                                gfx::Color& fg,
+                                gfx::Color& bg,
+                                const gfx::Rect& charBounds) {
       // Do nothing
     }
 
@@ -43,32 +45,37 @@ namespace os {
 
   // The surface can be nullptr just to process the string
   // (e.g. measure how much space will use the text without drawing
-  // it).
-  gfx::Rect draw_text(Surface* surface, Font* font,
-                      const base::utf8_const_iterator& begin,
-                      const base::utf8_const_iterator& end,
-                      gfx::Color fg, gfx::Color bg,
-                      int x, int y,
-                      DrawTextDelegate* delegate);
+  // it). It uses FreeType2 library and harfbuzz. Doesn't support RTL
+  // (right-to-left) languages.
+  gfx::Rect draw_text(
+    Surface* surface, Font* font,
+    const base::utf8_const_iterator& begin,
+    const base::utf8_const_iterator& end,
+    gfx::Color fg, gfx::Color bg,
+    int x, int y,
+    DrawTextDelegate* delegate);
 
   // Uses SkTextUtils::Draw() to draw text (doesn't depend on harfbuzz
-  // or big dependencies, useful to print English text).
-  void draw_text(Surface* surface, Font* font,
-                 const std::string& text,
-                 const gfx::Point& pos,
-                 const Paint* paint = nullptr,
-                 const TextAlign textAlign = TextAlign::Left);
+  // or big dependencies, useful to print English text only).
+  void draw_text(
+    Surface* surface, Font* font,
+    const std::string& text,
+    const gfx::Point& pos,
+    const Paint* paint = nullptr,
+    const TextAlign textAlign = TextAlign::Left,
+    DrawTextDelegate* delegate = nullptr);
 
   // Uses SkShaper::Make() to draw text (harfbuzz if available),
-  // useful for right-to-left languages. Avoid this function if you
-  // are not going to translate your app to non-English languages
+  // useful for RTL (right-to-left) languages. Avoid this function if
+  // you are not going to translate your app to non-English languages
   // (prefer os::draw_text() when possible).
   void draw_text_with_shaper(
     Surface* surface, Font* font,
     const std::string& text,
     const gfx::Point& pos,
     const Paint* paint = nullptr,
-    const TextAlign textAlign = TextAlign::Left);
+    const TextAlign textAlign = TextAlign::Left,
+    DrawTextDelegate* delegate = nullptr);
 
 } // namespace os
 

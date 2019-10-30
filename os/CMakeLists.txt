@@ -87,11 +87,11 @@ endif()
 
 add_library(laf-os ${LAF_OS_SOURCES})
 target_link_libraries(laf-os laf-gfx laf-base)
-if(laf-ft)
+if(FREETYPE_LIBRARIES AND HARFBUZZ_LIBRARIES)
   target_link_libraries(laf-os laf-ft)
   target_compile_definitions(laf-os PRIVATE
     LAF_FREETYPE)
-  set(LAF_OS_SOURCES
+  target_sources(laf-os PRIVATE
     common/freetype_font.cpp
     draw_text.cpp)
 endif()
