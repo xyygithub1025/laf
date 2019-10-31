@@ -53,6 +53,20 @@ static const char* to_str(os::FontStyle::Slant slant)
   return "";
 }
 
+static void print_set(const std::string& name, os::FontStyleSet* set)
+{
+  for (int j=0; j<set->count(); ++j) {
+    os::FontStyle style;
+    std::string styleName;
+    set->getStyle(j, style, styleName);
+    std::printf(" * %s (%s %s %s)\n",
+                name.c_str(),
+                to_str(style.weight()),
+                to_str(style.width()),
+                to_str(style.slant()));
+  }
+}
+
 int app_main(int argc, char* argv[])
 {
   os::SystemHandle system(os::create_system());
@@ -62,29 +76,31 @@ int app_main(int argc, char* argv[])
     return 1;
   }
 
-  const int n = fm->countFamilies();
-  for (int i=0; i<n; ++i) {
-    std::string name = fm->familyName(i);
-    std::printf("%s\n", name.c_str());
-
-    auto fnset = fm->matchFamily(name);
-    auto set = fm->familyStyleSet(i);
-    assert(fnset->count() == set->count());
-
-    for (int j=0; j<set->count(); ++j) {
-      os::FontStyle style;
-      std::string styleName;
-      set->getStyle(j, style, styleName);
-      std::printf(" * %s (%s %s %s)\n",
-                  name.c_str(),
-                  to_str(style.weight()),
-                  to_str(style.width()),
-                  to_str(style.slant()));
-
-      auto face = set->typeface(j);
-      assert(face->fontStyle() == style);
+  if (argc > 1) {
+    for (int i=1; i<argc; ++i) {
+      std::string name = argv[i];
+      std::printf("%s\n", name.c_str());
+      auto set = fm->matchFamily(name);
+      if (!set) {
+        std::printf("Font family '%s' not found\n", argv[i]);
+        return 1;
+      }
+      print_set(name, set);
     }
   }
+  // Print all font families
+  else {
+    const int n = fm->countFamilies();
+    for (int i=0; i<n; ++i) {
+      std::string name = fm->familyName(i);
+      std::printf("%s\n", name.c_str());
 
+      auto fnset = fm->matchFamily(name);
+      auto set = fm->familyStyleSet(i);
+      assert(fnset->count() == set->count());
+
+      print_set(name, set);
+    }
+  }
   return 0;
 }
