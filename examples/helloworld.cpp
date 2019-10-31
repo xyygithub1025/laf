@@ -33,6 +33,8 @@ int app_main(int argc, char* argv[])
   const int pixelScale = 2;
 
   os::SystemHandle system(os::create_system());
+  system->setAppMode(os::AppMode::GUI);
+
   os::DisplayHandle display(system->createDisplay(400, 300, pixelScale));
 
   display->setNativeMouseCursor(os::kArrowCursor);

@@ -8,6 +8,7 @@
 #define BASE_TASK_H_INCLUDED
 #pragma once
 
+#include "base/debug.h"
 #include "base/thread_pool.h"
 
 #include <atomic>
@@ -19,17 +20,30 @@ namespace base {
 
   class task_token {
   public:
-    task_token() : m_canceled(false), m_progress(0.0f) { }
+    task_token()
+      : m_canceled(false)
+      , m_progress(0.0f)
+      , m_progress_min(0.0f)
+      , m_progress_max(1.0f) { }
 
     bool canceled() const { return m_canceled; }
     float progress() const { return m_progress; }
 
     void cancel() { m_canceled = true; }
-    void set_progress(float progress) { m_progress = progress; }
+    void set_progress(float p) {
+      ASSERT(p >= 0.0f && p <= 1.0f);
+      m_progress = m_progress_min
+        + p * (m_progress_max - m_progress_min);
+    }
+    void set_progress_range(float min, float max) {
+      m_progress_min = min;
+      m_progress_max = max;
+    }
 
   private:
     std::atomic<bool> m_canceled;
     std::atomic<float> m_progress;
+    float m_progress_min, m_progress_max;
   };
 
   class task {
@@ -44,6 +58,11 @@ namespace base {
     task_token& start(thread_pool& pool);
 
     bool running() const { return m_running; }
+
+    // Returns true when the task is completed (whether it was
+    // canceled or not). If this is true, it's safe to delete the task
+    // instance (it will not be used anymore by any othe background
+    // thread).
     bool completed() const { return m_completed; }
 
   private:

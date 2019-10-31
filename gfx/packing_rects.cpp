@@ -1,4 +1,5 @@
 // LAF Gfx Library
+// Copyright (C) 2019  Igara Studio S.A.
 // Copyright (C) 2001-2014 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -25,34 +26,51 @@ void PackingRects::add(const Rect& rc)
   m_rects.push_back(rc);
 }
 
-Size PackingRects::bestFit()
+Size PackingRects::bestFit(base::task_token& token,
+                           const int fixedWidth,
+                           const int fixedHeight)
 {
-  Size size(0, 0);
+  Size size(fixedWidth, fixedHeight);
+
+  // Nothing to do, the size is already specified
+  if (fixedWidth > 0 && fixedHeight > 0)
+    return size;
 
   // Calculate the amount of pixels that we need, the texture cannot
   // be smaller than that.
   int neededArea = 0;
   for (const auto& rc : m_rects) {
     neededArea += rc.w * rc.h;
+    size |= rc.size();
   }
 
-  int w = 1;
-  int h = 1;
+  const int w0 = std::max(size.w, 1);
+  const int h0 = std::max(size.h, 1);
+  int w = w0;
+  int h = h0;
   int z = 0;
   bool fit = false;
-  while (true) {
+  while (!token.canceled()) {
     if (w*h >= neededArea) {
-      fit = pack(Size(w, h));
+      fit = pack(Size(w, h), token);
       if (fit) {
         size = Size(w, h);
         break;
       }
     }
 
-    if ((++z) & 1)
-      w *= 2;
-    else
-      h *= 2;
+    if (fixedWidth == 0 && fixedHeight == 0) {
+      if ((++z) & 1)
+        w += w0;
+      else
+        h += h0;
+    }
+    else if (fixedWidth == 0) {
+      w += w0;
+    }
+    else {
+      h += h0;
+    }
   }
 
   return size;
@@ -62,7 +80,8 @@ static bool by_area(const Rect* a, const Rect* b) {
   return a->w*a->h > b->w*b->h;
 }
 
-bool PackingRects::pack(const Size& size)
+bool PackingRects::pack(const Size& size,
+                        base::task_token& token)
 {
   m_bounds = Rect(size).shrink(m_borderPadding);
 
@@ -74,7 +93,12 @@ bool PackingRects::pack(const Size& size)
   std::sort(rectPtrs.begin(), rectPtrs.end(), by_area);
 
   gfx::Region rgn(m_bounds);
+  i = 0;
   for (auto rcPtr : rectPtrs) {
+    if (token.canceled())
+      return false;
+    token.set_progress(float(i) / int(rectPtrs.size()));
+
     gfx::Rect& rc = *rcPtr;
 
     // The rectangles are treated as its original size during placement,
@@ -85,6 +109,9 @@ bool PackingRects::pack(const Size& size)
     // horizontal space is between <width> and <width>+<shapePadding>.
     for (int v=0; v<=m_bounds.h-rc.h; ++v) {
       for (int u=0; u<=m_bounds.w-rc.w; ++u) {
+        if (token.canceled())
+          return false;
+
         gfx::Rect possible(m_bounds.x + u, m_bounds.y + v, rc.w, rc.h);
         Region::Overlap overlap = rgn.contains(possible);
         if (overlap == Region::In) {
@@ -99,6 +126,7 @@ bool PackingRects::pack(const Size& size)
     }
     return false; // There is not enough room for "rc"
   next_rc:;
+    ++i;
   }
 
   return true;

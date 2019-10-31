@@ -10,6 +10,7 @@
 
 #include "base/task.h"
 
+#include "base/debug.h"
 #include "base/log.h"
 
 namespace base {
@@ -22,6 +23,8 @@ task::task()
 
 task::~task()
 {
+  ASSERT(!m_running);
+  ASSERT(m_completed);
 }
 
 task_token& task::start(thread_pool& pool)
@@ -42,6 +45,9 @@ void task::in_worker_thread()
   }
 
   m_running = false;
+
+  // This must be the latest statement in the worker thread (see
+  // task::complete() comment)
   m_completed = true;
 }
 

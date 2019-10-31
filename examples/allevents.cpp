@@ -220,6 +220,8 @@ private:
 int app_main(int argc, char* argv[])
 {
   os::SystemHandle system(os::create_system());
+  system->setAppMode(os::AppMode::GUI);
+
   LogWindow window(system);
 
   system->finishLaunching();

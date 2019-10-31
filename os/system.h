@@ -10,6 +10,7 @@
 #pragma once
 
 #include "gfx/fwd.h"
+#include "os/app_mode.h"
 #include "os/capabilities.h"
 #include "os/color_space.h"
 #include "os/keys.h"
@@ -41,7 +42,19 @@ namespace os {
     virtual ~System() { }
   public:
     virtual void dispose() = 0;
+
+    // We can use this function to create an application that can run
+    // in CLI and GUI mode depending on the given arguments, and in
+    // this way avoid to showing the app in the macOS dock bar if we
+    // are running in CLI only.
+    virtual void setAppMode(AppMode appMode) = 0;
+
+    // We might need to call this function when the app is launched
+    // from Steam. It appears that there is a bug on OS X Steam client
+    // where the app is launched, activated, and then the Steam client
+    // is activated again.
     virtual void activateApp() = 0;
+
     virtual void finishLaunching() = 0;
 
     virtual Capabilities capabilities() const = 0;

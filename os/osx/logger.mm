@@ -18,7 +18,7 @@ namespace os {
     }
   };
 
-  Logger* getOsxLogger() {
+  Logger* get_macos_logger() {
     return new OSXLogger;
   }
 

@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2019  Igara Studio S.A.
 // Copyright (C) 2012-2016  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -7,6 +8,8 @@
 #ifndef OS_OSX_APP_H_INCLUDED
 #define OS_OSX_APP_H_INCLUDED
 #pragma once
+
+#include "os/app_mode.h"
 
 namespace os {
 
@@ -18,6 +21,7 @@ namespace os {
     ~OSXApp();
 
     bool init();
+    void setAppMode(AppMode appMode);
     void activateApp();
     void finishLaunching();
 

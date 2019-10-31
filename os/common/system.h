@@ -34,15 +34,10 @@
 
 namespace os {
 
-#ifdef __APPLE__
-Logger* getOsxLogger();
-#endif
-
 class CommonSystem : public System {
 public:
   CommonSystem()
-    : m_nativeDialogs(nullptr)
-    , m_menus(nullptr) {
+    : m_nativeDialogs(nullptr) {
 #ifdef _WIN32
     m_useWintabAPI = true;
 #endif
@@ -50,7 +45,6 @@ public:
 
   ~CommonSystem() {
     delete m_nativeDialogs;
-    delete m_menus;
   }
 
   void dispose() override {
@@ -58,20 +52,9 @@ public:
     delete this;
   }
 
-  void activateApp() override {
-#if __APPLE__
-    OSXApp::instance()->activateApp();
-#endif
-  }
-
-  void finishLaunching() override {
-#if __APPLE__
-    // Start processing NSApplicationDelegate events. (E.g. after
-    // calling this we'll receive application:openFiles: and we'll
-    // generate DropFiles events.)  events
-    OSXApp::instance()->finishLaunching();
-#endif
-  }
+  void setAppMode(AppMode appMode) override { }
+  void activateApp() override { }
+  void finishLaunching() override { }
 
   void useWintabAPI(bool state) override {
 #ifdef _WIN32
@@ -86,19 +69,11 @@ public:
 #endif
 
   Logger* logger() override {
-#ifdef __APPLE__
-    return getOsxLogger();
-#else
     return nullptr;
-#endif
   }
 
   Menus* menus() override {
-#ifdef __APPLE__
-    if (!m_menus)
-      m_menus = new MenusOSX();
-#endif
-    return m_menus;
+    return nullptr;
   }
 
   NativeDialogs* nativeDialogs() override {
@@ -159,7 +134,6 @@ private:
   bool m_useWintabAPI;
 #endif
   NativeDialogs* m_nativeDialogs;
-  Menus* m_menus;
 #ifdef LAF_FREETYPE
   std::unique_ptr<ft::Lib> m_ft;
 #endif

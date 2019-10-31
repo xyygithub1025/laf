@@ -70,6 +70,8 @@ static void print_set(const std::string& name, os::FontStyleSet* set)
 int app_main(int argc, char* argv[])
 {
   os::SystemHandle system(os::create_system());
+  system->setAppMode(os::AppMode::CLI);
+
   auto fm = system->fontManager();
   if (!fm) {
     std::printf("There is no font manager in your platform\n");

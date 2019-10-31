@@ -80,6 +80,8 @@ void draw_display(os::Display* display,
 int app_main(int argc, char* argv[])
 {
   os::SystemHandle system(os::create_system());
+  system->setAppMode(os::AppMode::GUI);
+
   os::DisplayHandle display(system->createDisplay(400, 300, 1));
 
   // TODO use new fonts (SkFont wrappers with system->fontManager())
