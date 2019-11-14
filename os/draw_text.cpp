@@ -103,7 +103,6 @@ retry:;
 
     case FontType::kTrueType: {
       FreeTypeFont* ttFont = static_cast<FreeTypeFont*>(font);
-      bool antialias = ttFont->face().antialias();
       int fg_alpha = gfx::geta(fg);
 
       gfx::Rect clipBounds;
@@ -157,10 +156,10 @@ retry:;
 
               // Skip first clipped pixels
               for (int u=0; u<dstBounds.x-origDstBounds.x; ++u) {
-                if (antialias) {
+                if (glyph->bitmap->pixel_mode == FT_PIXEL_MODE_GRAY) {
                   ++p;
                 }
-                else {
+                else if (glyph->bitmap->pixel_mode == FT_PIXEL_MODE_MONO) {
                   if (bit == 8) {
                     bit = 0;
                     ++p;
@@ -172,10 +171,12 @@ retry:;
                 ASSERT(clipBounds.contains(gfx::Point(dst_x, dst_y)));
 
                 int alpha;
-                if (antialias) {
-                  alpha = *(p++);
+                if (glyph->bitmap->pixel_mode == FT_PIXEL_MODE_GRAY) {
+                  // alpha = *(p++);
+                  alpha = 0;
+                  ++p;
                 }
-                else {
+                else if (glyph->bitmap->pixel_mode == FT_PIXEL_MODE_MONO) {
                   alpha = ((*p) & (1 << (7 - (bit++))) ? 255: 0);
                   if (bit == 8) {
                     bit = 0;
