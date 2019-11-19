@@ -172,9 +172,7 @@ retry:;
 
                 int alpha;
                 if (glyph->bitmap->pixel_mode == FT_PIXEL_MODE_GRAY) {
-                  // alpha = *(p++);
-                  alpha = 0;
-                  ++p;
+                  alpha = *(p++);
                 }
                 else if (glyph->bitmap->pixel_mode == FT_PIXEL_MODE_MONO) {
                   alpha = ((*p) & (1 << (7 - (bit++))) ? 255: 0);
