@@ -42,18 +42,6 @@ bool RWLock::lock(LockType lockType, int timeout)
     {
       scoped_lock lock(m_mutex);
 
-      // Check that there is no weak lock
-      if (m_weak_lock) {
-        if (*m_weak_lock == WeakLocked)
-          *m_weak_lock = WeakUnlocking;
-
-        // Wait some time
-        if (*m_weak_lock == WeakUnlocking)
-          goto go_wait;
-
-        ASSERT(*m_weak_lock == WeakUnlocked);
-      }
-
       switch (lockType) {
 
         case ReadLock:
@@ -66,6 +54,17 @@ bool RWLock::lock(LockType lockType, int timeout)
           break;
 
         case WriteLock:
+          // Check that there is no weak lock
+          if (m_weak_lock) {
+            if (*m_weak_lock == WeakLocked)
+              *m_weak_lock = WeakUnlocking;
+
+            if (*m_weak_lock == WeakUnlocking)
+              goto go_wait;
+
+            ASSERT(*m_weak_lock == WeakUnlocked);
+          }
+
           // If no body is reading and writting...
           if (m_read_locks == 0 && !m_write_lock) {
             // We can start writting the object...
@@ -136,8 +135,7 @@ bool RWLock::weakLock(WeakLock* weak_lock_flag)
   scoped_lock lock(m_mutex);
 
   if (m_weak_lock ||
-      m_write_lock ||
-      m_read_locks > 0)
+      m_write_lock)
     return false;
 
   m_weak_lock = weak_lock_flag;
@@ -150,7 +148,6 @@ void RWLock::weakUnlock()
   ASSERT(m_weak_lock);
   ASSERT(*m_weak_lock != WeakLock::WeakUnlocked);
   ASSERT(!m_write_lock);
-  ASSERT(m_read_locks == 0);
 
   if (m_weak_lock) {
     *m_weak_lock = WeakLock::WeakUnlocked;
