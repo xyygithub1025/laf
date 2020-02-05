@@ -1,5 +1,6 @@
 // LAF Base Library
-// Copyright (c) 2001-2016 David Capello
+// Copyright (C) 2020  Igara Studio S.A.
+// Copyright (C) 2001-2016  David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -34,6 +35,13 @@ RWLock::~RWLock()
   ASSERT(!m_write_lock);
   ASSERT(m_read_locks == 0);
   ASSERT(m_weak_lock == nullptr);
+}
+
+bool RWLock::canWriteLockFromRead() const
+{
+  // If only we are reading (one lock) and nobody is writting, we can
+  // lock for writting..
+  return (m_read_locks == 1 && !m_write_lock);
 }
 
 bool RWLock::lock(LockType lockType, int timeout)
