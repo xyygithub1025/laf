@@ -35,7 +35,10 @@ To compile with Skia as backend you have to specify a valid compiled version of 
 cd /path-with-laf-source-code
 mkdir build
 cd build
-cmake -G Ninja -DSKIA_DIR=/path-to-skia-source-code -DSKIA_OUT_DIR=/path-to-skia-source-code/out/Release /path-with-laf-source-code
+cmake -G Ninja \
+  -DSKIA_DIR=/path-to-skia-source-code \
+  -DSKIA_LIBRARY_DIR=/path-to-skia-source-code/lib/Release-x64 \
+  /path-with-laf-source-code
 ninja
 ./examples/helloworld
 ```
