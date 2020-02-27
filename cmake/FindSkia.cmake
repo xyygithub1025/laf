@@ -54,7 +54,13 @@ find_path(SKIA_SKCMS_INCLUDE_DIR skcms.h
   "${SKIA_DIR}/third_party/skcms"
   "${SKIA_DIR}/include/third_party/skcms")
 
-include_directories(
+set(SKIA_LIBRARIES
+  ${SKIA_LIBRARY}
+  ${SKIA_OPENGL_LIBRARY}
+  CACHE INTERNAL "Skia libraries")
+
+add_library(skia INTERFACE)
+target_include_directories(skia INTERFACE
   ${SKIA_DIR}
   ${SKIA_CONFIG_INCLUDE_DIR}
   ${SKIA_CORE_INCLUDE_DIR}
@@ -67,15 +73,9 @@ include_directories(
   ${FREETYPE_INCLUDE_DIRS}
   ${HARFBUZZ_INCLUDE_DIRS})
 if(WIN32)
-  include_directories(${SKIA_ANGLE_INCLUDE_DIR})
+  target_include_directories(skia INTERFACE
+    ${SKIA_ANGLE_INCLUDE_DIR})
 endif()
-
-set(SKIA_LIBRARIES
-  ${SKIA_LIBRARY}
-  ${SKIA_OPENGL_LIBRARY}
-  CACHE INTERNAL "Skia libraries")
-
-add_library(skia INTERFACE)
 target_link_libraries(skia INTERFACE ${SKIA_LIBRARIES})
 target_compile_definitions(skia INTERFACE
   SK_INTERNAL
