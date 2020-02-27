@@ -1,5 +1,6 @@
 // LAF Base Library
-// Copyright (c) 2001-2016 David Capello
+// Copyright (C) 2020  Igara Studio S.A.
+// Copyright (C) 2001-2016  David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -36,23 +37,18 @@ RWLock::~RWLock()
   ASSERT(m_weak_lock == nullptr);
 }
 
+bool RWLock::canWriteLockFromRead() const
+{
+  // If only we are reading (one lock) and nobody is writting, we can
+  // lock for writting..
+  return (m_read_locks == 1 && !m_write_lock);
+}
+
 bool RWLock::lock(LockType lockType, int timeout)
 {
   while (timeout >= 0) {
     {
       scoped_lock lock(m_mutex);
-
-      // Check that there is no weak lock
-      if (m_weak_lock) {
-        if (*m_weak_lock == WeakLocked)
-          *m_weak_lock = WeakUnlocking;
-
-        // Wait some time
-        if (*m_weak_lock == WeakUnlocking)
-          goto go_wait;
-
-        ASSERT(*m_weak_lock == WeakUnlocked);
-      }
 
       switch (lockType) {
 
@@ -66,6 +62,17 @@ bool RWLock::lock(LockType lockType, int timeout)
           break;
 
         case WriteLock:
+          // Check that there is no weak lock
+          if (m_weak_lock) {
+            if (*m_weak_lock == WeakLocked)
+              *m_weak_lock = WeakUnlocking;
+
+            if (*m_weak_lock == WeakUnlocking)
+              goto go_wait;
+
+            ASSERT(*m_weak_lock == WeakUnlocked);
+          }
+
           // If no body is reading and writting...
           if (m_read_locks == 0 && !m_write_lock) {
             // We can start writting the object...
@@ -136,8 +143,7 @@ bool RWLock::weakLock(WeakLock* weak_lock_flag)
   scoped_lock lock(m_mutex);
 
   if (m_weak_lock ||
-      m_write_lock ||
-      m_read_locks > 0)
+      m_write_lock)
     return false;
 
   m_weak_lock = weak_lock_flag;
@@ -150,7 +156,6 @@ void RWLock::weakUnlock()
   ASSERT(m_weak_lock);
   ASSERT(*m_weak_lock != WeakLock::WeakUnlocked);
   ASSERT(!m_write_lock);
-  ASSERT(m_read_locks == 0);
 
   if (m_weak_lock) {
     *m_weak_lock = WeakLock::WeakUnlocked;

@@ -1,5 +1,6 @@
 // LAF FreeType Wrapper
-// Copyright (c) 2016-2017 David Capello
+// Copyright (C) 2019  Igara Studio S.A.
+// Copyright (C) 2016-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -117,7 +118,10 @@ namespace ft {
       FT_Error err = FT_Load_Glyph(
         face, glyphIndex,
         FT_LOAD_RENDER |
-        (antialias ? FT_LOAD_TARGET_NORMAL:
+        // TODO Check if we can render correctly th embedded bitmaps
+        //      in the future removing FT_LOAD_NO_BITMAP for fonts
+        //      like Calibri, Cambria, Monaco, etc.
+        (antialias ? FT_LOAD_TARGET_NORMAL | FT_LOAD_NO_BITMAP:
                      FT_LOAD_TARGET_MONO));
       if (err)
         return nullptr;

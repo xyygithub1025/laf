@@ -67,14 +67,23 @@ TEST(RWLock, WeakLock)
 
   EXPECT_TRUE(a.weakLock(&flag));
   EXPECT_EQ(RWLock::WeakLocked, flag);
-  EXPECT_FALSE(a.lock(RWLock::ReadLock, 0));
+
+  // We can lock for read-only without timeout and the weak lock
+  // should stay locked.
+  EXPECT_TRUE(a.lock(RWLock::ReadLock, 0));
+  a.unlock();                   // Unlock the read-only lock
+  EXPECT_EQ(RWLock::WeakLocked, flag);
+
+  // If we want to lock for writing purposes, it should fail, but the
+  // weak lock should be released.
+  EXPECT_FALSE(a.lock(RWLock::WriteLock, 0));
   EXPECT_EQ(RWLock::WeakUnlocking, flag);
   a.weakUnlock();
   EXPECT_EQ(RWLock::WeakUnlocked, flag);
 
-  EXPECT_TRUE(a.lock(RWLock::ReadLock, 0));
+  EXPECT_TRUE(a.lock(RWLock::WriteLock, 0));
   EXPECT_FALSE(a.weakLock(&flag));
-  a.unlock();
+  a.unlock();                   // Unlock the write lock
 }
 
 int main(int argc, char** argv)

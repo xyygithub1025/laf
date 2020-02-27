@@ -1,5 +1,6 @@
 // LAF Base Library
-// Copyright (c) 2001-2016 David Capello
+// Copyright (C) 2020  Igara Studio S.A.
+// Copyright (C) 2001-2016  David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -29,6 +30,10 @@ namespace base {
 
     RWLock();
     ~RWLock();
+
+    // Returns true if we can lock this object for writting purposes
+    // in case that the current thread has it locked for reading.
+    bool canWriteLockFromRead() const;
 
     // Locks the object to read or write on it, returning true if the
     // object can be accessed in the desired mode.
