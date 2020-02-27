@@ -1,4 +1,4 @@
-# Copyright (C) 2019  Igara Studio S.A.
+# Copyright (C) 2019-2020  Igara Studio S.A.
 #
 # This file is released under the terms of the MIT license.
 # Read LICENSE.txt for more information.
@@ -33,12 +33,12 @@ if(NOT FREETYPE_LIBRARIES)
   set(FREETYPE_FOUND ON)
   find_library(FREETYPE_LIBRARY freetype2 PATH "${SKIA_LIBRARY_DIR}")
   set(FREETYPE_LIBRARIES ${FREETYPE_LIBRARY})
-  set(FREETYPE_INCLUDE_DIRS ${SKIA_DIR}/third_party/externals/freetype/include)
+  set(FREETYPE_INCLUDE_DIRS "${SKIA_DIR}/third_party/externals/freetype/include")
 endif()
 if(NOT HARFBUZZ_LIBRARIES)
   find_library(HARFBUZZ_LIBRARY harfbuzz PATH "${SKIA_LIBRARY_DIR}")
   set(HARFBUZZ_LIBRARIES ${HARFBUZZ_LIBRARY})
-  set(HARFBUZZ_INCLUDE_DIRS ${SKIA_DIR}/third_party/externals/harfbuzz/src)
+  set(HARFBUZZ_INCLUDE_DIRS "${SKIA_DIR}/third_party/externals/harfbuzz/src")
 endif()
 
 find_path(SKIA_CONFIG_INCLUDE_DIR SkUserConfig.h HINTS "${SKIA_DIR}/include/config")
@@ -63,7 +63,9 @@ include_directories(
   ${SKIA_CODEC_INCLUDE_DIR}
   ${SKIA_GPU_INCLUDE_DIR}
   ${SKIA_GPU2_INCLUDE_DIR}
-  ${SKIA_SKCMS_INCLUDE_DIR})
+  ${SKIA_SKCMS_INCLUDE_DIR}
+  ${FREETYPE_INCLUDE_DIRS}
+  ${HARFBUZZ_INCLUDE_DIRS})
 if(WIN32)
   include_directories(${SKIA_ANGLE_INCLUDE_DIR})
 endif()
