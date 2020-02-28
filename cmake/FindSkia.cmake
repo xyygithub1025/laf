@@ -107,6 +107,10 @@ if(APPLE)
 endif()
 
 if(UNIX AND NOT APPLE)
+  # Change the kN32_SkColorType ordering to BGRA to work in X windows.
+  target_compile_definitions(skia INTERFACE
+    SK_R32_SHIFT=16)
+
   # Needed for SkFontMgr on Linux
   find_library(FONTCONFIG_LIBRARY fontconfig)
   target_link_libraries(skia INTERFACE
