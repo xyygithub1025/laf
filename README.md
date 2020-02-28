@@ -18,27 +18,33 @@ ABI compatibility at this moment.
 
 ## Dependencies
 
-`laf` requires:
+*laf* can be compiled with two back-ends (`LAF_BACKEND`): `skia` or `none`.
 
-* A compiled version of Skia branch m76 (you can check the
-  [instructions to compile Skia on Aseprite](https://github.com/aseprite/aseprite/blob/master/INSTALL.md#building-skia-dependency))
-* `freetype` and `harfbuzz` to draw text.
-* `pixman` in case that you are going to use `gfx::Region` without the
-  `laf-os` (improvable case, generally if you're using `laf-os` you
-  will use Skia, so there is no need for `pixman`)
+When `LAF_BACKEND=skia`, *laf* requires a compiled version of the [Skia library](https://skia.org/)
+from branch `aseprite-m81`. You can check the aseprite/skia fork
+which includes a [release with pre-built versions](https://github.com/aseprite/skia/releases), or
+the check the [instructions to compile skia](https://github.com/aseprite/skia#readme) from scratch.
+
+When `LAF_BACKEND=none`, the [Pixman library](http://www.pixman.org/)
+can be used as an alternative implementation of the `gfx::Region` class (generally if
+you're using `laf-os` you will link it with Skia, so there is no
+need for Pixman at all).
 
 ## Compile
 
-To compile with Skia as backend you have to specify a valid compiled version of Skia:
+To compile with Skia as backend you have to specify a valid compiled
+version of Skia:
 
 ```
-cd /path-with-laf-source-code
+git clone https://github.com/aseprite/laf.git
+cd laf
 mkdir build
 cd build
 cmake -G Ninja \
-  -DSKIA_DIR=/path-to-skia-source-code \
-  -DSKIA_LIBRARY_DIR=/path-to-skia-source-code/lib/Release-x64 \
-  /path-with-laf-source-code
+  -DLAF_BACKEND=skia \
+  -DSKIA_DIR=/path-to-skia \
+  -DSKIA_LIBRARY_DIR=/path-to-skia/lib/Release-x64 \
+  ..
 ninja
 ./examples/helloworld
 ```
@@ -62,9 +68,9 @@ ctest
 
 ## License
 
-LAF is distributed under the terms of [the MIT license](LICENSE.txt).
+*laf* is distributed under the terms of [the MIT license](LICENSE.txt).
 
-Some functions in LAF depends on third party libraries (you should
+Some functions in *laf* depends on third party libraries (you should
 include these license notices when you distribute your software):
 
 * [base::encode/decode_base64](base/base64.cpp) functions use
@@ -76,8 +82,9 @@ include these license notices when you distribute your software):
   [a BSD-like license](https://github.com/aseprite/googletest/blob/master/googletest/LICENSE).
 * Color spaces, `gfx::Region`, and the `laf::os` library use code from
   the [Skia library](https://skia.org) by Google Inc. licensed under
-  [a BSD-like license](https://github.com/aseprite/skia/blob/master/LICENSE).
+  [a BSD-like license](https://github.com/aseprite/skia/blob/master/LICENSE)
+  and several other [third-party libraries/licenses](https://github.com/aseprite/skia/tree/master/third_party).
 * `gfx::Region` uses the pixman library if you are not compiling with
-  the Skia backend (e.g. a if you create a Command Line utility that
-  uses the `gfx::Region` class), which is distributed under the [MIT
-  License](https://cgit.freedesktop.org/pixman/tree/COPYING).
+  the Skia backend (e.g. a if you want to create only Command Line
+  utilities that uses the `gfx::Region` class). Pixman is distributed
+  under the [MIT License](https://cgit.freedesktop.org/pixman/tree/COPYING).
