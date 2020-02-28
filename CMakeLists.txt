@@ -65,20 +65,17 @@ endif()
 
 # Information
 
-if(NOT LAF_CONF_PRINTED)
-  set(LAF_CONF_PRINTED TRUE CACHE INTERNAL "")
-  message(
-    "=== LAF CONFIGURATION ===\n"
-    " Backend:  ${LAF_BACKEND}\n"
-    " Pixman:   ${PIXMAN_LIBRARY}\n"
-    " FreeType: ${FREETYPE_LIBRARIES}\n"
-    " HarfBuzz: ${HARFBUZZ_LIBRARIES}\n"
-    "=========================")
-  if(LAF_BACKEND STREQUAL "skia")
-    message(" Skia dir: ${SKIA_DIR}")
-  else()
-    if(NOT SKIA_DIR)
-      message(WARNING "Specify SKIA_DIR if you want to compile laf with the Skia backend")
-    endif()
+message(STATUS "laf backend: ${LAF_BACKEND}")
+message(STATUS "laf pixman: ${PIXMAN_LIBRARY}")
+message(STATUS "laf freetype: ${FREETYPE_LIBRARIES}")
+message(STATUS "laf harfbuzz: ${HARFBUZZ_LIBRARIES}")
+if(LAF_BACKEND STREQUAL "skia")
+  message(STATUS "skia dir: ${SKIA_DIR}")
+  message(STATUS "skia library: ${SKIA_LIBRARY}")
+  message(STATUS "skia library dir: ${SKIA_LIBRARY_DIR}")
+  if(NOT SKIA_DIR OR
+     NOT SKIA_LIBRARY OR
+     NOT SKIA_LIBRARY_DIR)
+    message(FATAL_ERROR "set SKIA_DIR/SKIA_LIBRARY/SKIA_LIBRARY_DIR to compile w/skia backend")
   endif()
 endif()
