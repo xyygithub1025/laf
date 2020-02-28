@@ -5,4 +5,7 @@ System graphics interface. We have our own implementation to create
 windows and handle mouse/keyboard input. The graphics are rendered
 using the [Skia](https://skia.org/) library.
 
-* Minimum Windows platform: Windows Vista
+Minimum platforms:
+
+* Windows Vista
+* macOS 10.9
