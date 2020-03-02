@@ -32,8 +32,13 @@ need for Pixman at all).
 
 ## Compile
 
-To compile with Skia as backend you have to specify a valid compiled
-version of Skia:
+To compile *laf* with Skia as backend you have to specify some
+variables pointing to a valid compiled version of Skia in your
+disk. In the following example `/skiadir` is the absolute path to a
+directory where the Skia source code + compiled version is, or just
+where you've uncompressed a pre-built package of Skia (note that in
+this case `/skiadir/out/Release-x64` should contain the Skia library
+files, i.e. `skia.lib` on Windows or `libskia.a` on other platforms):
 
 ```
 git clone https://github.com/aseprite/laf.git
@@ -42,8 +47,8 @@ mkdir build
 cd build
 cmake -G Ninja \
   -DLAF_BACKEND=skia \
-  -DSKIA_DIR=/path-to-skia \
-  -DSKIA_LIBRARY_DIR=/path-to-skia/lib/Release-x64 \
+  -DSKIA_DIR=/skiadir \
+  -DSKIA_LIBRARY_DIR=/skiadir/out/Release-x64 \
   ..
 ninja
 ./examples/helloworld
