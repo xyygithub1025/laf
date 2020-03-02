@@ -1,8 +1,13 @@
 # LAF
-# Copyright (C) 2019  Igara Studio S.A.
+# Copyright (C) 2019-2020  Igara Studio S.A.
 # Copyright (C) 2016-2018  David Capello
 
 cmake_minimum_required(VERSION 3.2)
+
+# We need to add the -MT flag for MSVC because we compile Skia with
+# the static version of the libc runtime
+set(CMAKE_USER_MAKE_RULES_OVERRIDE ${CMAKE_CURRENT_SOURCE_DIR}/cmake/c_flag_overrides.cmake)
+set(CMAKE_USER_MAKE_RULES_OVERRIDE_CXX ${CMAKE_CURRENT_SOURCE_DIR}/cmake/cxx_flag_overrides.cmake)
 
 project(laf C CXX)
 
