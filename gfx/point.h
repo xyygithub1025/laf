@@ -1,5 +1,6 @@
 // LAF Gfx Library
-// Copyright (C) 2001-2016 David Capello
+// Copyright (C) 2020  Igara Studio S.A.
+// Copyright (C) 2001-2016  David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -15,8 +16,7 @@ class SizeT;
 
 // A 2D coordinate in the screen.
 template<typename T>
-class PointT
-{
+class PointT {
 public:
   T x, y;
 
@@ -29,27 +29,31 @@ public:
   PointT(const PointT& point) : x(point.x), y(point.y) {
   }
 
-  template<typename T2>
-  explicit PointT(const PointT<T2>& point) : x(static_cast<T>(point.x)),
-                                             y(static_cast<T>(point.y)) {
+  template<typename U>
+  explicit PointT(const PointT<U>& point) : x(static_cast<T>(point.x)),
+                                            y(static_cast<T>(point.y)) {
   }
 
-  explicit PointT(const SizeT<T>& size) : x(size.w), y(size.h) {
+  template<typename U>
+  explicit PointT(const SizeT<U>& size) : x(size.w), y(size.h) {
   }
 
-  const PointT& operator=(const PointT& pt) {
+  template<typename U>
+  const PointT& operator=(const PointT<U>& pt) {
     x = pt.x;
     y = pt.y;
     return *this;
   }
 
-  const PointT& operator+=(const PointT& pt) {
+  template<typename U>
+  const PointT& operator+=(const PointT<U>& pt) {
     x += pt.x;
     y += pt.y;
     return *this;
   }
 
-  const PointT& operator-=(const PointT& pt) {
+  template<typename U>
+  const PointT& operator-=(const PointT<U>& pt) {
     x -= pt.x;
     y -= pt.y;
     return *this;
@@ -79,11 +83,13 @@ public:
     return *this;
   }
 
-  PointT operator+(const PointT& pt) const {
+  template<typename U>
+  PointT operator+(const PointT<U>& pt) const {
     return PointT(x+pt.x, y+pt.y);
   }
 
-  PointT operator-(const PointT& pt) const {
+  template<typename U>
+  PointT operator-(const PointT<U>& pt) const {
     return PointT(x-pt.x, y-pt.y);
   }
 

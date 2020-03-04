@@ -1,4 +1,5 @@
 // LAF Gfx Library
+// Copyright (C) 2020  Igara Studio S.A.
 // Copyright (C) 2001-2016 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -13,7 +14,8 @@
 
 namespace gfx {
 
-  inline std::ostream& operator<<(std::ostream& os, const Rect& rect) {
+  template<typename T>
+  inline std::ostream& operator<<(std::ostream& os, const RectT<T>& rect) {
     return os << "("
               << rect.x << ", "
               << rect.y << ", "
@@ -21,7 +23,8 @@ namespace gfx {
               << rect.h << ")";
   }
 
-  inline std::istream& operator>>(std::istream& in, Rect& rect) {
+  template<typename T>
+  inline std::istream& operator>>(std::istream& in, RectT<T>& rect) {
     while (in && in.get() != '(')
       ;
 

@@ -1,6 +1,6 @@
 // LAF Gfx Library
-// Copyright (C) 2019  Igara Studio S.A.
-// Copyright (C) 2001-2017 David Capello
+// Copyright (C) 2019-2020  Igara Studio S.A.
+// Copyright (C) 2001-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -17,8 +17,7 @@ template<typename T> class BorderT;
 
 // A rectangle.
 template<typename T>
-class RectT
-{
+class RectT {
 public:
   T x, y, w, h;
 
@@ -46,8 +45,8 @@ public:
     w(rect.w), h(rect.h) {
   }
 
-  template<typename T2>
-  RectT(const RectT<T2>& rect) :
+  template<typename U>
+  RectT(const RectT<U>& rect) :
     x(static_cast<T>(rect.x)), y(static_cast<T>(rect.y)),
     w(static_cast<T>(rect.w)), h(static_cast<T>(rect.h)) {
   }
@@ -142,7 +141,8 @@ public:
     return *this;
   }
 
-  RectT& offset(const PointT<T>& delta) {
+  template<typename U>
+  RectT& offset(const PointT<U>& delta) {
     x += delta.x;
     y += delta.y;
     return *this;
@@ -169,8 +169,8 @@ public:
   RectT& enlarge(const T& unit) {
     x -= unit;
     y -= unit;
-    w += unit<<1;
-    h += unit<<1;
+    w += unit*2;
+    h += unit*2;
     return *this;
   }
 
@@ -184,21 +184,21 @@ public:
 
   RectT& enlargeXW(const T& unit) {
     x -= unit;
-    w += unit<<1;
+    w += unit*2;
     return *this;
   }
 
   RectT& enlargeYH(const T& unit) {
     y -= unit;
-    h += unit<<1;
+    h += unit*2;
     return *this;
   }
 
   RectT& shrink(const T& unit) {
     x += unit;
     y += unit;
-    w -= unit<<1;
-    h -= unit<<1;
+    w -= unit*2;
+    h -= unit*2;
     return *this;
   }
 
@@ -278,7 +278,7 @@ public:
     return *this;
   }
 
-  RectT& operator*=(const int factor) {
+  RectT& operator*=(const T factor) {
     x *= factor;
     y *= factor;
     w *= factor;
@@ -286,7 +286,7 @@ public:
     return *this;
   }
 
-  RectT& operator/=(const int factor) {
+  RectT& operator/=(const T factor) {
     x /= factor;
     y /= factor;
     w /= factor;

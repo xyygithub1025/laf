@@ -1,5 +1,6 @@
 // LAF Gfx Library
-// Copyright (c) 2001-2016 David Capello
+// Copyright (C) 2020  Igara Studio S.A.
+// Copyright (C) 2001-2016  David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -63,8 +64,8 @@ namespace gfx {
       , size(bounds.w, bounds.h) {
     }
 
-    template<typename T2>
-    ClipT(const ClipT<T2>& other)
+    template<typename U>
+    ClipT(const ClipT<U>& other)
       : dst(other.dst)
       , src(other.src)
       , size(other.size) {

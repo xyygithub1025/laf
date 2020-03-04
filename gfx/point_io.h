@@ -1,5 +1,5 @@
 // LAF Gfx Library
-// Copyright (C) 2019  Igara Studio S.A.
+// Copyright (C) 2019-2020  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -13,13 +13,15 @@
 
 namespace gfx {
 
-  inline std::ostream& operator<<(std::ostream& os, const Point& point) {
+  template<typename T>
+  inline std::ostream& operator<<(std::ostream& os, const PointT<T>& point) {
     return os << "("
               << point.x << ", "
               << point.y << ")";
   }
 
-  inline std::istream& operator>>(std::istream& in, Point& point) {
+  template<typename T>
+  inline std::istream& operator>>(std::istream& in, PointT<T>& point) {
     while (in && in.get() != '(')
       ;
 

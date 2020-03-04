@@ -1,5 +1,6 @@
 // LAF Gfx Library
-// Copyright (C) 2001-2018 David Capello
+// Copyright (C) 2020  Igara Studio S.A.
+// Copyright (C) 2001-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -17,8 +18,7 @@ class PointT;
 
 // A 2D size.
 template<typename T>
-class SizeT
-{
+class SizeT {
 public:
   T w, h;
 
@@ -31,9 +31,9 @@ public:
   SizeT(const SizeT& size) : w(size.w), h(size.h) {
   }
 
-  template<typename T2>
-  explicit SizeT(const SizeT<T2>& size) : w(static_cast<T>(size.w)),
-                                          h(static_cast<T>(size.h)) {
+  template<typename U>
+  explicit SizeT(const SizeT<U>& size) : w(static_cast<T>(size.w)),
+                                         h(static_cast<T>(size.h)) {
   }
 
   explicit SizeT(const PointT<T>& point) : w(point.x), h(point.y)  {
