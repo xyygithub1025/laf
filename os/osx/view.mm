@@ -472,6 +472,7 @@ using namespace os;
 
   if (event.hasPreciseScrollingDeltas) {
     ev.setPointerType(os::PointerType::Touchpad);
+    // TODO we shouldn't change the sign
     ev.setWheelDelta(gfx::Point(-event.scrollingDeltaX / scale,
                                 -event.scrollingDeltaY / scale));
     ev.setPreciseWheel(true);

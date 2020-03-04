@@ -1555,6 +1555,7 @@ void WinWindow::handleInteractionContextOutput(
                     output->arguments.manipulation.delta.expansion,
                     output->arguments.manipulation.delta.rotation);
 
+        // TODO we should not change the sign
         gfx::Point delta(-int(output->arguments.manipulation.delta.translationX) / m_scale,
                          -int(output->arguments.manipulation.delta.translationY) / m_scale);
 
