@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2019  Igara Studio S.A.
+// Copyright (C) 2019-2020  Igara Studio S.A.
 // Copyright (C) 2012-2013  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -26,6 +26,10 @@ namespace os {
 
     T* operator->() { return m_handle; }
     operator T*() { return m_handle; }
+
+    const T* operator->() const { return m_handle; }
+    operator const T*() const { return m_handle; }
+
   private:
     T* m_handle;
 
