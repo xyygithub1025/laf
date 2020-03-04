@@ -1,5 +1,5 @@
 # LAF OS
-# Copyright (C) 2018-2019  Igara Studio S.A.
+# Copyright (C) 2018-2020  Igara Studio S.A.
 # Copyright (C) 2012-2018  David Capello
 
 ######################################################################
@@ -109,7 +109,7 @@ elseif(APPLE)
   endif()
 
   target_compile_options(laf-os PRIVATE
-    -Wno-ignored-attributes -Wno-unused-result
+    -Wno-ignored-attributes -Wno-unused-result -Wno-deprecated-declarations
     # Use Automatic Reference Counting
     -fobjc-arc)
 else()
