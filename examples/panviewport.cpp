@@ -83,8 +83,8 @@ public:
           m_scroll += gfx::PointF(-ev.wheelDelta());
         }
         else {
-          m_scroll += gfx::PointF(ev.wheelDelta().x*m_display->width()/32,
-                                  ev.wheelDelta().y*m_display->height()/32);
+          m_scroll += gfx::PointF(-ev.wheelDelta().x*m_display->width()/32,
+                                  -ev.wheelDelta().y*m_display->height()/32);
         }
         repaint();
         break;
