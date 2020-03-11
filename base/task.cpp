@@ -23,8 +23,12 @@ task::task()
 
 task::~task()
 {
+  // The task must not be running when we are destroying it.
   ASSERT(!m_running);
-  ASSERT(m_completed);
+
+  // m_completed can be false in this case if the task was never
+  // started (i.e. the user never called task::start()).
+  //ASSERT(m_completed);
 }
 
 task_token& task::start(thread_pool& pool)
