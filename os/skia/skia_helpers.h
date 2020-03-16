@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (c) 2019  Igara Studio S.A.
+// Copyright (C) 2019-2020  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -16,6 +16,8 @@
 #include "SkPaint.h"
 #include "SkRect.h"
 
+#include <algorithm>
+
 namespace os {
 
 inline SkColor to_skia(gfx::Color c) {
@@ -28,6 +30,12 @@ inline SkIRect to_skia(const gfx::Rect& rc) {
 
 inline SkRect to_skia(const gfx::RectF& rc) {
   return SkRect::MakeXYWH(rc.x, rc.y, rc.w, rc.h);
+}
+
+inline SkRect to_skia_fix(const gfx::RectF& rc) {
+  return SkRect::MakeXYWH(rc.x, rc.y,
+                          std::max(0.0, rc.w-1),
+                          std::max(0.0, rc.h-1));
 }
 
 inline void to_skia(const Paint& paint, SkPaint& skPaint) {

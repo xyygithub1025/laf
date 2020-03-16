@@ -33,8 +33,16 @@ void SkiaSurface::drawLine(const float x0, const float y0,
 void SkiaSurface::drawRect(const gfx::RectF& rc,
                            const Paint& paint)
 {
+  if (rc.isEmpty())
+    return;
+
   to_skia(paint, m_paint);
-  m_canvas->drawRect(to_skia(rc), m_paint);
+  if (paint.style() == Paint::Style::Stroke) {
+    m_canvas->drawRect(to_skia_fix(rc), m_paint);
+  }
+  else {
+    m_canvas->drawRect(to_skia(rc), m_paint);
+  }
 }
 
 void SkiaSurface::drawCircle(const float cx, const float cy,
