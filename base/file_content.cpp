@@ -1,5 +1,5 @@
 // LAF Base Library
-// Copyright (C) 2018  Igara Studio S.A.
+// Copyright (C) 2018-2020  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -43,14 +43,20 @@ buffer read_file_content(const std::string& filename)
 
 void write_file_content(const std::string& filename, const buffer& buf)
 {
+  write_file_content(filename, &buf[0], buf.size());
+}
+
+void write_file_content(const std::string& filename, const uint8_t* buf, size_t size)
+{
   FileHandle f(open_file(filename, "wb"));
 
-  for (size_t pos=0; pos < buf.size(); ) {
-    const int write_bytes = std::min(kChunkSize, buf.size()-pos);
-    const size_t written_bytes = std::fwrite(&buf[pos], 1, write_bytes, f.get());
+  for (size_t pos=0; pos < size; ) {
+    const int write_bytes = std::min(kChunkSize, size-pos);
+    const size_t written_bytes = std::fwrite(buf, 1, write_bytes, f.get());
     if (written_bytes < write_bytes)
       throw std::runtime_error("Cannot write all bytes");
     pos += written_bytes;
+    buf += written_bytes;
   }
 }
 
