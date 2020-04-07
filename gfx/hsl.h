@@ -1,5 +1,6 @@
 // LAF Gfx Library
-// Copyright (C) 2017 David Capello
+// Copyright (c) 2020  Igara Studio S.A.
+// Copyright (c) 2017  David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -8,7 +9,7 @@
 #define GFX_HSL_H_INCLUDED
 #pragma once
 
-#include "base/base.h"          // MID
+#include "base/clamp.h"
 
 namespace gfx {
 
@@ -48,15 +49,15 @@ public:
   int lightnessInt() const;
 
   void hue(double hue) {
-    m_hue = MID(0.0, hue, 360.0);
+    m_hue = base::clamp(hue, 0.0, 360.0);
   }
 
   void saturation(double saturation) {
-    m_saturation = MID(0.0, saturation, 1.0);
+    m_saturation = base::clamp(saturation, 0.0, 1.0);
   }
 
   void lightness(double lightness) {
-    m_lightness = MID(0.0, lightness, 1.0);
+    m_lightness = base::clamp(lightness, 0.0, 1.0);
   }
 
   // The comparison is done through the integer value of each component.

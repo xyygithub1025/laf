@@ -1,5 +1,6 @@
 // LAF Base Library
-// Copyright (c) 2001-2016 David Capello
+// Copyright (c) 2020  Igara Studio S.A.
+// Copyright (c) 2001-2016  David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -35,15 +36,8 @@
 
 #undef MIN
 #undef MAX
-#undef MID
 #define MIN(x,y)     (((x) < (y)) ? (x) : (y))
 #define MAX(x,y)     (((x) > (y)) ? (x) : (y))
-#define MID(x,y,z)   ((x) > (y) ? ((y) > (z) ? (y) : ((x) > (z) ?    \
-                       (z) : (x))) : ((y) > (z) ? ((z) > (x) ? (z) : \
-                       (x)): (y)))
-
-#undef CLAMP
-#define CLAMP(x,y,z) MAX((x), MIN((y), (z)))
 
 #undef ABS
 #undef SGN
