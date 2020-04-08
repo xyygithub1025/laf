@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2019  Igara Studio S.A.
+// Copyright (C) 2018-2020  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -40,6 +40,7 @@
 
 #endif
 
+#include <algorithm>
 #include <iostream>
 
 namespace os {
@@ -310,8 +311,8 @@ private:
         SkSurface::MakeRenderTarget(
           m_grCtx.get(),
           SkBudgeted::kYes,
-          SkImageInfo::Make(MAX(1, size.w / scale),
-                            MAX(1, size.h / scale),
+          SkImageInfo::Make(std::max(1, size.w / scale),
+                            std::max(1, size.h / scale),
                             kN32_SkColorType, kOpaque_SkAlphaType);
           m_glCtx->getSampleCount(),
           nullptr);

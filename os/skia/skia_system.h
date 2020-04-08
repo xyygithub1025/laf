@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2019  Igara Studio S.A.
+// Copyright (C) 2018-2020  Igara Studio S.A.
 // Copyright (C) 2012-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -9,7 +9,6 @@
 #define OS_SKIA_SKIA_SYSTEM_INCLUDED
 #pragma once
 
-#include "base/base.h"
 #include "gfx/color_space.h"
 #include "gfx/size.h"
 #include "os/common/system.h"
@@ -22,6 +21,9 @@
   #include "os/win/color_space.h"
   #include "os/win/system.h"
   #define SkiaSystemBase WindowSystem
+
+  #undef max
+  #undef min
 #elif __APPLE__
   #include "os/osx/color_space.h"
   #include "os/osx/system.h"
@@ -33,6 +35,7 @@
 
 #include "SkGraphics.h"
 
+#include <algorithm>
 #include <memory>
 
 namespace os {
@@ -78,8 +81,8 @@ public:
     sz.h = GetSystemMetrics(SM_CYMAXIMIZED);
     sz.w -= GetSystemMetrics(SM_CXSIZEFRAME)*4;
     sz.h -= GetSystemMetrics(SM_CYSIZEFRAME)*4;
-    sz.w = MAX(0, sz.w);
-    sz.h = MAX(0, sz.h);
+    sz.w = std::max(0, sz.w);
+    sz.h = std::max(0, sz.h);
 #endif
     return sz;
   }

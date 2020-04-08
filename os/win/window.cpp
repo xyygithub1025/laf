@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2019  Igara Studio S.A.
+// Copyright (C) 2018-2020  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -14,6 +14,8 @@
 #include <windowsx.h>
 #include <commctrl.h>
 #include <shellapi.h>
+
+#include <algorithm>
 #include <sstream>
 
 #include "base/base.h"
@@ -1188,7 +1190,7 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
       ev.setModifiers(get_modifiers_from_last_win32_message());
       ev.setScancode(ourScancode);
       ev.setUnicodeChar(0);
-      ev.setRepeat(MAX(0, (lparam & 0xffff)-1));
+      ev.setRepeat(std::max(0, int((lparam & 0xffff)-1)));
 
       KEY_TRACE("KEYDOWN vk=%d scancode=%d->%d modifiers=%d\n",
                 vk, scancode, ev.scancode(), ev.modifiers());
@@ -1234,7 +1236,7 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
       ev.setModifiers(get_modifiers_from_last_win32_message());
       ev.setScancode(win32vk_to_scancode(wparam));
       ev.setUnicodeChar(0);
-      ev.setRepeat(MAX(0, (lparam & 0xffff)-1));
+      ev.setRepeat(std::max(0, int((lparam & 0xffff)-1)));
       queueEvent(ev);
 
       // TODO If we use native menus, this message should be given

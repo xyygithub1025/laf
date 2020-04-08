@@ -34,11 +34,6 @@
   #define NULL ((void*)0)
 #endif
 
-#undef MIN
-#undef MAX
-#define MIN(x,y)     (((x) < (y)) ? (x) : (y))
-#define MAX(x,y)     (((x) > (y)) ? (x) : (y))
-
 #undef ABS
 #undef SGN
 #define ABS(x)       (((x) >= 0) ? (x) : (-(x)))

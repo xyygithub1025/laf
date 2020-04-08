@@ -1,4 +1,5 @@
 // LAF Base Library
+// Copyright (c) 2020  Igara Studio S.A.
 // Copyright (c) 2001-2017 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -9,8 +10,6 @@
 #endif
 
 #include "base/program_options.h"
-
-#include "base/base.h"
 
 #include <algorithm>
 #include <sstream>
@@ -198,7 +197,7 @@ std::ostream& operator<<(std::ostream& os, const base::ProgramOptions& po)
          it=po.options().begin(), end=po.options().end(); it != end; ++it) {
     const base::ProgramOptions::Option* option = *it;
     std::size_t optionWidth =
-      6+MAX(option->name().size(), option->alias().size())+1+
+      6+std::max(option->name().size(), option->alias().size())+1+
       (option->doesRequireValue() ? option->getValueName().size()+1: 0);
 
     if (maxOptionWidth < optionWidth)
