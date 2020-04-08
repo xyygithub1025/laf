@@ -101,6 +101,9 @@ if(WIN32)
   list(APPEND LAF_OS_PLATFORM_LIBS
     kernel32 user32 gdi32 comdlg32 ole32 winmm
     shlwapi psapi wininet comctl32 dbghelp)
+
+  # Don't define min/max() macros when including <windows.h>
+  target_compile_options(laf-os PRIVATE -DNOMINMAX)
 elseif(APPLE)
   if(COCOA_LIBRARY)
     list(APPEND LAF_OS_PLATFORM_LIBS

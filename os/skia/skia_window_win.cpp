@@ -18,8 +18,6 @@
 #include "os/skia/skia_display.h"
 #include "os/system.h"
 
-#undef max // To avoid include/private/SkPathRef.h(451): error C2589: '(': illegal token on right side of '::'
-
 #if SK_SUPPORT_GPU
 
   #include "GrBackendSurface.h"

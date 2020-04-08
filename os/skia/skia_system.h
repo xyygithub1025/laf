@@ -21,9 +21,6 @@
   #include "os/win/color_space.h"
   #include "os/win/system.h"
   #define SkiaSystemBase WindowSystem
-
-  #undef max
-  #undef min
 #elif __APPLE__
   #include "os/osx/color_space.h"
   #include "os/osx/system.h"
