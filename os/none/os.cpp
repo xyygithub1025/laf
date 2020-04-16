@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (c) 2018-2019  Igara Studio S.A.
+// Copyright (c) 2018-2020  Igara Studio S.A.
 // Copyright (C) 2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -19,6 +19,7 @@ namespace os {
 class NoneSystem : public System {
 public:
   void dispose() override { delete this; }
+  void setAppName(const std::string& appName) override { }
   void setAppMode(AppMode appMode) override { }
   void activateApp() override { }
   void finishLaunching() override { }

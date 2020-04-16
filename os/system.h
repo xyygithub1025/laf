@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2019  Igara Studio S.A.
+// Copyright (C) 2018-2020  Igara Studio S.A.
 // Copyright (C) 2012-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -42,6 +42,26 @@ namespace os {
     virtual ~System() { }
   public:
     virtual void dispose() = 0;
+
+    // Windows-specific: The app name at the moment is used to receive
+    // DDE messages (WM_DDE_INITIATE) and convert WM_DDE_EXECUTE
+    // messages into Event::DropFiles. This allows to the user
+    // double-click files in the File Explorer and open the file in a
+    // running instance of your app.
+    //
+    // To receive DDE messages you have to configure the registry in
+    // this way (HKCR=HKEY_CLASSES_ROOT):
+    //
+    //   HKCR\.appfile  (Default)="AppFile"
+    //   HKCR\AppFile   (Default)="App File"
+    //   HKCR\AppFile\shell\open\command             (Default)="C:\\...\\AppName.EXE"
+    //   HKCR\AppFile\shell\open\ddeexec             (Default)="[open(\"%1\")]"
+    //   HKCR\AppFile\shell\open\ddeexec\application (Default)="AppName"
+    //   HKCR\AppFile\shell\open\ddeexec\topic       (Default)="system"
+    //
+    // The default value of "HKCR\AppFile\shell\open\ddeexec\application"
+    // must match the "appName" given in this function.
+    virtual void setAppName(const std::string& appName) = 0;
 
     // We can use this function to create an application that can run
     // in CLI and GUI mode depending on the given arguments, and in

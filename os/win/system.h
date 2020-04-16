@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2020  Igara Studio S.A.
 // Copyright (C) 2012-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -25,6 +26,12 @@ public:
   WinAPI& winApi() { return m_winApi; }
   PenAPI& penApi() { return m_penApi; }
 
+  void setAppName(const std::string& appName) override { m_appName = appName; }
+  std::string appName() const { return m_appName; }
+
+  void useWintabAPI(bool state) override { m_useWintabAPI = state; }
+  bool useWintabAPI() const { return m_useWintabAPI; }
+
   bool isKeyPressed(KeyScancode scancode) override {
     return win_is_key_pressed(scancode);
   }
@@ -34,6 +41,8 @@ public:
   }
 
 private:
+  std::string m_appName;
+  bool m_useWintabAPI = true;
   WinAPI m_winApi;
   PenAPI m_penApi;
 };

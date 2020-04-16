@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2019  Igara Studio S.A.
+// Copyright (C) 2019-2020  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -36,37 +36,20 @@ namespace os {
 
 class CommonSystem : public System {
 public:
-  CommonSystem()
-    : m_nativeDialogs(nullptr) {
-#ifdef _WIN32
-    m_useWintabAPI = true;
-#endif
-  }
-
-  ~CommonSystem() {
-    delete m_nativeDialogs;
-  }
+  CommonSystem() { }
+  ~CommonSystem() { }
 
   void dispose() override {
     set_instance(nullptr);
     delete this;
   }
 
+  void setAppName(const std::string& appName) override { }
   void setAppMode(AppMode appMode) override { }
   void activateApp() override { }
   void finishLaunching() override { }
 
-  void useWintabAPI(bool state) override {
-#ifdef _WIN32
-    m_useWintabAPI = state;
-#endif
-  }
-
-#ifdef _WIN32
-  bool useWintabAPI() const {
-    return m_useWintabAPI;
-  }
-#endif
+  void useWintabAPI(bool state) override { }
 
   Logger* logger() override {
     return nullptr;
@@ -79,15 +62,15 @@ public:
   NativeDialogs* nativeDialogs() override {
 #ifdef _WIN32
     if (!m_nativeDialogs)
-      m_nativeDialogs = new NativeDialogsWin32();
+      m_nativeDialogs.reset(new NativeDialogsWin32);
 #elif defined(__APPLE__)
     if (!m_nativeDialogs)
-      m_nativeDialogs = new NativeDialogsOSX();
+      m_nativeDialogs.reset(new NativeDialogsOSX);
 #elif defined(LAF_OS_WITH_GTK)
     if (!m_nativeDialogs)
-      m_nativeDialogs = new NativeDialogsGTK();
+      m_nativeDialogs.reset(new NativeDialogsGTK);
 #endif
-    return m_nativeDialogs;
+    return m_nativeDialogs.get();
   }
 
   EventQueue* eventQueue() override {
@@ -130,10 +113,7 @@ public:
   }
 
 private:
-#ifdef _WIN32
-  bool m_useWintabAPI;
-#endif
-  NativeDialogs* m_nativeDialogs;
+  std::unique_ptr<NativeDialogs> m_nativeDialogs;
 #ifdef LAF_FREETYPE
   std::unique_ptr<ft::Lib> m_ft;
 #endif

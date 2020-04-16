@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2020  Igara Studio S.A.
 // Copyright (C) 2016-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -14,6 +15,7 @@
 #include "base/string.h"
 #include "os/event.h"
 #include "os/event_queue.h"
+#include "os/win/system.h"
 
 #include <string>
 #include <vector>
@@ -132,12 +134,12 @@ bool handle_dde_messages(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam, LRES
       std::string topic = get_atom_string((ATOM)topicAtom, useUnicode);
       FreeDDElParam(msg, lparam);
 
-#ifndef PACKAGE
-#define PACKAGE ""
-#pragma message("warning: Define PACKAGE macro with your app name")
-#endif
-
-      if (app != PACKAGE) {
+      if (auto system = dynamic_cast<WindowSystem*>(os::instance())) {
+        if (system->appName().empty() ||
+            app != system->appName())
+          return false;
+      }
+      else {
         return false;
       }
 
