@@ -1343,7 +1343,14 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
       PACKET packet;
 
       if (api.packet(ctx, serial, &packet)) {
-        m_pressure = packet.pkNormalPressure / 1000.0; // TODO get the maximum value
+        if (api.maxPressure() > 0.0f) {
+          m_pressure =
+            float(packet.pkNormalPressure - api.minPressure()) /
+            float(api.maxPressure() - api.minPressure());
+        }
+        else {
+          m_pressure = 0.0f;
+        }
         m_pointerType = wt_packet_pkcursor_to_pointer_type(packet.pkCursor);
       }
       else

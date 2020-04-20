@@ -125,7 +125,10 @@ else()
   if(NOT X11_Xcursor_FOUND)
     message(FATAL_ERROR "Xcursor library not found")
   endif()
-  list(APPEND LAF_OS_PLATFORM_LIBS ${X11_Xcursor_LIB})
+  if(NOT X11_Xinput_FOUND)
+    message(FATAL_ERROR "Xinput library not found")
+  endif()
+  list(APPEND LAF_OS_PLATFORM_LIBS ${X11_Xcursor_LIB} ${X11_Xinput_LIB})
 
   check_library_exists(X11 XOpenIM "${X11_LIB_SEARCH_PATH}" XIM_FOUND)
 

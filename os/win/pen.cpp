@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2020  Igara Studio S.A.
 // Copyright (C) 2016-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -105,6 +106,15 @@ HCTX PenAPI::open(HWND hwnd)
   logctx.lcPktData = PACKETDATA;
   logctx.lcPktMode = PACKETMODE;
   logctx.lcMoveMask = PACKETDATA;
+
+  AXIS pressure;
+  infoRes = WTInfo(WTI_DEVICES, DVC_NPRESSURE, &pressure);
+  ASSERT(infoRes == sizeof(AXIS));
+  if (infoRes == sizeof(AXIS)) {
+    m_minPressure = pressure.axMin;
+    m_maxPressure = pressure.axMax;
+    LOG("PEN: Min/max pressure values [%d,%d]\n", pressure.axMin, pressure.axMax);
+  }
 
   LOG("PEN: Opening context, options 0x%x\n", logctx.lcOptions);
   HCTX ctx = WTOpen(hwnd, &logctx, TRUE);

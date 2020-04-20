@@ -17,6 +17,8 @@
 
 namespace os {
 
+bool g_spaceBarIsPressed = false;
+
 KeyScancode x11_keysym_to_scancode(const KeySym keysym)
 {
   switch (keysym) {
@@ -357,6 +359,19 @@ int x11_get_unicode_from_scancode(const KeyScancode scancode)
     case kKeyZ: return 'z';
   }
   return 0;
+}
+
+KeyModifiers get_modifiers_from_x(const int state)
+{
+  int modifiers = kKeyNoneModifier;
+  if (state & ShiftMask) modifiers |= kKeyShiftModifier;
+  if (state & ControlMask) modifiers |= kKeyCtrlModifier;
+  // Mod1Mask is Alt, and Mod5Mask is AltGr
+  if (state & (Mod1Mask | Mod5Mask)) modifiers |= kKeyAltModifier;
+  // Mod4Mask is Windows key
+  if (state & Mod4Mask) modifiers |= kKeyWinModifier;
+  if (g_spaceBarIsPressed) modifiers |= kKeySpaceModifier;
+  return (KeyModifiers)modifiers;
 }
 
 } // namespace os

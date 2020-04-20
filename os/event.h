@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2019  Igara Studio S.A.
+// Copyright (C) 2019-2020  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -63,8 +63,8 @@ namespace os {
               m_preciseWheel(false),
               m_pointerType(PointerType::Unknown),
               m_button(NoneButton),
-              m_magnification(0.0),
-              m_pressure(0.0) {
+              m_magnification(0.0f),
+              m_pressure(0.0f) {
     }
 
     Type type() const { return m_type; }
@@ -90,8 +90,8 @@ namespace os {
 
     PointerType pointerType() const { return m_pointerType; }
     MouseButton button() const { return m_button; }
-    double magnification() const { return m_magnification; }
-    double pressure() const { return m_pressure; }
+    float magnification() const { return m_magnification; }
+    float pressure() const { return m_pressure; }
 
     void setType(Type type) { m_type = type; }
     void setDisplay(Display* display) { m_display = display; }
@@ -108,8 +108,8 @@ namespace os {
     void setPreciseWheel(bool precise) { m_preciseWheel = precise; }
     void setPointerType(PointerType pointerType) { m_pointerType = pointerType; }
     void setButton(MouseButton button) { m_button = button; }
-    void setMagnification(double magnification) { m_magnification = magnification; }
-    void setPressure(double pressure) { m_pressure = pressure; }
+    void setMagnification(float magnification) { m_magnification = magnification; }
+    void setPressure(float pressure) { m_pressure = pressure; }
 
     void execCallback() { if (m_callback) m_callback(); }
 
@@ -130,10 +130,10 @@ namespace os {
     MouseButton m_button;
 
     // For TouchMagnify event
-    double m_magnification;
+    float m_magnification;
 
     // Pressure of stylus used in mouse-like events
-    double m_pressure;
+    float m_pressure;
   };
 
 } // namespace os

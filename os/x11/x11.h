@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2020  Igara Studio S.A.
 // Copyright (C) 2016-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -10,6 +11,7 @@
 
 #include "base/debug.h"
 #include "gfx/color_space.h"    // Include here avoid error with None
+#include "os/x11/xinput.h"
 
 #include <X11/Xlib.h>
 
@@ -32,21 +34,30 @@ public:
 
     m_display = XOpenDisplay(nullptr);
     m_xim = XOpenIM(m_display, nullptr, nullptr, nullptr);
+    if (m_display)
+      m_xinput.load(m_display);
   }
 
   ~X11() {
     ASSERT(m_instance == this);
-    if (m_xim) XCloseIM(m_xim);
-    if (m_display) XCloseDisplay(m_display);
+    if (m_xim) {
+      XCloseIM(m_xim);
+    }
+    if (m_display) {
+      m_xinput.unload(m_display);
+      XCloseDisplay(m_display);
+    }
     m_instance = nullptr;
   }
 
   ::Display* display() const { return m_display; }
   ::XIM xim() const { return m_xim; }
+  XInput& xinput() { return m_xinput; }
 
 private:
   ::Display* m_display;
   ::XIM m_xim;
+  XInput m_xinput;
 };
 
 } // namespace os

@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018  Igara Studio S.A.
+// Copyright (C) 2018-2020  Igara Studio S.A.
 // Copyright (C) 2015-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -330,6 +330,7 @@ using namespace os;
   ev.setType(Event::MouseMove);
   ev.setPosition(get_local_mouse_pos(self, event));
   ev.setModifiers(get_modifiers_from_nsevent(event));
+  ev.setPressure(event.pressure);
 
   if (m_pointerType != os::PointerType::Unknown)
     ev.setPointerType(m_pointerType);
@@ -406,6 +407,7 @@ using namespace os;
   ev.setPosition(get_local_mouse_pos(self, event));
   ev.setButton(get_mouse_buttons(event));
   ev.setModifiers(get_modifiers_from_nsevent(event));
+  ev.setPressure(event.pressure);
 
   if (m_pointerType != os::PointerType::Unknown)
     ev.setPointerType(m_pointerType);
@@ -420,6 +422,7 @@ using namespace os;
   ev.setPosition(get_local_mouse_pos(self, event));
   ev.setButton(get_mouse_buttons(event));
   ev.setModifiers(get_modifiers_from_nsevent(event));
+  ev.setPressure(event.pressure);
 
   if (m_pointerType != os::PointerType::Unknown)
     ev.setPointerType(m_pointerType);
@@ -434,6 +437,7 @@ using namespace os;
   ev.setPosition(get_local_mouse_pos(self, event));
   ev.setButton(get_mouse_buttons(event));
   ev.setModifiers(get_modifiers_from_nsevent(event));
+  ev.setPressure(event.pressure);
 
   if (m_pointerType != os::PointerType::Unknown)
     ev.setPointerType(m_pointerType);

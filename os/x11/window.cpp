@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2019  Igara Studio S.A.
+// Copyright (C) 2018-2020  Igara Studio S.A.
 // Copyright (C) 2017-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -25,7 +25,6 @@
 #include <map>
 
 #define KEY_TRACE(...)
-#define MOUSE_TRACE(...)
 #define EVENT_TRACE(...)
 
 #define LAF_X11_DOUBLE_CLICK_TIMEOUT 250
@@ -50,35 +49,10 @@ Cursor empty_xcursor = None;
 // into our own user data pointer (X11Window instance) is using a map.
 std::map<::Window, X11Window*> g_activeWindows;
 
-bool g_spaceBarIsPressed = false;
-
-KeyModifiers get_modifiers_from_x(int state)
-{
-  int modifiers = kKeyNoneModifier;
-  if (state & ShiftMask) {
-    modifiers |= kKeyShiftModifier;
-    KEY_TRACE("+SHIFT\n");
-  }
-  if (state & ControlMask) {
-    modifiers |= kKeyCtrlModifier;
-    KEY_TRACE("+CTRL\n");
-  }
-  // Mod1Mask is Alt, and Mod5Mask is AltGr
-  if (state & (Mod1Mask | Mod5Mask)) {
-    modifiers |= kKeyAltModifier;
-    KEY_TRACE("+ALT\n");
-  }
-  // Mod4Mask is Windows key
-  if (state & Mod4Mask) {
-    modifiers |= kKeyWinModifier;
-    KEY_TRACE("+WIN\n");
-  }
-  if (g_spaceBarIsPressed) {
-    modifiers |= kKeySpaceModifier;
-    KEY_TRACE("+SPACE\n");
-  }
-  return (KeyModifiers)modifiers;
-}
+// Last time an XInput event was received, it's used to avoid
+// processing mouse motion events that are generated at the same time
+// for the XInput devices.
+Time g_lastXInputEventTime = 0;
 
 bool is_mouse_wheel_button(int button)
 {
@@ -98,19 +72,6 @@ gfx::Point get_mouse_wheel_delta(int button)
     case 7: delta.x = +1; break;
   }
   return delta;
-}
-
-Event::MouseButton get_mouse_button_from_x(int button)
-{
-  switch (button) {
-    case Button1: MOUSE_TRACE("LeftButton\n");   return Event::LeftButton;
-    case Button2: MOUSE_TRACE("MiddleButton\n"); return Event::MiddleButton;
-    case Button3: MOUSE_TRACE("RightButton\n");  return Event::RightButton;
-    case 8:       MOUSE_TRACE("X1Button\n");     return Event::X1Button;
-    case 9:       MOUSE_TRACE("X2Button\n");     return Event::X2Button;
-  }
-  MOUSE_TRACE("Unknown Button %d\n", button);
-  return Event::NoneButton;
 }
 
 } // anonymous namespace
@@ -176,7 +137,13 @@ X11Window::X11Window(::Display* display, int width, int height, int scale)
     CWEventMask,
     &swa);
 
+  if (!m_window)
+    throw std::runtime_error("Cannot create X11 window");
+
   setWMClass(LAF_X11_WM_CLASS);
+
+  // Receive stylus/eraser events
+  X11::instance()->xinput().selectExtensionEvents(m_display, m_window);
 
   XMapWindow(m_display, m_window);
   XSetWMProtocols(m_display, m_window, &wmDeleteMessage, 1);
@@ -487,6 +454,15 @@ bool X11Window::setX11Cursor(::Cursor xcursor)
 
 void X11Window::processX11Event(XEvent& event)
 {
+  auto xinput = &X11::instance()->xinput();
+  if (xinput->handleExtensionEvent(event)) {
+    Event ev;
+    xinput->convertExtensionEvent(event, ev, m_scale,
+                                  g_lastXInputEventTime);
+    queueEvent(ev);
+    return;
+  }
+
   switch (event.type) {
 
     case ConfigureNotify: {
@@ -512,7 +488,6 @@ void X11Window::processX11Event(XEvent& event)
     case KeyPress:
     case KeyRelease: {
       Event ev;
-
       ev.setType(event.type == KeyPress ? Event::KeyDown: Event::KeyUp);
 
       KeySym keysym = XLookupKeysym(&event.xkey, 0);
@@ -595,8 +570,12 @@ void X11Window::processX11Event(XEvent& event)
 
     case ButtonPress:
     case ButtonRelease: {
-      Event ev;
+      // This can happen when the button press/release events are
+      // handled in XInput
+      if (event.xmotion.time == g_lastXInputEventTime)
+        break;
 
+      Event ev;
       if (is_mouse_wheel_button(event.xbutton.button)) {
         if (event.type == ButtonPress) {
           ev.setType(Event::MouseWheel);
@@ -637,6 +616,10 @@ void X11Window::processX11Event(XEvent& event)
     }
 
     case MotionNotify: {
+      // This can happen when the motion event are handled in XInput
+      if (event.xmotion.time == g_lastXInputEventTime)
+        break;
+
       // Reset double-click state
       m_doubleClickButton = Event::NoneButton;
 

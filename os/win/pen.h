@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2020  Igara Studio S.A.
 // Copyright (C) 2016-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -30,11 +31,16 @@ namespace os {
     void close(HCTX ctx);
     bool packet(HCTX ctx, UINT serial, LPVOID packet);
 
+    LONG minPressure() const { return m_minPressure; }
+    LONG maxPressure() const { return m_maxPressure; }
+
   private:
     bool loadWintab();
     bool isBuggyDll();
 
     base::dll m_wintabLib;
+    LONG m_minPressure = 0;
+    LONG m_maxPressure = 1000;
   };
 
 } // namespace os
