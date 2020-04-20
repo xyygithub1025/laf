@@ -30,25 +30,22 @@ Hsl::Hsl(double hue, double saturation, double lightness)
 
 Hsl::Hsl(const Rgb& rgb)
 {
-  int M = rgb.maxComponent();
-  int m = rgb.minComponent();
-  int c = M - m;
-  double chroma = double(c) / 255.0;
+  const int M = rgb.maxComponent();
+  const int m = rgb.minComponent();
+  const int c = M - m;
+  const double chroma = double(c) / 255.0;
+  const double l = double((M + m) / 255.0) / 2.0;
   double hue_prime = 0.0;
-  double h, s, l;
-  double r, g, b;
-
-  l = double((M + m) / 255.0) / 2.0;
+  double h, s;
 
   if (c == 0) {
     h = 0.0; // Undefined Hue because max == min
     s = 0.0;
   }
   else {
-    r = double(rgb.red())   / 255.0;
-    g = double(rgb.green()) / 255.0;
-    b = double(rgb.blue())  / 255.0;
-    s = chroma / (1-std::fabs(2.0*l-1.0));
+    const double r = double(rgb.red())   / 255.0;
+    const double g = double(rgb.green()) / 255.0;
+    const double b = double(rgb.blue())  / 255.0;
 
     if (M == rgb.red()) {
       hue_prime = (g - b) / chroma;
@@ -65,6 +62,7 @@ Hsl::Hsl(const Rgb& rgb)
     }
 
     h = hue_prime * 60.0;
+    s = chroma / (1-std::fabs(2.0*l-1.0));
   }
 
   m_hue = h;

@@ -31,25 +31,22 @@ Hsv::Hsv(double hue, double saturation, double value)
 // Reference: http://en.wikipedia.org/wiki/HSL_and_HSV
 Hsv::Hsv(const Rgb& rgb)
 {
-  int M = rgb.maxComponent();
-  int m = rgb.minComponent();
-  int c = M - m;
-  double chroma = double(c) / 255.0;
+  const int M = rgb.maxComponent();
+  const int m = rgb.minComponent();
+  const int c = M - m;
+  const double chroma = double(c) / 255.0;
+  const double v = double(M) / 255.0;
   double hue_prime = 0.0;
-  double h, s, v;
-  double r, g, b;
-
-  v = double(M) / 255.0;
+  double h, s;
 
   if (c == 0) {
     h = 0.0; // Undefined Hue because max == min
     s = 0.0;
   }
   else {
-    r = double(rgb.red())   / 255.0;
-    g = double(rgb.green()) / 255.0;
-    b = double(rgb.blue())  / 255.0;
-    s = chroma / v;
+    const double r = double(rgb.red())   / 255.0;
+    const double g = double(rgb.green()) / 255.0;
+    const double b = double(rgb.blue())  / 255.0;
 
     if (M == rgb.red()) {
       hue_prime = (g - b) / chroma;
@@ -66,6 +63,7 @@ Hsv::Hsv(const Rgb& rgb)
     }
 
     h = hue_prime * 60.0;
+    s = chroma / v;
   }
 
   m_hue = h;
