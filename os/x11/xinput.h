@@ -166,9 +166,11 @@ public:
     ASSERT(it != m_info.end());
     if (it != m_info.end()) {
       const auto& info = it->second;
-      ev.setPressure(
-        float(pressure - info.minPressure) /
-        float(info.maxPressure - info.minPressure));
+      if (info.minPressure != info.maxPressure) {
+        ev.setPressure(
+          float(pressure - info.minPressure) /
+          float(info.maxPressure - info.minPressure));
+      }
       ev.setPointerType(info.pointerType);
     }
   }
