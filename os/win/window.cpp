@@ -19,6 +19,7 @@
 #include <sstream>
 
 #include "base/base.h"
+#include "base/clamp.h"
 #include "base/debug.h"
 #include "base/file_content.h"
 #include "base/fs.h"
@@ -1424,6 +1425,10 @@ bool WinWindow::pointerEvent(WPARAM wparam, Event& ev, POINTER_INFO& pi)
         MOUSE_TRACE(" - ppi.penFlags = %d\n", ppi.penFlags);
         if (ppi.penFlags & PEN_FLAG_ERASER)
           ev.setPointerType(PointerType::Eraser);
+
+        // Add pressure information
+        ev.setPressure(
+          base::clamp(float(ppi.pressure) / 1024.0f, 0.0f, 1.0f));
       }
       break;
     }
