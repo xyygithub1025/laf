@@ -127,7 +127,7 @@ WinWindow::WinWindow(int width, int height, int scale)
 #endif
   , m_hpenctx(nullptr)
   , m_pointerType(PointerType::Unknown)
-  , m_pressure(0.0)
+  , m_pressure(0.0f)
 {
   auto& winApi = system()->winApi();
   if (winApi.EnableMouseInPointer &&

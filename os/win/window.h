@@ -193,7 +193,7 @@ namespace os {
     // Wintab API data
     HCTX m_hpenctx;
     PointerType m_pointerType;
-    double m_pressure;
+    float m_pressure;
   };
 
 } // namespace os
