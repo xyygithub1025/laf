@@ -27,7 +27,28 @@
 namespace os {
 
 class XInput {
+  // To avoid depending on the libXi statically, we can load the
+  // libXi.so dynamically.
+  typedef XDeviceInfo* (*XListInputDevices_Func)(::Display*, int*);
+  typedef void (*XFreeDeviceList_Func)(XDeviceInfo*);
+  typedef XDevice* (*XOpenDevice_Func)(::Display*, XID);
+  typedef int (*XCloseDevice_Func)(::Display*, XDevice*);
+  typedef int (*XSelectExtensionEvent_Func)(::Display*, ::Window, XEventClass*, int);
+
+  XListInputDevices_Func XListInputDevices;
+  XFreeDeviceList_Func XFreeDeviceList;
+  XOpenDevice_Func XOpenDevice;
+  XCloseDevice_Func XCloseDevice;
+  XSelectExtensionEvent_Func XSelectExtensionEvent;
+
 public:
+  ~XInput() {
+    if (m_xi) {
+      base::unload_dll(m_xi);
+      m_xi = nullptr;
+    }
+  }
+
   void load(::Display* display) {
     int majorOpcode;
     int firstEvent;
@@ -39,6 +60,31 @@ public:
                          &firstEvent,
                          &firstError))
       return;
+
+    m_xi = base::load_dll("libXi.so");
+    if (!m_xi) m_xi = base::load_dll("libXi.so.6");
+    if (!m_xi) {
+      LOG("XI: Error loading libXi.so library\n");
+      return;
+    }
+
+    XListInputDevices = base::get_dll_proc<XListInputDevices_Func>(m_xi, "XListInputDevices");
+    XFreeDeviceList = base::get_dll_proc<XFreeDeviceList_Func>(m_xi, "XFreeDeviceList");
+    XOpenDevice = base::get_dll_proc<XOpenDevice_Func>(m_xi, "XOpenDevice");
+    XCloseDevice = base::get_dll_proc<XCloseDevice_Func>(m_xi, "XCloseDevice");
+    XSelectExtensionEvent = base::get_dll_proc<XSelectExtensionEvent_Func>(m_xi, "XSelectExtensionEvent");
+
+    if (!XListInputDevices ||
+        !XFreeDeviceList ||
+        !XOpenDevice ||
+        !XCloseDevice ||
+        !XSelectExtensionEvent) {
+      base::unload_dll(m_xi);
+      m_xi = nullptr;
+
+      LOG("XI: Error loading functions from libXi.so\n");
+      return;
+    }
 
     int ndevices = 0;
     auto devices = XListInputDevices(display, &ndevices);
@@ -99,12 +145,19 @@ public:
   }
 
   void unload(::Display* display) {
+    if (!m_xi)
+      return;
+
     for (XDevice* dev : m_openDevices)
       XCloseDevice(display, dev);
     m_openDevices.clear();
   }
 
   void selectExtensionEvents(::Display* display, ::Window window) {
+    if (!m_xi)
+      return;
+
+    ASSERT(XSelectExtensionEvent);
     XSelectExtensionEvent(display, window,
                           &m_eventClasses[0],
                           int(m_eventClasses.size()));
@@ -194,6 +247,8 @@ private:
     int minPressure = 0;
     int maxPressure = 1000;
   };
+
+  base::dll m_xi;
   std::vector<XDevice*> m_openDevices;
   std::map<XID, Info> m_info;
   std::vector<XEventClass> m_eventClasses;
