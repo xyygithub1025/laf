@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2019  Igara Studio S.A.
+// Copyright (C) 2019-2020  Igara Studio S.A.
 // Copyright (C) 2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -23,6 +23,7 @@ namespace os {
 @end
 
 @interface OSXNSMenuItem : NSMenuItem {
+@public
   os::MenuItemOSX* original;
 }
 + (OSXNSMenuItem*)alloc:(os::MenuItemOSX*)original;
@@ -37,6 +38,7 @@ extern bool g_keyEquivalentUsed;
 class MenuItemOSX : public MenuItem {
 public:
   MenuItemOSX(const MenuItemInfo& info);
+  ~MenuItemOSX();
   void dispose() override;
   void setText(const std::string& text) override;
   void setSubmenu(Menu* submenu) override;
@@ -60,9 +62,11 @@ private:
 class MenuOSX : public Menu {
 public:
   MenuOSX();
+  ~MenuOSX();
   void dispose() override;
   void addItem(MenuItem* item) override;
   void insertItem(const int index, MenuItem* item) override;
+  void removeItem(MenuItem* item) override;
   NSMenu* handle() { return m_handle; }
 private:
   NSMenu* m_handle;
@@ -111,7 +115,10 @@ private:
 
 namespace os {
 
-MenuItemOSX::MenuItemOSX(const MenuItemInfo& info)
+//////////////////////////////////////////////////////////////////////
+// os::MenuItem impl
+
+  MenuItemOSX::MenuItemOSX(const MenuItemInfo& info)
   : m_handle(nullptr)
   , m_submenu(nullptr)
 {
@@ -178,6 +185,15 @@ MenuItemOSX::MenuItemOSX(const MenuItemInfo& info)
   }
 }
 
+MenuItemOSX::~MenuItemOSX()
+{
+  if (m_submenu)
+    m_submenu->dispose();
+
+  if (m_handle.parentItem)
+    [m_handle.parentItem.submenu removeItem:m_handle];
+}
+
 void MenuItemOSX::dispose()
 {
   delete this;
@@ -191,6 +207,11 @@ void MenuItemOSX::setText(const std::string& text)
 
 void MenuItemOSX::setSubmenu(Menu* submenu)
 {
+  if (m_submenu) {
+    ASSERT(m_handle.submenu == ((MenuOSX*)m_submenu)->handle());
+    m_submenu->dispose();
+  }
+
   m_submenu = submenu;
   if (submenu) {
     [m_handle setSubmenu:((MenuOSX*)submenu)->handle()];
@@ -255,9 +276,29 @@ void MenuItemOSX::syncTitle()
     [((MenuOSX*)m_submenu)->handle() setTitle:m_handle.title];
 }
 
+//////////////////////////////////////////////////////////////////////
+// os::Menu impl
+
 MenuOSX::MenuOSX()
 {
   m_handle = [[OSXNSMenu alloc] init];
+}
+
+MenuOSX::~MenuOSX()
+{
+#if 0 // TODO dispose existent items
+  std::vector<NSMenuItem*> items;
+  for (int i=0, c=m_handle.itemArray.count; i<c; ++i) {
+    items.push_back(m_handle.itemArray[i]);
+  }
+
+  for (NSMenuItem* nsItem : items) {
+    if ([nsItem isKindOfClass:[OSXNSMenuItem class]]) {
+      auto item = (OSXNSMenuItem*)nsItem;
+      item->original->dispose();
+    }
+  }
+#endif
 }
 
 void MenuOSX::dispose()
@@ -277,6 +318,15 @@ void MenuOSX::insertItem(const int index, MenuItem* item)
   [m_handle insertItem:((MenuItemOSX*)item)->handle()
                atIndex:index];
 }
+
+void MenuOSX::removeItem(MenuItem* item)
+{
+  ASSERT(item);
+  [m_handle removeItem:((MenuItemOSX*)item)->handle()];
+}
+
+//////////////////////////////////////////////////////////////////////
+// os::Menus impl
 
 MenusOSX::MenusOSX()
 {

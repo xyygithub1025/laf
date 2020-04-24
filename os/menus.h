@@ -78,6 +78,7 @@ namespace os {
     virtual void dispose() = 0;
     virtual void addItem(MenuItem* item) = 0;
     virtual void insertItem(const int index, MenuItem* item) = 0;
+    virtual void removeItem(MenuItem* item) = 0;
   };
 
   class Menus {
