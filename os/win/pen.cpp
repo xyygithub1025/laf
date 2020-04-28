@@ -104,6 +104,12 @@ HCTX PenAPI::open(HWND hwnd)
   }
 #endif
 
+  LOG("PEN: Context pktRate=%d in=%d,%d,%d,%d out=%d,%d,%d,%d sys=%d,%d,%d,%d\n",
+      logctx.lcPktRate,
+      logctx.lcInOrgX, logctx.lcInOrgY, logctx.lcInExtX, logctx.lcInExtY,
+      logctx.lcOutOrgX, logctx.lcOutOrgY, logctx.lcOutExtX, logctx.lcOutExtY,
+      logctx.lcSysOrgX, logctx.lcSysOrgY, logctx.lcSysExtX, logctx.lcSysExtY);
+
   logctx.lcOptions |=
     CXO_MESSAGES |
     CXO_CSRMESSAGES;
