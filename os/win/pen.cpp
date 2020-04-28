@@ -28,11 +28,15 @@ typedef UINT (API* WTInfoW_Func)(UINT, UINT, LPVOID);
 typedef HCTX (API* WTOpenW_Func)(HWND, LPLOGCONTEXTW, BOOL);
 typedef BOOL (API* WTClose_Func)(HCTX);
 typedef BOOL (API* WTPacket_Func)(HCTX, UINT, LPVOID);
+typedef int (API* WTQueueSizeGet_Func)(HCTX);
+typedef BOOL (API* WTQueueSizeSet_Func)(HCTX, int);
 
 WTInfoW_Func WTInfo;
 WTOpenW_Func WTOpen;
 WTClose_Func WTClose;
 WTPacket_Func WTPacket;
+WTQueueSizeGet_Func WTQueueSizeGet;
+WTQueueSizeSet_Func WTQueueSizeSet;
 
 } // anonymous namespace
 
@@ -123,6 +127,27 @@ HCTX PenAPI::open(HWND hwnd)
     return nullptr;
   }
 
+  // Make the queue bigger as recommended by Wacom docs:
+  //
+  //   "To prevent your queue from overflowing, increase the size of
+  //    your context's queue with the WTQueueSizeSet() function to a
+  //    value between 32 and 128. Memory for packet queues is a limited
+  //    resource, so be sure check that your call to WTQueueSizeSet()
+  //    succeeds. If WTQueueSizeSet() fails, request a smaller queue
+  //    size."
+  //
+  // https://developer-docs.wacom.com/display/DevDocs/Window+Developers+FAQ
+  int q = WTQueueSizeGet(ctx);
+  LOG("PEN: Original queue size=%d\n", q);
+  if (q < 128) {
+    for (int r=128; r>=q; r-=8) {
+      if (WTQueueSizeSet(ctx, r))
+        break;
+    }
+  }
+  q = WTQueueSizeGet(ctx);
+  LOG("PEN: New queue size=%d\n", q);
+
   LOG("PEN: Pen attached to display, new context %p\n", ctx);
   return ctx;
 }
@@ -162,7 +187,10 @@ bool PenAPI::loadWintab()
   WTOpen = base::get_dll_proc<WTOpenW_Func>(m_wintabLib, "WTOpenW");
   WTClose = base::get_dll_proc<WTClose_Func>(m_wintabLib, "WTClose");
   WTPacket = base::get_dll_proc<WTPacket_Func>(m_wintabLib, "WTPacket");
-  if (!WTInfo || !WTOpen || !WTClose || !WTPacket) {
+  WTQueueSizeGet = base::get_dll_proc<WTQueueSizeGet_Func>(m_wintabLib, "WTQueueSizeGet");
+  WTQueueSizeSet = base::get_dll_proc<WTQueueSizeSet_Func>(m_wintabLib, "WTQueueSizeSet");
+  if (!WTInfo || !WTOpen || !WTClose || !WTPacket ||
+      !WTQueueSizeGet || !WTQueueSizeSet) {
     LOG(ERROR) << "PEN: wintab32.dll does not contain all required functions\n";
     return false;
   }
