@@ -1340,21 +1340,6 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
       break;
     }
 
-    case WT_CSRCHANGE: {    // From Wintab 1.1
-      auto& api = system()->wintabApi();
-      UINT serial = wparam;
-      HCTX ctx = (HCTX)lparam;
-      PACKET packet;
-
-      if (api.packet(ctx, serial, &packet))
-        m_pointerType = wt_packet_pkcursor_to_pointer_type(packet.pkCursor);
-      else
-        m_pointerType = PointerType::Unknown;
-
-      MOUSE_TRACE("WT_CSRCHANGE pointer=%d\n", m_pointerType);
-      break;
-    }
-
     case WT_PACKET: {
       auto& api = system()->wintabApi();
       UINT serial = wparam;
