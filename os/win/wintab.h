@@ -30,6 +30,7 @@ namespace os {
     HCTX open(HWND hwnd);
     void close(HCTX ctx);
     bool packet(HCTX ctx, UINT serial, LPVOID packet);
+    void overlap(HCTX ctx, BOOL state);
 
     LONG minPressure() const { return m_minPressure; }
     LONG maxPressure() const { return m_maxPressure; }

@@ -28,6 +28,7 @@ typedef UINT (API* WTInfoW_Func)(UINT, UINT, LPVOID);
 typedef HCTX (API* WTOpenW_Func)(HWND, LPLOGCONTEXTW, BOOL);
 typedef BOOL (API* WTClose_Func)(HCTX);
 typedef BOOL (API* WTPacket_Func)(HCTX, UINT, LPVOID);
+typedef BOOL (API* WTOverlap_Func)(HCTX, BOOL);
 typedef int (API* WTQueueSizeGet_Func)(HCTX);
 typedef BOOL (API* WTQueueSizeSet_Func)(HCTX, int);
 
@@ -35,6 +36,7 @@ WTInfoW_Func WTInfo;
 WTOpenW_Func WTOpen;
 WTClose_Func WTClose;
 WTPacket_Func WTPacket;
+WTOverlap_Func WTOverlap;
 WTQueueSizeGet_Func WTQueueSizeGet;
 WTQueueSizeSet_Func WTQueueSizeSet;
 
@@ -164,6 +166,11 @@ void WintabAPI::close(HCTX ctx)
   }
 }
 
+void WintabAPI::overlap(HCTX ctx, BOOL state)
+{
+  WTOverlap(ctx, state);
+}
+
 bool WintabAPI::packet(HCTX ctx, UINT serial, LPVOID packet)
 {
   return (WTPacket(ctx, serial, packet) ? true: false);
@@ -189,6 +196,7 @@ bool WintabAPI::loadWintab()
   WTOpen = base::get_dll_proc<WTOpenW_Func>(m_wintabLib, "WTOpenW");
   WTClose = base::get_dll_proc<WTClose_Func>(m_wintabLib, "WTClose");
   WTPacket = base::get_dll_proc<WTPacket_Func>(m_wintabLib, "WTPacket");
+  WTOverlap = base::get_dll_proc<WTOverlap_Func>(m_wintabLib, "WTOverlap");
   WTQueueSizeGet = base::get_dll_proc<WTQueueSizeGet_Func>(m_wintabLib, "WTQueueSizeGet");
   WTQueueSizeSet = base::get_dll_proc<WTQueueSizeSet_Func>(m_wintabLib, "WTQueueSizeSet");
   if (!WTInfo || !WTOpen || !WTClose || !WTPacket ||

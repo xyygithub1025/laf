@@ -652,12 +652,19 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
       return 0;
     }
 
-    case WM_ACTIVATE: {
+    case WM_ACTIVATE:
       if (wparam == WA_ACTIVE ||
-          wparam == WA_CLICKACTIVE)
+          wparam == WA_CLICKACTIVE) {
         checkColorSpaceChange();
+      }
+
+      if (system()->useWintabAPI()) {
+        // Handle z-order of Wintab context
+        auto& api = system()->wintabApi();
+        api.overlap(m_hpenctx, (wparam == WA_ACTIVE ||
+                                wparam == WA_CLICKACTIVE) ? TRUE: FALSE);
+      }
       break;
-    }
 
     case WM_PAINT:
       if (m_isCreated) {
