@@ -614,7 +614,8 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
 
       if (system()->useWintabAPI()) {
         // Attach Wacom context
-        m_hpenctx = system()->penApi().open(m_hwnd);
+        auto& api = system()->wintabApi();
+        m_hpenctx = api.open(m_hwnd);
       }
       break;
 
@@ -623,7 +624,8 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
           m_hwnd, m_hpenctx);
 
       if (m_hpenctx) {
-        system()->penApi().close(m_hpenctx);
+        auto& api = system()->wintabApi();
+        api.close(m_hpenctx);
         m_hpenctx = nullptr;
       }
       break;
@@ -1323,7 +1325,7 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
     }
 
     case WT_CSRCHANGE: {    // From Wintab 1.1
-      auto& api = system()->penApi();
+      auto& api = system()->wintabApi();
       UINT serial = wparam;
       HCTX ctx = (HCTX)lparam;
       PACKET packet;
@@ -1338,7 +1340,7 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
     }
 
     case WT_PACKET: {
-      auto& api = system()->penApi();
+      auto& api = system()->wintabApi();
       UINT serial = wparam;
       HCTX ctx = (HCTX)lparam;
       PACKET packet;

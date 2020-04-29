@@ -16,10 +16,10 @@ if(WIN32)
     win/event_queue.cpp
     win/keys.cpp
     win/native_dialogs.cpp
-    win/pen.cpp
     win/winapi.cpp
     win/window.cpp
-    win/window_dde.cpp)
+    win/window_dde.cpp
+    win/wintab.cpp)
 elseif(APPLE)
   find_library(COCOA_LIBRARY Cocoa)
   find_library(CARBON_LIBRARY Carbon)

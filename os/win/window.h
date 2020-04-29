@@ -15,7 +15,7 @@
 #include "os/event.h"
 #include "os/native_cursor.h"
 #include "os/pointer_type.h"
-#include "os/win/pen.h"
+#include "os/win/wintab.h"
 
 #include <string>
 #include <windows.h>

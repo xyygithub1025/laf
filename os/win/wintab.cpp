@@ -9,7 +9,7 @@
 #include "config.h"
 #endif
 
-#include "os/win/pen.h"
+#include "os/win/wintab.h"
 
 #include "base/convert_to.h"
 #include "base/debug.h"
@@ -40,12 +40,12 @@ WTQueueSizeSet_Func WTQueueSizeSet;
 
 } // anonymous namespace
 
-PenAPI::PenAPI()
+WintabAPI::WintabAPI()
   : m_wintabLib(nullptr)
 {
 }
 
-PenAPI::~PenAPI()
+WintabAPI::~WintabAPI()
 {
   if (!m_wintabLib)
     return;
@@ -54,7 +54,7 @@ PenAPI::~PenAPI()
   m_wintabLib = nullptr;
 }
 
-HCTX PenAPI::open(HWND hwnd)
+HCTX WintabAPI::open(HWND hwnd)
 {
   if (!m_wintabLib && !loadWintab())
     return nullptr;
@@ -154,7 +154,7 @@ HCTX PenAPI::open(HWND hwnd)
   return ctx;
 }
 
-void PenAPI::close(HCTX ctx)
+void WintabAPI::close(HCTX ctx)
 {
   LOG("PEN: Closing context %p\n", ctx);
   if (ctx) {
@@ -164,12 +164,12 @@ void PenAPI::close(HCTX ctx)
   }
 }
 
-bool PenAPI::packet(HCTX ctx, UINT serial, LPVOID packet)
+bool WintabAPI::packet(HCTX ctx, UINT serial, LPVOID packet)
 {
   return (WTPacket(ctx, serial, packet) ? true: false);
 }
 
-bool PenAPI::loadWintab()
+bool WintabAPI::loadWintab()
 {
   ASSERT(!m_wintabLib);
 
@@ -201,7 +201,7 @@ bool PenAPI::loadWintab()
   return true;
 }
 
-bool PenAPI::isBuggyDll()
+bool WintabAPI::isBuggyDll()
 {
   ASSERT(m_wintabLib);
 

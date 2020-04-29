@@ -5,8 +5,8 @@
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
 
-#ifndef OS_WIN_PEN_H_INCLUDED
-#define OS_WIN_PEN_H_INCLUDED
+#ifndef OS_WIN_WINTAB_H_INCLUDED
+#define OS_WIN_WINTAB_H_INCLUDED
 #pragma once
 
 #include "base/dll.h"
@@ -22,10 +22,10 @@ namespace os {
 
   // Wintab API wrapper
   // Read http://www.wacomeng.com/windows/docs/Wintab_v140.htm for more information.
-  class PenAPI {
+  class WintabAPI {
   public:
-    PenAPI();
-    ~PenAPI();
+    WintabAPI();
+    ~WintabAPI();
 
     HCTX open(HWND hwnd);
     void close(HCTX ctx);

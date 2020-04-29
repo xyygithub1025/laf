@@ -10,8 +10,8 @@
 #pragma once
 
 #include "os/common/system.h"
-#include "os/win/pen.h"
 #include "os/win/winapi.h"
+#include "os/win/wintab.h"
 
 namespace os {
 
@@ -24,7 +24,7 @@ public:
   ~WindowSystem() { }
 
   WinAPI& winApi() { return m_winApi; }
-  PenAPI& penApi() { return m_penApi; }
+  WintabAPI& wintabApi() { return m_wintabApi; }
 
   void setAppName(const std::string& appName) override { m_appName = appName; }
   std::string appName() const { return m_appName; }
@@ -44,7 +44,7 @@ private:
   std::string m_appName;
   bool m_useWintabAPI = true;
   WinAPI m_winApi;
-  PenAPI m_penApi;
+  WintabAPI m_wintabApi;
 };
 
 } // namespace os
