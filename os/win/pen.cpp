@@ -86,26 +86,22 @@ HCTX PenAPI::open(HWND hwnd)
   memset(&logctx, 0, sizeof(LOGCONTEXTW));
   UINT infoRes = WTInfo(WTI_DEFSYSCTX, 0, &logctx);
 
-  // TODO Sometimes we receive infoRes=88 from WTInfo and logctx.lcOptions=0
-  //      while sizeof(LOGCONTEXTW) is 212
-  ASSERT(infoRes == sizeof(LOGCONTEXTW));
-  ASSERT(logctx.lcOptions & CXO_SYSTEM);
+  // Move system cursor position
+  logctx.lcOptions |= CXO_SYSTEM;
 
-#if 0 // We shouldn't bypass WTOpen() if the return value from
+#if 1 // We shouldn't bypass WTOpen() if the return value from
       // WTInfo() isn't the expected one, WTOpen() should just fail
       // anyway.
   if (infoRes != sizeof(LOGCONTEXTW)) {
     LOG(ERROR)
-      << "PEN: Not supported WTInfo:\n"
+      << "PEN: Invalid size of WTInfo:\n"
       << "     Expected context size: " << sizeof(LOGCONTEXTW) << "\n"
-      << "     Actual context size: " << infoRes << "\n"
-      << "     Options: " << logctx.lcOptions << ")\n";
-    return nullptr;
+      << "     Actual context size: " << infoRes << "\n";
   }
 #endif
 
-  LOG("PEN: Context pktRate=%d in=%d,%d,%d,%d out=%d,%d,%d,%d sys=%d,%d,%d,%d\n",
-      logctx.lcPktRate,
+  LOG("PEN: Context options=%d pktRate=%d in=%d,%d,%d,%d out=%d,%d,%d,%d sys=%d,%d,%d,%d\n",
+      logctx.lcOptions, logctx.lcPktRate,
       logctx.lcInOrgX, logctx.lcInOrgY, logctx.lcInExtX, logctx.lcInExtY,
       logctx.lcOutOrgX, logctx.lcOutOrgY, logctx.lcOutExtX, logctx.lcOutExtY,
       logctx.lcSysOrgX, logctx.lcSysOrgY, logctx.lcSysExtX, logctx.lcSysExtY);
