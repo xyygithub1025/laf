@@ -1325,9 +1325,18 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
     case WT_PROXIMITY: {
       MOUSE_TRACE("WT_PROXIMITY\n");
 
+      HCTX ctx = (HCTX)wparam;
+      ASSERT(m_hpenctx == ctx);
+
       bool entering_ctx = (LOWORD(lparam) ? true: false);
       if (!entering_ctx)
         m_pointerType = PointerType::Unknown;
+
+      // Flush/empty queue
+      if (ctx) {
+        auto& api = system()->wintabApi();
+        api.packet(ctx, 0xffff, nullptr);
+      }
       break;
     }
 
