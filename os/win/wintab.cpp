@@ -17,6 +17,7 @@
 #include "base/log.h"
 #include "base/sha1.h"
 #include "base/string.h"
+#include "base/version.h"
 
 #include <iostream>
 
@@ -186,7 +187,7 @@ bool WintabAPI::loadWintab()
     return false;
   }
 
-  if (isBuggyDll()) {
+  if (!checkDll()) {
     base::unload_dll(m_wintabLib);
     m_wintabLib = nullptr;
     return false;
@@ -209,25 +210,24 @@ bool WintabAPI::loadWintab()
   return true;
 }
 
-bool WintabAPI::isBuggyDll()
+bool WintabAPI::checkDll()
 {
   ASSERT(m_wintabLib);
 
-  WCHAR wpath[MAX_PATH];
-  memset(wpath, 0, sizeof(wpath));
-  GetModuleFileNameW((HMODULE)m_wintabLib, wpath, sizeof(wpath) / sizeof(WCHAR));
+  std::string fn = base::get_dll_filename(m_wintabLib);
+  if (!base::is_file(fn))
+    return false;
+
+  std::string checksum = base::convert_to<std::string>(base::Sha1::calculateFromFile(fn));
+  base::Version ver = base::get_file_version(fn);
+  LOG("PEN: <%s> v%s, sha1 <%s>\n", fn.c_str(), ver.str().c_str(), checksum.c_str());
 
   // Ugly hack to bypass the buggy WALTOP International Corp .dll that
   // hangs Aseprite completely when we call its WTInfo function.
-  std::string path = base::to_utf8(wpath);
-  if (base::is_file(path)) {
-    std::string checksum =
-      base::convert_to<std::string>(base::Sha1::calculateFromFile(path));
-    LOG("PEN: SHA1 <%s> of <%s>\n", checksum.c_str(), path.c_str());
-    if (checksum == "a3ba0d9c0f5d8b9f4070981b243a80579f8be105")
-      return true;
-  }
-  return false;
+  if (checksum == "a3ba0d9c0f5d8b9f4070981b243a80579f8be105")
+    return false;
+
+  return true;
 }
 
 } // namespace os

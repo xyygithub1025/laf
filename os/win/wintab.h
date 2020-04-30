@@ -37,7 +37,7 @@ namespace os {
 
   private:
     bool loadWintab();
-    bool isBuggyDll();
+    bool checkDll();
 
     base::dll m_wintabLib;
     LONG m_minPressure = 0;
