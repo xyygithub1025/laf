@@ -102,7 +102,7 @@ static void LOGva(const char* format, va_list ap)
   std::vsnprintf(&buf[0], buf.size(), format, ap);
 
   ASSERT(log_ostream);
-  log_ostream->write(&buf[0], buf.size());
+  log_ostream->write(&buf[0], size);
   log_ostream->flush();
 
 #ifdef _DEBUG
