@@ -21,6 +21,8 @@
 
 #include <iostream>
 
+#define WINTAB_TRACE(...)
+
 namespace os {
 
 namespace {
@@ -28,6 +30,7 @@ namespace {
 typedef UINT (API* WTInfoW_Func)(UINT, UINT, LPVOID);
 typedef HCTX (API* WTOpenW_Func)(HWND, LPLOGCONTEXTW, BOOL);
 typedef BOOL (API* WTClose_Func)(HCTX);
+typedef int (API* WTPacketsGet_Func)(HCTX, int, LPVOID);
 typedef BOOL (API* WTPacket_Func)(HCTX, UINT, LPVOID);
 typedef BOOL (API* WTOverlap_Func)(HCTX, BOOL);
 typedef int (API* WTQueueSizeGet_Func)(HCTX);
@@ -36,6 +39,7 @@ typedef BOOL (API* WTQueueSizeSet_Func)(HCTX, int);
 WTInfoW_Func WTInfo;
 WTOpenW_Func WTOpen;
 WTClose_Func WTClose;
+WTPacketsGet_Func WTPacketsGet;
 WTPacket_Func WTPacket;
 WTOverlap_Func WTOverlap;
 WTQueueSizeGet_Func WTQueueSizeGet;
@@ -115,6 +119,7 @@ HCTX WintabAPI::open(HWND hwnd)
   logctx.lcPktData = PACKETDATA;
   logctx.lcPktMode = PACKETMODE;
   logctx.lcMoveMask = PACKETDATA;
+  m_outBounds = gfx::Rect(logctx.lcOutOrgX, logctx.lcOutOrgY, logctx.lcOutExtX, logctx.lcOutExtY);
 
   AXIS pressure;
   infoRes = WTInfo(WTI_DEVICES, DVC_NPRESSURE, &pressure);
@@ -150,7 +155,7 @@ HCTX WintabAPI::open(HWND hwnd)
         break;
     }
   }
-  q = WTQueueSizeGet(ctx);
+  m_queueSize = q = WTQueueSizeGet(ctx);
   LOG("PEN: New queue size=%d\n", q);
 
   LOG("PEN: Pen attached to display, new context %p\n", ctx);
@@ -177,6 +182,79 @@ bool WintabAPI::packet(HCTX ctx, UINT serial, LPVOID packet)
   return (WTPacket(ctx, serial, packet) ? true: false);
 }
 
+int WintabAPI::packets(HCTX ctx, int maxPackets, LPVOID packets)
+{
+  return WTPacketsGet(ctx, maxPackets, packets);
+}
+
+void WintabAPI::mapCursorButton(const int cursor,
+                                const int logicalButton,
+                                const int relativeButton,
+                                Event::Type& evType,
+                                Event::MouseButton& mouseButton)
+{
+  mouseButton = Event::NoneButton;
+  switch (relativeButton) {
+    case TBN_DOWN:
+      evType = Event::MouseDown;
+      break;
+    case TBN_UP:
+      evType = Event::MouseUp;
+      break;
+    case TBN_NONE:
+    default:
+      evType = Event::MouseMove;
+      break;
+  }
+
+  // Invalid logical button
+  if (logicalButton < 0 || logicalButton >= 32) {
+    WINTAB_TRACE("PEN: INVALID LOGICAL BUTTON\n");
+    return;
+  }
+
+  // Get "logical button" -> "button action code" mapping so we can
+  // know for what specific mouse button we should generate an event
+  // (or maybe if it's a double-click).
+  BYTE map[32];
+  WTInfo(WTI_CURSORS + cursor, CSR_SYSBTNMAP, &map);
+
+  switch (map[logicalButton]) {
+
+    case SBN_LDBLCLICK:
+      evType = Event::MouseDoubleClick;
+    case SBN_LCLICK:
+    case SBN_LDRAG:
+      mouseButton = Event::LeftButton;
+      break;
+
+    case SBN_RDBLCLICK:
+      evType = Event::MouseDoubleClick;
+    case SBN_RCLICK:
+    case SBN_RDRAG:
+      mouseButton = Event::RightButton;
+      break;
+
+    case SBN_MDBLCLICK:
+      evType = Event::MouseDoubleClick;
+    case SBN_MCLICK:
+    case SBN_MDRAG:
+      mouseButton = Event::MiddleButton;
+      break;
+  }
+
+  WINTAB_TRACE(
+    "  PEN: Button map logicalButton=%d action=%d -> evType=%s mouseButton=%d\n",
+    logicalButton,
+    map[logicalButton],
+    (evType == Event::None ? "-":
+     evType == Event::MouseMove ? "move":
+     evType == Event::MouseDown ? "DOWN":
+     evType == Event::MouseUp ? "UP":
+     evType == Event::MouseDoubleClick ? "DOUBLE-CLICK": "unknown"),
+    (int)mouseButton);
+}
+
 bool WintabAPI::loadWintab()
 {
   ASSERT(!m_wintabLib);
@@ -196,6 +274,7 @@ bool WintabAPI::loadWintab()
   WTInfo = base::get_dll_proc<WTInfoW_Func>(m_wintabLib, "WTInfoW");
   WTOpen = base::get_dll_proc<WTOpenW_Func>(m_wintabLib, "WTOpenW");
   WTClose = base::get_dll_proc<WTClose_Func>(m_wintabLib, "WTClose");
+  WTPacketsGet = base::get_dll_proc<WTPacketsGet_Func>(m_wintabLib, "WTPacketsGet");
   WTPacket = base::get_dll_proc<WTPacket_Func>(m_wintabLib, "WTPacket");
   WTOverlap = base::get_dll_proc<WTOverlap_Func>(m_wintabLib, "WTOverlap");
   WTQueueSizeGet = base::get_dll_proc<WTQueueSizeGet_Func>(m_wintabLib, "WTQueueSizeGet");

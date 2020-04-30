@@ -194,6 +194,8 @@ namespace os {
     HCTX m_hpenctx;
     PointerType m_pointerType;
     float m_pressure;
+    std::vector<PACKET> m_packets;
+    Event m_lastWintabEvent;
   };
 
 } // namespace os

@@ -25,6 +25,7 @@
 #include "base/fs.h"
 #include "base/log.h"
 #include "base/string.h"
+#include "base/thread.h"
 #include "gfx/region.h"
 #include "gfx/size.h"
 #include "os/event.h"
@@ -70,6 +71,16 @@ static PointerType wt_packet_pkcursor_to_pointer_type(int pkCursor)
   // Return just "pen" for packets from unknown devices (just to keep
   // the pressure information).
   return PointerType::Pen;
+}
+
+static inline bool same_mouse_event(Event& a, Event& b)
+{
+  return (a.type() == b.type() &&
+          a.position() == b.position() &&
+          a.modifiers() == b.modifiers() &&
+          a.button() == b.button() &&
+          a.pointerType() == b.pointerType() &&
+          a.pressure() == b.pressure());
 }
 
 static BOOL CALLBACK log_monitor_info(HMONITOR monitor,
@@ -717,7 +728,7 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
                   ev.position().x, ev.position().y);
 
       if (m_ignoreRandomMouseEvents > 0) {
-        MOUSE_TRACE(" - IGNORED\n");
+        MOUSE_TRACE(" - IGNORED (random event)\n");
         --m_ignoreRandomMouseEvents;
         break;
       }
@@ -744,7 +755,12 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
       }
 
       ev.setType(Event::MouseMove);
-      queueEvent(ev);
+      if (same_mouse_event(ev, m_lastWintabEvent))
+        MOUSE_TRACE(" - IGNORED (WinTab)\n");
+      else {
+        queueEvent(ev);
+        m_lastWintabEvent.setType(Event::None);
+      }
       break;
     }
 
@@ -781,11 +797,16 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
         ev.setPointerType(m_pointerType);
         ev.setPressure(m_pressure);
       }
-      queueEvent(ev);
 
-      MOUSE_TRACE("BUTTONDOWN xy=%d,%d button=%d\n",
+      MOUSE_TRACE("BUTTONDOWN xy=%d,%d button=%d pointerType=%d\n",
                   ev.position().x, ev.position().y,
-                  ev.button());
+                  ev.button(), (int)m_pointerType);
+      if (same_mouse_event(ev, m_lastWintabEvent))
+        MOUSE_TRACE(" - IGNORED (WinTab)\n");
+      else {
+        queueEvent(ev);
+        m_lastWintabEvent.setType(Event::None);
+      }
       break;
     }
 
@@ -808,11 +829,16 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
         ev.setPointerType(m_pointerType);
         ev.setPressure(m_pressure);
       }
-      queueEvent(ev);
 
       MOUSE_TRACE("BUTTONUP xy=%d,%d button=%d\n",
                   ev.position().x, ev.position().y,
                   ev.button());
+      if (same_mouse_event(ev, m_lastWintabEvent))
+        MOUSE_TRACE(" - IGNORED (WinTab)\n");
+      else {
+        queueEvent(ev);
+        m_lastWintabEvent.setType(Event::None);
+      }
 
       // Avoid popup menu for scrollbars
       if (msg == WM_RBUTTONUP)
@@ -840,11 +866,11 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
         ev.setPointerType(m_pointerType);
         ev.setPressure(m_pressure);
       }
-      queueEvent(ev);
 
       MOUSE_TRACE("BUTTONDBLCLK xy=%d,%d button=%d\n",
                   ev.position().x, ev.position().y,
                   ev.button());
+      queueEvent(ev);
       break;
     }
 
@@ -1336,6 +1362,9 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
         auto& api = system()->wintabApi();
         api.packet(ctx, 0xffff, nullptr);
       }
+
+      // Reset last event
+      m_lastWintabEvent.setType(Event::None);
       break;
     }
 
@@ -1343,10 +1372,22 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
       auto& api = system()->wintabApi();
       UINT serial = wparam;
       HCTX ctx = (HCTX)lparam;
-      PACKET packet;
 
-      if (api.packet(ctx, serial, &packet)) {
-        if (api.maxPressure() > 0.0f) {
+      if (m_packets.size() < api.packetQueueSize())
+        m_packets.resize(api.packetQueueSize());
+
+      int n = api.packets(ctx, m_packets.size(), &m_packets[0]);
+      MOUSE_TRACE("WT_PACKET packets=%d\n", n);
+
+      m_pointerType = PointerType::Unknown;
+
+      Event ev;
+      ev.setModifiers(get_modifiers_from_last_win32_message());
+
+      for (int i=0; i<n; ++i) {
+        const PACKET& packet = m_packets[i];
+
+        if (api.minPressure() < api.maxPressure()) {
           m_pressure =
             float(packet.pkNormalPressure - api.minPressure()) /
             float(api.maxPressure() - api.minPressure());
@@ -1355,14 +1396,63 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
           m_pressure = 0.0f;
         }
         m_pointerType = wt_packet_pkcursor_to_pointer_type(packet.pkCursor);
-      }
-      else
-        m_pointerType = PointerType::Unknown;
 
-      MOUSE_TRACE("WT_PACKET pointer=%d m_pressure=%.16g\n",
-                  m_pointerType, m_pressure);
+        POINT pos = { packet.pkX,
+                      // Wintab API uses lower-left corner as the origin
+                      (api.outBounds().h-1) - packet.pkY };
+        ScreenToClient(m_hwnd, &pos);
+
+        ev.setPosition(gfx::Point(pos.x, pos.y) / m_scale);
+        ev.setPointerType(m_pointerType);
+        ev.setPressure(m_pressure);
+
+        // Get mouse button and even type (mouse move/down/up/double-click)
+        Event::Type evType;
+        Event::MouseButton mouseButton;
+        api.mapCursorButton(packet.pkCursor,
+                            HIWORD(packet.pkButtons), // Logical button
+                            LOWORD(packet.pkButtons), // Relative button flag (down/up)
+                            evType,
+                            mouseButton);
+
+        ev.setType(evType);
+
+        // Do not put the mouse button in mouse move events (so they
+        // match in WM_MOUSEMOVE and we can ignore duplicated events)
+        if (evType != Event::MouseMove)
+          ev.setButton(mouseButton);
+
+        MOUSE_TRACE("  [%d] evType=%d xy=%d,%d pressure=%.4f evButton=%d pkCursor=%d pointerType=%d\n",
+                    i, ev.type(), ev.position().x, ev.position().y, m_pressure,
+                    (int)ev.button(), packet.pkCursor, (int)m_pointerType);
+
+        if (evType != Event::None)
+          queueEvent(ev);
+      }
+
+      // To avoid processing two times the last generated event in WM_MOUSEMOVE/WM_LBUTTONDOWN/UP
+      m_lastWintabEvent = ev;
       break;
     }
+
+#if 0               // This is not needed because we use WTI_DEFSYSCTX, isn't?
+    case WT_INFOCHANGE: {
+      auto& api = system()->wintabApi();
+      MOUSE_TRACE("WT_INFOCHANGE\n");
+
+      if (m_hpenctx) {
+        api.close(m_hpenctx);
+        m_hpenctx = nullptr;
+
+        // Wacom examples show that we have to wait a second so the
+        // driver can identify the attached tablets.
+        base::current_thread::sleep_for(1.0);
+
+        m_hpenctx = api.open(m_hwnd);
+      }
+      break;
+    }
+#endif
 
   }
 

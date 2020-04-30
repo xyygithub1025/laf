@@ -10,6 +10,8 @@
 #pragma once
 
 #include "base/dll.h"
+#include "gfx/rect.h"
+#include "os/event.h"
 
 #include <windows.h>
 #include "wacom/wintab.h"
@@ -30,10 +32,20 @@ namespace os {
     HCTX open(HWND hwnd);
     void close(HCTX ctx);
     bool packet(HCTX ctx, UINT serial, LPVOID packet);
+    int packets(HCTX ctx, int maxPackets, LPVOID packets);
     void overlap(HCTX ctx, BOOL state);
 
     LONG minPressure() const { return m_minPressure; }
     LONG maxPressure() const { return m_maxPressure; }
+
+    int packetQueueSize() const { return m_queueSize; }
+    const gfx::Rect& outBounds() const { return m_outBounds; }
+
+    void mapCursorButton(const int cursor,
+                         const int logicalButton,
+                         const int relativeButton,
+                         Event::Type& evType,
+                         Event::MouseButton& mouseButton);
 
   private:
     bool loadWintab();
@@ -42,6 +54,8 @@ namespace os {
     base::dll m_wintabLib;
     LONG m_minPressure = 0;
     LONG m_maxPressure = 1000;
+    int m_queueSize = 1;
+    gfx::Rect m_outBounds;
   };
 
 } // namespace os
