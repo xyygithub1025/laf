@@ -58,19 +58,18 @@ namespace os {
 
 static PointerType wt_packet_pkcursor_to_pointer_type(int pkCursor)
 {
-  switch (pkCursor) {
-    case 0:
-    case 3:
-      return PointerType::Cursor;
-    case 1:
-    case 4:
-      return PointerType::Pen;
-    case 2:
-    case 5:
-    case 6: // Undocumented: Inverted stylus when EnableMouseInPointer() is on
-      return PointerType::Eraser;
+  switch (pkCursor % 3) {
+    case 0: return PointerType::Cursor;
+    case 1: return PointerType::Pen;
+    case 2: return PointerType::Eraser;
+    // TODO check if pkCursor=6 to notify about an inverted
+    //      stylus/eraser if we enable EnableMouseInPointer()
   }
-  return PointerType::Unknown;
+  // Impossible case (negative pkCursor?)
+  ASSERT(false);
+  // Return just "pen" for packets from unknown devices (just to keep
+  // the pressure information).
+  return PointerType::Pen;
 }
 
 static BOOL CALLBACK log_monitor_info(HMONITOR monitor,
