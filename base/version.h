@@ -1,6 +1,6 @@
 // LAF Base Library
-// Copyright (C) 2019  Igara Studio S.A.
-// Copyright (c) 2001-2016 David Capello
+// Copyright (c) 2019-2020  Igara Studio S.A.
+// Copyright (c) 2001-2016  David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -20,6 +20,7 @@ namespace base {
 
     Version();
     explicit Version(const std::string& from);
+    Version(int major, int minor, int patch, int build);
 
     bool operator<(const Version& other) const;
     bool operator==(const Version& other) const;

@@ -1,4 +1,5 @@
 // LAF Base Library
+// Copyright (c) 2020 Igara Studio S.A.
 // Copyright (c) 2001-2017 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -20,7 +21,12 @@ namespace base {
   std::string string_to_lower(const std::string& original);
   std::string string_to_upper(const std::string& original);
 
-  std::string to_utf8(const std::wstring& widestring);
+  std::string to_utf8(const wchar_t* src, const int n);
+
+  inline std::string to_utf8(const std::wstring& widestring) {
+   return to_utf8(widestring.c_str(), (int)widestring.size());
+  }
+
   std::wstring from_utf8(const std::string& utf8string);
 
   int utf8_length(const std::string& utf8string);

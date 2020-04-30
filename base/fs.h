@@ -1,4 +1,5 @@
 // LAF Base Library
+// Copyright (c) 2020 Igara Studio S.A.
 // Copyright (c) 2001-2018 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -92,6 +93,12 @@ namespace base {
   bool has_file_extension(const std::string& filename, const base::paths& extensions);
 
   int compare_filenames(const std::string& a, const std::string& b);
+
+#ifdef _WIN32
+  class Version;
+  Version get_file_version(const std::string& filename);
+  Version get_file_version(const wchar_t* filename);
+#endif
 
 } // namespace base
 

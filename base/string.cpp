@@ -1,4 +1,5 @@
 // LAF Base Library
+// Copyright (c) 2020 Igara Studio S.A.
 // Copyright (c) 2001-2016 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -69,11 +70,11 @@ std::string string_to_upper(const std::string& original)
 
 #ifdef _WIN32
 
-std::string to_utf8(const std::wstring& src)
+std::string to_utf8(const wchar_t* src, const int n)
 {
   int required_size =
     ::WideCharToMultiByte(CP_UTF8, 0,
-      src.c_str(), (int)src.size(),
+      src, (int)n,
       NULL, 0, NULL, NULL);
 
   if (required_size == 0)
@@ -82,7 +83,7 @@ std::string to_utf8(const std::wstring& src)
   std::vector<char> buf(++required_size);
 
   ::WideCharToMultiByte(CP_UTF8, 0,
-    src.c_str(), (int)src.size(),
+    src, (int)n,
     &buf[0], required_size,
     NULL, NULL);
 
@@ -150,23 +151,22 @@ static std::size_t insert_utf8_char(std::string* result, wchar_t chr)
   return size;
 }
 
-std::string to_utf8(const std::wstring& src)
+std::string to_utf8(const wchar_t* src, const int n)
 {
-  std::wstring::const_iterator it, begin = src.begin();
-  std::wstring::const_iterator end = src.end();
-
   // Get required size to reserve a string so string::push_back()
   // doesn't need to reallocate its data.
   std::size_t required_size = 0;
-  for (it = begin; it != end; ++it)
-    required_size += insert_utf8_char(NULL, *it);
+  auto p = src;
+  for (int i=0; i<n; ++i, ++p)
+    required_size += insert_utf8_char(nullptr, *p);
   if (!required_size)
     return "";
 
   std::string result;
   result.reserve(++required_size);
-  for (it = begin; it != end; ++it)
-    insert_utf8_char(&result, *it);
+  p = src;
+  for (int i=0; i<n; ++i, ++p)
+    insert_utf8_char(&result, *p);
   return result;
 }
 

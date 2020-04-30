@@ -1,5 +1,5 @@
 # LAF Base Library
-# Copyright (C) 2019  Igara Studio S.A.
+# Copyright (c) 2019-2020 Igara Studio S.A.
 # Copyright (c) 2001-2018 David Capello
 
 include(CheckIncludeFiles)
@@ -88,7 +88,7 @@ if(WIN32)
     UNICODE _UNICODE)
 
   target_compile_definitions(laf-base PRIVATE _CRT_SECURE_NO_WARNINGS)
-  target_link_libraries(laf-base dbghelp shlwapi)
+  target_link_libraries(laf-base dbghelp shlwapi version)
 else()
   find_library(DL_LIBRARY NAMES dl)
   if(DL_LIBRARY)

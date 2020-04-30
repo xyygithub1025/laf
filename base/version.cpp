@@ -1,6 +1,6 @@
 // LAF Base Library
-// Copyright (C) 2019  Igara Studio S.A.
-// Copyright (c) 2001-2016 David Capello
+// Copyright (c) 2019-2020  Igara Studio S.A.
+// Copyright (c) 2001-2016  David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -57,6 +57,17 @@ Version::Version(const std::string& from)
   while (!m_prereleaseLabel.empty() &&
          m_prereleaseLabel[m_prereleaseLabel.size()-1] == '.')
     m_prereleaseLabel.erase(m_prereleaseLabel.size()-1);
+}
+
+Version::Version(int major, int minor, int patch, int build)
+{
+  m_numbers.push_back(major);
+  if (minor || patch || build)
+    m_numbers.push_back(minor);
+  if (patch || build)
+    m_numbers.push_back(patch);
+  if (build)
+    m_numbers.push_back(build);
 }
 
 bool Version::operator<(const Version& other) const

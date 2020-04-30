@@ -1,4 +1,5 @@
 // LAF Base Library
+// Copyright (c) 2020 Igara Studio S.A.
 // Copyright (c) 2001-2018 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -12,6 +13,7 @@
 #include "base/paths.h"
 #include "base/string.h"
 #include "base/time.h"
+#include "base/version.h"
 #include "base/win/win32_exception.h"
 
 namespace base {
@@ -167,6 +169,35 @@ paths list_files(const std::string& path)
     FindClose(handle);
   }
   return files;
+}
+
+Version get_file_version(const std::string& filename)
+{
+  return get_file_version(from_utf8(filename).c_str());
+}
+
+Version get_file_version(const wchar_t* filename)
+{
+  DWORD handle; // From MS docs, this is set to zero by GetFileVersionInfoSizeW()
+  DWORD size = GetFileVersionInfoSizeW(filename, &handle);
+  if (size == 0)
+    return Version();
+
+  // The second param of GetFileVersionInfoW() is ignored, so we pass just 0
+  std::vector<uint8_t> data(size);
+  if (!GetFileVersionInfoW(filename, 0, size, &data[0]))
+    return Version();
+
+  VS_FIXEDFILEINFO* fi = nullptr;
+  UINT fiLen = 0;
+  if (!VerQueryValueW(&data[0], L"\\", (LPVOID*)&fi, &fiLen) ||
+      fiLen < sizeof(VS_FIXEDFILEINFO) ||
+      fi->dwSignature != 0xfeef04bd) {
+    return Version();
+  }
+
+  return Version(fi->dwFileVersionMS >> 16, fi->dwFileVersionMS & 0xffff,
+                 fi->dwFileVersionLS >> 16, fi->dwFileVersionLS & 0xffff);
 }
 
 }
