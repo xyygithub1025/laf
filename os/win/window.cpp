@@ -1379,6 +1379,12 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
       int n = api.packets(ctx, m_packets.size(), &m_packets[0]);
       MOUSE_TRACE("WT_PACKET packets=%d\n", n);
 
+      // It looks like that we can process the whole queue with
+      // WTPacketsGet() but we will receive one WT_PACKET for each
+      // packet anyway (even when the queue is empty).
+      if (n == 0)
+        break;
+
       m_pointerType = PointerType::Unknown;
 
       Event ev;
