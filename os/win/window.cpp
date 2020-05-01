@@ -1370,9 +1370,7 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
 
     case WT_PACKET: {
       auto& api = system()->wintabApi();
-      UINT serial = wparam;
       HCTX ctx = (HCTX)lparam;
-
       if (m_packets.size() < api.packetQueueSize())
         m_packets.resize(api.packetQueueSize());
 
