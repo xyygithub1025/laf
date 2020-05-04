@@ -1,4 +1,5 @@
 // LAF FreeType Wrapper
+// Copyright (c) 2020 Igara Studio S.A.
 // Copyright (c) 2017 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -17,35 +18,36 @@ namespace ft {
   template<typename HBFace>
   class HBShaper {
   public:
-    HBShaper(HBFace& face)
-      : m_face(face)
-      , m_unicodeFuncs(hb_buffer_get_unicode_funcs(face.buffer())) {
+    HBShaper(HBFace& face) : m_face(face) {
     }
 
     bool initialize(const base::utf8_const_iterator& begin,
                     const base::utf8_const_iterator& end) {
       m_index = 0;
+      m_glyphCount = 0;
       if (begin == end)
         return false;
 
-      hb_buffer_t* buf = m_face.buffer();
+      hb_buffer_t* buf = hb_buffer_create();
+      hb_buffer_t* chrBuf = hb_buffer_create();
+      hb_script_t script = HB_SCRIPT_UNKNOWN;
 
-      hb_buffer_reset(buf);
-      for (auto it=begin; it!=end; ++it)
+      for (auto it=begin; it!=end; ++it) {
+        // Get the script of the next character in *it
+        hb_buffer_add(chrBuf, *it, 0);
+        hb_buffer_guess_segment_properties(chrBuf);
+        hb_script_t newScript = hb_buffer_get_script(chrBuf);
+        hb_buffer_reset(chrBuf);
+
+        if (newScript && script != newScript) {
+          addBuffer(buf, script);
+          hb_buffer_reset(buf);
+          script = newScript;
+        }
+
         hb_buffer_add(buf, *it, it - begin);
-
-      // Just in case we're compiling with an old harfbuzz version
-#ifdef HB_BUFFER_CLUSTER_LEVEL_MONOTONE_CHARACTERS
-      hb_buffer_set_cluster_level(buf, HB_BUFFER_CLUSTER_LEVEL_MONOTONE_CHARACTERS);
-#endif
-      hb_buffer_set_content_type(buf, HB_BUFFER_CONTENT_TYPE_UNICODE);
-      hb_buffer_set_direction(buf, HB_DIRECTION_LTR);
-      hb_buffer_guess_segment_properties(buf);
-
-      hb_shape(m_face.font(), buf, nullptr, 0);
-
-      m_glyphInfo = hb_buffer_get_glyph_infos(buf, &m_glyphCount);
-      m_glyphPos = hb_buffer_get_glyph_positions(buf, &m_glyphCount);
+      }
+      addBuffer(buf, script);
       return (m_glyphCount > 0);
     }
 
@@ -77,12 +79,39 @@ namespace ft {
     }
 
   private:
+    void addBuffer(hb_buffer_t* buf, hb_script_t script) {
+      if (hb_buffer_get_length(buf) == 0)
+        return;
+
+      // Just in case we're compiling with an old harfbuzz version
+#ifdef HB_BUFFER_CLUSTER_LEVEL_MONOTONE_CHARACTERS
+      hb_buffer_set_cluster_level(buf, HB_BUFFER_CLUSTER_LEVEL_MONOTONE_CHARACTERS);
+#endif
+      hb_buffer_set_content_type(buf, HB_BUFFER_CONTENT_TYPE_UNICODE);
+      hb_buffer_set_script(buf, script);
+      hb_buffer_set_direction(buf, hb_script_get_horizontal_direction(script));
+
+      hb_shape(m_face.font(), buf, nullptr, 0);
+
+      unsigned int count;
+      auto info = hb_buffer_get_glyph_infos(buf, &count);
+      auto pos = hb_buffer_get_glyph_positions(buf, &count);
+
+      m_glyphCount += count;
+      const unsigned int start = m_glyphInfo.size();
+      m_glyphInfo.resize(m_glyphCount);
+      m_glyphPos.resize(m_glyphCount);
+      for (unsigned int i=0; i<count; ++i) {
+        m_glyphInfo[start+i] = info[i];
+        m_glyphPos[start+i] = pos[i];
+      }
+    }
+
     HBFace& m_face;
-    hb_glyph_info_t* m_glyphInfo;
-    hb_glyph_position_t* m_glyphPos;
+    std::vector<hb_glyph_info_t> m_glyphInfo;
+    std::vector<hb_glyph_position_t> m_glyphPos;
     unsigned int m_glyphCount;
     unsigned int m_index;
-    hb_unicode_funcs_t* m_unicodeFuncs;
   };
 
 } // namespace ft

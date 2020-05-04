@@ -1,5 +1,5 @@
 // LAF Library
-// Copyright (c) 2019  Igara Studio S.A.
+// Copyright (c) 2019-2020  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -24,7 +24,7 @@ public:
     }
     else {
       fg = gfx::rgba(255, 255, 255);
-      bg = gfx::rgba(0, 0, 0);
+      bg = gfx::rgba(0, 0, 0, 0);
     }
   }
 };
@@ -53,7 +53,7 @@ void draw_display(os::Display* display,
                              L"汉语",         // Simplified Chinese
                              L"日本語",       // Japanese
                              L"한국어",       // Korean
-                             L"العَرَبِيَّة‎"  };     // Arabic
+                             L"العَرَبِيَّة‎" };     // Arabic
 
   MyDrawTextDelegate delegate(mousePos);
   gfx::Point pos(0, 0);
@@ -67,7 +67,7 @@ void draw_display(os::Display* display,
       pos.x, pos.y,
       &delegate);
 
-    pos.y += 32;
+    pos.y += font->height() + 4;
   }
 
   // Flip the back surface to the display surface
@@ -85,7 +85,7 @@ int app_main(int argc, char* argv[])
   os::DisplayHandle display(system->createDisplay(400, 300, 1));
 
   // TODO use new fonts (SkFont wrappers with system->fontManager())
-  font = os::instance()->loadTrueTypeFont("/Library/Fonts/Arial Unicode.ttf", 24);
+  font = os::instance()->loadTrueTypeFont("/Library/Fonts/Arial Unicode.ttf", 32);
   if (!font) {
     std::printf("Font not found\n");
     return 1;

@@ -1,4 +1,5 @@
 // LAF FreeType Wrapper
+// Copyright (c) 2020 Igara Studio S.A.
 // Copyright (c) 2017 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -21,19 +22,15 @@ namespace ft {
   public:
     HBFace(FT_Face face) : FaceFT(face) {
       m_font = (face ? hb_ft_font_create((FT_Face)face, nullptr): nullptr);
-      m_buffer = (face ? hb_buffer_create(): nullptr);
     }
 
     ~HBFace() {
-      if (m_buffer) hb_buffer_destroy(m_buffer);
       if (m_font) hb_font_destroy(m_font);
     }
 
     hb_font_t* font() const { return m_font; }
-    hb_buffer_t* buffer() const { return m_buffer; }
 
   private:
-    hb_buffer_t* m_buffer;
     hb_font_t* m_font;
   };
 
