@@ -668,7 +668,7 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
         checkColorSpaceChange();
       }
 
-      if (system()->useWintabAPI()) {
+      if (m_hpenctx) {
         // Handle z-order of Wintab context
         auto& api = system()->wintabApi();
         api.overlap(m_hpenctx, (wparam == WA_ACTIVE ||
