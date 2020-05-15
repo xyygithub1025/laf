@@ -126,7 +126,7 @@ namespace base {
       return m_internal.operator->();
     }
 
-    std::string::difference_type operator-(const utf8_iteratorT& it) {
+    std::string::difference_type operator-(const utf8_iteratorT& it) const {
       return m_internal - it.m_internal;
     }
 
