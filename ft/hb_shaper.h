@@ -34,6 +34,7 @@ namespace ft {
 
       for (auto it=begin; it!=end; ++it) {
         // Get the script of the next character in *it
+        hb_buffer_set_content_type(chrBuf, HB_BUFFER_CONTENT_TYPE_UNICODE);
         hb_buffer_add(chrBuf, *it, 0);
         hb_buffer_guess_segment_properties(chrBuf);
         hb_script_t newScript = hb_buffer_get_script(chrBuf);
