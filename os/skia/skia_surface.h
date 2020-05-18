@@ -1,6 +1,6 @@
 // LAF OS Library
 // Copyright (c) 2018-2020  Igara Studio S.A.
-// Copyright (C) 2012-2018  David Capello
+// Copyright (c) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -11,6 +11,7 @@
 
 #include "base/exception.h"
 #include "gfx/clip.h"
+#include "gfx/matrix.h"
 #include "os/common/generic_surface.h"
 #include "os/common/sprite_sheet_font.h"
 #include "os/skia/skia_color_space.h"
@@ -141,6 +142,30 @@ public:
   bool clipRect(const gfx::Rect& rc) override {
     m_canvas->clipRect(SkRect::Make(to_skia(rc)));
     return !m_canvas->isClipEmpty();
+  }
+
+  void save() override {
+    m_canvas->save();
+  }
+
+  void concat(const gfx::Matrix& matrix) override {
+    m_canvas->concat(matrix.skMatrix());
+  }
+
+  void setMatrix(const gfx::Matrix& matrix) override {
+    m_canvas->setMatrix(matrix.skMatrix());
+  }
+
+  void resetMatrix() override {
+    m_canvas->resetMatrix();
+  }
+
+  void restore() override {
+    m_canvas->restore();
+  }
+
+  gfx::Matrix matrix() const override {
+    return m_canvas->getTotalMatrix();
   }
 
   void setDrawMode(DrawMode mode, int param,
@@ -331,6 +356,9 @@ public:
   void drawCircle(const float cx, const float cy,
                   const float radius,
                   const Paint& paint) override;
+
+  void drawPath(const gfx::Path& path,
+                const Paint& paint) override;
 
   void blitTo(Surface* _dst, int srcx, int srcy, int dstx, int dsty, int width, int height) const override {
     auto dst = static_cast<SkiaSurface*>(_dst);

@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2019  Igara Studio S.A.
+// Copyright (C) 2018-2020  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -20,6 +20,11 @@
 #include "os/surface_format.h"
 
 #include <string>
+
+namespace gfx {
+  class Matrix;
+  class Path;
+}
 
 namespace os {
 
@@ -47,6 +52,13 @@ namespace os {
     virtual void saveClip() = 0;
     virtual void restoreClip() = 0;
     virtual bool clipRect(const gfx::Rect& rc) = 0;
+
+    virtual void save() = 0;
+    virtual void concat(const gfx::Matrix& matrix) = 0;
+    virtual void setMatrix(const gfx::Matrix& matrix) = 0;
+    virtual void resetMatrix() = 0;
+    virtual void restore() = 0;
+    virtual gfx::Matrix matrix() const = 0;
 
     virtual void setDrawMode(DrawMode mode, int param = 0,
                              const gfx::Color a = gfx::ColorNone,
@@ -111,6 +123,9 @@ namespace os {
                     const os::Paint& paint) {
       drawCircle(float(center.x), float(center.y), float(radius), paint);
     }
+
+    virtual void drawPath(const gfx::Path& path,
+                          const os::Paint& paint) = 0;
 
     virtual void blitTo(Surface* dest, int srcx, int srcy, int dstx, int dsty, int width, int height) const = 0;
     virtual void scrollTo(const gfx::Rect& rc, int dx, int dy) = 0;

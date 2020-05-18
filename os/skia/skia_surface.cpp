@@ -1,6 +1,6 @@
 // LAF OS Library
-// Copyright (c) 2018-2019  Igara Studio S.A.
-// Copyright (C) 2016-2018  David Capello
+// Copyright (c) 2018-2020  Igara Studio S.A.
+// Copyright (c) 2016-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -12,6 +12,7 @@
 #include "os/skia/skia_surface.h"
 
 #include "base/file_handle.h"
+#include "gfx/path.h"
 #include "os/skia/skia_helpers.h"
 
 #include "SkCodec.h"
@@ -51,6 +52,13 @@ void SkiaSurface::drawCircle(const float cx, const float cy,
 {
   to_skia(paint, m_paint);
   m_canvas->drawCircle(cx, cy, radius, m_paint);
+}
+
+void SkiaSurface::drawPath(const gfx::Path& path,
+                           const Paint& paint)
+{
+  to_skia(paint, m_paint);
+  m_canvas->drawPath(path.skPath(), m_paint);
 }
 
 // static
