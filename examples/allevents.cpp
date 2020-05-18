@@ -1,5 +1,5 @@
 // LAF Library
-// Copyright (c) 2019  Igara Studio S.A.
+// Copyright (c) 2019-2020  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -72,7 +72,7 @@ public:
             return false;
           else
             m_nextEscCloses = true;
-          logLine("-- Next KeyDown iwth kKeyEsc will close the window --");
+          logLine("-- Next KeyDown with kKeyEsc will close the window --");
         }
         else {
           m_nextEscCloses = false;
