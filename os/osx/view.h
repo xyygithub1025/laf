@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018  Igara Studio S.A.
+// Copyright (C) 2018-2020  Igara Studio S.A.
 // Copyright (C) 2015-2016  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -9,9 +9,12 @@
 #define OS_OSX_VIEW_H_INCLUDED
 #pragma once
 
+#include "os/event.h"
 #include "os/pointer_type.h"
 
 #include <Cocoa/Cocoa.h>
+
+class OSXWindowImpl;
 
 @interface OSXView : NSView {
 @private
@@ -19,6 +22,7 @@
   NSCursor* m_nsCursor;
   bool m_visibleMouse;
   os::PointerType m_pointerType;
+  OSXWindowImpl* m_impl;
 }
 - (id)initWithFrame:(NSRect)frameRect;
 - (BOOL)acceptsFirstResponder;
@@ -57,6 +61,7 @@
 - (BOOL)performDragOperation:(id<NSDraggingInfo>)sender;
 - (void)doCommandBySelector:(SEL)selector;
 - (void)setTranslateDeadKeys:(BOOL)state;
+- (void)queueEvent:(os::Event&)ev;
 @end
 
 #endif

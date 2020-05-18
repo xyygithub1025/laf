@@ -154,6 +154,11 @@ public:
 
   // OSXWindowImpl impl
 
+  void onQueueEvent(Event& ev) override {
+    ev.setDisplay(m_display);
+    os::queue_event(ev);
+  }
+
   void onClose() override {
     m_closing = true;
   }

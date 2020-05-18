@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018  Igara Studio S.A.
+// Copyright (C) 2018-2020  Igara Studio S.A.
 // Copyright (C) 2012-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -18,12 +18,19 @@
 #include "os/native_cursor.h"
 
 namespace os {
+  class Event;
   class Surface;
 }
 
 class OSXWindowImpl {
 public:
   virtual ~OSXWindowImpl() { }
+
+  void queueEvent(os::Event& ev) {
+    onQueueEvent(ev);
+  }
+
+  virtual void onQueueEvent(os::Event& ev) = 0;
   virtual void onClose() = 0;
   virtual void onResize(const gfx::Size& size) = 0;
   virtual void onDrawRect(const gfx::Rect& rect) = 0;

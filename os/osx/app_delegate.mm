@@ -98,7 +98,8 @@
 
 - (BOOL)application:(NSApplication*)app openFiles:(NSArray*)filenames
 {
-  generate_drop_files_from_nsarray(filenames);
+  os::queue_event(
+    generate_drop_files_from_nsarray(filenames));
 
   [app replyToOpenOrPrint:NSApplicationDelegateReplySuccess];
   return YES;

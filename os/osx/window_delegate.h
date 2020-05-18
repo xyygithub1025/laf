@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2020  Igara Studio S.A.
 // Copyright (C) 2015  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -24,8 +25,9 @@ class OSXWindowImpl;
 {
   os::Event ev;
   ev.setType(os::Event::CloseDisplay);
-  //ev.setDisplay(nullptr);             // TODO
-  os::queue_event(ev);
+  ASSERT(m_impl);
+  if (m_impl)
+    m_impl->queueEvent(ev);
   return NO;
 }
 

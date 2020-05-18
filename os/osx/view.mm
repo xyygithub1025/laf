@@ -120,6 +120,7 @@ using namespace os;
   m_nsCursor = nil;
   m_visibleMouse = true;
   m_pointerType = os::PointerType::Unknown;
+  m_impl = nullptr;
 
   self = [super initWithFrame:frameRect];
   if (self != nil) {
@@ -146,11 +147,8 @@ using namespace os;
 - (void)viewDidChangeBackingProperties
 {
   [super viewDidChangeBackingProperties];
-  if ([self window]) {
-    OSXWindowImpl* impl = [((OSXWindow*)[self window]) impl];
-    if (impl)
-      impl->onChangeBackingProperties();
-  }
+  if (m_impl)
+    m_impl->onChangeBackingProperties();
 }
 
 - (void)viewDidHide
@@ -170,24 +168,22 @@ using namespace os;
   [super viewDidMoveToWindow];
 
   if ([self window]) {
-    OSXWindowImpl* impl = [((OSXWindow*)[self window]) impl];
-    if (impl)
-      impl->onWindowChanged();
+    m_impl = [((OSXWindow*)[self window]) impl];
+    if (m_impl)
+      m_impl->onWindowChanged();
   }
+  else
+    m_impl = nullptr;
 }
 
 - (void)drawRect:(NSRect)dirtyRect
 {
   [super drawRect:dirtyRect];
-
-  if ([self window]) {
-    OSXWindowImpl* impl = [((OSXWindow*)[self window]) impl];
-    if (impl)
-      impl->onDrawRect(gfx::Rect(dirtyRect.origin.x,
+  if (m_impl)
+    m_impl->onDrawRect(gfx::Rect(dirtyRect.origin.x,
                                  dirtyRect.origin.y,
                                  dirtyRect.size.width,
                                  dirtyRect.size.height));
-  }
 }
 
 - (void)keyDown:(NSEvent*)event
@@ -232,7 +228,7 @@ using namespace os;
         sendMsg = false;
         for (int i=0; i<length; ++i) {
           ev.setUnicodeChar(CFStringGetCharacterAtIndex(strRef, i));
-          queue_event(ev);
+          [self queueEvent:ev];
         }
         g_lastDeadKeyState = 0;
       }
@@ -248,7 +244,7 @@ using namespace os;
             ev.scancode(), ev.modifiers());
 
   if (sendMsg)
-    queue_event(ev);
+    [self queueEvent:ev];
 }
 
 - (void)keyUp:(NSEvent*)event
@@ -266,7 +262,7 @@ using namespace os;
   ev.setRepeat(event.ARepeat ? 1: 0);
   ev.setUnicodeChar(0);
 
-  queue_event(ev);
+  [self queueEvent:ev];
 }
 
 - (void)flagsChanged:(NSEvent*)event
@@ -306,7 +302,8 @@ using namespace os;
       ev.setScancode(scancodes[i]);
       ev.setModifiers(modifiers);
       ev.setRepeat(0);
-      queue_event(ev);
+      // TODO send one message to each display? use [... queueEvent:ev] in some way
+      os::queue_event(ev);
     }
   }
 
@@ -321,7 +318,7 @@ using namespace os;
   ev.setType(Event::MouseEnter);
   ev.setPosition(get_local_mouse_pos(self, event));
   ev.setModifiers(get_modifiers_from_nsevent(event));
-  queue_event(ev);
+  [self queueEvent:ev];
 }
 
 - (void)mouseMoved:(NSEvent*)event
@@ -335,7 +332,7 @@ using namespace os;
   if (m_pointerType != os::PointerType::Unknown)
     ev.setPointerType(m_pointerType);
 
-  queue_event(ev);
+  [self queueEvent:ev];
 }
 
 - (void)mouseExited:(NSEvent*)event
@@ -351,7 +348,7 @@ using namespace os;
   ev.setType(Event::MouseLeave);
   ev.setPosition(get_local_mouse_pos(self, event));
   ev.setModifiers(get_modifiers_from_nsevent(event));
-  queue_event(ev);
+  [self queueEvent:ev];
 }
 
 - (void)mouseDown:(NSEvent*)event
@@ -412,7 +409,7 @@ using namespace os;
   if (m_pointerType != os::PointerType::Unknown)
     ev.setPointerType(m_pointerType);
 
-  queue_event(ev);
+  [self queueEvent:ev];
 }
 
 - (void)handleMouseUp:(NSEvent*)event
@@ -427,7 +424,7 @@ using namespace os;
   if (m_pointerType != os::PointerType::Unknown)
     ev.setPointerType(m_pointerType);
 
-  queue_event(ev);
+  [self queueEvent:ev];
 }
 
 - (void)handleMouseDragged:(NSEvent*)event
@@ -442,7 +439,7 @@ using namespace os;
   if (m_pointerType != os::PointerType::Unknown)
     ev.setPointerType(m_pointerType);
 
-  queue_event(ev);
+  [self queueEvent:ev];
 }
 
 - (void)setFrameSize:(NSSize)newSize
@@ -454,10 +451,8 @@ using namespace os;
   [self createMouseTrackingArea];
 
   // Call OSXWindowImpl::onResize handler
-  if ([self window]) {
-    OSXWindowImpl* impl = [((OSXWindow*)[self window]) impl];
-    if (impl)
-      impl->onResize(gfx::Size(newSize.width,
+  if (m_impl) {
+    m_impl->onResize(gfx::Size(newSize.width,
                                newSize.height));
   }
 }
@@ -497,7 +492,7 @@ using namespace os;
     ev.setWheelDelta(pt);
   }
 
-  queue_event(ev);
+  [self queueEvent:ev];
 }
 
 - (void)magnifyWithEvent:(NSEvent*)event
@@ -508,7 +503,7 @@ using namespace os;
   ev.setPosition(get_local_mouse_pos(self, event));
   ev.setModifiers(get_modifiers_from_nsevent(event));
   ev.setPointerType(os::PointerType::Touchpad);
-  queue_event(ev);
+  [self queueEvent:ev];
 }
 
 - (void)tabletProximity:(NSEvent*)event
@@ -586,7 +581,9 @@ using namespace os;
 
   if ([pasteboard.types containsObject:NSFilenamesPboardType]) {
     NSArray* filenames = [pasteboard propertyListForType:NSFilenamesPboardType];
-    generate_drop_files_from_nsarray(filenames);
+
+    os::Event ev = generate_drop_files_from_nsarray(filenames);
+    [self queueEvent:ev];
     return YES;
   }
   else
@@ -602,6 +599,15 @@ using namespace os;
 {
   g_translateDeadKeys = (state ? true: false);
   g_lastDeadKeyState = 0;
+}
+
+- (void)queueEvent:(os::Event&)ev
+{
+  ASSERT(m_impl);
+  if (m_impl)
+    m_impl->queueEvent(ev);
+  else
+    os::queue_event(ev);
 }
 
 @end

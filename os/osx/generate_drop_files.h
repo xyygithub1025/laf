@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2020  Igara Studio S.A.
 // Copyright (C) 2016-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -10,7 +11,7 @@
 
 #include "base/fs.h"
 
-inline void generate_drop_files_from_nsarray(NSArray* filenames)
+inline os::Event generate_drop_files_from_nsarray(NSArray* filenames)
 {
   base::paths files;
   for (int i=0; i<[filenames count]; ++i) {
@@ -21,7 +22,7 @@ inline void generate_drop_files_from_nsarray(NSArray* filenames)
   os::Event ev;
   ev.setType(os::Event::DropFiles);
   ev.setFiles(files);
-  os::queue_event(ev);
+  return ev;
 }
 
 #endif
