@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (c) 2018-2019  Igara Studio S.A.
+// Copyright (c) 2018-2020  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -85,7 +85,7 @@ public:
     rebuild();
   }
 
-  void flush() {
+  void flush() const {
     if (m_canvas)
       m_canvas->flush();
   }
@@ -333,8 +333,6 @@ public:
                   const Paint& paint) override;
 
   void blitTo(Surface* _dst, int srcx, int srcy, int dstx, int dsty, int width, int height) const override {
-    ASSERT(!m_bitmap.empty());
-
     auto dst = static_cast<SkiaSurface*>(_dst);
 
     SkIRect srcRect = SkIRect::MakeXYWH(srcx, srcy, width, height);
@@ -343,8 +341,15 @@ public:
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kSrc);
 
-    dst->m_canvas->drawBitmapRect(m_bitmap, srcRect, dstRect, &paint,
-                                  SkCanvas::kStrict_SrcRectConstraint);
+    if (!m_bitmap.empty())
+      dst->m_canvas->drawBitmapRect(m_bitmap, srcRect, dstRect, &paint,
+                                    SkCanvas::kStrict_SrcRectConstraint);
+    else {
+      sk_sp<SkImage> snapshot = m_surface->makeImageSnapshot(srcRect);
+      srcRect.offsetTo(0, 0);
+      dst->m_canvas->drawImageRect(snapshot, srcRect, dstRect, &paint,
+                                   SkCanvas::kStrict_SrcRectConstraint);
+    }
   }
 
   void scrollTo(const gfx::Rect& rc, int dx, int dy) override {
