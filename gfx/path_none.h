@@ -26,7 +26,9 @@ namespace gfx {
     Path& lineTo(float x, float y) { return *this; }
     Path& lineTo(const Point& p) { return *this; }
     Path& close() { return *this; }
+    void offset(float dx, float dy, Path* dst) const { }
     void offset(float dx, float dy) { }
+    void transform(const Matrix& matrix, Path* dst) { }
     void transform(const Matrix& matrix) { }
     RectF bounds() const { return RectF(); }
   };

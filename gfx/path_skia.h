@@ -61,8 +61,16 @@ namespace gfx {
       return *this;
     }
 
+    void offset(float dx, float dy, Path* dst) const {
+      m_skPath.offset(dx, dy, &dst->m_skPath);
+    }
+
     void offset(float dx, float dy) {
       m_skPath.offset(dx, dy);
+    }
+
+    void transform(const Matrix& matrix, Path* dst) {
+      m_skPath.transform(matrix.skMatrix(), &dst->m_skPath);
     }
 
     void transform(const Matrix& matrix) {
