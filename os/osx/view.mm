@@ -13,6 +13,7 @@
 
 #include "os/osx/view.h"
 
+#include "base/debug.h"
 #include "gfx/point.h"
 #include "os/event.h"
 #include "os/event_queue.h"
