@@ -10,7 +10,7 @@ matrix:
       addons:
         apt:
           packages:
-            - libpixman-1-dev libfreetype6-dev libharfbuzz-dev libx11-dev libxcursor-dev
+            - libpixman-1-dev libfreetype6-dev libharfbuzz-dev libx11-dev libxcursor-dev libxi-dev
       env:
         - XVFB=xvfb-run
     - os: linux
@@ -19,7 +19,7 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - g++-4.9 libpixman-1-dev libfreetype6-dev libharfbuzz-dev libx11-dev libxcursor-dev
+            - g++-4.9 libpixman-1-dev libfreetype6-dev libharfbuzz-dev libx11-dev libxcursor-dev libxi-dev
       env:
         - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
         - XVFB=xvfb-run
@@ -29,7 +29,7 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - g++-5 libpixman-1-dev libfreetype6-dev libharfbuzz-dev libx11-dev libxcursor-dev
+            - g++-5 libpixman-1-dev libfreetype6-dev libharfbuzz-dev libx11-dev libxcursor-dev libxi-dev
       env:
         - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
         - XVFB=xvfb-run
@@ -39,7 +39,7 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - g++-6 libpixman-1-dev libfreetype6-dev libharfbuzz-dev libx11-dev libxcursor-dev
+            - g++-6 libpixman-1-dev libfreetype6-dev libharfbuzz-dev libx11-dev libxcursor-dev libxi-dev
       env:
         - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
         - XVFB=xvfb-run
@@ -49,7 +49,7 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - g++-7 libpixman-1-dev libfreetype6-dev libharfbuzz-dev libx11-dev libxcursor-dev
+            - g++-7 libpixman-1-dev libfreetype6-dev libharfbuzz-dev libx11-dev libxcursor-dev libxi-dev
       env:
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
         - XVFB=xvfb-run
