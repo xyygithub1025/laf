@@ -4,7 +4,7 @@ matrix:
   include:
     - os: osx
       env:
-        - MATRIX_EVAL="brew update && brew install pixman freetype harfbuzz"
+        - MATRIX_EVAL="brew upgrade pixman && brew install freetype harfbuzz"
     - os: linux
       addons:
         apt:
