@@ -104,6 +104,9 @@ if(WIN32)
 
   # Don't define min/max() macros when including <windows.h>
   target_compile_options(laf-os PRIVATE -DNOMINMAX)
+
+  # To include wacom header files
+  target_include_directories(laf-os PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../third_party)
 elseif(APPLE)
   if(COCOA_LIBRARY)
     list(APPEND LAF_OS_PLATFORM_LIBS
