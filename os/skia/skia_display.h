@@ -1,6 +1,6 @@
 // LAF OS Library
-// Copyright (c) 2018-2019  Igara Studio S.A.
-// Copyright (C) 2012-2018  David Capello
+// Copyright (c) 2018-2020  Igara Studio S.A.
+// Copyright (c) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -72,6 +72,8 @@ public:
   os::ColorSpacePtr colorSpace() const override { return m_colorSpace; }
   void setColorSpace(const os::ColorSpacePtr& colorSpace);
   os::ColorSpacePtr currentMonitorColorSpace() const;
+
+  void onTabletAPIChange();
 
   // Returns the HWND on Windows.
   NativeHandle nativeHandle() override;

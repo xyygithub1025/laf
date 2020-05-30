@@ -15,34 +15,26 @@
 
 namespace os {
 
-bool win_is_key_pressed(KeyScancode scancode);
-int win_get_unicode_from_scancode(KeyScancode scancode);
-
 class WindowSystem : public CommonSystem {
 public:
-  WindowSystem() { }
-  ~WindowSystem() { }
+  WindowSystem();
+  ~WindowSystem();
 
   WinAPI& winApi() { return m_winApi; }
   WintabAPI& wintabApi() { return m_wintabApi; }
 
-  void setAppName(const std::string& appName) override { m_appName = appName; }
+  void setAppName(const std::string& appName) override;
   std::string appName() const { return m_appName; }
 
-  void useWintabAPI(bool state) override { m_useWintabAPI = state; }
-  bool useWintabAPI() const { return m_useWintabAPI; }
+  void setTabletAPI(TabletAPI api) override;
+  TabletAPI tabletAPI() const override { return m_tabletAPI; }
 
-  bool isKeyPressed(KeyScancode scancode) override {
-    return win_is_key_pressed(scancode);
-  }
-
-  int getUnicodeFromScancode(KeyScancode scancode) override {
-    return win_get_unicode_from_scancode(scancode);
-  }
+  bool isKeyPressed(KeyScancode scancode) override;
+  int getUnicodeFromScancode(KeyScancode scancode) override;
 
 private:
   std::string m_appName;
-  bool m_useWintabAPI = true;
+  TabletAPI m_tabletAPI = TabletAPI::Default;
   WinAPI m_winApi;
   WintabAPI m_wintabApi;
 };

@@ -29,7 +29,7 @@ namespace os {
     WintabAPI();
     ~WintabAPI();
 
-    HCTX open(HWND hwnd);
+    HCTX open(HWND hwnd, bool moveMouse);
     void close(HCTX ctx);
     bool packet(HCTX ctx, UINT serial, LPVOID packet);
     int packets(HCTX ctx, int maxPackets, LPVOID packets);
@@ -53,7 +53,7 @@ namespace os {
 
     base::dll m_wintabLib;
     LONG m_minPressure = 0;
-    LONG m_maxPressure = 1000;
+    LONG m_maxPressure = 0;
     int m_queueSize = 1;
     gfx::Rect m_outBounds;
   };

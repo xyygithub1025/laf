@@ -71,6 +71,13 @@ public:
     m_gpuAcceleration = state;
   }
 
+  void setTabletAPI(TabletAPI api) override {
+    SkiaSystemBase::setTabletAPI(api);
+    if (SkiaDisplay* display = dynamic_cast<SkiaDisplay*>(defaultDisplay())) {
+      display->onTabletAPIChange();
+    }
+  }
+
   gfx::Size defaultNewDisplaySize() override {
     gfx::Size sz;
 #ifdef _WIN32

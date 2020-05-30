@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (c) 2018-2019  Igara Studio S.A.
+// Copyright (c) 2018-2020  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -228,6 +228,13 @@ void SkiaDisplay::setColorSpace(const os::ColorSpacePtr& colorSpace)
 os::ColorSpacePtr SkiaDisplay::currentMonitorColorSpace() const
 {
   return m_window.colorSpace();
+}
+
+void SkiaDisplay::onTabletAPIChange()
+{
+#if _WIN32
+  m_window.onTabletAPIChange();
+#endif
 }
 
 Display::NativeHandle SkiaDisplay::nativeHandle()

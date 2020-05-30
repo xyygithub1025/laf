@@ -31,10 +31,33 @@ namespace os {
   class NativeDialogs;
   class Surface;
 
+  // TODO why we just don't return nullptr if the display creation fails?
+  //      maybe an error handler function?
   class DisplayCreationException : public std::runtime_error {
   public:
     DisplayCreationException(const char* msg) throw()
       : std::runtime_error(msg) { }
+  };
+
+  // API to use to get tablet input information.
+  enum class TabletAPI {
+    // Default tablet API to use in the system (Windows Ink on
+    // Windows; only valid value on other systems).
+    Default = 0,
+
+    // Use Windows 8/10 pointer messages (Windows Ink).
+    WindowsPointerInput = 0,
+
+    // Use the Wintab API to get pressure information from packets but
+    // mouse movement from Windows system messages
+    // (WM_MOUSEMOVE).
+    Wintab = 1,
+
+    // Use the Wintab API processing packets directly (pressure and
+    // stylus movement information). With this we might get more
+    // precision from the device (but still work-in-progress, some
+    // messages might be mixed up).
+    WintabPackets = 2,
   };
 
   class System {
@@ -82,10 +105,14 @@ namespace os {
       return (int(capabilities()) & int(c)) == int(c);
     }
 
-    // Disables loading wintab32.dll (sometimes a program can be
-    // locked when we load the wintab32.dll, so we need a way to
-    // opt-out loading this library.)
-    virtual void useWintabAPI(bool enable) = 0;
+    // Sets the specific API to use to process tablet/stylus/pen
+    // messages.
+    //
+    // It can be used to avoid loading wintab32.dll too (sometimes a
+    // program can be locked when we load the wintab32.dll, so we need
+    // a way to opt-out loading this library.)
+    virtual void setTabletAPI(TabletAPI api) = 0;
+    virtual TabletAPI tabletAPI() const = 0;
 
     virtual Logger* logger() = 0;
     virtual Menus* menus() = 0;

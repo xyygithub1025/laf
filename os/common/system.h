@@ -49,7 +49,13 @@ public:
   void activateApp() override { }
   void finishLaunching() override { }
 
-  void useWintabAPI(bool state) override { }
+  void setTabletAPI(TabletAPI api) override {
+    // Do nothing by default
+  }
+
+  TabletAPI tabletAPI() const override {
+    return TabletAPI::Default;
+  }
 
   Logger* logger() override {
     return nullptr;

@@ -16,6 +16,7 @@ if(WIN32)
     win/event_queue.cpp
     win/keys.cpp
     win/native_dialogs.cpp
+    win/system.cpp
     win/winapi.cpp
     win/window.cpp
     win/window_dde.cpp

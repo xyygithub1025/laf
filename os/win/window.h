@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2019  Igara Studio S.A.
+// Copyright (C) 2018-2020  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -56,6 +56,7 @@ namespace os {
     void setLayout(const std::string& layout);
     void setTranslateDeadKeys(bool state);
     void setInterpretOneFingerGestureAsMouseMovement(bool state);
+    void onTabletAPIChange();
 
     HWND handle() { return m_hwnd; }
 
@@ -75,6 +76,9 @@ namespace os {
     void clearDelayedTouchEvents();
     void killTouchTimer();
     void checkColorSpaceChange();
+
+    void openWintabCtx();
+    void closeWintabCtx();
 
     virtual void onQueueEvent(Event& ev) { }
     virtual void onResize(const gfx::Size& sz) { }

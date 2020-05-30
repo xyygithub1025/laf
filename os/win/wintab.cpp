@@ -61,7 +61,7 @@ WintabAPI::~WintabAPI()
   m_wintabLib = nullptr;
 }
 
-HCTX WintabAPI::open(HWND hwnd)
+HCTX WintabAPI::open(HWND hwnd, bool moveMouse)
 {
   if (!m_wintabLib && !loadWintab())
     return nullptr;
@@ -93,8 +93,18 @@ HCTX WintabAPI::open(HWND hwnd)
   memset(&logctx, 0, sizeof(LOGCONTEXTW));
   UINT infoRes = WTInfo(WTI_DEFSYSCTX, 0, &logctx);
 
-  // Move system cursor position
-  logctx.lcOptions |= CXO_SYSTEM;
+  if (moveMouse) {
+    // Move system cursor position, you can use packets to get
+    // pressure information and cursor type, and pointer movement from
+    // mouse messages.
+    logctx.lcOptions |= CXO_SYSTEM;
+  }
+  else {
+    // In this case you can process packets directly converting then
+    // to events (system mouse movement messages will not be
+    // generated).
+    logctx.lcOptions &= ~CXO_SYSTEM;
+  }
 
 #if 1 // We shouldn't bypass WTOpen() if the return value from
       // WTInfo() isn't the expected one, WTOpen() should just fail
@@ -123,11 +133,15 @@ HCTX WintabAPI::open(HWND hwnd)
 
   AXIS pressure;
   infoRes = WTInfo(WTI_DEVICES, DVC_NPRESSURE, &pressure);
-  ASSERT(infoRes == sizeof(AXIS));
-  if (infoRes == sizeof(AXIS)) {
+  if (infoRes >= sizeof(AXIS)) {
     m_minPressure = pressure.axMin;
     m_maxPressure = pressure.axMax;
     LOG("PEN: Min/max pressure values [%d,%d]\n", pressure.axMin, pressure.axMax);
+  }
+  else {
+    m_minPressure = 0;
+    m_maxPressure = 0;
+    LOG("PEN: pressure info size %d (expected %d)", infoRes, sizeof(AXIS));
   }
 
   LOG("PEN: Opening context, options 0x%x\n", logctx.lcOptions);

@@ -605,6 +605,16 @@ void WinWindow::setInterpretOneFingerGestureAsMouseMovement(bool state)
   }
 }
 
+void WinWindow::onTabletAPIChange()
+{
+  LOG("WIN: On window %p tablet API change %d\n",
+      m_hwnd, int(system()->tabletAPI()));
+
+  auto& api = system()->wintabApi();
+  closeWintabCtx();
+  openWintabCtx();
+}
+
 bool WinWindow::setCursor(HCURSOR hcursor, bool custom)
 {
   SetCursor(hcursor);
@@ -619,25 +629,16 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
 {
   switch (msg) {
 
-    case WM_CREATE:
-      LOG("WIN: Creating window %p\n", m_hwnd);
-
-      if (system()->useWintabAPI()) {
-        // Attach Wacom context
-        auto& api = system()->wintabApi();
-        m_hpenctx = api.open(m_hwnd);
-      }
+    case WM_CREATE: {
+      LOG("WIN: Creating window %p (tablet API %d)\n",
+          m_hwnd, int(system()->tabletAPI()));
+      openWintabCtx();
       break;
+    }
 
     case WM_DESTROY:
-      LOG("WIN: Destroying window %p (pen context %p)\n",
-          m_hwnd, m_hpenctx);
-
-      if (m_hpenctx) {
-        auto& api = system()->wintabApi();
-        api.close(m_hpenctx);
-        m_hpenctx = nullptr;
-      }
+      LOG("WIN: Destroying window %p (pen context %p)\n", m_hwnd, m_hpenctx);
+      closeWintabCtx();
       break;
 
     case WM_SHOWWINDOW:
@@ -755,7 +756,9 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
       }
 
       ev.setType(Event::MouseMove);
-      if (same_mouse_event(ev, m_lastWintabEvent))
+
+      if (system()->tabletAPI() == TabletAPI::WintabPackets &&
+          same_mouse_event(ev, m_lastWintabEvent))
         MOUSE_TRACE(" - IGNORED (WinTab)\n");
       else {
         queueEvent(ev);
@@ -801,8 +804,11 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
       MOUSE_TRACE("BUTTONDOWN xy=%d,%d button=%d pointerType=%d\n",
                   ev.position().x, ev.position().y,
                   ev.button(), (int)m_pointerType);
-      if (same_mouse_event(ev, m_lastWintabEvent))
+
+      if (system()->tabletAPI() == TabletAPI::WintabPackets &&
+          same_mouse_event(ev, m_lastWintabEvent)) {
         MOUSE_TRACE(" - IGNORED (WinTab)\n");
+      }
       else {
         queueEvent(ev);
         m_lastWintabEvent.setType(Event::None);
@@ -833,8 +839,11 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
       MOUSE_TRACE("BUTTONUP xy=%d,%d button=%d\n",
                   ev.position().x, ev.position().y,
                   ev.button());
-      if (same_mouse_event(ev, m_lastWintabEvent))
+
+      if (system()->tabletAPI() == TabletAPI::WintabPackets &&
+          same_mouse_event(ev, m_lastWintabEvent)) {
         MOUSE_TRACE(" - IGNORED (WinTab)\n");
+      }
       else {
         queueEvent(ev);
         m_lastWintabEvent.setType(Event::None);
@@ -1348,14 +1357,14 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
     // Wintab API Messages
 
     case WT_PROXIMITY: {
-      MOUSE_TRACE("WT_PROXIMITY\n");
-
       HCTX ctx = (HCTX)wparam;
       ASSERT(m_hpenctx == ctx);
 
       bool entering_ctx = (LOWORD(lparam) ? true: false);
       if (!entering_ctx)
         m_pointerType = PointerType::Unknown;
+
+      MOUSE_TRACE("WT_PROXIMITY entering=%d\n", entering_ctx);
 
       // Flush/empty queue
       if (ctx) {
@@ -1368,7 +1377,23 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
       break;
     }
 
+    case WT_CSRCHANGE: {    // From Wintab 1.1
+      auto& api = system()->wintabApi();
+      UINT serial = wparam;
+      HCTX ctx = (HCTX)lparam;
+      PACKET packet;
+
+      if (api.packet(ctx, serial, &packet))
+        m_pointerType = wt_packet_pkcursor_to_pointer_type(packet.pkCursor);
+      else
+        m_pointerType = PointerType::Unknown;
+
+      MOUSE_TRACE("WT_CSRCHANGE pointer=%d\n", m_pointerType);
+      break;
+    }
+
     case WT_PACKET: {
+      const TabletAPI tabletAPI = system()->tabletAPI();
       auto& api = system()->wintabApi();
       HCTX ctx = (HCTX)lparam;
       if (m_packets.size() < api.packetQueueSize())
@@ -1401,62 +1426,62 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
         }
         m_pointerType = wt_packet_pkcursor_to_pointer_type(packet.pkCursor);
 
-        POINT pos = { packet.pkX,
-                      // Wintab API uses lower-left corner as the origin
-                      (api.outBounds().h-1) - packet.pkY };
-        ScreenToClient(m_hwnd, &pos);
+        if (tabletAPI == TabletAPI::WintabPackets) {
+          POINT pos = { packet.pkX,
+                        // Wintab API uses lower-left corner as the origin
+                        (api.outBounds().h-1) - packet.pkY };
+          ScreenToClient(m_hwnd, &pos);
 
-        ev.setPosition(gfx::Point(pos.x, pos.y) / m_scale);
-        ev.setPointerType(m_pointerType);
-        ev.setPressure(m_pressure);
+          ev.setPosition(gfx::Point(pos.x, pos.y) / m_scale);
+          ev.setPointerType(m_pointerType);
+          ev.setPressure(m_pressure);
 
-        // Get mouse button and even type (mouse move/down/up/double-click)
-        Event::Type evType;
-        Event::MouseButton mouseButton;
-        api.mapCursorButton(packet.pkCursor,
-                            HIWORD(packet.pkButtons), // Logical button
-                            LOWORD(packet.pkButtons), // Relative button flag (down/up)
-                            evType,
-                            mouseButton);
+          // Get mouse button and even type (mouse move/down/up/double-click)
+          Event::Type evType;
+          Event::MouseButton mouseButton;
+          api.mapCursorButton(packet.pkCursor,
+                              HIWORD(packet.pkButtons), // Logical button
+                              LOWORD(packet.pkButtons), // Relative button flag (down/up)
+                              evType,
+                              mouseButton);
 
-        ev.setType(evType);
+          ev.setType(evType);
 
-        // Do not put the mouse button in mouse move events (so they
-        // match in WM_MOUSEMOVE and we can ignore duplicated events)
-        if (evType != Event::MouseMove)
-          ev.setButton(mouseButton);
+          // Do not put the mouse button in mouse move events (so they
+          // match in WM_MOUSEMOVE and we can ignore duplicated events)
+          if (evType != Event::MouseMove)
+            ev.setButton(mouseButton);
 
-        MOUSE_TRACE("  [%d] evType=%d xy=%d,%d pressure=%.4f evButton=%d pkCursor=%d pointerType=%d\n",
-                    i, ev.type(), ev.position().x, ev.position().y, m_pressure,
-                    (int)ev.button(), packet.pkCursor, (int)m_pointerType);
+          MOUSE_TRACE("  [%d] evType=%d xy=%d,%d pressure=%.4f evButton=%d pkCursor=%d pointerType=%d\n",
+                      i, ev.type(), ev.position().x, ev.position().y, m_pressure,
+                      (int)ev.button(), packet.pkCursor, (int)m_pointerType);
 
-        if (evType != Event::None)
-          queueEvent(ev);
+          if (evType != Event::None) {
+            queueEvent(ev);
+
+            // To avoid processing two times the last generated event in WM_MOUSEMOVE/WM_LBUTTONDOWN/UP
+            m_lastWintabEvent = ev;
+          }
+        }
       }
-
-      // To avoid processing two times the last generated event in WM_MOUSEMOVE/WM_LBUTTONDOWN/UP
-      m_lastWintabEvent = ev;
       break;
     }
 
-#if 0               // This is not needed because we use WTI_DEFSYSCTX, isn't?
     case WT_INFOCHANGE: {
-      auto& api = system()->wintabApi();
-      MOUSE_TRACE("WT_INFOCHANGE\n");
+      const TabletAPI tabletAPI = system()->tabletAPI();
+      MOUSE_TRACE("WT_INFOCHANGE tablet API %d\n", int(tabletAPI));
 
       if (m_hpenctx) {
-        api.close(m_hpenctx);
-        m_hpenctx = nullptr;
+        closeWintabCtx();
 
         // Wacom examples show that we have to wait a second so the
         // driver can identify the attached tablets.
-        base::current_thread::sleep_for(1.0);
-
-        m_hpenctx = api.open(m_hwnd);
+        base::this_thread::sleep_for(1.0);
       }
+
+      openWintabCtx();
       break;
     }
-#endif
 
   }
 
@@ -1767,6 +1792,28 @@ void WinWindow::checkColorSpaceChange()
   os::ColorSpacePtr newColorSpace = colorSpace();
   if (oldColorSpace != newColorSpace)
     onChangeColorSpace();
+}
+
+void WinWindow::openWintabCtx()
+{
+  const TabletAPI tabletAPI = system()->tabletAPI();
+  if (tabletAPI == TabletAPI::Wintab ||
+      tabletAPI == TabletAPI::WintabPackets) {
+    // Attach Wacom context
+    auto& api = system()->wintabApi();
+    m_hpenctx = api.open(
+      m_hwnd,
+      true); // We want to move the cursor with the pen in any case
+  }
+}
+
+void WinWindow::closeWintabCtx()
+{
+  if (m_hpenctx) {
+    auto& api = system()->wintabApi();
+    api.close(m_hpenctx);
+    m_hpenctx = nullptr;
+  }
 }
 
 //static

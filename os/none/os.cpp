@@ -24,7 +24,8 @@ public:
   void activateApp() override { }
   void finishLaunching() override { }
   Capabilities capabilities() const override { return (Capabilities)0; }
-  void useWintabAPI(bool enable) override { }
+  void setTabletAPI(TabletAPI api) override { }
+  TabletAPI tabletAPI() const override { return TabletAPI::Default; }
   Logger* logger() override { return nullptr; }
   Menus* menus() override { return nullptr; }
   NativeDialogs* nativeDialogs() override { return nullptr; }
