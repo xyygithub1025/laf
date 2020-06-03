@@ -49,6 +49,10 @@ namespace ft {
         hb_buffer_add(buf, *it, it - begin);
       }
       addBuffer(buf, script);
+
+      hb_buffer_destroy(buf);
+      hb_buffer_destroy(chrBuf);
+
       return (m_glyphCount > 0);
     }
 
