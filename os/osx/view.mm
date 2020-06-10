@@ -30,6 +30,8 @@ namespace os {
 // TODO I'm not proud of this, but it does the job
 bool g_keyEquivalentUsed = false;
 
+bool g_async_view = true;
+
 bool osx_is_key_pressed(KeyScancode scancode);
 
 namespace {
@@ -109,6 +111,11 @@ int osx_get_unicode_from_scancode(KeyScancode scancode)
     return 0;
 }
 
+void osx_set_async_view(bool state)
+{
+  g_async_view = state;
+}
+
 } // namespace os
 
 using namespace os;
@@ -134,8 +141,10 @@ using namespace os;
     // Create a CALayer for backing content with async drawing. This
     // fixes performance issues on Retina displays with wide color
     // spaces (like Display P3).
-    self.wantsLayer = true;
-    self.layer.drawsAsynchronously = true;
+    if (os::g_async_view) {
+      self.wantsLayer = true;
+      self.layer.drawsAsynchronously = true;
+    }
   }
   return self;
 }

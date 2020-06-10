@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2020  Igara Studio S.A.
 // Copyright (C) 2016  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -18,6 +19,13 @@ Logger* get_macos_logger();
 
 bool osx_is_key_pressed(KeyScancode scancode);
 int osx_get_unicode_from_scancode(KeyScancode scancode);
+
+// By default the NSView will be created with a CALayer for backing
+// content with async drawing. This fixes performance issues on Retina
+// displays with wide color spaces (like Display P3). But it might
+// bring some unknown problems (I think the issues started after macOS
+// Catalina was released).
+void osx_set_async_view(bool state);
 
 class OSXSystem : public CommonSystem {
 public:
