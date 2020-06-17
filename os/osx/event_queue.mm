@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2019  Igara Studio S.A.
+// Copyright (C) 2018-2020  Igara Studio S.A.
 // Copyright (C) 2015-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -17,6 +17,11 @@
 #define EV_TRACE(...)
 
 namespace os {
+
+OSXEventQueue::OSXEventQueue()
+  : m_sleeping(false)
+{
+}
 
 void OSXEventQueue::getEvent(Event& ev, bool canWait)
 {
