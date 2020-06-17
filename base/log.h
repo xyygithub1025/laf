@@ -1,4 +1,5 @@
 // LAF Base Library
+// Copyright (c) 2020  Igara Studio S.A.
 // Copyright (c) 2001-2017 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -35,18 +36,11 @@ namespace base {
   void set_log_level(const LogLevel level);
   LogLevel get_log_level();
 
-  std::ostream& get_log_stream(const LogLevel level);
-
 } // namespace base
 
 // E.g. LOG("text in information log level\n");
-std::ostream& LOG(const char* format, ...);
-std::ostream& LOG(const LogLevel level, const char* format, ...);
-
-// E.g. LOG(INFO) << "some information\n";
-inline std::ostream& LOG(const LogLevel level) {
-  return base::get_log_stream(level);
-}
+void LOG(const char* format, ...);
+void LOG(const LogLevel level, const char* format, ...);
 
 inline void LOG(int) {
   // This is in case LOG() is used with an integer value instead of

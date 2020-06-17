@@ -1,4 +1,5 @@
 // LAF FreeType Wrapper
+// Copyright (c) 2020  Igara Studio S.A.
 // Copyright (c) 2016-2017 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -33,7 +34,7 @@ FT_Face Lib::open(const std::string& filename)
   args.flags = FT_OPEN_STREAM;
   args.stream = stream;
 
-  LOG(VERBOSE) << "FT: Loading font '" << filename << "'\n";
+  LOG(VERBOSE, "FT: Loading font '%s'\n", filename.c_str());
 
   FT_Face face = nullptr;
   FT_Error err = FT_Open_Face(m_ft, &args, 0, &face);

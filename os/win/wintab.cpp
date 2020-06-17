@@ -110,10 +110,11 @@ HCTX WintabAPI::open(HWND hwnd, bool moveMouse)
       // WTInfo() isn't the expected one, WTOpen() should just fail
       // anyway.
   if (infoRes != sizeof(LOGCONTEXTW)) {
-    LOG(ERROR)
-      << "PEN: Invalid size of WTInfo:\n"
-      << "     Expected context size: " << sizeof(LOGCONTEXTW) << "\n"
-      << "     Actual context size: " << infoRes << "\n";
+    LOG(ERROR,
+        "PEN: Invalid size of WTInfo:\n"
+        "     Expected context size: %d\n"
+        "     Actual context size: %d\n",
+        sizeof(LOGCONTEXTW), infoRes);
   }
 #endif
 
@@ -275,7 +276,7 @@ bool WintabAPI::loadWintab()
 
   m_wintabLib = base::load_dll("wintab32.dll");
   if (!m_wintabLib) {
-    LOG(ERROR) << "PEN: wintab32.dll is not present\n";
+    LOG(ERROR, "PEN: wintab32.dll is not present\n");
     return false;
   }
 
@@ -295,7 +296,7 @@ bool WintabAPI::loadWintab()
   WTQueueSizeSet = base::get_dll_proc<WTQueueSizeSet_Func>(m_wintabLib, "WTQueueSizeSet");
   if (!WTInfo || !WTOpen || !WTClose || !WTPacket ||
       !WTQueueSizeGet || !WTQueueSizeSet) {
-    LOG(ERROR) << "PEN: wintab32.dll does not contain all required functions\n";
+    LOG(ERROR, "PEN: wintab32.dll does not contain all required functions\n");
     return false;
   }
 

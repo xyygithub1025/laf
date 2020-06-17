@@ -1,5 +1,5 @@
 // LAF Base Library
-// Copyright (C) 2019  Igara Studio S.A.
+// Copyright (C) 2019-2020  Igara Studio S.A.
 // Copyright (C) 2001-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -14,36 +14,22 @@
 #include "base/debug.h"
 #include "base/fstream_path.h"
 
+#include <atomic>
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>
 #include <fstream>
 #include <iostream>
+#include <mutex>
 #include <string>
 #include <vector>
 
 namespace {
 
-class nullbuf : public std::streambuf {
-protected:
-  int_type overflow(int_type ch) override {
-    return traits_type::not_eof(ch);
-  }
-};
-
-class nullstream : public std::ostream {
-public:
-  nullstream()
-    : std::basic_ios<char_type, traits_type>(&m_buf)
-    , std::ostream(&m_buf) { }
-private:
-  nullbuf m_buf;
-};
-
 // Default log level is error, which means that we'll log regular
 // errors and fatal errors.
-LogLevel log_level = LogLevel::ERROR;
-nullstream null_stream;
+std::atomic<LogLevel> log_level(LogLevel::ERROR);
+std::mutex log_mutex;
 std::ofstream log_stream;
 std::ostream* log_ostream = &std::cerr;
 std::string log_filename;
@@ -77,18 +63,6 @@ LogLevel base::get_log_level()
   return log_level;
 }
 
-std::ostream& base::get_log_stream(const LogLevel level)
-{
-  ASSERT(level != NONE);
-
-  if (log_level < level)
-    return null_stream;
-  else {
-    ASSERT(log_ostream);
-    return *log_ostream;
-  }
-}
-
 static void LOGva(const char* format, va_list ap)
 {
   va_list apTmp;
@@ -101,9 +75,12 @@ static void LOGva(const char* format, va_list ap)
   std::vector<char> buf(size+1);
   std::vsnprintf(&buf[0], buf.size(), format, ap);
 
-  ASSERT(log_ostream);
-  log_ostream->write(&buf[0], size);
-  log_ostream->flush();
+  {
+    std::lock_guard<std::mutex> lock(log_mutex);
+    ASSERT(log_ostream);
+    log_ostream->write(&buf[0], size);
+    log_ostream->flush();
+  }
 
 #ifdef _DEBUG
   fputs(&buf[0], stderr);
@@ -111,30 +88,26 @@ static void LOGva(const char* format, va_list ap)
 #endif
 }
 
-std::ostream& LOG(const char* format, ...)
+void LOG(const char* format, ...)
 {
   ASSERT(format);
   if (!format || log_level < INFO)
-    return null_stream;
+    return;
 
   va_list ap;
   va_start(ap, format);
   LOGva(format, ap);
   va_end(ap);
-
-  return log_stream;
 }
 
-std::ostream& LOG(const LogLevel level, const char* format, ...)
+void LOG(const LogLevel level, const char* format, ...)
 {
   ASSERT(format);
   if (!format || log_level < level)
-    return null_stream;
+    return;
 
   va_list ap;
   va_start(ap, format);
   LOGva(format, ap);
   va_end(ap);
-
-  return log_stream;
 }
