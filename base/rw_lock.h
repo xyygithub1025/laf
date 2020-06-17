@@ -12,6 +12,8 @@
 #include "base/disable_copying.h"
 #include "base/mutex.h"
 
+#include <atomic>
+
 namespace base {
 
   // A readers-writer lock implementation
