@@ -141,8 +141,11 @@ WinWindow::WinWindow(int width, int height, int scale)
   , m_pressure(0.0f)
 {
   auto& winApi = system()->winApi();
-  if (winApi.EnableMouseInPointer &&
+  if (
+#ifdef OS_USE_POINTER_API_FOR_MOUSE
+      winApi.EnableMouseInPointer &&
       winApi.IsMouseInPointerEnabled &&
+#endif
       winApi.GetPointerInfo &&
       winApi.GetPointerPenInfo) {
     // Do not enable pointer API for mouse events because:
