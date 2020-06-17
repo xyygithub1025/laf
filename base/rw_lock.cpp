@@ -39,6 +39,8 @@ RWLock::~RWLock()
 
 bool RWLock::canWriteLockFromRead() const
 {
+  scoped_lock lock(m_mutex);
+
   // If only we are reading (one lock) and nobody is writting, we can
   // lock for writting..
   return (m_read_locks == 1 && !m_write_lock);
@@ -138,7 +140,7 @@ void RWLock::unlock()
   }
 }
 
-bool RWLock::weakLock(WeakLock* weak_lock_flag)
+bool RWLock::weakLock(std::atomic<WeakLock>* weak_lock_flag)
 {
   scoped_lock lock(m_mutex);
 
@@ -153,6 +155,8 @@ bool RWLock::weakLock(WeakLock* weak_lock_flag)
 
 void RWLock::weakUnlock()
 {
+  scoped_lock lock(m_mutex);
+
   ASSERT(m_weak_lock);
   ASSERT(*m_weak_lock != WeakLock::WeakUnlocked);
   ASSERT(!m_write_lock);

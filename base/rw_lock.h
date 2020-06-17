@@ -56,12 +56,12 @@ namespace base {
     //
     // The "weak_lock_flag" is used to notify when the "weak lock" is
     // lost.
-    bool weakLock(WeakLock* weak_lock_flag);
+    bool weakLock(std::atomic<WeakLock>* weak_lock_flag);
     void weakUnlock();
 
   private:
     // Mutex to modify the 'locked' flag.
-    base::mutex m_mutex;
+    mutable base::mutex m_mutex;
 
     // True if some thread is writing the object.
     bool m_write_lock;
@@ -74,7 +74,7 @@ namespace base {
     // backup/data recovery thread might weakly lock the object so if
     // the user UI thread needs the object again, the backup process
     // can stop.
-    WeakLock* m_weak_lock;
+    std::atomic<WeakLock>* m_weak_lock;
 
     DISABLE_COPYING(RWLock);
   };
