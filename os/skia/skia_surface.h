@@ -27,6 +27,8 @@
 
 #include "include/private/SkColorData.h"
 
+#include <atomic>
+
 namespace os {
 
 class SkiaSurface : public Surface {
@@ -211,6 +213,7 @@ public:
   void lock() override {
     ASSERT(m_lock >= 0);
     if (m_lock++ == 0) {
+      // TODO add mutex!
       // m_bitmap is always locked
     }
   }
@@ -647,7 +650,7 @@ private:
   ColorSpacePtr m_colorSpace;
   SkCanvas* m_canvas;
   SkPaint m_paint;
-  int m_lock;
+  std::atomic<int> m_lock;
 
 };
 
