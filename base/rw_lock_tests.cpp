@@ -1,4 +1,5 @@
 // LAF Base Library
+// Copyright (c) 2020 Igara Studio S.A.
 // Copyright (c) 2001-2016 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -63,7 +64,7 @@ TEST(RWLock, UpgradeToWrite)
 TEST(RWLock, WeakLock)
 {
   RWLock a;
-  RWLock::WeakLock flag = RWLock::WeakUnlocked;
+  std::atomic<RWLock::WeakLock> flag(RWLock::WeakUnlocked);
 
   EXPECT_TRUE(a.weakLock(&flag));
   EXPECT_EQ(RWLock::WeakLocked, flag);
