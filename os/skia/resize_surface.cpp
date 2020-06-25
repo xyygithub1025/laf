@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (c) 2018  Igara Studio S.A.
+// Copyright (c) 2018-2020  Igara Studio S.A.
 // Copyright (C) 2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -30,8 +30,10 @@ void ResizeSurface::create(Display* display)
     m_snapshot = nullptr;
   }
 
-  const SkiaSurface* surface =
-    static_cast<SkiaSurface*>(display->getSurface());
+  auto surface = static_cast<SkiaSurface*>(display->getSurface());
+  ASSERT(surface);
+  if (!surface)
+    return;
 
   // Sometimes on X11 when the window is just created, the display
   // surface can have width == 0. So there is no need to create a

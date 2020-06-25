@@ -97,6 +97,14 @@ public:
       case os::Event::KeyDown:
         if (ev.scancode() == os::kKeyEsc)
           return false;
+        // Toggle full-screen
+        else if (// F11 for Windows/Linux
+                 (ev.scancode() == os::kKeyF11) ||
+                 // Ctrl+Command+F for macOS
+                 (ev.scancode() == os::kKeyF &&
+                  ev.modifiers() == (os::kKeyCmdModifier | os::kKeyCtrlModifier))) {
+          m_display->setFullscreen(!m_display->isFullscreen());
+        }
         break;
 
       default:

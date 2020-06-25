@@ -30,9 +30,8 @@ SkiaDisplay::SkiaDisplay(int width, int height, int scale)
   m_window.setScale(scale);
   m_window.setVisible(true);
 
-  resetSkiaSurface();
-
   m_initialized = true;
+  resetSkiaSurface();
 }
 
 void SkiaDisplay::setSkiaSurface(SkiaSurface* surface)
@@ -49,10 +48,8 @@ void SkiaDisplay::resetSkiaSurface()
     m_surface = nullptr;
   }
 
-  gfx::Size size = m_window.clientSize() / m_window.scale();
-  m_surface = new SkiaSurface;
-  m_surface->create(size.w, size.h, m_colorSpace);
   m_customSurface = false;
+  resize(m_window.clientSize());
 }
 
 void SkiaDisplay::resize(const gfx::Size& size)
@@ -63,14 +60,15 @@ void SkiaDisplay::resize(const gfx::Size& size)
   gfx::Size newSize(size.w / m_window.scale(),
                     size.h / m_window.scale());
 
-  if (m_initialized && m_surface &&
+  if (m_initialized &&
+      m_surface &&
       m_surface->width() == newSize.w &&
       m_surface->height() == newSize.h) {
     return;
   }
 
-  m_surface->dispose();
-  m_surface = new SkiaSurface;
+  if (!m_surface)
+    m_surface = new SkiaSurface;
   m_surface->create(newSize.w, newSize.h, m_colorSpace);
 }
 
@@ -136,6 +134,29 @@ bool SkiaDisplay::isMaximized() const
 bool SkiaDisplay::isMinimized() const
 {
   return m_window.isMinimized();
+}
+
+bool SkiaDisplay::isFullscreen() const
+{
+  return m_window.isFullscreen();
+}
+
+void SkiaDisplay::setFullscreen(bool state)
+{
+  m_window.setFullscreen(state);
+}
+
+void SkiaDisplay::resetSurfaceAndQueueResizeDisplayEvent()
+{
+  // Redraw the full skia surface
+  if (m_surface)
+    resetSkiaSurface();
+
+  // Generate the resizing display event to redraw everything.
+  Event ev;
+  ev.setType(Event::ResizeDisplay);
+  ev.setDisplay(this);
+  os::queue_event(ev);
 }
 
 void SkiaDisplay::setTitle(const std::string& title)

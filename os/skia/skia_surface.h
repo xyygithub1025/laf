@@ -52,40 +52,52 @@ public:
 
   ~SkiaSurface() {
     ASSERT(m_lock == 0);
-    if (!m_surface)
+    destroy();
+  }
+
+  void destroy() {
+    if (!m_surface) {
       delete m_canvas;
+      m_canvas = nullptr;
+    }
   }
 
   void create(int width, int height,
               const os::ColorSpacePtr& colorSpace) {
-    ASSERT(!m_surface);
+    destroy();
+
+    ASSERT(!m_surface)
     ASSERT(width > 0);
     ASSERT(height > 0);
 
     m_colorSpace = colorSpace;
 
-    if (!m_bitmap.tryAllocPixels(
+    SkBitmap bmp;
+    if (!bmp.tryAllocPixels(
           SkImageInfo::MakeN32(width, height, kOpaque_SkAlphaType, skColorSpace())))
       throw base::Exception("Cannot create Skia surface");
 
-    m_bitmap.eraseColor(SK_ColorTRANSPARENT);
-    rebuild();
+    bmp.eraseColor(SK_ColorTRANSPARENT);
+    swapBitmap(bmp);
   }
 
   void createRgba(int width, int height,
                   const os::ColorSpacePtr& colorSpace) {
+    destroy();
+
     ASSERT(!m_surface);
     ASSERT(width > 0);
     ASSERT(height > 0);
 
     m_colorSpace = colorSpace;
 
-    if (!m_bitmap.tryAllocPixels(
+    SkBitmap bmp;
+    if (!bmp.tryAllocPixels(
           SkImageInfo::MakeN32Premul(width, height, skColorSpace())))
       throw base::Exception("Cannot create Skia surface");
 
-    m_bitmap.eraseColor(SK_ColorTRANSPARENT);
-    rebuild();
+    bmp.eraseColor(SK_ColorTRANSPARENT);
+    swapBitmap(bmp);
   }
 
   void flush() const {
@@ -618,26 +630,26 @@ public:
       lattice, dstRect, &skPaint);
   }
 
-  SkBitmap& bitmap() { return m_bitmap; }
+  bool isValid() const {
+    return !m_bitmap.isNull();
+  }
+
+  SkBitmap& bitmap() {
+    ASSERT(!m_bitmap.isNull());
+    return m_bitmap;
+  }
   SkCanvas& canvas() { return *m_canvas; }
 
   void swapBitmap(SkBitmap& other) {
     ASSERT(!m_surface);
-
     m_bitmap.swap(other);
-    rebuild();
+    delete m_canvas;
+    m_canvas = new SkCanvas(m_bitmap);
   }
 
   static Surface* loadSurface(const char* filename);
 
 private:
-  void rebuild() {
-    ASSERT(!m_surface);
-
-    delete m_canvas;
-    m_canvas = new SkCanvas(m_bitmap);
-  }
-
   sk_sp<SkColorSpace> skColorSpace() const {
     if (m_colorSpace)
       return static_cast<SkiaColorSpace*>(m_colorSpace.get())->skColorSpace();

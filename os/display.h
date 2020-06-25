@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (c) 2018-2019  Igara Studio S.A.
+// Copyright (c) 2018-2020  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -61,6 +61,9 @@ namespace os {
     virtual void maximize() = 0;
     virtual bool isMaximized() const = 0;
     virtual bool isMinimized() const = 0;
+
+    virtual bool isFullscreen() const = 0;
+    virtual void setFullscreen(bool state) = 0;
 
     virtual void setTitle(const std::string& title) = 0;
     virtual void setIcons(const SurfaceList& icons) = 0;

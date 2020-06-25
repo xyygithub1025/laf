@@ -40,6 +40,8 @@ namespace os {
     void maximize();
     bool isMaximized() const;
     bool isMinimized() const;
+    bool isFullscreen() const;
+    void setFullscreen(bool state);
     gfx::Size clientSize() const;
     gfx::Size restoredSize() const;
     void setTitle(const std::string& title);
@@ -101,6 +103,11 @@ namespace os {
     HCURSOR m_hcursor;
     gfx::Size m_clientSize;
     gfx::Size m_restoredSize;
+
+    // Used to store the current window position before toggling on
+    // full-screen mode.
+    WINDOWPLACEMENT m_restoredPlacement;
+
     int m_scale;
     bool m_isCreated;
     bool m_translateDeadKeys;

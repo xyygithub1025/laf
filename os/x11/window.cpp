@@ -190,6 +190,52 @@ void X11Window::setScale(const int scale)
   onResize(clientSize());
 }
 
+bool X11Window::isFullscreen() const
+{
+  // TODO ask _NET_WM_STATE_FULLSCREEN atom in _NET_WM_STATE window property
+  return m_fullScreen;
+}
+
+void X11Window::setFullscreen(bool state)
+{
+  if (isFullscreen() == state)
+    return;
+
+  Atom _NET_WM_STATE = XInternAtom(m_display, "_NET_WM_STATE", False);
+  Atom _NET_WM_STATE_FULLSCREEN = XInternAtom(m_display, "_NET_WM_STATE_FULLSCREEN", False);
+  if (!_NET_WM_STATE || !_NET_WM_STATE_FULLSCREEN)
+    return;                     // No atoms?
+
+  // From _NET_WM_STATE section in https://specifications.freedesktop.org/wm-spec/1.3/ar01s05.html#idm46018259875952
+  //
+  //   "Client wishing to change the state of a window MUST send a
+  //    _NET_WM_STATE client message to the root window. The Window
+  //    Manager MUST keep this property updated to reflect the
+  //    current state of the window."
+  //
+  const int _NET_WM_STATE_REMOVE = 0;
+  const int _NET_WM_STATE_ADD = 1;
+
+  ::Window root = XDefaultRootWindow(m_display);
+  XEvent event;
+  memset(&event, 0, sizeof(event));
+  event.xany.type = ClientMessage;
+  event.xclient.window = m_window;
+  event.xclient.message_type = _NET_WM_STATE;
+  event.xclient.format = 32;
+  // The action
+  event.xclient.data.l[0] = (state ? _NET_WM_STATE_ADD:
+                                     _NET_WM_STATE_REMOVE);
+  event.xclient.data.l[1] = _NET_WM_STATE_FULLSCREEN; // First property to alter
+  event.xclient.data.l[2] = 0;      // Second property to alter
+  event.xclient.data.l[3] = 0;      // Source indication
+
+  XSendEvent(m_display, root, 0,
+             SubstructureNotifyMask | SubstructureRedirectMask, &event);
+
+  m_fullScreen = state;
+}
+
 void X11Window::setTitle(const std::string& title)
 {
   XTextProperty prop;

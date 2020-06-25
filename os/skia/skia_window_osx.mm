@@ -51,14 +51,12 @@ public:
   Impl(EventQueue* queue, SkiaDisplay* display,
        int width, int height, int scale)
     : m_display(display)
-    , m_backend(Backend::NONE)
 #if SK_SUPPORT_GPU
     , m_nsGL(nil)
     , m_nsPixelFormat(nil)
     , m_skSurface(nullptr)
 #endif
   {
-    m_closing = false;
     m_window = [[OSXWindow alloc] initWithImpl:this
                                          width:width
                                         height:height
@@ -108,6 +106,29 @@ public:
     }
     else {
       [m_window close];
+    }
+  }
+
+  bool isMinimized() const {
+    return (m_window.miniaturized ? true: false);
+  }
+
+  bool isFullscreen() const {
+    return ((m_window.styleMask & NSWindowStyleMaskFullScreen) == NSWindowStyleMaskFullScreen);
+  }
+
+  void setFullscreen(bool state) {
+    // Do not call toggleFullScreen in the middle of other toggleFullScreen
+    if (m_resizingCount > 0)
+      return;
+
+    if (state) {
+      if (!isFullscreen())
+        [m_window toggleFullScreen:m_window];
+    }
+    else {
+      if (isFullscreen())
+        [m_window toggleFullScreen:m_window];
     }
   }
 
@@ -269,19 +290,22 @@ public:
   }
 
   void onStartResizing() override {
+    if (++m_resizingCount > 1)
+      return;
+
     ASSERT(!m_resizeSurface);
     m_resizeSurface.create(m_display);
   }
 
   void onEndResizing() override {
+    if (--m_resizingCount > 0)
+      return;
+
     ASSERT(m_resizeSurface);
     m_resizeSurface.reset();
 
     // Generate the resizing display event for the user.
-    Event ev;
-    ev.setType(Event::ResizeDisplay);
-    ev.setDisplay(m_display);
-    os::queue_event(ev);
+    m_display->resetSurfaceAndQueueResizeDisplayEvent();
   }
 
   void onChangeBackingProperties() override {
@@ -455,6 +479,9 @@ private:
     int scale = this->scale();
 
     SkiaSurface* surface = static_cast<SkiaSurface*>(m_display->getSurface());
+    if (!surface->isValid())
+      return;
+
     const SkBitmap& origBitmap = surface->bitmap();
 
     SkBitmap bitmap;
@@ -518,10 +545,17 @@ private:
   }
 
   SkiaDisplay* m_display = nullptr;
-  Backend m_backend;
-  bool m_closing;
+  Backend m_backend = Backend::NONE;
+  bool m_closing = false;
   OSXWindow* m_window = nullptr;
-  ResizeSurface m_resizeSurface;     // Surface used for live resizing.
+
+  // Counter used to match each onStart/EndResizing() call because we
+  // can receive multiple calls in case of windowWill/DidEnter/ExitFullScreen
+  // and windowWill/DidStart/EndLiveResize notifications.
+  int m_resizingCount = 0;
+
+  // Surface used for live resizing.
+  ResizeSurface m_resizeSurface;
 
 #if SK_SUPPORT_GPU
   sk_sp<const GrGLInterface> m_glInterfaces;
@@ -592,7 +626,24 @@ bool SkiaWindow::isMaximized() const
 
 bool SkiaWindow::isMinimized() const
 {
-  return false;
+  if (m_impl)
+    return m_impl->isMinimized();
+  else
+    return false;
+}
+
+bool SkiaWindow::isFullscreen() const
+{
+  if (m_impl)
+    return m_impl->isFullscreen();
+  else
+    return false;
+}
+
+void SkiaWindow::setFullscreen(bool state)
+{
+  if (m_impl)
+    m_impl->setFullscreen(state);
 }
 
 gfx::Size SkiaWindow::clientSize() const

@@ -137,6 +137,10 @@ void SkiaWindow::onPaint(HDC hdc)
 void SkiaWindow::paintHDC(HDC hdc)
 {
   SkiaSurface* surface = static_cast<SkiaSurface*>(m_display->getSurface());
+  ASSERT(surface);
+  if (!surface->isValid())
+    return;
+
   const SkBitmap& bitmap = surface->bitmap();
 
   BITMAPINFO bmi;

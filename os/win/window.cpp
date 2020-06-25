@@ -311,6 +311,53 @@ bool WinWindow::isMinimized() const
   return (GetWindowLong(m_hwnd, GWL_STYLE) & WS_MINIMIZE ? true: false);
 }
 
+bool WinWindow::isFullscreen() const
+{
+  return (GetWindowLong(m_hwnd, GWL_STYLE) & WS_THICKFRAME ? false: true);
+}
+
+void WinWindow::setFullscreen(bool state)
+{
+  const bool currentFullscreen = isFullscreen();
+
+  // Enter into full screen mode
+  if (!currentFullscreen && state) {
+    HMONITOR monitor = MonitorFromWindow(m_hwnd, MONITOR_DEFAULTTONEAREST);
+    if (!monitor)
+      return;                   // No monitor?
+
+    MONITORINFOEXA mi;
+    memset((void*)&mi, 0, sizeof(mi));
+    mi.cbSize = sizeof(mi);
+    if (!GetMonitorInfoA(monitor, &mi))
+      return;                   // Invalid monitor info?
+
+    // Save the current window position to restore it when we exit the
+    // full screen mode.
+    m_restoredPlacement.length = sizeof(WINDOWPLACEMENT);
+    GetWindowPlacement(m_hwnd, &m_restoredPlacement);
+
+    LONG style = GetWindowLong(m_hwnd, GWL_STYLE);
+    style &= ~(WS_CAPTION | WS_THICKFRAME);
+    SetWindowLong(m_hwnd, GWL_STYLE, style);
+    SetWindowPos(m_hwnd, nullptr,
+                 mi.rcMonitor.left,
+                 mi.rcMonitor.top,
+                 (mi.rcMonitor.right - mi.rcMonitor.left),
+                 (mi.rcMonitor.bottom - mi.rcMonitor.top),
+                 SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+
+  }
+  // Exit from full screen mode
+  else if (currentFullscreen && !state) {
+    LONG style = GetWindowLong(m_hwnd, GWL_STYLE);
+    style |= WS_CAPTION | WS_THICKFRAME;
+    SetWindowLong(m_hwnd, GWL_STYLE, style);
+    SetWindowPlacement(m_hwnd, &m_restoredPlacement);
+    onResize(m_clientSize);
+  }
+}
+
 gfx::Size WinWindow::clientSize() const
 {
   return m_clientSize;

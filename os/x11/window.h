@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2019  Igara Studio S.A.
+// Copyright (C) 2018-2020  Igara Studio S.A.
 // Copyright (C) 2016-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -41,6 +41,9 @@ public:
 
   int scale() const { return m_scale; }
   void setScale(const int scale);
+
+  bool isFullscreen() const;
+  void setFullscreen(bool state);
 
   void setTitle(const std::string& title);
   void setIcons(const SurfaceList& icons);
@@ -87,6 +90,7 @@ private:
   int m_scale;
   gfx::Point m_lastMousePos;
   gfx::Size m_lastClientSize;
+  bool m_fullScreen = false;
 
   // Double-click info
   Event::MouseButton m_doubleClickButton;

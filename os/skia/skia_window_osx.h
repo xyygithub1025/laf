@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2019  Igara Studio S.A.
+// Copyright (C) 2018-2020  Igara Studio S.A.
 // Copyright (C) 2012-2016  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -36,6 +36,8 @@ public:
   void maximize();
   bool isMaximized() const;
   bool isMinimized() const;
+  bool isFullscreen() const;
+  void setFullscreen(bool state);
   gfx::Size clientSize() const;
   gfx::Size restoredSize() const;
   void setTitle(const std::string& title);

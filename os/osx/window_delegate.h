@@ -50,4 +50,28 @@ class OSXWindowImpl;
 {
 }
 
+- (void)windowWillEnterFullScreen:(NSNotification*)notification
+{
+  m_impl->onStartResizing();
+}
+
+- (void)windowDidEnterFullScreen:(NSNotification*)notification
+{
+  m_impl->onEndResizing();
+}
+
+- (void)windowWillExitFullScreen:(NSNotification*)notification
+{
+  m_impl->onStartResizing();
+}
+
+- (void)windowDidExitFullScreen:(NSNotification*)notification
+{
+  // After exiting the full screen mode we have to re-create the skia
+  // surface and re-draw the entire screen. Without this there will be
+  // some cases where the app view is not updated anymore until we
+  // resize the window.
+  m_impl->onEndResizing();
+}
+
 @end

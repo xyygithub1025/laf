@@ -51,6 +51,8 @@ public:
   void maximize() override;
   bool isMaximized() const override;
   bool isMinimized() const override;
+  bool isFullscreen() const override;
+  void setFullscreen(bool state) override;
   void setTitle(const std::string& title) override;
   void setIcons(const SurfaceList& icons) override;
   NativeCursor nativeMouseCursor() override;
@@ -72,6 +74,8 @@ public:
   os::ColorSpacePtr colorSpace() const override { return m_colorSpace; }
   void setColorSpace(const os::ColorSpacePtr& colorSpace);
   os::ColorSpacePtr currentMonitorColorSpace() const;
+
+  void resetSurfaceAndQueueResizeDisplayEvent();
 
   void onTabletAPIChange();
 
