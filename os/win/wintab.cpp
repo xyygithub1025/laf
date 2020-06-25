@@ -81,7 +81,7 @@ HCTX WintabAPI::open(HWND hwnd, bool moveMouse)
       // workaround to this kind of wintab misinformation is to
       // oversize the buffer to guarantee that for the most common
       // string lenghts it will be enough.
-      std::vector<WCHAR> buf(std::max(128, nchars+1), 0);
+      std::vector<WCHAR> buf(std::max<UINT>(128, nchars+1), 0);
       WTInfo(WTI_INTERFACE, IFC_WINTABID, &buf[0]);
       LOG("PEN: Wintab ID \"%s\"\n", base::to_utf8(&buf[0]).c_str());
     }
