@@ -1,6 +1,6 @@
 // LAF OS Library
 // Copyright (c) 2018-2020  Igara Studio S.A.
-// Copyright (C) 2012-2018  David Capello
+// Copyright (c) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -12,7 +12,7 @@
 #include "gfx/point.h"
 #include "os/color_space.h"
 #include "os/native_cursor.h"
-#include "os/scoped_handle.h"
+#include "os/ref.h"
 #include "os/surface_list.h"
 
 #include <string>
@@ -20,14 +20,15 @@
 namespace os {
 
   class Surface;
+  class Display;
+  using DisplayRef = Ref<Display>;
 
   // A display or window to show graphics.
-  class Display {
+  class Display : public RefCount {
   public:
     typedef void* NativeHandle;
 
     virtual ~Display() { }
-    virtual void dispose() = 0;
 
     // Returns the real and current display's size (without scale applied).
     virtual int width() const = 0;
@@ -49,8 +50,7 @@ namespace os {
     virtual void setScale(int scale) = 0;
 
     // Returns the main surface to draw into this display.
-    // You must not dispose this surface.
-    virtual Surface* getSurface() = 0;
+    virtual Surface* surface() = 0;
 
     // Invalidates part of the display to be redraw in the future by
     // the OS painting messages. The region must be in non-scaled
@@ -89,13 +89,11 @@ namespace os {
     virtual void setInterpretOneFingerGestureAsMouseMovement(bool state) = 0;
 
     // Returns the color space of the display where the window is located.
-    virtual os::ColorSpacePtr colorSpace() const = 0;
+    virtual os::ColorSpaceRef colorSpace() const = 0;
 
     // Returns the HWND on Windows.
     virtual NativeHandle nativeHandle() = 0;
   };
-
-  typedef ScopedHandle<Display> DisplayHandle;
 
 } // namespace os
 

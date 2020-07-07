@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2020  Igara Studio S.A.
 // Copyright (C) 2017-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -242,7 +243,7 @@ NativeDialogsGTK::~NativeDialogsGTK()
   }
 }
 
-FileDialog* NativeDialogsGTK::createFileDialog()
+FileDialogRef NativeDialogsGTK::makeFileDialog()
 {
   if (!m_gtkApp) {
     int argc = 0;
@@ -251,7 +252,7 @@ FileDialog* NativeDialogsGTK::createFileDialog()
 
     m_gtkApp = gtk_application_new(nullptr, G_APPLICATION_FLAGS_NONE);
   }
-  return new FileDialogGTK;
+  return make_ref<FileDialogGTK>();
 }
 
 } // namespace os

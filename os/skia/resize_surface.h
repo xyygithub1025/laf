@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2020  Igara Studio S.A.
 // Copyright (C) 2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -21,14 +22,14 @@ public:
   ResizeSurface(const ResizeSurface&) = delete;
   ResizeSurface& operator=(const ResizeSurface&) = delete;
 
-  void create(Display* display);
+  void make(Display* display);
   void reset();
   void draw(Display* display);
 
   operator bool() { return m_snapshot != nullptr; }
 
 private:
-  SkiaSurface* m_snapshot;
+  Ref<SkiaSurface> m_snapshot;
 };
 
 } // namespace os

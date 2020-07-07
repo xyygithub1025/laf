@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (c) 2018-2020  Igara Studio S.A.
+// Copyright (C) 2018-2020  Igara Studio S.A.
 // Copyright (C) 2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -18,7 +18,6 @@ namespace os {
 
 class NoneSystem : public System {
 public:
-  void dispose() override { delete this; }
   void setAppName(const std::string& appName) override { }
   void setAppMode(AppMode appMode) override { }
   void activateApp() override { }
@@ -34,13 +33,13 @@ public:
   void setGpuAcceleration(bool state) override { }
   gfx::Size defaultNewDisplaySize() override { return gfx::Size(0, 0); }
   Display* defaultDisplay() override { return nullptr; }
-  Display* createDisplay(int width, int height, int scale) override { return nullptr; }
-  Surface* createSurface(int width, int height,
-                         const os::ColorSpacePtr& colorSpace) override { return nullptr; }
-  Surface* createRgbaSurface(int width, int height,
-                             const os::ColorSpacePtr& colorSpace) override { return nullptr; }
-  Surface* loadSurface(const char* filename) override { return nullptr; }
-  Surface* loadRgbaSurface(const char* filename) override { return nullptr; }
+  Ref<Display> makeDisplay(int width, int height, int scale) override { return nullptr; }
+  Ref<Surface> makeSurface(int width, int height,
+                           const os::ColorSpaceRef& colorSpace) override { return nullptr; }
+  Ref<Surface> makeRgbaSurface(int width, int height,
+                               const os::ColorSpaceRef& colorSpace) override { return nullptr; }
+  Ref<Surface> loadSurface(const char* filename) override { return nullptr; }
+  Ref<Surface> loadRgbaSurface(const char* filename) override { return nullptr; }
   FontManager* fontManager() { return nullptr; }
   Font* loadSpriteSheetFont(const char* filename, int scale) override { return nullptr; }
   Font* loadTrueTypeFont(const char* filename, int height) override { return nullptr; }
@@ -48,15 +47,15 @@ public:
   KeyModifiers keyModifiers() override { return kKeyNoneModifier; }
   int getUnicodeFromScancode(KeyScancode scancode) override { return 0; }
   void setTranslateDeadKeys(bool state) override { }
-  void listColorSpaces(std::vector<os::ColorSpacePtr>& list) override { }
-  os::ColorSpacePtr createColorSpace(const gfx::ColorSpacePtr& cs) override { return nullptr; }
+  void listColorSpaces(std::vector<os::ColorSpaceRef>& list) override { }
+  os::ColorSpaceRef makeColorSpace(const gfx::ColorSpaceRef& cs) override { return nullptr; }
   std::unique_ptr<ColorSpaceConversion> convertBetweenColorSpace(
-    const os::ColorSpacePtr& src, const os::ColorSpacePtr& dst) override { return nullptr; }
-  void setDisplaysColorSpace(const os::ColorSpacePtr& cs) override { }
-  os::ColorSpacePtr displaysColorSpace() override { return nullptr; }
+    const os::ColorSpaceRef& src, const os::ColorSpaceRef& dst) override { return nullptr; }
+  void setDisplaysColorSpace(const os::ColorSpaceRef& cs) override { }
+  os::ColorSpaceRef displaysColorSpace() override { return nullptr; }
 };
 
-System* create_system_impl() {
+System* make_system_impl() {
   return new NoneSystem;
 }
 

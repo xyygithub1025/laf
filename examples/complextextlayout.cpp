@@ -29,17 +29,17 @@ public:
   }
 };
 
-os::Font* font = nullptr;
+os::FontRef font = nullptr;
 
 void draw_display(os::Display* display,
                   const gfx::Point& mousePos)
 {
-  os::Surface* surface = display->getSurface();
+  os::Surface* surface = display->surface();
   os::SurfaceLock lock(surface);
   const gfx::Rect rc = surface->bounds();
 
-  os::Surface* backSurface = os::instance()->createSurface(rc.w, rc.h);
-  os::SurfaceLock lock2(backSurface);
+  os::SurfaceRef backSurface = os::instance()->makeSurface(rc.w, rc.h);
+  os::SurfaceLock lock2(backSurface.get());
 
   os::Paint p;
   p.color(gfx::rgba(0, 0, 0));
@@ -61,7 +61,7 @@ void draw_display(os::Display* display,
     std::string s = base::to_utf8(line);
     base::utf8_const utf8(s);
     os::draw_text(
-      backSurface, font,
+      backSurface.get(), font.get(),
       utf8.begin(), utf8.end(),
       gfx::rgba(255, 255, 255), gfx::ColorNone,
       pos.x, pos.y,
@@ -71,7 +71,7 @@ void draw_display(os::Display* display,
   }
 
   // Flip the back surface to the display surface
-  surface->drawSurface(backSurface, 0, 0);
+  surface->drawSurface(backSurface.get(), 0, 0);
 
   // Invalidates the whole display to show it on the screen.
   display->invalidateRegion(gfx::Region(rc));
@@ -79,10 +79,10 @@ void draw_display(os::Display* display,
 
 int app_main(int argc, char* argv[])
 {
-  os::SystemHandle system(os::create_system());
+  os::SystemRef system = os::make_system();
   system->setAppMode(os::AppMode::GUI);
 
-  os::DisplayHandle display(system->createDisplay(400, 300, 1));
+  os::DisplayRef display = system->makeDisplay(400, 300, 1);
 
   // TODO use new fonts (SkFont wrappers with system->fontManager())
   font = os::instance()->loadTrueTypeFont("/Library/Fonts/Arial Unicode.ttf", 32);
@@ -105,7 +105,7 @@ int app_main(int argc, char* argv[])
   while (running) {
     if (redraw) {
       redraw = false;
-      draw_display(display, mousePos);
+      draw_display(display.get(), mousePos);
     }
     // Wait for an event in the queue, the "true" parameter indicates
     // that we'll wait for a new event, and the next line will not be

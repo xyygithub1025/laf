@@ -36,17 +36,14 @@ SkiaDisplay::SkiaDisplay(int width, int height, int scale)
 
 void SkiaDisplay::setSkiaSurface(SkiaSurface* surface)
 {
-  m_surface->dispose();
-  m_surface = surface;
+  m_surface = AddRef(surface);
   m_customSurface = true;
 }
 
 void SkiaDisplay::resetSkiaSurface()
 {
-  if (m_surface) {
-    m_surface->dispose();
+  if (m_surface)
     m_surface = nullptr;
-  }
 
   m_customSurface = false;
   resize(m_window.clientSize());
@@ -68,13 +65,8 @@ void SkiaDisplay::resize(const gfx::Size& size)
   }
 
   if (!m_surface)
-    m_surface = new SkiaSurface;
+    m_surface = make_ref<SkiaSurface>();
   m_surface->create(newSize.w, newSize.h, m_colorSpace);
-}
-
-void SkiaDisplay::dispose()
-{
-  delete this;
 }
 
 int SkiaDisplay::width() const
@@ -108,9 +100,9 @@ void SkiaDisplay::setScale(int scale)
   m_window.setScale(scale);
 }
 
-Surface* SkiaDisplay::getSurface()
+Surface* SkiaDisplay::surface()
 {
-  return m_surface;
+  return m_surface.get();
 }
 
 // Flips all graphics in the surface to the real display.  Returns
@@ -226,7 +218,7 @@ void SkiaDisplay::setTranslateDeadKeys(bool state)
   m_window.setTranslateDeadKeys(state);
 }
 
-void SkiaDisplay::setColorSpace(const os::ColorSpacePtr& colorSpace)
+void SkiaDisplay::setColorSpace(const os::ColorSpaceRef& colorSpace)
 {
   ASSERT(colorSpace);
   m_colorSpace = colorSpace;
@@ -246,7 +238,7 @@ void SkiaDisplay::setColorSpace(const os::ColorSpacePtr& colorSpace)
                      "nullptr");
 }
 
-os::ColorSpacePtr SkiaDisplay::currentMonitorColorSpace() const
+os::ColorSpaceRef SkiaDisplay::currentMonitorColorSpace() const
 {
   return m_window.colorSpace();
 }

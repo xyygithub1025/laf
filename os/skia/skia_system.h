@@ -95,34 +95,34 @@ public:
     return m_defaultDisplay;
   }
 
-  Display* createDisplay(int width, int height, int scale) override {
-    SkiaDisplay* display = new SkiaDisplay(width, height, scale);
+  DisplayRef makeDisplay(int width, int height, int scale) override {
+    auto display = make_ref<SkiaDisplay>(width, height, scale);
     if (!m_defaultDisplay)
-      m_defaultDisplay = display;
+      m_defaultDisplay = display.get();
     if (display && m_displayCS)
       display->setColorSpace(m_displayCS);
     return display;
   }
 
-  Surface* createSurface(int width, int height,
-                         const os::ColorSpacePtr& colorSpace) override {
-    SkiaSurface* sur = new SkiaSurface;
+  SurfaceRef makeSurface(int width, int height,
+                         const os::ColorSpaceRef& colorSpace) override {
+    auto sur = make_ref<SkiaSurface>();
     sur->create(width, height, colorSpace);
     return sur;
   }
 
-  Surface* createRgbaSurface(int width, int height,
-                             const os::ColorSpacePtr& colorSpace) override {
-    SkiaSurface* sur = new SkiaSurface;
+  SurfaceRef makeRgbaSurface(int width, int height,
+                             const os::ColorSpaceRef& colorSpace) override {
+    auto sur = make_ref<SkiaSurface>();
     sur->createRgba(width, height, colorSpace);
     return sur;
   }
 
-  Surface* loadSurface(const char* filename) override {
+  SurfaceRef loadSurface(const char* filename) override {
     return SkiaSurface::loadSurface(filename);
   }
 
-  Surface* loadRgbaSurface(const char* filename) override {
+  SurfaceRef loadRgbaSurface(const char* filename) override {
     return loadSurface(filename);
   }
 
@@ -137,27 +137,26 @@ public:
       m_defaultDisplay->setTranslateDeadKeys(state);
   }
 
-  void listColorSpaces(std::vector<os::ColorSpacePtr>& list) override {
-    list.push_back(createColorSpace(gfx::ColorSpace::MakeNone()));
-    list.push_back(createColorSpace(gfx::ColorSpace::MakeSRGB()));
+  void listColorSpaces(std::vector<os::ColorSpaceRef>& list) override {
+    list.push_back(makeColorSpace(gfx::ColorSpace::MakeNone()));
+    list.push_back(makeColorSpace(gfx::ColorSpace::MakeSRGB()));
 
 #if defined(_WIN32) || defined(__APPLE__)
     list_display_colorspaces(list);
 #endif
   }
 
-  os::ColorSpacePtr createColorSpace(const gfx::ColorSpacePtr& cs) override {
-    return std::make_shared<SkiaColorSpace>(cs);
+  os::ColorSpaceRef makeColorSpace(const gfx::ColorSpaceRef& cs) override {
+    return os::make_ref<SkiaColorSpace>(cs);
   }
 
-  std::unique_ptr<ColorSpaceConversion> convertBetweenColorSpace(
-    const os::ColorSpacePtr& src,
-    const os::ColorSpacePtr& dst) override {
-    return std::unique_ptr<SkiaColorSpaceConversion>(
-      new SkiaColorSpaceConversion(src, dst));
+  Ref<ColorSpaceConversion> convertBetweenColorSpace(
+    const os::ColorSpaceRef& src,
+    const os::ColorSpaceRef& dst) override {
+    return os::make_ref<SkiaColorSpaceConversion>(src, dst);
   }
 
-  void setDisplaysColorSpace(const os::ColorSpacePtr& cs) override {
+  void setDisplaysColorSpace(const os::ColorSpaceRef& cs) override {
     m_displayCS = cs;
     if (m_defaultDisplay) {
       m_defaultDisplay->setColorSpace(
@@ -166,15 +165,15 @@ public:
     }
   }
 
-  os::ColorSpacePtr displaysColorSpace() override {
+  os::ColorSpaceRef displaysColorSpace() override {
     return m_displayCS;
   }
 
 private:
   SkiaDisplay* m_defaultDisplay;
-  std::unique_ptr<SkiaFontManager> m_fontManager;
+  Ref<FontManager> m_fontManager;
   bool m_gpuAcceleration;
-  ColorSpacePtr m_displayCS;
+  ColorSpaceRef m_displayCS;
 };
 
 } // namespace os

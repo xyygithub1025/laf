@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2020  Igara Studio S.A.
 // Copyright (C) 2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -62,7 +63,7 @@ retry:;
 
     case FontType::SpriteSheet: {
       SpriteSheetFont* ssFont = static_cast<SpriteSheetFont*>(font);
-      Surface* sheet = ssFont->getSurfaceSheet();
+      Surface* sheet = ssFont->sheetSurface();
 
       if (surface) {
         sheet->lock();

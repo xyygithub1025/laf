@@ -17,7 +17,7 @@
 class PanWindow {
 public:
   PanWindow(os::System* system)
-    : m_display(system->createDisplay(800, 600, 1))
+    : m_display(system->makeDisplay(800, 600, 1))
     , m_scroll(0.0, 0.0)
     , m_zoom(1.0)
     , m_hasCapture(false) {
@@ -116,7 +116,7 @@ public:
 
 private:
   void repaint() {
-    os::Surface* surface = m_display->getSurface();
+    os::Surface* surface = m_display->surface();
     os::SurfaceLock lock(surface);
     const gfx::Rect rc(surface->bounds());
 
@@ -181,7 +181,7 @@ private:
                       m_display->height()/2);
   }
 
-  os::DisplayHandle m_display;
+  os::DisplayRef m_display;
   gfx::PointF m_scroll;
   double m_zoom;
 
@@ -193,10 +193,10 @@ private:
 
 int app_main(int argc, char* argv[])
 {
-  os::SystemHandle system(os::create_system());
+  os::SystemRef system = os::make_system();
   system->setAppMode(os::AppMode::GUI);
 
-  PanWindow window(system);
+  PanWindow window(system.get());
 
   system->finishLaunching();
   system->activateApp();

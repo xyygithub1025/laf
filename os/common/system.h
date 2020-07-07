@@ -37,12 +37,7 @@ namespace os {
 class CommonSystem : public System {
 public:
   CommonSystem() { }
-  ~CommonSystem() { }
-
-  void dispose() override {
-    set_instance(nullptr);
-    delete this;
-  }
+  ~CommonSystem() { set_instance(nullptr); }
 
   void setAppName(const std::string& appName) override { }
   void setAppMode(AppMode appMode) override { }
@@ -66,16 +61,15 @@ public:
   }
 
   NativeDialogs* nativeDialogs() override {
+    if (!m_nativeDialogs) {
 #ifdef _WIN32
-    if (!m_nativeDialogs)
       m_nativeDialogs.reset(new NativeDialogsWin32);
 #elif defined(__APPLE__)
-    if (!m_nativeDialogs)
       m_nativeDialogs.reset(new NativeDialogsOSX);
 #elif defined(LAF_OS_WITH_GTK)
-    if (!m_nativeDialogs)
       m_nativeDialogs.reset(new NativeDialogsGTK);
 #endif
+    }
     return m_nativeDialogs.get();
   }
 
@@ -83,9 +77,9 @@ public:
     return EventQueue::instance();
   }
 
-  Font* loadSpriteSheetFont(const char* filename, int scale) override {
-    Surface* sheet = loadRgbaSurface(filename);
-    Font* font = nullptr;
+  FontRef loadSpriteSheetFont(const char* filename, int scale) override {
+    SurfaceRef sheet = loadRgbaSurface(filename);
+    FontRef font = nullptr;
     if (sheet) {
       sheet->applyScale(scale);
       font = SpriteSheetFont::fromSurface(sheet);
@@ -93,11 +87,11 @@ public:
     return font;
   }
 
-  Font* loadTrueTypeFont(const char* filename, int height) override {
+  FontRef loadTrueTypeFont(const char* filename, int height) override {
 #ifdef LAF_FREETYPE
     if (!m_ft)
       m_ft.reset(new ft::Lib());
-    return load_free_type_font(*m_ft.get(), filename, height);
+    return FontRef(load_free_type_font(*m_ft.get(), filename, height));
 #else
     return nullptr;
 #endif
@@ -119,7 +113,7 @@ public:
   }
 
 private:
-  std::unique_ptr<NativeDialogs> m_nativeDialogs;
+  Ref<NativeDialogs> m_nativeDialogs;
 #ifdef LAF_FREETYPE
   std::unique_ptr<ft::Lib> m_ft;
 #endif

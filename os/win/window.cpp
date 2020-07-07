@@ -259,7 +259,7 @@ void WinWindow::queueEvent(Event& ev)
   onQueueEvent(ev);
 }
 
-os::ColorSpacePtr WinWindow::colorSpace() const
+os::ColorSpaceRef WinWindow::colorSpace() const
 {
   if (auto defaultCS = os::instance()->displaysColorSpace())
     return defaultCS;
@@ -275,7 +275,7 @@ os::ColorSpacePtr WinWindow::colorSpace() const
   }
   // sRGB by default
   if (!m_lastColorProfile)
-    m_lastColorProfile = os::instance()->createColorSpace(gfx::ColorSpace::MakeSRGB());
+    m_lastColorProfile = os::instance()->makeColorSpace(gfx::ColorSpace::MakeSRGB());
   return m_lastColorProfile;
 }
 
@@ -1838,8 +1838,8 @@ void WinWindow::killTouchTimer()
 
 void WinWindow::checkColorSpaceChange()
 {
-  os::ColorSpacePtr oldColorSpace = m_lastColorProfile;
-  os::ColorSpacePtr newColorSpace = colorSpace();
+  os::ColorSpaceRef oldColorSpace = m_lastColorProfile;
+  os::ColorSpaceRef newColorSpace = colorSpace();
   if (oldColorSpace != newColorSpace)
     onChangeColorSpace();
 }

@@ -136,7 +136,7 @@ void SkiaWindow::onPaint(HDC hdc)
 
 void SkiaWindow::paintHDC(HDC hdc)
 {
-  SkiaSurface* surface = static_cast<SkiaSurface*>(m_display->getSurface());
+  SkiaSurface* surface = static_cast<SkiaSurface*>(m_display->surface());
   ASSERT(surface);
   if (!surface->isValid())
     return;
@@ -368,7 +368,7 @@ void SkiaWindow::onResize(const gfx::Size& size)
     static_cast<EventQueueWithResizeDisplay*>(EventQueue::instance())
       ->setResizeDisplayEvent(ev);
 
-  if (isNewEvent) m_resizeSurface.create(m_display);
+  if (isNewEvent) m_resizeSurface.make(m_display);
   m_display->resize(size);
   if (!isNewEvent) m_resizeSurface.draw(m_display);
 }

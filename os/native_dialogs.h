@@ -1,5 +1,6 @@
 // LAF OS Library
-// Copyright (C) 2015-2018  David Capello
+// Copyright (c) 2020  Igara Studio S.A.
+// Copyright (c) 2015-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -9,13 +10,17 @@
 #pragma once
 
 #include "base/paths.h"
+#include "os/ref.h"
 
 #include <string>
 
 namespace os {
   class Display;
+  class FileDialog;
+  class NativeDialogs;
+  using FileDialogRef = Ref<FileDialog>;
 
-  class FileDialog {
+  class FileDialog : public RefCount {
   public:
     enum class Type {
       OpenFile,
@@ -25,7 +30,6 @@ namespace os {
     };
 
     virtual ~FileDialog() { }
-    virtual void dispose() = 0;
     virtual void setType(const Type type) = 0;
     virtual void setTitle(const std::string& title) = 0;
     virtual void setDefaultExtension(const std::string& extension) = 0;
@@ -36,10 +40,10 @@ namespace os {
     virtual bool show(Display* parent) = 0;
   };
 
-  class NativeDialogs {
+  class NativeDialogs : public RefCount {
   public:
     virtual ~NativeDialogs() { }
-    virtual FileDialog* createFileDialog() = 0;
+    virtual FileDialogRef makeFileDialog() = 0;
   };
 
 } // namespace os

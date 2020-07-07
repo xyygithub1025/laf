@@ -27,7 +27,6 @@ public:
   void resetSkiaSurface();
 
   void resize(const gfx::Size& size);
-  void dispose() override;
 
   // Returns the real and current display's size (without scale applied).
   int width() const override;
@@ -42,7 +41,7 @@ public:
 
   // Returns the main surface to draw into this display.
   // You must not dispose this surface.
-  Surface* getSurface() override;
+  Surface* surface() override;
 
   // Invalidate parts of the OS window to be updated in the future
   // with paint messages.
@@ -71,9 +70,9 @@ public:
 
   void setTranslateDeadKeys(bool state);
 
-  os::ColorSpacePtr colorSpace() const override { return m_colorSpace; }
-  void setColorSpace(const os::ColorSpacePtr& colorSpace);
-  os::ColorSpacePtr currentMonitorColorSpace() const;
+  os::ColorSpaceRef colorSpace() const override { return m_colorSpace; }
+  void setColorSpace(const os::ColorSpaceRef& colorSpace);
+  os::ColorSpaceRef currentMonitorColorSpace() const;
 
   void resetSurfaceAndQueueResizeDisplayEvent();
 
@@ -88,8 +87,8 @@ private:
   // window is created, it send a first resize event.)
   bool m_initialized;
   SkiaWindow m_window;
-  SkiaSurface* m_surface;
-  os::ColorSpacePtr m_colorSpace;
+  Ref<SkiaSurface> m_surface;
+  os::ColorSpaceRef m_colorSpace;
   bool m_customSurface;
   NativeCursor m_nativeCursor;
 };

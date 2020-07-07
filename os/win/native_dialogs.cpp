@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2020  Igara Studio S.A.
 // Copyright (C) 2015-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -362,9 +363,9 @@ NativeDialogsWin32::NativeDialogsWin32()
 {
 }
 
-FileDialog* NativeDialogsWin32::createFileDialog()
+FileDialogRef NativeDialogsWin32::makeFileDialog()
 {
-  return new FileDialogWin32();
+  return make_ref<FileDialogWin32>();
 }
 
 } // namespace os

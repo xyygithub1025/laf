@@ -23,14 +23,12 @@ ResizeSurface::~ResizeSurface()
   reset();
 }
 
-void ResizeSurface::create(Display* display)
+void ResizeSurface::make(Display* display)
 {
-  if (m_snapshot) {
-    m_snapshot->dispose();
-    m_snapshot = nullptr;
-  }
+  if (m_snapshot)
+    m_snapshot.reset();
 
-  auto surface = static_cast<SkiaSurface*>(display->getSurface());
+  auto surface = static_cast<SkiaSurface*>(display->surface());
   ASSERT(surface);
   if (!surface)
     return;
@@ -42,7 +40,7 @@ void ResizeSurface::create(Display* display)
       surface->height() == 0)
     return;
 
-  m_snapshot = new SkiaSurface;
+  m_snapshot = make_ref<SkiaSurface>();
   m_snapshot->create(surface->width(),
                      surface->height(),
                      surface->colorSpace());
@@ -53,8 +51,7 @@ void ResizeSurface::reset()
 {
   if (!m_snapshot)
     return;
-  m_snapshot->dispose();
-  m_snapshot = nullptr;
+  m_snapshot.reset();
 }
 
 void ResizeSurface::draw(Display* display)
@@ -62,10 +59,13 @@ void ResizeSurface::draw(Display* display)
   if (!m_snapshot)
     return;
 
-  SkiaSurface* surface =
-    static_cast<SkiaSurface*>(display->getSurface());
+  auto surface = static_cast<SkiaSurface*>(display->surface());
+  ASSERT(surface);
+  if (!surface)
+    return;
+
   surface->drawSurface(
-    m_snapshot,
+    m_snapshot.get(),
     gfx::Rect(0, 0, m_snapshot->width(), m_snapshot->height()),
     gfx::Rect(0, 0, surface->width(), surface->height()));
 }

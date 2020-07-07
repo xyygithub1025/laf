@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2020  Igara Studio S.A.
 // Copyright (C) 2016-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -85,7 +86,7 @@ void SkiaWindow::onQueueEvent(Event& ev)
 
 void SkiaWindow::onPaint(const gfx::Rect& rc)
 {
-  SkiaSurface* surface = static_cast<SkiaSurface*>(m_display->getSurface());
+  auto surface = static_cast<SkiaSurface*>(m_display->surface());
   const SkBitmap& bitmap = surface->bitmap();
 
   int scale = this->scale();
@@ -145,7 +146,7 @@ void SkiaWindow::onResize(const gfx::Size& sz)
     static_cast<EventQueueWithResizeDisplay*>(EventQueue::instance())
       ->setResizeDisplayEvent(ev);
 
-  if (isNewEvent) m_resizeSurface.create(m_display);
+  if (isNewEvent) m_resizeSurface.make(m_display);
   m_display->resize(sz);
   if (!isNewEvent) m_resizeSurface.draw(m_display);
 }

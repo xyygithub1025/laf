@@ -178,10 +178,10 @@ void X11Window::queueEvent(Event& ev)
   onQueueEvent(ev);
 }
 
-os::ColorSpacePtr X11Window::colorSpace() const
+os::ColorSpaceRef X11Window::colorSpace() const
 {
   // TODO get the window color space
-  return os::instance()->createColorSpace(gfx::ColorSpace::MakeSRGB());
+  return os::instance()->makeColorSpace(gfx::ColorSpace::MakeSRGB());
 }
 
 void X11Window::setScale(const int scale)
@@ -252,7 +252,7 @@ void X11Window::setIcons(const SurfaceList& icons)
     return;
 
   bool first = true;
-  for (Surface* icon : icons) {
+  for (auto& icon : icons) {
     const int w = icon->width();
     const int h = icon->height();
 

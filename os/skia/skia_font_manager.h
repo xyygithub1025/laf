@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (c) 2019  Igara Studio S.A.
+// Copyright (c) 2019-2020  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -24,10 +24,6 @@ public:
     : m_skTypeface(skTypeface) {
   }
 
-  void dispose() override {
-    delete this;
-  }
-
   FontStyle fontStyle() const override {
     SkFontStyle skStyle = m_skTypeface->fontStyle();
     return FontStyle((FontStyle::Weight)skStyle.weight(),
@@ -43,10 +39,6 @@ class SkiaFontStyleSet : public FontStyleSet {
 public:
   SkiaFontStyleSet(SkFontStyleSet* set)
     : m_skSet(set) {
-  }
-
-  void dispose() override {
-    delete this;
   }
 
   int count() override {
@@ -65,15 +57,15 @@ public:
     name = skName.c_str();
   }
 
-  TypefaceHandle typeface(int index) override {
-    return new SkiaTypeface(m_skSet->createTypeface(index));
+  TypefaceRef typeface(int index) override {
+    return make_ref<SkiaTypeface>(m_skSet->createTypeface(index));
   }
 
-  TypefaceHandle matchStyle(const FontStyle& style) override {
+  TypefaceRef matchStyle(const FontStyle& style) override {
     SkFontStyle skStyle((SkFontStyle::Weight)style.weight(),
                         (SkFontStyle::Width)style.width(),
                         (SkFontStyle::Slant)style.slant());
-    return new SkiaTypeface(m_skSet->matchStyle(skStyle));
+    return make_ref<SkiaTypeface>(m_skSet->matchStyle(skStyle));
   }
 
 private:
@@ -99,12 +91,12 @@ public:
     return std::string(name.c_str());
   }
 
-  FontStyleSetHandle familyStyleSet(int i) const override {
-    return new SkiaFontStyleSet(m_skFontMgr->createStyleSet(i));
+  Ref<FontStyleSet> familyStyleSet(int i) const override {
+    return make_ref<SkiaFontStyleSet>(m_skFontMgr->createStyleSet(i));
   }
 
-  FontStyleSetHandle matchFamily(const std::string& familyName) const override {
-    return new SkiaFontStyleSet(m_skFontMgr->matchFamily(familyName.c_str()));
+  Ref<FontStyleSet> matchFamily(const std::string& familyName) const override {
+    return make_ref<SkiaFontStyleSet>(m_skFontMgr->matchFamily(familyName.c_str()));
   }
 
 private:

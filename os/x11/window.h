@@ -37,7 +37,7 @@ public:
 
   void queueEvent(Event& ev);
 
-  os::ColorSpacePtr colorSpace() const;
+  os::ColorSpaceRef colorSpace() const;
 
   int scale() const { return m_scale; }
   void setScale(const int scale);

@@ -63,7 +63,7 @@ public:
   }
 
   void create(int width, int height,
-              const os::ColorSpacePtr& colorSpace) {
+              const os::ColorSpaceRef& colorSpace) {
     destroy();
 
     ASSERT(!m_surface)
@@ -82,7 +82,7 @@ public:
   }
 
   void createRgba(int width, int height,
-                  const os::ColorSpacePtr& colorSpace) {
+                  const os::ColorSpaceRef& colorSpace) {
     destroy();
 
     ASSERT(!m_surface);
@@ -107,10 +107,6 @@ public:
 
   // Surface impl
 
-  void dispose() override {
-    delete this;
-  }
-
   int width() const override {
     if (m_surface)
       return m_surface->width();
@@ -125,7 +121,7 @@ public:
       return m_bitmap.height();
   }
 
-  const ColorSpacePtr& colorSpace() const override {
+  const ColorSpaceRef& colorSpace() const override {
     return m_colorSpace;
   }
 
@@ -647,7 +643,7 @@ public:
     m_canvas = new SkCanvas(m_bitmap);
   }
 
-  static Surface* loadSurface(const char* filename);
+  static SurfaceRef loadSurface(const char* filename);
 
 private:
   sk_sp<SkColorSpace> skColorSpace() const {
@@ -659,7 +655,7 @@ private:
 
   SkBitmap m_bitmap;
   sk_sp<SkSurface> m_surface;
-  ColorSpacePtr m_colorSpace;
+  ColorSpaceRef m_colorSpace;
   SkCanvas* m_canvas;
   SkPaint m_paint;
   std::atomic<int> m_lock;

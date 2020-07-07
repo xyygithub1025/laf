@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2020  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -17,7 +18,7 @@ public:
   void getEvent(Event& ev, bool canWait) override;
 };
 
-typedef WinEventQueue EventQueueImpl;
+using EventQueueImpl = WinEventQueue;
 
 } // namespace os
 

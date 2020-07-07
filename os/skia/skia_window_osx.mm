@@ -78,7 +78,7 @@ public:
     return [m_window restoredSize];
   }
 
-  os::ColorSpacePtr colorSpace() const {
+  os::ColorSpaceRef colorSpace() const {
     ASSERT(m_window);
     if (auto defaultCS = os::instance()->displaysColorSpace())
       return defaultCS;
@@ -144,7 +144,7 @@ public:
     return ([m_window setNativeMouseCursor:cursor] ? true: false);
   }
 
-  bool setNativeMouseCursor(const os::Surface* surface,
+  bool setNativeMouseCursor(const Surface* surface,
                             const gfx::Point& focus,
                             const int scale) {
     return ([m_window setNativeMouseCursor:surface
@@ -294,7 +294,7 @@ public:
       return;
 
     ASSERT(!m_resizeSurface);
-    m_resizeSurface.create(m_display);
+    m_resizeSurface.make(m_display);
   }
 
   void onEndResizing() override {
@@ -478,7 +478,7 @@ private:
     NSRect viewBounds = m_window.contentView.bounds;
     int scale = this->scale();
 
-    SkiaSurface* surface = static_cast<SkiaSurface*>(m_display->getSurface());
+    SkiaSurface* surface = static_cast<SkiaSurface*>(m_display->surface());
     if (!surface->isValid())
       return;
 
@@ -585,7 +585,7 @@ void SkiaWindow::destroyImpl()
   m_impl = nullptr;
 }
 
-ColorSpacePtr SkiaWindow::colorSpace() const
+ColorSpaceRef SkiaWindow::colorSpace() const
 {
   if (m_impl)
     return m_impl->colorSpace();

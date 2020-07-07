@@ -62,7 +62,7 @@ void SkiaSurface::drawPath(const gfx::Path& path,
 }
 
 // static
-Surface* SkiaSurface::loadSurface(const char* filename)
+Ref<Surface> SkiaSurface::loadSurface(const char* filename)
 {
   FILE* f = base::open_file_raw(filename, "rb");
   if (!f)
@@ -85,7 +85,7 @@ Surface* SkiaSurface::loadSurface(const char* filename)
   if (r != SkCodec::kSuccess)
     return nullptr;
 
-  SkiaSurface* sur = new SkiaSurface();
+  auto sur = make_ref<SkiaSurface>();
   sur->swapBitmap(bm);
   return sur;
 }

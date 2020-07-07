@@ -31,7 +31,7 @@ private:
   std::atomic<bool> m_sleeping;
 };
 
-typedef OSXEventQueue EventQueueImpl;
+using EventQueueImpl = OSXEventQueue;
 
 } // namespace os
 

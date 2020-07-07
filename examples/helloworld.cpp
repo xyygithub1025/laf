@@ -1,5 +1,5 @@
 // LAF Library
-// Copyright (c) 2019  Igara Studio S.A.
+// Copyright (c) 2019-2020  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -8,7 +8,7 @@
 
 void draw_display(os::Display* display)
 {
-  os::Surface* surface = display->getSurface();
+  os::Surface* surface = display->surface();
   os::SurfaceLock lock(surface);
   const gfx::Rect rc = surface->bounds();
 
@@ -32,10 +32,10 @@ int app_main(int argc, char* argv[])
 {
   const int pixelScale = 2;
 
-  os::SystemHandle system(os::create_system());
+  os::SystemRef system = os::make_system();
   system->setAppMode(os::AppMode::GUI);
 
-  os::DisplayHandle display(system->createDisplay(400, 300, pixelScale));
+  os::DisplayRef display = system->makeDisplay(400, 300, pixelScale);
 
   display->setNativeMouseCursor(os::kArrowCursor);
   display->setTitle("Hello World");
@@ -59,7 +59,7 @@ int app_main(int argc, char* argv[])
   while (running) {
     if (redraw) {
       redraw = false;
-      draw_display(display);
+      draw_display(display.get());
     }
     // Wait for an event in the queue, the "true" parameter indicates
     // that we'll wait for a new event, and the next line will not be

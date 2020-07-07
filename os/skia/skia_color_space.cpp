@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2019  Igara Studio S.A.
+// Copyright (C) 2018-2020  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -35,7 +35,7 @@ static constexpr float gSRGB_toXYZD50[] {
   0.0139322f, 0.0971045f, 0.7141733f, // Rz, Gz, Bz
 };
 
-SkiaColorSpace::SkiaColorSpace(const gfx::ColorSpacePtr& gfxcs)
+SkiaColorSpace::SkiaColorSpace(const gfx::ColorSpaceRef& gfxcs)
   : m_gfxcs(gfxcs),
     m_skcs(nullptr)
 {
@@ -127,8 +127,8 @@ SkiaColorSpace::SkiaColorSpace(const gfx::ColorSpacePtr& gfxcs)
 }
 
 SkiaColorSpaceConversion::SkiaColorSpaceConversion(
-  const os::ColorSpacePtr& srcColorSpace,
-  const os::ColorSpacePtr& dstColorSpace)
+  const os::ColorSpaceRef& srcColorSpace,
+  const os::ColorSpaceRef& dstColorSpace)
   : m_srcCS(srcColorSpace),
     m_dstCS(dstColorSpace)
 {

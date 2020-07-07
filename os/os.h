@@ -1,6 +1,6 @@
 // LAF OS Library
-// Copyright (C) 2019  Igara Studio S.A.
-// Copyright (C) 2012-2017  David Capello
+// Copyright (c) 2019-2020  Igara Studio S.A.
+// Copyright (c) 2012-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -30,7 +30,7 @@
 #include "os/native_dialogs.h"
 #include "os/paint.h"
 #include "os/pointer_type.h"
-#include "os/scoped_handle.h"
+#include "os/ref.h"
 #include "os/shortcut.h"
 #include "os/surface.h"
 #include "os/surface_format.h"

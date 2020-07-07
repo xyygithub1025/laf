@@ -11,6 +11,7 @@
 
 #include "os/common/system.h"
 
+#include "os/menus.h"
 #include "os/osx/app.h"
 
 namespace os {
@@ -29,12 +30,7 @@ void osx_set_async_view(bool state);
 
 class OSXSystem : public CommonSystem {
 public:
-  OSXSystem() : m_menus(nullptr) {
-  }
-
-  ~OSXSystem() {
-    delete m_menus;
-  }
+  OSXSystem() : m_menus(nullptr) { }
 
   void setAppMode(AppMode appMode) override {
     OSXApp::instance()->setAppMode(appMode);
@@ -57,8 +53,8 @@ public:
 
   Menus* menus() override {
     if (!m_menus)
-      m_menus = new MenusOSX();
-    return m_menus;
+      m_menus = make_ref<MenusOSX>();
+    return m_menus.get();
   }
 
   bool isKeyPressed(KeyScancode scancode) override {
@@ -70,7 +66,7 @@ public:
   }
 
 private:
-  Menus* m_menus;
+  MenusRef m_menus;
 };
 
 } // namespace os

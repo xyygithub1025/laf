@@ -17,7 +17,7 @@
 class LogWindow {
 public:
   LogWindow(os::System* system)
-    : m_display(system->createDisplay(800, 600, 1)) {
+    : m_display(system->makeDisplay(800, 600, 1)) {
     m_display->setNativeMouseCursor(os::kArrowCursor);
     m_display->setTitle("All Events");
 
@@ -121,7 +121,7 @@ private:
   }
 
   void scrollAndDrawLog(const int newlines) {
-    os::Surface* surface = m_display->getSurface();
+    os::Surface* surface = m_display->surface();
     os::SurfaceLock lock(surface);
     const gfx::Rect rc = surface->bounds();
 
@@ -206,7 +206,7 @@ private:
     return s;
   }
 
-  os::DisplayHandle m_display;
+  os::DisplayRef m_display;
   std::vector<std::string> m_textLog;
   size_t m_oldLogSize = 0;
   int m_lineHeight = 12;
@@ -219,10 +219,10 @@ private:
 
 int app_main(int argc, char* argv[])
 {
-  os::SystemHandle system(os::create_system());
+  auto system = os::make_system();
   system->setAppMode(os::AppMode::GUI);
 
-  LogWindow window(system);
+  LogWindow window(system.get());
 
   system->finishLaunching();
   system->activateApp();

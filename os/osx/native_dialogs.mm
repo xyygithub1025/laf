@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2020  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -173,9 +174,9 @@ NativeDialogsOSX::NativeDialogsOSX()
 {
 }
 
-FileDialog* NativeDialogsOSX::createFileDialog()
+FileDialogRef NativeDialogsOSX::makeFileDialog()
 {
-  return new FileDialogOSX();
+  return make_ref<FileDialogOSX>();
 }
 
 } // namespace os

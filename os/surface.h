@@ -16,7 +16,7 @@
 #include "gfx/rect.h"
 #include "os/color_space.h"
 #include "os/paint.h"
-#include "os/scoped_handle.h"
+#include "os/ref.h"
 #include "os/surface_format.h"
 
 #include <string>
@@ -29,7 +29,9 @@ namespace gfx {
 namespace os {
 
   class ColorSpace;
+  class Surface;
   class SurfaceLock;
+  using SurfaceRef = Ref<Surface>;
 
   enum class DrawMode {
     Solid,
@@ -37,14 +39,13 @@ namespace os {
     Xor
   };
 
-  class Surface {
+  class Surface : public RefCount {
   public:
     virtual ~Surface() { }
-    virtual void dispose() = 0;
     virtual int width() const = 0;
     virtual int height() const = 0;
     gfx::Rect bounds() const { return gfx::Rect(0, 0, width(), height()); }
-    virtual const ColorSpacePtr& colorSpace() const = 0;
+    virtual const ColorSpaceRef& colorSpace() const = 0;
     virtual bool isDirectToScreen() const = 0;
 
     virtual int getSaveCount() const = 0;
@@ -153,8 +154,6 @@ namespace os {
   private:
     Surface* m_surface;
   };
-
-  typedef ScopedHandle<Surface> SurfaceHandle;
 
 } // namespace os
 
