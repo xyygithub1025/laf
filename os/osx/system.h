@@ -65,6 +65,9 @@ public:
     return osx_get_unicode_from_scancode(scancode);
   }
 
+  ScreenRef mainScreen() override;
+  void listScreens(ScreenList& list) override;
+
 private:
   MenusRef m_menus;
 };

@@ -34,6 +34,7 @@ elseif(APPLE)
       osx/logger.mm
       osx/menus.mm
       osx/native_dialogs.mm
+      osx/system.mm
       osx/view.mm
       osx/window.mm)
   endif()

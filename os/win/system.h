@@ -32,6 +32,9 @@ public:
   bool isKeyPressed(KeyScancode scancode) override;
   int getUnicodeFromScancode(KeyScancode scancode) override;
 
+  ScreenRef mainScreen() override;
+  void listScreens(ScreenList& list) override;
+
 private:
   std::string m_appName;
   TabletAPI m_tabletAPI = TabletAPI::Default;

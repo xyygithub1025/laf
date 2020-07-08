@@ -15,6 +15,7 @@
 #include "os/color_space.h"
 #include "os/keys.h"
 #include "os/ref.h"
+#include "os/screen.h"
 
 #include <memory>
 #include <stdexcept>
@@ -124,6 +125,13 @@ namespace os {
 
     virtual bool gpuAcceleration() const = 0;
     virtual void setGpuAcceleration(bool state) = 0;
+
+    // Returns the main screen
+    virtual ScreenRef mainScreen() = 0;
+
+    // Returns a list of screens attached to the computer.
+    virtual void listScreens(ScreenList& screens) = 0;
+
     virtual gfx::Size defaultNewDisplaySize() = 0;
     virtual Display* defaultDisplay() = 0;
     virtual Ref<Display> makeDisplay(int width, int height, int scale) = 0;

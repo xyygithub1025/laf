@@ -31,6 +31,7 @@
 #include "os/paint.h"
 #include "os/pointer_type.h"
 #include "os/ref.h"
+#include "os/screen.h"
 #include "os/shortcut.h"
 #include "os/surface.h"
 #include "os/surface_format.h"
