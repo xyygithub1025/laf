@@ -1,4 +1,5 @@
 // LAF Base Library
+// Copyright (c) 2020 Igara Studio S.A.
 // Copyright (c) 2001-2018 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -31,6 +32,12 @@ using namespace std;
 
 namespace base {
 
+static void fclose_if_valid(FILE* f)
+{
+  if (f)
+    fclose(f);
+}
+
 static void throw_cannot_open_exception(const string& filename, const string& mode)
 {
   if (mode.find('w') != string::npos)
@@ -51,12 +58,12 @@ FILE* open_file_raw(const string& filename, const string& mode)
 
 FileHandle open_file(const string& filename, const string& mode)
 {
-  return FileHandle(open_file_raw(filename, mode), fclose);
+  return FileHandle(open_file_raw(filename, mode), fclose_if_valid);
 }
 
 FileHandle open_file_with_exception(const string& filename, const string& mode)
 {
-  FileHandle f(open_file_raw(filename, mode), fclose);
+  FileHandle f(open_file_raw(filename, mode), fclose_if_valid);
   if (!f)
     throw_cannot_open_exception(filename, mode);
   return f;
@@ -101,6 +108,9 @@ void sync_file_descriptor(int fd)
 
 void close_file_and_sync(FILE* file)
 {
+  if (!file)
+    return;
+
   fflush(file);
 #ifdef _WIN32
   int fd = _fileno(file);
