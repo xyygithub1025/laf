@@ -1,6 +1,6 @@
 // LAF OS Library
 // Copyright (c) 2018-2020  Igara Studio S.A.
-// Copyright (C) 2018  David Capello
+// Copyright (c) 2018  David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -21,8 +21,11 @@ public:
   void dispose() override { delete this; }
   void setAppName(const std::string& appName) override { }
   void setAppMode(AppMode appMode) override { }
-  void activateApp() override { }
+
+  void markCliFileAsProcessed(const std::string& fn) override { }
   void finishLaunching() override { }
+  void activateApp() override { }
+
   Capabilities capabilities() const override { return (Capabilities)0; }
   void setTabletAPI(TabletAPI api) override { }
   TabletAPI tabletAPI() const override { return TabletAPI::Default; }

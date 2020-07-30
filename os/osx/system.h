@@ -40,8 +40,8 @@ public:
     OSXApp::instance()->setAppMode(appMode);
   }
 
-  void activateApp() override {
-    OSXApp::instance()->activateApp();
+  void markCliFileAsProcessed(const std::string& fn) override {
+    OSXApp::instance()->markCliFileAsProcessed(fn);
   }
 
   void finishLaunching() override {
@@ -49,6 +49,10 @@ public:
     // calling this we'll receive application:openFiles: and we'll
     // generate DropFiles events.)  events
     OSXApp::instance()->finishLaunching();
+  }
+
+  void activateApp() override {
+    OSXApp::instance()->activateApp();
   }
 
   Logger* logger() override {
