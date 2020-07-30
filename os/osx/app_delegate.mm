@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2020  Igara Studio S.A.
 // Copyright (C) 2012-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -16,7 +17,6 @@
 #include "os/event.h"
 #include "os/event_queue.h"
 #include "os/osx/app.h"
-#include "os/osx/generate_drop_files.h"
 #include "os/osx/view.h"
 #include "os/system.h"
 
@@ -98,8 +98,23 @@
 
 - (BOOL)application:(NSApplication*)app openFiles:(NSArray*)filenames
 {
-  os::queue_event(
-    generate_drop_files_from_nsarray(filenames));
+  // TODO similar to generate_drop_files_from_nsarray() but with a
+  // filter for files that were already processed in the CLI (m_cliFiles)
+
+  base::paths files;
+  for (int i=0; i<[filenames count]; ++i) {
+    NSString* fnString = [filenames objectAtIndex: i];
+    std::string fn = base::normalize_path([fnString UTF8String]);
+    if (m_cliFiles.find(fn) == m_cliFiles.end())
+      files.push_back(fn);
+  }
+
+  if (!files.empty()) {
+    os::Event ev;
+    ev.setType(os::Event::DropFiles);
+    ev.setFiles(files);
+    os::queue_event(ev);
+  }
 
   [app replyToOpenOrPrint:NSApplicationDelegateReplySuccess];
   return YES;
@@ -118,6 +133,17 @@
   }
   else
     return [super validateMenuItem:menuItem];
+}
+
+- (void)markCliFileAsProcessed:(const std::string&)fn
+{
+  m_cliFiles.insert(fn);
+}
+
+- (void)resetCliFiles
+{
+  // After finishLaunching() we clear the filter
+  m_cliFiles.clear();
 }
 
 @end

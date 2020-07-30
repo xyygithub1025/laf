@@ -19,6 +19,7 @@
 
 #include <memory>
 #include <stdexcept>
+#include <string>
 
 namespace os {
 
@@ -43,7 +44,7 @@ namespace os {
       : std::runtime_error(msg) { }
   };
 
-  // API to use to get tablet input information.
+  // Windows-specific details: API to use to get tablet input information.
   enum class TabletAPI {
     // Default tablet API to use in the system (Windows Ink on
     // Windows; only valid value on other systems).
@@ -95,13 +96,27 @@ namespace os {
     // are running in CLI only.
     virtual void setAppMode(AppMode appMode) = 0;
 
-    // We might need to call this function when the app is launched
-    // from Steam. It appears that there is a bug on OS X Steam client
-    // where the app is launched, activated, and then the Steam client
-    // is activated again.
-    virtual void activateApp() = 0;
+    // Marks a specific file as a file that was processed in the CLI.
+    // Only useful on macOS to avoid generating DropFiles events for
+    // files that were processed from the CLI arguments directly.
+    virtual void markCliFileAsProcessed(const std::string& cliFile) = 0;
 
+    // On macOS it calls [NSApplication finishLaunching] that will
+    // produce some extra events like [NSApplicationDelegate
+    // application:openFiles:] which generates os::Event::DropFiles
+    // events for each file specified in the command line.
+    //
+    // You can ignore those DropFiles events if you've already
+    // processed through the CLI arguments (app_main(argc, argv)) or
+    // you can use markCliFileAsProcessed() before calling this
+    // function.
     virtual void finishLaunching() = 0;
+
+    // We might need to call this function when the app is launched
+    // from Steam. It appears that there is a bug on macOS Steam
+    // client where the app is launched, activated, and then the Steam
+    // client is activated again.
+    virtual void activateApp() = 0;
 
     virtual Capabilities capabilities() const = 0;
     bool hasCapability(Capabilities c) const {

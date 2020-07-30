@@ -41,8 +41,10 @@ public:
 
   void setAppName(const std::string& appName) override { }
   void setAppMode(AppMode appMode) override { }
-  void activateApp() override { }
+
+  void markCliFileAsProcessed(const std::string& fn) override { }
   void finishLaunching() override { }
+  void activateApp() override { }
 
   void setTabletAPI(TabletAPI api) override {
     // Do nothing by default

@@ -67,8 +67,9 @@ HCTX WintabAPI::open(HWND hwnd, bool moveMouse)
   if (!m_wintabLib && !loadWintab())
     return nullptr;
 
-  // Log Wintab ID
-  {
+  // Only on INFO or VERBOSE modes for debugging purposes
+  if (base::get_log_level() >= INFO) {
+    // Log Wintab ID
     UINT nchars = WTInfo(WTI_INTERFACE, IFC_WINTABID, nullptr);
     if (nchars > 0 && nchars < 1024) {
       // Some buggy wintab implementations may not report the right
@@ -85,10 +86,8 @@ HCTX WintabAPI::open(HWND hwnd, bool moveMouse)
       WTInfo(WTI_INTERFACE, IFC_WINTABID, &buf[0]);
       LOG("PEN: Wintab ID \"%s\"\n", base::to_utf8(&buf[0]).c_str());
     }
-  }
 
-  // Log Wintab version for debugging purposes
-  {
+    // Log Wintab version
     WORD specVer = 0;
     WORD implVer = 0;
     UINT options = 0;

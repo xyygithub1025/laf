@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2019  Igara Studio S.A.
+// Copyright (C) 2019-2020  Igara Studio S.A.
 // Copyright (C) 2012-2016  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -44,12 +44,17 @@ public:
     }
   }
 
-  void activateApp() {
-    [m_app activateIgnoringOtherApps:YES];
+  void markCliFileAsProcessed(const std::string& fn) {
+    [m_appDelegate markCliFileAsProcessed:fn];
   }
 
   void finishLaunching() {
     [m_app finishLaunching];
+    [m_appDelegate resetCliFiles];
+  }
+
+  void activateApp() {
+    [m_app activateIgnoringOtherApps:YES];
   }
 
 private:
@@ -88,14 +93,19 @@ void OSXApp::setAppMode(AppMode appMode)
   m_impl->setAppMode(appMode);
 }
 
-void OSXApp::activateApp()
+void OSXApp::markCliFileAsProcessed(const std::string& fn)
 {
-  m_impl->activateApp();
+  m_impl->markCliFileAsProcessed(fn);
 }
 
 void OSXApp::finishLaunching()
 {
   m_impl->finishLaunching();
+}
+
+void OSXApp::activateApp()
+{
+  m_impl->activateApp();
 }
 
 } // namespace os
