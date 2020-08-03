@@ -11,6 +11,8 @@
 
 #include "os/app_mode.h"
 
+#include <string>
+
 namespace os {
 
   class OSXApp {
