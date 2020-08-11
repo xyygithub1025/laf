@@ -22,11 +22,7 @@ Hsv::Hsv(double hue, double saturation, double value)
   : m_hue(hue)
   , m_saturation(base::clamp(saturation, 0.0, 1.0))
   , m_value(base::clamp(value, 0.0, 1.0))
-{
-  while (m_hue < 0.0)
-    m_hue += 360.0;
-  m_hue = std::fmod(m_hue, 360.0);
-}
+{ }
 
 // Reference: http://en.wikipedia.org/wiki/HSL_and_HSV
 Hsv::Hsv(const Rgb& rgb)
