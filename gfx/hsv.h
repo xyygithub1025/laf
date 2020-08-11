@@ -10,6 +10,7 @@
 #pragma once
 
 #include "base/clamp.h"
+#include <cmath>
 
 namespace gfx {
 

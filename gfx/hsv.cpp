@@ -12,7 +12,6 @@
 #include "base/clamp.h"
 #include "gfx/hsv.h"
 #include "gfx/rgb.h"
-#include <cmath>
 
 namespace gfx {
 
