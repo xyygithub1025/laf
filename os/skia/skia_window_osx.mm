@@ -165,7 +165,15 @@ public:
                              view.frame.size.height - (bounds.y+bounds.h)*scale,
                              bounds.w*scale,
                              bounds.h*scale)];
+
+#if 0     // Do not refresh immediately. Note: This might be required
+          // for debugging purposes in some scenarios, but now this is
+          // not required in release mode.
+          //
+          // TODO maybe in a future we could add an Display::update()
+          //      or Display::refresh() member function
           [view displayIfNeeded];
+#endif
         }
         break;
 
