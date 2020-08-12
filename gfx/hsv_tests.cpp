@@ -55,8 +55,8 @@ TEST(Hsv, FromRgb)
   EXPECT_EQ(Hsv(240.0, 0.50, 1.00), Hsv(Rgb(128, 128, 255)));
   EXPECT_EQ(Hsv(240.0, 1.00, 1.00), Hsv(Rgb(  0,   0, 255)));
   EXPECT_EQ(Hsv(300.0, 0.66, 0.75), Hsv(Rgb(191,  64, 191)));
-  EXPECT_EQ(Hsv(360.0, 1.00, 0.99), Hsv(Rgb(252,   0,   0)));
-  EXPECT_EQ(Hsv(360.0, 1.00, 1.00), Hsv(Rgb(255,   0,   0)));
+  EXPECT_EQ(Hsv(  0.0, 1.00, 0.99), Hsv(Rgb(252,   0,   0)));
+  EXPECT_EQ(Hsv(  0.0, 1.00, 1.00), Hsv(Rgb(255,   0,   0)));
 }
 
 int main(int argc, char** argv)
