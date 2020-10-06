@@ -379,4 +379,8 @@ typedef RectT<double> RectF;
 
 } // namespace gfx
 
+#ifdef _DEBUG
+#include "gfx/rect_io.h"
+#endif
+
 #endif
