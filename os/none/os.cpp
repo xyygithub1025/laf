@@ -12,6 +12,8 @@
 #include "base/memory.h"
 #include "base/string.h"
 #include "gfx/size.h"
+#include "os/display.h"
+#include "os/font.h"
 #include "os/system.h"
 
 namespace os {
@@ -34,6 +36,8 @@ public:
   EventQueue* eventQueue() override { return nullptr; }
   bool gpuAcceleration() const override { return false; }
   void setGpuAcceleration(bool state) override { }
+  ScreenRef mainScreen() override { return nullptr; }
+  void listScreens(ScreenList& screens) override { }
   gfx::Size defaultNewDisplaySize() override { return gfx::Size(0, 0); }
   Display* defaultDisplay() override { return nullptr; }
   Ref<Display> makeDisplay(int width, int height, int scale) override { return nullptr; }
@@ -43,16 +47,16 @@ public:
                                const os::ColorSpaceRef& colorSpace) override { return nullptr; }
   Ref<Surface> loadSurface(const char* filename) override { return nullptr; }
   Ref<Surface> loadRgbaSurface(const char* filename) override { return nullptr; }
-  FontManager* fontManager() { return nullptr; }
-  Font* loadSpriteSheetFont(const char* filename, int scale) override { return nullptr; }
-  Font* loadTrueTypeFont(const char* filename, int height) override { return nullptr; }
+  FontManager* fontManager() override { return nullptr; }
+  Ref<Font> loadSpriteSheetFont(const char* filename, int scale) override { return nullptr; }
+  Ref<Font> loadTrueTypeFont(const char* filename, int height) override { return nullptr; }
   bool isKeyPressed(KeyScancode scancode) override { return false; }
   KeyModifiers keyModifiers() override { return kKeyNoneModifier; }
   int getUnicodeFromScancode(KeyScancode scancode) override { return 0; }
   void setTranslateDeadKeys(bool state) override { }
   void listColorSpaces(std::vector<os::ColorSpaceRef>& list) override { }
   os::ColorSpaceRef makeColorSpace(const gfx::ColorSpaceRef& cs) override { return nullptr; }
-  std::unique_ptr<ColorSpaceConversion> convertBetweenColorSpace(
+  Ref<ColorSpaceConversion> convertBetweenColorSpace(
     const os::ColorSpaceRef& src, const os::ColorSpaceRef& dst) override { return nullptr; }
   void setDisplaysColorSpace(const os::ColorSpaceRef& cs) override { }
   os::ColorSpaceRef displaysColorSpace() override { return nullptr; }
