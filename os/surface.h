@@ -116,7 +116,7 @@ namespace os {
     void drawCircle(const gfx::PointF& center,
                     float radius,
                     const os::Paint& paint) {
-      drawCircle(center.x, center.y, radius, paint);
+      drawCircle(float(center.x), float(center.y), radius, paint);
     }
 
     void drawCircle(const gfx::Point& center,

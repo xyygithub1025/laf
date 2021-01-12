@@ -101,7 +101,8 @@ namespace gfx {
 
     RectF mapRect(const RectF& src) const {
       SkRect dst;
-      m_skMatrix.mapRect(&dst, SkRect::MakeXYWH(src.x, src.y, src.w, src.h));
+      m_skMatrix.mapRect(&dst, SkRect::MakeXYWH(SkScalar(src.x), SkScalar(src.y),
+                                                SkScalar(src.w), SkScalar(src.h)));
       return RectF(dst.x(), dst.y(), dst.width(), dst.height());
     }
 

@@ -29,13 +29,13 @@ inline SkIRect to_skia(const gfx::Rect& rc) {
 }
 
 inline SkRect to_skia(const gfx::RectF& rc) {
-  return SkRect::MakeXYWH(rc.x, rc.y, rc.w, rc.h);
+  return SkRect::MakeXYWH(SkScalar(rc.x), SkScalar(rc.y), SkScalar(rc.w), SkScalar(rc.h));
 }
 
 inline SkRect to_skia_fix(const gfx::RectF& rc) {
-  return SkRect::MakeXYWH(rc.x, rc.y,
-                          std::max(0.0, rc.w-1),
-                          std::max(0.0, rc.h-1));
+  return SkRect::MakeXYWH(SkScalar(rc.x), SkScalar(rc.y),
+                          SkScalar(std::max(0.0, rc.w-1)),
+                          SkScalar(std::max(0.0, rc.h-1)));
 }
 
 inline void to_skia(const Paint& paint, SkPaint& skPaint) {
