@@ -1,5 +1,5 @@
 // LAF Base Library
-// Copyright (c) 2019  Igara Studio S.A.
+// Copyright (c) 2019-2021 Igara Studio S.A.
 // Copyright (c) 2001-2016 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -32,6 +32,15 @@ namespace base {
       {
         scoped_lock hold(m_mutex);
         result = m_queue.empty();
+      }
+      return result;
+    }
+
+    size_t size() const {
+      size_t result;
+      {
+        scoped_lock hold(m_mutex);
+        result = m_queue.size();
       }
       return result;
     }
