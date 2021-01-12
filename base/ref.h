@@ -120,7 +120,11 @@ namespace base {
     }
 
     Ref<T>& operator=(const Ref<T>& ref) {
-      if (m_ptr) m_ptr->unref();
+      if (m_ptr) {
+        if (m_ptr == ref.m_ptr)
+          return *this;
+        m_ptr->unref();
+      }
       m_ptr = ref.m_ptr;
       if (m_ptr) m_ptr->ref();
       return *this;
