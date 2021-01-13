@@ -59,7 +59,6 @@ if(LAF_BACKEND STREQUAL "skia")
   endif()
   list(APPEND LAF_OS_SOURCES
     skia/os.cpp
-    skia/resize_surface.cpp
     skia/skia_color_space.cpp
     skia/skia_display.cpp
     skia/skia_draw_text.cpp

@@ -17,14 +17,17 @@
 
 namespace os {
 
+void WinEventQueue::queueEvent(const Event& ev)
+{
+  m_events.push(ev);
+}
+
 void WinEventQueue::getEvent(Event& ev, bool canWait)
 {
   MSG msg;
 
   while (m_events.empty()) {
     BOOL res;
-
-    checkResizeDisplayEvent(canWait);
 
     if (canWait) {
       res = GetMessage(&msg, nullptr, 0, 0);

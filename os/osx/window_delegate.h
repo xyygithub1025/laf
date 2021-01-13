@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2020  Igara Studio S.A.
+// Copyright (C) 2020-2021  Igara Studio S.A.
 // Copyright (C) 2015  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -39,6 +39,15 @@ class OSXWindowImpl;
 - (void)windowWillStartLiveResize:(NSNotification*)notification
 {
   m_impl->onStartResizing();
+}
+
+- (NSSize)windowWillResize:(NSWindow*)sender
+                    toSize:(NSSize)frameSize
+{
+  NSView* view = sender.contentView;
+  gfx::Size sz(view.bounds.size.width, view.bounds.size.height);
+  m_impl->onResizing(sz);
+  return frameSize;
 }
 
 - (void)windowDidEndLiveResize:(NSNotification*)notification

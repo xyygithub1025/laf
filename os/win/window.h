@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2020  Igara Studio S.A.
+// Copyright (C) 2018-2021  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -85,6 +85,7 @@ namespace os {
     virtual void onQueueEvent(Event& ev) { }
     virtual void onResize(const gfx::Size& sz) { }
     virtual void onStartResizing() { }
+    virtual void onResizing(gfx::Size& sz) { }
     virtual void onEndResizing() { }
     virtual void onPaint(HDC hdc) { }
     virtual void onChangeColorSpace() { }
@@ -106,7 +107,13 @@ namespace os {
 
     // Used to store the current window position before toggling on
     // full-screen mode.
+#if 0
+    // TODO Restoring WINDOWPLACEMENT doesn't work well when the
+    //      window is maximixed.
     WINDOWPLACEMENT m_restoredPlacement;
+#else
+    gfx::Rect m_restoredFrame;
+#endif
 
     int m_scale;
     bool m_isCreated;

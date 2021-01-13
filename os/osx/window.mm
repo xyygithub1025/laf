@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2020  Igara Studio S.A.
+// Copyright (C) 2019-2020  Igara Studio S.A.
 // Copyright (C) 2012-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -50,6 +50,10 @@ using namespace os;
 
   OSXView* view = [[OSXView alloc] initWithFrame:rect];
   [view setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
+
+  // Redraw the entire window content when we resize it.
+  // TODO add support to avoid redrawing the entire window
+  self.preservesContentDuringLiveResize = false;
 
   [self setDelegate:m_delegate];
   [self setContentView:view];

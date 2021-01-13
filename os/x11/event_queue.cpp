@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2019  Igara Studio S.A.
+// Copyright (C) 2019-2021  Igara Studio S.A.
 // Copyright (C) 2016-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -66,10 +66,13 @@ const char* get_event_name(XEvent& event)
 } // anonymous namespace
 #endif
 
+void X11EventQueue::queueEvent(const Event& ev)
+{
+  m_events.push(ev);
+}
+
 void X11EventQueue::getEvent(Event& ev, bool canWait)
 {
-  checkResizeDisplayEvent(canWait);
-
   ::Display* display = X11::instance()->display();
   XSync(display, False);
 

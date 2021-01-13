@@ -25,6 +25,7 @@ public:
   bool isInitialized() const { return m_initialized; }
   void setSkiaSurface(SkiaSurface* surface);
   void resetSkiaSurface();
+  void resizeSkiaSurface(const gfx::Size& size);
 
   void resize(const gfx::Size& size);
 
@@ -73,8 +74,6 @@ public:
   os::ColorSpaceRef colorSpace() const override { return m_colorSpace; }
   void setColorSpace(const os::ColorSpaceRef& colorSpace);
   os::ColorSpaceRef currentMonitorColorSpace() const;
-
-  void resetSurfaceAndQueueResizeDisplayEvent();
 
   void onTabletAPIChange();
 

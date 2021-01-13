@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (c) 2018-2020  Igara Studio S.A.
+// Copyright (C) 2018-2021  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -46,16 +46,18 @@ void SkiaDisplay::resetSkiaSurface()
     m_surface = nullptr;
 
   m_customSurface = false;
-  resize(m_window.clientSize());
+  resizeSkiaSurface(m_window.clientSize());
 }
 
-void SkiaDisplay::resize(const gfx::Size& size)
+void SkiaDisplay::resizeSkiaSurface(const gfx::Size& size)
 {
   if (!m_initialized || m_customSurface)
     return;
 
   gfx::Size newSize(size.w / m_window.scale(),
                     size.h / m_window.scale());
+  newSize.w = std::max(1, newSize.w);
+  newSize.h = std::max(1, newSize.h);
 
   if (m_initialized &&
       m_surface &&
@@ -136,19 +138,6 @@ bool SkiaDisplay::isFullscreen() const
 void SkiaDisplay::setFullscreen(bool state)
 {
   m_window.setFullscreen(state);
-}
-
-void SkiaDisplay::resetSurfaceAndQueueResizeDisplayEvent()
-{
-  // Redraw the full skia surface
-  if (m_surface)
-    resetSkiaSurface();
-
-  // Generate the resizing display event to redraw everything.
-  Event ev;
-  ev.setType(Event::ResizeDisplay);
-  ev.setDisplay(this);
-  os::queue_event(ev);
 }
 
 void SkiaDisplay::setTitle(const std::string& title)

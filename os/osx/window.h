@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2020  Igara Studio S.A.
+// Copyright (C) 2018-2021  Igara Studio S.A.
 // Copyright (C) 2012-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -36,6 +36,7 @@ public:
   virtual void onDrawRect(const gfx::Rect& rect) = 0;
   virtual void onWindowChanged() = 0;
   virtual void onStartResizing() = 0;
+  virtual void onResizing(gfx::Size& size) = 0;
   virtual void onEndResizing() = 0;
 
   // This generally happens when the window is moved to another

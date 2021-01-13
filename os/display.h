@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (c) 2018-2020  Igara Studio S.A.
+// Copyright (c) 2018-2021  Igara Studio S.A.
 // Copyright (c) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -15,6 +15,7 @@
 #include "os/ref.h"
 #include "os/surface_list.h"
 
+#include <functional>
 #include <string>
 
 namespace os {
@@ -29,6 +30,14 @@ namespace os {
     typedef void* NativeHandle;
 
     virtual ~Display() { }
+
+    // Function called to handle a "live resize"/resizing loop. If
+    // this is nullptr, an Event::ResizeDisplay is generated when the
+    // resizing is finished.
+    //
+    // TODO I think we should have a DisplayDelegate for this instead
+    //      of a public property.
+    std::function<void(os::Display*)> handleResize = nullptr;
 
     // Returns the real and current display's size (without scale applied).
     virtual int width() const = 0;

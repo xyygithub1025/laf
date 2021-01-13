@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2021  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -9,7 +10,6 @@
 #pragma once
 
 #include "base/disable_copying.h"
-#include "os/skia/resize_surface.h"
 #include "os/skia/skia_surface.h"
 #include "os/win/window.h"
 
@@ -35,6 +35,7 @@ private:
   void onQueueEvent(Event& ev) override;
   void onPaint(HDC hdc) override;
   void onResize(const gfx::Size& sz) override;
+  void onStartResizing() override;
   void onEndResizing() override;
   void onChangeColorSpace() override;
   void paintHDC(HDC dc);
@@ -50,8 +51,8 @@ private:
 
   EventQueue* m_queue;
   SkiaDisplay* m_display;
-  ResizeSurface m_resizeSurface;
   Backend m_backend;
+  bool m_resizing = false;
 #if SK_SUPPORT_GPU
   std::unique_ptr<GLContext> m_glCtx;
   sk_sp<const GrGLInterface> m_glInterfaces;

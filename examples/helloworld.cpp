@@ -1,5 +1,5 @@
 // LAF Library
-// Copyright (c) 2019-2020  Igara Studio S.A.
+// Copyright (c) 2019-2021  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -39,6 +39,7 @@ int app_main(int argc, char* argv[])
 
   display->setNativeMouseCursor(os::kArrowCursor);
   display->setTitle("Hello World");
+  display->handleResize = draw_display;
 
   // On macOS: With finishLaunching() we start processing
   // NSApplicationDelegate events. After calling this we'll start
@@ -92,6 +93,12 @@ int app_main(int argc, char* argv[])
             display->setScale(1 + (int)(ev.scancode() - os::kKey1));
             redraw = true;
             break;
+
+          case os::kKeyF:
+          case os::kKeyF11:
+            display->setFullscreen(!display->isFullscreen());
+            break;
+
           default:
             // Do nothing
             break;

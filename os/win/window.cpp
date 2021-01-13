@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2020  Igara Studio S.A.
+// Copyright (C) 2018-2021  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -332,10 +332,19 @@ void WinWindow::setFullscreen(bool state)
     if (!GetMonitorInfoA(monitor, &mi))
       return;                   // Invalid monitor info?
 
-    // Save the current window position to restore it when we exit the
-    // full screen mode.
+    // Save the current window frame position to restore it when we
+    // exit the full screen mode.
+#if 0
     m_restoredPlacement.length = sizeof(WINDOWPLACEMENT);
     GetWindowPlacement(m_hwnd, &m_restoredPlacement);
+#else
+    {
+      RECT rc;
+      GetWindowRect(m_hwnd, &rc);
+      m_restoredFrame = gfx::Rect(rc.left, rc.top,
+                                  rc.right - rc.left, rc.bottom - rc.top);
+    }
+#endif
 
     LONG style = GetWindowLong(m_hwnd, GWL_STYLE);
     style &= ~(WS_CAPTION | WS_THICKFRAME);
@@ -346,14 +355,23 @@ void WinWindow::setFullscreen(bool state)
                  (mi.rcMonitor.right - mi.rcMonitor.left),
                  (mi.rcMonitor.bottom - mi.rcMonitor.top),
                  SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
-
   }
   // Exit from full screen mode
   else if (currentFullscreen && !state) {
     LONG style = GetWindowLong(m_hwnd, GWL_STYLE);
     style |= WS_CAPTION | WS_THICKFRAME;
     SetWindowLong(m_hwnd, GWL_STYLE, style);
+
+    // On restore, resize to the previous saved rect size.
+#if 0
     SetWindowPlacement(m_hwnd, &m_restoredPlacement);
+#else
+    SetWindowPos(m_hwnd, nullptr,
+                 m_restoredFrame.x, m_restoredFrame.y,
+                 m_restoredFrame.w, m_restoredFrame.h,
+                 SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+#endif
+
     onResize(m_clientSize);
   }
 }

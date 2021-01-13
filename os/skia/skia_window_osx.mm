@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2020  Igara Studio S.A.
+// Copyright (C) 2018-2021  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -22,7 +22,6 @@
 #include "os/osx/event_queue.h"
 #include "os/osx/view.h"
 #include "os/osx/window.h"
-#include "os/skia/resize_surface.h"
 #include "os/skia/skia_color_space.h"
 #include "os/skia/skia_display.h"
 #include "os/skia/skia_surface.h"
@@ -267,15 +266,17 @@ public:
       createRenderTarget(size);
 #endif
 
-    m_display->resize(size);
-    if (m_resizeSurface) {
-      m_resizeSurface.draw(m_display);
-      if (m_backend == Backend::GL)
-        invalidateRegion(gfx::Region(gfx::Rect(size)));
-    }
+    m_display->resizeSkiaSurface(size);
+    if (m_backend == Backend::GL)
+      invalidateRegion(gfx::Region(gfx::Rect(size)));
   }
 
   void onDrawRect(const gfx::Rect& rect) override {
+    if (m_window.contentView.inLiveResize) {
+      if (m_display->handleResize)
+        m_display->handleResize(m_display);
+    }
+
     switch (m_backend) {
 
       case Backend::NONE:
@@ -300,20 +301,26 @@ public:
   void onStartResizing() override {
     if (++m_resizingCount > 1)
       return;
+  }
 
-    ASSERT(!m_resizeSurface);
-    m_resizeSurface.make(m_display);
+  void onResizing(gfx::Size& size) override {
+    m_display->resizeSkiaSurface(size);
+    if (m_display->handleResize) {
+      m_display->handleResize(m_display);
+    }
   }
 
   void onEndResizing() override {
     if (--m_resizingCount > 0)
       return;
 
-    ASSERT(m_resizeSurface);
-    m_resizeSurface.reset();
-
     // Generate the resizing display event for the user.
-    m_display->resetSurfaceAndQueueResizeDisplayEvent();
+    if (!m_display->handleResize) {
+      Event ev;
+      ev.setType(Event::ResizeDisplay);
+      ev.setDisplay(m_display);
+      os::queue_event(ev);
+    }
   }
 
   void onChangeBackingProperties() override {
@@ -562,8 +569,6 @@ private:
   // and windowWill/DidStart/EndLiveResize notifications.
   int m_resizingCount = 0;
 
-  // Surface used for live resizing.
-  ResizeSurface m_resizeSurface;
 
 #if SK_SUPPORT_GPU
   sk_sp<const GrGLInterface> m_glInterfaces;
