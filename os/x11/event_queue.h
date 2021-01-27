@@ -12,7 +12,7 @@
 #include "os/event_queue.h"
 #include "os/x11/x11.h"
 
-#include <queue>
+#include <deque>
 
 namespace os {
 
@@ -21,13 +21,15 @@ public:
   void queueEvent(const Event& ev) override;
   void getEvent(Event& ev, bool canWait) override;
 
+  void clear();
+
 private:
   void processX11Event(XEvent& event);
 
-  std::queue<Event> m_events;
+  std::deque<Event> m_events;
 };
 
-typedef X11EventQueue EventQueueImpl;
+using EventQueueImpl = X11EventQueue;
 
 } // namespace os
 

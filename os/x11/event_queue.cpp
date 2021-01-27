@@ -68,7 +68,7 @@ const char* get_event_name(XEvent& event)
 
 void X11EventQueue::queueEvent(const Event& ev)
 {
-  m_events.push(ev);
+  m_events.push_back(ev);
 }
 
 void X11EventQueue::getEvent(Event& ev, bool canWait)
@@ -95,8 +95,13 @@ void X11EventQueue::getEvent(Event& ev, bool canWait)
   }
   else {
     ev = m_events.front();
-    m_events.pop();
+    m_events.pop_front();
   }
+}
+
+void X11EventQueue::clear()
+{
+  m_events.clear();
 }
 
 void X11EventQueue::processX11Event(XEvent& event)
