@@ -1,0 +1,71 @@
+// LAF OS Library
+// Copyright (C) 2019-2021  Igara Studio S.A.
+//
+// This file is released under the terms of the MIT license.
+// Read LICENSE.txt for more information.
+
+#ifndef OS_DISPLAY_SPEC_H_INCLUDED
+#define OS_DISPLAY_SPEC_H_INCLUDED
+#pragma once
+
+#include "gfx/rect.h"
+#include "gfx/size.h"
+#include "os/screen.h"
+
+namespace os {
+
+  class DisplaySpec {
+  public:
+    // Position of the window by default
+    enum class Position {
+      Default,       // Default position selected by the OS (e.g. on Windows it is CW_USEDEFAULT)
+      Frame,         // Position the window in the exact frame() coordinates
+      ContentRect,   // Position the window leaving the client area origin in the exact contentRect() coordinates
+      Center,
+    };
+
+    DisplaySpec() {
+    }
+
+    DisplaySpec(int width, int height, int scale = 1)
+      : m_contentRect(0, 0, width, height)
+      , m_scale(scale) {
+    }
+
+    Position position() const { return m_position; }
+    bool titled() const { return m_titled; }
+    bool closable() const { return m_closable; }
+    bool miniaturizable() const { return m_miniaturizable; }
+    bool resizable() const { return m_resizable; }
+
+    void position(const Position p) { m_position = p; }
+    void titled(const bool s) { m_titled = s; }
+    void closable(const bool s) { m_closable = s; }
+    void miniaturizable(const bool s) { m_miniaturizable = s; }
+    void resizable(const bool s) { m_resizable = s; }
+
+    const gfx::Rect& frame() const { return m_frame; }
+    const gfx::Rect& contentRect() const { return m_contentRect; }
+    int scale() const { return m_scale; }
+    const ScreenRef& screen() const { return m_screen; }
+
+    void frame(const gfx::Rect& frame) { m_frame = frame; }
+    void contentRect(const gfx::Rect& contentRect) { m_contentRect = contentRect; }
+    void scale(const int scale) { m_scale = scale; }
+    void screen(const ScreenRef& screen) { m_screen = screen; }
+
+  private:
+    Position m_position = Position::Default;
+    bool m_titled = true;
+    bool m_closable = true;
+    bool m_miniaturizable = true;
+    bool m_resizable = true;
+    gfx::Rect m_frame;
+    gfx::Rect m_contentRect;
+    int m_scale = 1;
+    ScreenRef m_screen;
+  };
+
+} // namespace os
+
+#endif

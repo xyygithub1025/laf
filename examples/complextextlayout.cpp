@@ -1,5 +1,5 @@
 // LAF Library
-// Copyright (c) 2019-2020  Igara Studio S.A.
+// Copyright (c) 2019-2021  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -82,7 +82,7 @@ int app_main(int argc, char* argv[])
   os::SystemRef system = os::make_system();
   system->setAppMode(os::AppMode::GUI);
 
-  os::DisplayRef display = system->makeDisplay(400, 300, 1);
+  os::DisplayRef display = system->makeDisplay(400, 300);
 
   // TODO use new fonts (SkFont wrappers with system->fontManager())
   font = os::instance()->loadTrueTypeFont("/Library/Fonts/Arial Unicode.ttf", 32);

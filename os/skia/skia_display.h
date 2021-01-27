@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (c) 2018-2020  Igara Studio S.A.
+// Copyright (c) 2018-2021  Igara Studio S.A.
 // Copyright (c) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -16,18 +16,20 @@
 
 namespace os {
 
+class DisplaySpec;
 class SkiaSurface;
 
 class SkiaDisplay : public Display {
 public:
-  SkiaDisplay(int width, int height, int scale);
+  SkiaDisplay(const DisplaySpec& spec);
 
   bool isInitialized() const { return m_initialized; }
   void setSkiaSurface(SkiaSurface* surface);
   void resetSkiaSurface();
   void resizeSkiaSurface(const gfx::Size& size);
 
-  void resize(const gfx::Size& size);
+  gfx::Rect frame() const override;
+  gfx::Rect contentRect() const override;
 
   // Returns the real and current display's size (without scale applied).
   int width() const override;
@@ -39,6 +41,9 @@ public:
 
   int scale() const override;
   void setScale(int scale) override;
+
+  bool isVisible() const override;
+  void setVisible(bool visible) override;
 
   // Returns the main surface to draw into this display.
   // You must not dispose this surface.
@@ -53,6 +58,7 @@ public:
   bool isMinimized() const override;
   bool isFullscreen() const override;
   void setFullscreen(bool state) override;
+  std::string title() const override;
   void setTitle(const std::string& title) override;
   void setIcons(const SurfaceList& icons) override;
   NativeCursor nativeMouseCursor() override;
@@ -71,6 +77,7 @@ public:
 
   void setTranslateDeadKeys(bool state);
 
+  os::ScreenRef screen() const override;
   os::ColorSpaceRef colorSpace() const override { return m_colorSpace; }
   void setColorSpace(const os::ColorSpaceRef& colorSpace);
   os::ColorSpaceRef currentMonitorColorSpace() const;

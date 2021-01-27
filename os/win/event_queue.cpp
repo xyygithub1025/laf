@@ -26,6 +26,8 @@ void WinEventQueue::getEvent(Event& ev, bool canWait)
 {
   MSG msg;
 
+  ev.setDisplay(nullptr);
+
   while (m_events.empty()) {
     BOOL res;
 

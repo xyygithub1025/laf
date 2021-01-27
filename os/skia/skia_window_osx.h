@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2020  Igara Studio S.A.
+// Copyright (C) 2018-2021  Igara Studio S.A.
 // Copyright (C) 2012-2016  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -12,11 +12,13 @@
 #include "base/disable_copying.h"
 #include "os/color_space.h"
 #include "os/native_cursor.h"
+#include "os/screen.h"
 
 #include <string>
 
 namespace os {
 
+class DisplaySpec;
 class EventQueue;
 class SkiaDisplay;
 class Surface;
@@ -26,12 +28,14 @@ public:
   enum class Backend { NONE, GL };
 
   SkiaWindow(EventQueue* queue, SkiaDisplay* display,
-             int width, int height, int scale);
+             const DisplaySpec& spec);
   ~SkiaWindow();
 
+  os::ScreenRef screen() const;
   os::ColorSpaceRef colorSpace() const;
   int scale() const;
   void setScale(int scale);
+  bool isVisible() const;
   void setVisible(bool visible);
   void maximize();
   bool isMaximized() const;
@@ -40,6 +44,9 @@ public:
   void setFullscreen(bool state);
   gfx::Size clientSize() const;
   gfx::Size restoredSize() const;
+  gfx::Rect frame() const;
+  gfx::Rect contentRect() const;
+  std::string title() const;
   void setTitle(const std::string& title);
   void captureMouse();
   void releaseMouse();
@@ -58,7 +65,7 @@ private:
   void destroyImpl();
 
   class Impl;
-  Impl* m_impl;
+  Impl* __strong m_impl;
 
   DISABLE_COPYING(SkiaWindow);
 };

@@ -18,7 +18,6 @@
 #include "gfx/size.h"
 #include "os/event.h"
 #include "os/event_queue.h"
-#include "os/osx/color_space.h"
 #include "os/osx/event_queue.h"
 #include "os/osx/view.h"
 #include "os/osx/window.h"
@@ -47,8 +46,8 @@ namespace os {
 
 class SkiaWindow::Impl : public OSXWindowImpl {
 public:
-  Impl(EventQueue* queue, SkiaDisplay* display,
-       int width, int height, int scale)
+  Impl(SkiaDisplay* display,
+       const DisplaySpec& spec)
     : m_display(display)
 #if SK_SUPPORT_GPU
     , m_nsGL(nil)
@@ -56,10 +55,8 @@ public:
     , m_skSurface(nullptr)
 #endif
   {
-    m_window = [[OSXWindow alloc] initWithImpl:this
-                                         width:width
-                                        height:height
-                                         scale:scale];
+    m_closing = false;
+    createWindow(spec);
   }
 
   ~Impl() {
@@ -69,42 +66,20 @@ public:
 #endif
   }
 
-  gfx::Size clientSize() const {
-    return [m_window clientSize];
-  }
-
-  gfx::Size restoredSize() const {
-    return [m_window restoredSize];
-  }
-
-  os::ColorSpaceRef colorSpace() const {
-    ASSERT(m_window);
-    if (auto defaultCS = os::instance()->displaysColorSpace())
-      return defaultCS;
-
-    return convert_nscolorspace_to_os_colorspace([m_window colorSpace]);
-  }
-
-  int scale() const {
-    return [m_window scale];
-  }
-
-  void setScale(int scale) {
-    [m_window setScale:scale];
+  bool isVisible() const {
+    return m_window.isVisible;
   }
 
   void setVisible(bool visible) {
     if (visible) {
-      // Make the first OSXWindow as the main one.
-      [m_window makeKeyAndOrderFront:nil];
-
       // The main window can be changed only when the NSWindow
       // is visible (i.e. when NSWindow::canBecomeMainWindow
       // returns YES).
-      [m_window makeMainWindow];
+      if (m_window.canBecomeMainWindow)
+        [m_window makeMainWindow];
     }
     else {
-      [m_window close];
+      [m_window setIsVisible:false];
     }
   }
 
@@ -129,6 +104,10 @@ public:
       if (isFullscreen())
         [m_window toggleFullScreen:m_window];
     }
+  }
+
+  std::string title() const {
+    return [m_window.title UTF8String];
   }
 
   void setTitle(const std::string& title) {
@@ -236,7 +215,7 @@ public:
   // OSXWindowImpl impl
 
   void onQueueEvent(Event& ev) override {
-    ev.setDisplay(m_display);
+    ev.setDisplay(AddRef(m_display));
     os::queue_event(ev);
   }
 
@@ -318,7 +297,7 @@ public:
     if (!m_display->handleResize) {
       Event ev;
       ev.setType(Event::ResizeDisplay);
-      ev.setDisplay(m_display);
+      ev.setDisplay(AddRef(m_display));
       os::queue_event(ev);
     }
   }
@@ -531,6 +510,7 @@ private:
     @autoreleasepool {
       NSGraphicsContext* gc = [NSGraphicsContext currentContext];
       CGContextRef cg = (CGContextRef)[gc graphicsPort];
+      // TODO we can be in other displays (non-main display)
       CGColorSpaceRef colorSpace = CGDisplayCopyColorSpace(CGMainDisplayID());
       CGImageRef img = SkCreateCGImageRefWithColorspace(bitmap, colorSpace);
       if (img) {
@@ -562,13 +542,11 @@ private:
   SkiaDisplay* m_display = nullptr;
   Backend m_backend = Backend::NONE;
   bool m_closing = false;
-  OSXWindow* m_window = nullptr;
 
   // Counter used to match each onStart/EndResizing() call because we
   // can receive multiple calls in case of windowWill/DidEnter/ExitFullScreen
   // and windowWill/DidStart/EndLiveResize notifications.
   int m_resizingCount = 0;
-
 
 #if SK_SUPPORT_GPU
   sk_sp<const GrGLInterface> m_glInterfaces;
@@ -581,9 +559,8 @@ private:
 };
 
 SkiaWindow::SkiaWindow(EventQueue* queue, SkiaDisplay* display,
-                       int width, int height, int scale)
-  : m_impl(new Impl(queue, display,
-                    width, height, scale))
+                       const DisplaySpec& spec)
+  : m_impl(new Impl(display, spec))
 {
 }
 
@@ -596,6 +573,14 @@ void SkiaWindow::destroyImpl()
 {
   delete m_impl;
   m_impl = nullptr;
+}
+
+ScreenRef SkiaWindow::screen() const
+{
+  if (m_impl)
+    return m_impl->screen();
+  else
+    return nullptr;
 }
 
 ColorSpaceRef SkiaWindow::colorSpace() const
@@ -618,6 +603,14 @@ void SkiaWindow::setScale(int scale)
 {
   if (m_impl)
     m_impl->setScale(scale);
+}
+
+bool SkiaWindow::isVisible() const
+{
+  if (!m_impl)
+    return false;
+
+  return m_impl->isVisible();
 }
 
 void SkiaWindow::setVisible(bool visible)
@@ -673,6 +666,30 @@ gfx::Size SkiaWindow::restoredSize() const
     return gfx::Size(0, 0);
 
   return m_impl->restoredSize();
+}
+
+gfx::Rect SkiaWindow::frame() const
+{
+  if (m_impl)
+    return m_impl->frame();
+  else
+    return gfx::Rect(0, 0, 0, 0);
+}
+
+gfx::Rect SkiaWindow::contentRect() const
+{
+  if (m_impl)
+    return m_impl->contentRect();
+  else
+    return gfx::Rect(0, 0, 0, 0);
+}
+
+std::string SkiaWindow::title() const
+{
+  if (m_impl)
+    return m_impl->title();
+  else
+    return std::string();
 }
 
 void SkiaWindow::setTitle(const std::string& title)

@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2020  Igara Studio S.A.
+// Copyright (C) 2018-2021  Igara Studio S.A.
 // Copyright (C) 2016-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -10,12 +10,14 @@
 #pragma once
 
 #include "base/time.h"
+#include "gfx/border.h"
 #include "gfx/color_space.h"    // Include here avoid error with None
 #include "gfx/fwd.h"
 #include "gfx/size.h"
 #include "os/color_space.h"
 #include "os/event.h"
 #include "os/native_cursor.h"
+#include "os/screen.h"
 #include "os/surface_list.h"
 
 #include <X11/Xatom.h>
@@ -28,25 +30,34 @@
 
 namespace os {
 
+class DisplaySpec;
 class Surface;
 
 class X11Window {
 public:
-  X11Window(::Display* display, int width, int height, int scale);
+  X11Window(::Display* display, const DisplaySpec& spec);
   ~X11Window();
 
   void queueEvent(Event& ev);
 
+  os::ScreenRef screen() const;
   os::ColorSpaceRef colorSpace() const;
 
   int scale() const { return m_scale; }
   void setScale(const int scale);
+
+  bool isVisible() const;
+  void setVisible(bool visible);
 
   bool isFullscreen() const;
   void setFullscreen(bool state);
 
   void setTitle(const std::string& title);
   void setIcons(const SurfaceList& icons);
+
+  gfx::Rect frame() const;
+  gfx::Rect contentRect() const;
+  std::string title() const;
 
   gfx::Size clientSize() const;
   gfx::Size restoredSize() const;
@@ -90,6 +101,8 @@ private:
   int m_scale;
   gfx::Point m_lastMousePos;
   gfx::Size m_lastClientSize;
+  gfx::Border m_frameExtents;
+  bool m_initializingFromFrame = false;
   bool m_fullScreen = false;
 
   // Double-click info

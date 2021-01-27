@@ -40,6 +40,10 @@ namespace base {
         delete (T*)this;
     }
 
+#ifdef _DEBUG   // For debugging purposes only (TRACE, TRACEARGS, etc.)
+    uint32_t ref_count() const { return m_ref; }
+#endif
+
   private:
     std::atomic<uint32_t> m_ref;
   };

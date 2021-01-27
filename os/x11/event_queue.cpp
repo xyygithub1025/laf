@@ -73,6 +73,8 @@ void X11EventQueue::queueEvent(const Event& ev)
 
 void X11EventQueue::getEvent(Event& ev, bool canWait)
 {
+  ev.setDisplay(nullptr);
+
   ::Display* display = X11::instance()->display();
   XSync(display, False);
 

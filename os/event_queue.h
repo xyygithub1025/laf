@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2021  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -18,7 +19,7 @@ namespace os {
     virtual void getEvent(Event& ev, bool canWait) = 0;
     virtual void queueEvent(const Event& ev) = 0;
 
-    // On MacOS X we need the EventQueue before the creation of the
+    // On macOS we need the EventQueue before the creation of the
     // System. E.g. when we double-click a file an Event to open that
     // file is queued in application:openFile:, code which is executed
     // before the user's main() code.

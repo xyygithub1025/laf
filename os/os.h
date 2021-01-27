@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (c) 2019-2020  Igara Studio S.A.
+// Copyright (c) 2019-2021  Igara Studio S.A.
 // Copyright (c) 2012-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -15,6 +15,7 @@
 #include "gfx/size.h"
 #include "os/capabilities.h"
 #include "os/display.h"
+#include "os/display_spec.h"
 #include "os/draw_text.h"
 #include "os/error.h"
 #include "os/event.h"

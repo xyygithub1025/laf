@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2020  Igara Studio S.A.
+// Copyright (C) 2020-2021  Igara Studio S.A.
 // Copyright (C) 2012-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -68,7 +68,7 @@
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication*)sender
 {
   os::Event ev;
-  ev.setType(os::Event::CloseDisplay);
+  ev.setType(os::Event::CloseApp);
   os::queue_event(ev);
   return NSTerminateCancel;
 }

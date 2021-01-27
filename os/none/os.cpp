@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (c) 2018-2020  Igara Studio S.A.
+// Copyright (c) 2018-2021  Igara Studio S.A.
 // Copyright (c) 2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -40,7 +40,7 @@ public:
   void listScreens(ScreenList& screens) override { }
   gfx::Size defaultNewDisplaySize() override { return gfx::Size(0, 0); }
   Display* defaultDisplay() override { return nullptr; }
-  Ref<Display> makeDisplay(int width, int height, int scale) override { return nullptr; }
+  Ref<Display> makeDisplay(const DisplaySpec& spec) override { return nullptr; }
   Ref<Surface> makeSurface(int width, int height,
                            const os::ColorSpaceRef& colorSpace) override { return nullptr; }
   Ref<Surface> makeRgbaSurface(int width, int height,

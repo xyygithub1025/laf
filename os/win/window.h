@@ -15,6 +15,7 @@
 #include "os/event.h"
 #include "os/native_cursor.h"
 #include "os/pointer_type.h"
+#include "os/screen.h"
 #include "os/win/wintab.h"
 
 #include <string>
@@ -24,18 +25,21 @@
 #define OS_USE_POINTER_API_FOR_MOUSE 0
 
 namespace os {
+  class DisplaySpec;
   class Surface;
   class WindowSystem;
 
   class WinWindow {
   public:
-    WinWindow(int width, int height, int scale);
+    WinWindow(const DisplaySpec& spec);
     ~WinWindow();
 
     void queueEvent(Event& ev);
+    os::ScreenRef screen() const;
     os::ColorSpaceRef colorSpace() const;
     int scale() const { return m_scale; }
     void setScale(int scale);
+    bool isVisible() const;
     void setVisible(bool visible);
     void maximize();
     bool isMaximized() const;
@@ -44,6 +48,9 @@ namespace os {
     void setFullscreen(bool state);
     gfx::Size clientSize() const;
     gfx::Size restoredSize() const;
+    gfx::Rect frame() const;
+    gfx::Rect contentRect() const;
+    std::string title() const;
     void setTitle(const std::string& title);
     void captureMouse();
     void releaseMouse();
@@ -85,13 +92,12 @@ namespace os {
     virtual void onQueueEvent(Event& ev) { }
     virtual void onResize(const gfx::Size& sz) { }
     virtual void onStartResizing() { }
-    virtual void onResizing(gfx::Size& sz) { }
     virtual void onEndResizing() { }
     virtual void onPaint(HDC hdc) { }
     virtual void onChangeColorSpace() { }
 
     static void registerClass();
-    static HWND createHwnd(WinWindow* self, int width, int height);
+    static HWND createHwnd(WinWindow* self, const DisplaySpec& spec);
     static LRESULT CALLBACK staticWndProc(
       HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
     static void CALLBACK staticInteractionContextCallback(
@@ -117,6 +123,11 @@ namespace os {
 
     int m_scale;
     bool m_isCreated;
+    // Since Windows Vista, it looks like Microsoft decided to change
+    // the meaning of the window position to the shadow position (when
+    // the DWM is enabled). So this flag is true in case we have to
+    // adjust the real position we want to put the window.
+    bool m_adjustShadow;
     bool m_translateDeadKeys;
     bool m_hasMouse;
     bool m_captureMouse;

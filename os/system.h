@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2020  Igara Studio S.A.
+// Copyright (C) 2018-2021  Igara Studio S.A.
 // Copyright (C) 2012-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -13,6 +13,8 @@
 #include "os/app_mode.h"
 #include "os/capabilities.h"
 #include "os/color_space.h"
+#include "os/display.h"
+#include "os/display_spec.h"
 #include "os/keys.h"
 #include "os/ref.h"
 #include "os/screen.h"
@@ -24,7 +26,6 @@
 namespace os {
 
   class ColorSpaceConversion;
-  class Display;
   class EventQueue;
   class Font;
   class FontManager;
@@ -149,7 +150,17 @@ namespace os {
 
     virtual gfx::Size defaultNewDisplaySize() = 0;
     virtual Display* defaultDisplay() = 0;
-    virtual Ref<Display> makeDisplay(int width, int height, int scale) = 0;
+
+    // Creates a new window in the operating system with the given
+    // specs (width, height, etc.).
+    virtual DisplayRef makeDisplay(const DisplaySpec& spec) = 0;
+
+    DisplayRef makeDisplay(const int contentWidth,
+                           const int contentHeight,
+                           const int scale = 1) {
+      return makeDisplay(DisplaySpec(contentWidth, contentHeight, scale));
+    }
+
     virtual Ref<Surface> makeSurface(int width, int height, const os::ColorSpaceRef& colorSpace = nullptr) = 0;
     virtual Ref<Surface> makeRgbaSurface(int width, int height, const os::ColorSpaceRef& colorSpace = nullptr) = 0;
     virtual Ref<Surface> loadSurface(const char* filename) = 0;

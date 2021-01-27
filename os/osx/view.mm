@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2020  Igara Studio S.A.
+// Copyright (C) 2018-2021  Igara Studio S.A.
 // Copyright (C) 2015-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -147,6 +147,16 @@ using namespace os;
     }
   }
   return self;
+}
+
+- (void)dealloc
+{
+  [self destroyMouseTrackingArea];
+}
+
+- (void)removeImpl
+{
+  m_impl = nullptr;
 }
 
 - (BOOL)acceptsFirstResponder
@@ -561,8 +571,10 @@ using namespace os;
 
 - (void)destroyMouseTrackingArea
 {
-  [self removeTrackingArea:m_trackingArea];
-  m_trackingArea = nil;
+  if (m_trackingArea) {
+    [self removeTrackingArea:m_trackingArea];
+    m_trackingArea = nil;
+  }
 }
 
 - (void)updateCurrentCursor
@@ -613,7 +625,6 @@ using namespace os;
 
 - (void)queueEvent:(os::Event&)ev
 {
-  ASSERT(m_impl);
   if (m_impl)
     m_impl->queueEvent(ev);
   else

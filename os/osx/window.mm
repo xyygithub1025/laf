@@ -12,6 +12,7 @@
 #include "os/osx/window.h"
 
 #include "base/debug.h"
+#include "os/display_spec.h"
 #include "os/event.h"
 #include "os/osx/event_queue.h"
 #include "os/osx/view.h"
@@ -23,21 +24,43 @@ using namespace os;
 @implementation OSXWindow
 
 - (OSXWindow*)initWithImpl:(OSXWindowImpl*)impl
-                     width:(int)width
-                    height:(int)height
-                     scale:(int)scale
+                      spec:(const DisplaySpec*)spec
 {
   m_impl = impl;
-  m_scale = scale;
+  m_scale = spec->scale();
 
-  NSRect rect = NSMakeRect(0, 0, width, height);
-  self = [self initWithContentRect:rect
-                         styleMask:(NSWindowStyleMaskTitled |
-                                    NSWindowStyleMaskClosable |
-                                    NSWindowStyleMaskMiniaturizable |
-                                    NSWindowStyleMaskResizable)
+  NSWindowStyleMask style = NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable;
+  if (spec->titled()) style |= NSWindowStyleMaskTitled;
+  if (spec->resizable()) style |= NSWindowStyleMaskResizable;
+
+  NSRect contentRect;
+  if (!spec->contentRect().isEmpty()) {
+    contentRect =
+      NSMakeRect(spec->contentRect().x, spec->contentRect().y,
+                 spec->contentRect().w, spec->contentRect().h);
+  }
+  else if (!spec->frame().isEmpty()) {
+    NSRect frameRect =
+      NSMakeRect(spec->frame().x, spec->frame().y,
+                 spec->frame().w, spec->frame().h);
+    contentRect =
+      [NSWindow contentRectForFrameRect:frameRect
+                              styleMask:style];
+  }
+  else {
+    // TODO is there a default size for macOS apps?
+    contentRect = NSMakeRect(0, 0, 400, 300);
+  }
+
+  NSScreen* nsScreen = nil;
+  if (spec->screen())
+      nsScreen = (__bridge NSScreen*)spec->screen()->nativeHandle();
+
+  self = [self initWithContentRect:contentRect
+                         styleMask:style
                            backing:NSBackingStoreBuffered
-                             defer:NO];
+                             defer:NO
+                            screen:nsScreen];
   if (!self)
     return nil;
 
@@ -46,9 +69,10 @@ using namespace os;
   // The NSView width and height will be a multiple of 4. In this way
   // all scaled pixels should be exactly the same
   // for Screen Scaling > 1 and <= 4)
-  self.contentResizeIncrements = NSMakeSize(4, 4);
+  self.contentResizeIncrements = NSMakeSize(4, 4); // TODO make this configurable?
 
-  OSXView* view = [[OSXView alloc] initWithFrame:rect];
+  OSXView* view = [[OSXView alloc] initWithFrame:contentRect];
+  m_view = view;
   [view setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
 
   // Redraw the entire window content when we resize it.
@@ -57,7 +81,11 @@ using namespace os;
 
   [self setDelegate:m_delegate];
   [self setContentView:view];
-  [self center];
+
+  if (spec->position() == DisplaySpec::Position::Center) {
+    [self center];
+  }
+
   [self makeKeyAndOrderFront:self];
 
   // Hide the "View > Show Tab Bar" menu item
@@ -70,6 +98,17 @@ using namespace os;
 - (OSXWindowImpl*)impl
 {
   return m_impl;
+}
+
+- (void)removeImpl
+{
+  [((OSXView*)self.contentView) removeImpl];
+
+  [self setDelegate:nil];
+  [m_delegate removeImpl];
+  m_delegate = nil;
+
+  m_impl = nil;
 }
 
 - (int)scale
@@ -236,6 +275,14 @@ using namespace os;
     [self.contentView setCursor:nsCursor];
     return YES;
   }
+}
+
+- (BOOL)canBecomeKeyWindow
+{
+  if (m_impl)
+    return YES;
+  else
+    return NO;
 }
 
 - (void)noResponderFor:(SEL)eventSelector

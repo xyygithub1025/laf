@@ -12,6 +12,7 @@
 #include "os/skia/skia_display.h"
 
 #include "base/debug.h"
+#include "os/display_spec.h"
 #include "os/event.h"
 #include "os/event_queue.h"
 #include "os/skia/skia_surface.h"
@@ -19,15 +20,15 @@
 
 namespace os {
 
-SkiaDisplay::SkiaDisplay(int width, int height, int scale)
+SkiaDisplay::SkiaDisplay(const DisplaySpec& spec)
   : m_initialized(false)
-  , m_window(instance()->eventQueue(), this, width, height, scale)
+  , m_window(instance()->eventQueue(), this, spec)
   , m_surface(new SkiaSurface)
   , m_colorSpace(m_window.colorSpace())
   , m_customSurface(false)
   , m_nativeCursor(kArrowCursor)
 {
-  m_window.setScale(scale);
+  m_window.setScale(spec.scale());
   m_window.setVisible(true);
 
   m_initialized = true;
@@ -71,6 +72,16 @@ void SkiaDisplay::resizeSkiaSurface(const gfx::Size& size)
   m_surface->create(newSize.w, newSize.h, m_colorSpace);
 }
 
+gfx::Rect SkiaDisplay::frame() const
+{
+  return m_window.frame();
+}
+
+gfx::Rect SkiaDisplay::contentRect() const
+{
+  return m_window.contentRect();
+}
+
 int SkiaDisplay::width() const
 {
   return m_window.clientSize().w;
@@ -100,6 +111,16 @@ void SkiaDisplay::setScale(int scale)
 {
   ASSERT(scale > 0);
   m_window.setScale(scale);
+}
+
+bool SkiaDisplay::isVisible() const
+{
+  return m_window.isVisible();
+}
+
+void SkiaDisplay::setVisible(bool visible)
+{
+  m_window.setVisible(visible);
 }
 
 Surface* SkiaDisplay::surface()
@@ -138,6 +159,11 @@ bool SkiaDisplay::isFullscreen() const
 void SkiaDisplay::setFullscreen(bool state)
 {
   m_window.setFullscreen(state);
+}
+
+std::string SkiaDisplay::title() const
+{
+  return m_window.title();
 }
 
 void SkiaDisplay::setTitle(const std::string& title)
@@ -219,12 +245,17 @@ void SkiaDisplay::setColorSpace(const os::ColorSpaceRef& colorSpace)
   // but the result would be the same, the display must be re-painted.
   Event ev;
   ev.setType(Event::ResizeDisplay);
-  ev.setDisplay(this);
+  ev.setDisplay(AddRef(this));
   os::queue_event(ev);
 
   TRACE("SkiaDisplay::setColorSpace %s\n",
         colorSpace ? colorSpace->gfxColorSpace()->name().c_str():
                      "nullptr");
+}
+
+os::ScreenRef SkiaDisplay::screen() const
+{
+  return m_window.screen();
 }
 
 os::ColorSpaceRef SkiaDisplay::currentMonitorColorSpace() const

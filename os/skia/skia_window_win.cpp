@@ -39,8 +39,8 @@
 namespace os {
 
 SkiaWindow::SkiaWindow(EventQueue* queue, SkiaDisplay* display,
-                       int width, int height, int scale)
-  : WinWindow(width, height, scale)
+                       const DisplaySpec& spec)
+  : WinWindow(spec)
   , m_queue(queue)
   , m_display(display)
   , m_backend(Backend::NONE)
@@ -73,7 +73,7 @@ SkiaWindow::~SkiaWindow()
 
 void SkiaWindow::onQueueEvent(Event& ev)
 {
-  ev.setDisplay(m_display);
+  ev.setDisplay(AddRef(m_display));
   m_queue->queueEvent(ev);
 }
 
@@ -364,7 +364,7 @@ void SkiaWindow::onResize(const gfx::Size& size)
   else if (!m_resizing) {
     Event ev;
     ev.setType(Event::ResizeDisplay);
-    ev.setDisplay(m_display);
+    ev.setDisplay(AddRef(m_display));
     queue_event(ev);
   }
 }
@@ -380,7 +380,7 @@ void SkiaWindow::onEndResizing()
 
   Event ev;
   ev.setType(Event::ResizeDisplay);
-  ev.setDisplay(m_display);
+  ev.setDisplay(AddRef(m_display));
   queue_event(ev);
 }
 

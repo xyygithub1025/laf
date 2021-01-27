@@ -17,7 +17,7 @@
 class LogWindow {
 public:
   LogWindow(os::System* system)
-    : m_display(system->makeDisplay(800, 600, 1)) {
+    : m_display(system->makeDisplay(800, 600)) {
     m_display->setNativeMouseCursor(os::kArrowCursor);
     m_display->setTitle("All Events");
 

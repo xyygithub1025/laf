@@ -27,7 +27,7 @@ public:
   enum class Backend { NONE, GL };
 
   SkiaWindow(EventQueue* queue, SkiaDisplay* display,
-             int width, int height, int scale);
+             const DisplaySpec& spec);
   ~SkiaWindow();
 
   void setVisible(bool visible);

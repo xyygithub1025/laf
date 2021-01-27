@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2019-2020  Igara Studio S.A.
+// Copyright (C) 2019-2021  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -12,6 +12,7 @@
 #include "base/paths.h"
 #include "gfx/point.h"
 #include "gfx/size.h"
+#include "os/display.h"
 #include "os/keys.h"
 #include "os/pointer_type.h"
 
@@ -22,13 +23,18 @@
 
 namespace os {
 
-  class Display;
-
   class Event {
   public:
     enum Type {
       None,
+
+      // macOS: When the Quit option is selected from the popup menu
+      // of the app icon in the dock bar.
+      CloseApp,
+
+      // When the X is pressed in the current window.
       CloseDisplay,
+
       ResizeDisplay,
       DropFiles,
       MouseEnter,
@@ -68,7 +74,7 @@ namespace os {
     }
 
     Type type() const { return m_type; }
-    Display* display() const { return m_display; }
+    DisplayRef display() const { return m_display; }
     const base::paths& files() const { return m_files; }
     // TODO Rename this to virtualKey(), which is the real
     // meaning. Then we need another kind of "scan code" with the
@@ -94,7 +100,7 @@ namespace os {
     float pressure() const { return m_pressure; }
 
     void setType(Type type) { m_type = type; }
-    void setDisplay(Display* display) { m_display = display; }
+    void setDisplay(const DisplayRef& display) { m_display = display; }
     void setFiles(const base::paths& files) { m_files = files; }
     void setCallback(std::function<void()>&& func) { m_callback = std::move(func); }
 
@@ -115,7 +121,7 @@ namespace os {
 
   private:
     Type m_type;
-    Display* m_display;
+    DisplayRef m_display;
     base::paths m_files;
     std::function<void()> m_callback;
     KeyScancode m_scancode;

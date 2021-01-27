@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2021  Igara Studio S.A.
 // Copyright (C) 2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -38,6 +39,7 @@ WinAPI::WinAPI()
     GET_PROC(m_user32, IsMouseInPointerEnabled);
     GET_PROC(m_user32, GetPointerInfo);
     GET_PROC(m_user32, GetPointerPenInfo);
+    GET_PROC(m_user32, SetProcessDpiAwarenessContext);
   }
   if (m_ninput) {
     GET_PROC(m_ninput, CreateInteractionContext);
@@ -49,6 +51,13 @@ WinAPI::WinAPI()
     GET_PROC(m_ninput, SetInteractionConfigurationInteractionContext);
     GET_PROC(m_ninput, SetPropertyInteractionContext);
     GET_PROC(m_ninput, ProcessPointerFramesInteractionContext);
+  }
+
+  // Set this process as DPI aware (in this way we can position
+  // windows using real pixel units)
+  if (SetProcessDpiAwarenessContext) {
+    if (!SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2))
+      SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE);
   }
 }
 

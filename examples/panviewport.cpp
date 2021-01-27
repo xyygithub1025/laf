@@ -17,7 +17,7 @@
 class PanWindow {
 public:
   PanWindow(os::System* system)
-    : m_display(system->makeDisplay(800, 600, 1))
+    : m_display(system->makeDisplay(800, 600))
     , m_scroll(0.0, 0.0)
     , m_zoom(1.0)
     , m_hasCapture(false) {

@@ -46,8 +46,8 @@ bool convert_skia_bitmap_to_ximage(const SkBitmap& bitmap, XImage& image)
 } // anonymous namespace
 
 SkiaWindow::SkiaWindow(EventQueue* queue, SkiaDisplay* display,
-                       int width, int height, int scale)
-  : X11Window(X11::instance()->display(), width, height, scale)
+                       const DisplaySpec& spec)
+  : X11Window(X11::instance()->display(), spec)
   , m_queue(queue)
   , m_display(display)
 {
@@ -79,7 +79,7 @@ bool SkiaWindow::isMinimized() const
 
 void SkiaWindow::onQueueEvent(Event& ev)
 {
-  ev.setDisplay(m_display);
+  ev.setDisplay(AddRef(m_display));
   m_queue->queueEvent(ev);
 }
 
@@ -142,7 +142,7 @@ void SkiaWindow::onResize(const gfx::Size& sz)
   else {
     Event ev;
     ev.setType(Event::ResizeDisplay);
-    ev.setDisplay(m_display);
+    ev.setDisplay(AddRef(m_display));
     queue_event(ev);
   }
 }

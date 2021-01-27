@@ -30,13 +30,10 @@ void draw_display(os::Display* display)
 
 int app_main(int argc, char* argv[])
 {
-  const int pixelScale = 2;
-
   os::SystemRef system = os::make_system();
   system->setAppMode(os::AppMode::GUI);
 
-  os::DisplayRef display = system->makeDisplay(400, 300, pixelScale);
-
+  os::DisplayRef display = system->makeDisplay(400, 300);
   display->setNativeMouseCursor(os::kArrowCursor);
   display->setTitle("Hello World");
   display->handleResize = draw_display;
@@ -71,6 +68,7 @@ int app_main(int argc, char* argv[])
 
     switch (ev.type()) {
 
+      case os::Event::CloseApp:
       case os::Event::CloseDisplay:
         running = false;
         break;

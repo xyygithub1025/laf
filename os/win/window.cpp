@@ -14,6 +14,7 @@
 #include <windowsx.h>
 #include <commctrl.h>
 #include <shellapi.h>
+#include <dwmapi.h>
 
 #include <algorithm>
 #include <sstream>
@@ -28,10 +29,12 @@
 #include "base/thread.h"
 #include "gfx/region.h"
 #include "gfx/size.h"
+#include "os/display_spec.h"
 #include "os/event.h"
 #include "os/native_cursor.h"
 #include "os/win/color_space.h"
 #include "os/win/keys.h"
+#include "os/win/screen.h"
 #include "os/win/system.h"
 #include "os/win/window_dde.h"
 
@@ -112,13 +115,14 @@ WinWindow::Touch::Touch()
 {
 }
 
-WinWindow::WinWindow(int width, int height, int scale)
+WinWindow::WinWindow(const DisplaySpec& spec)
   : m_hwnd(nullptr)
   , m_hcursor(nullptr)
   , m_clientSize(1, 1)
   , m_restoredSize(0, 0)
-  , m_scale(scale)
+  , m_scale(spec.scale())
   , m_isCreated(false)
+  , m_adjustShadow(true)
   , m_translateDeadKeys(false)
   , m_hasMouse(false)
   , m_captureMouse(false)
@@ -214,7 +218,7 @@ WinWindow::WinWindow(int width, int height, int scale)
 
   // The HWND returned by CreateWindowEx() is different than the
   // HWND used in WM_CREATE message.
-  m_hwnd = createHwnd(this, width, height);
+  m_hwnd = createHwnd(this, spec);
   if (!m_hwnd)
     throw std::runtime_error("Error creating window");
 
@@ -259,6 +263,16 @@ void WinWindow::queueEvent(Event& ev)
   onQueueEvent(ev);
 }
 
+os::ScreenRef WinWindow::screen() const
+{
+  if (m_hwnd) {
+    HMONITOR monitor = MonitorFromWindow(m_hwnd, MONITOR_DEFAULTTONEAREST);
+    return os::make_ref<WinScreen>(monitor);
+  }
+  else
+    return os::instance()->mainScreen();
+}
+
 os::ColorSpaceRef WinWindow::colorSpace() const
 {
   if (auto defaultCS = os::instance()->displaysColorSpace())
@@ -283,6 +297,11 @@ void WinWindow::setScale(int scale)
 {
   m_scale = scale;
   onResize(m_clientSize);
+}
+
+bool WinWindow::isVisible() const
+{
+  return (IsWindowVisible(m_hwnd) ? true: false);
 }
 
 void WinWindow::setVisible(bool visible)
@@ -384,6 +403,39 @@ gfx::Size WinWindow::clientSize() const
 gfx::Size WinWindow::restoredSize() const
 {
   return m_restoredSize;
+}
+
+gfx::Rect WinWindow::frame() const
+{
+  RECT rc;
+  BOOL withShadow = false;
+  if ((DwmIsCompositionEnabled(&withShadow) != S_OK) ||
+      !withShadow ||
+      (DwmGetWindowAttribute(m_hwnd, DWMWA_EXTENDED_FRAME_BOUNDS, &rc, sizeof(RECT)) != S_OK)) {
+    GetWindowRect(m_hwnd, &rc);
+  }
+  return gfx::Rect(rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
+}
+
+gfx::Rect WinWindow::contentRect() const
+{
+  RECT rc;
+  GetClientRect(m_hwnd, &rc);
+  ClientToScreen(m_hwnd, (LPPOINT)&rc);
+  return gfx::Rect(rc.left, rc.top, rc.right, rc.bottom);
+}
+
+std::string WinWindow::title() const
+{
+  int n = GetWindowTextLength(m_hwnd);
+  if (!n)
+    return std::string();
+
+  // One extra char for the trailing zero '\0'
+  ++n;
+  std::vector<wchar_t> buf(n, 0);
+  GetWindowText(m_hwnd, &buf[0], n);
+  return base::to_utf8(&buf[0], n);
 }
 
 void WinWindow::setTitle(const std::string& title)
@@ -713,6 +765,41 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
       if (wparam)
         checkColorSpaceChange();
       break;
+
+    case WM_WINDOWPOSCHANGING: {
+      if (m_adjustShadow) {
+        // Check the drop shadow size
+        BOOL dwmEnabled = false;
+        if ((DwmIsCompositionEnabled(&dwmEnabled) == S_OK) && dwmEnabled) {
+          RECT rc, exrc;
+          GetWindowRect(m_hwnd, &rc);
+          if (DwmGetWindowAttribute(m_hwnd, DWMWA_EXTENDED_FRAME_BOUNDS, &exrc, sizeof(RECT)) != S_OK)
+            exrc = rc;
+
+          const int leftEdge = exrc.left - rc.left;
+          const int topEdge = exrc.top - rc.top;
+          const int rightEdge = rc.right - exrc.right;
+          const int bottomEdge = rc.bottom - exrc.bottom;
+
+          if (leftEdge || topEdge || rightEdge || bottomEdge) {
+            WINDOWPOS* winPos = (WINDOWPOS*)lparam;
+
+            // Add the shadow edge to the position
+            winPos->x = rc.left - leftEdge;
+            winPos->y = rc.top - topEdge;
+            winPos->cx = rc.right - rc.left + leftEdge + rightEdge;
+            winPos->cy = rc.bottom - rc.top + topEdge + bottomEdge;
+            winPos->flags &= ~(SWP_NOMOVE | SWP_NOSIZE);
+            m_adjustShadow = false;
+            return 0;
+          }
+        }
+        else {
+          m_adjustShadow = false;
+        }
+      }
+      break;
+    }
 
     case WM_SETCURSOR:
       if (LOWORD(lparam) == HTCLIENT) {
@@ -1911,34 +1998,73 @@ void WinWindow::registerClass()
 }
 
 //static
-HWND WinWindow::createHwnd(WinWindow* self, int width, int height)
+HWND WinWindow::createHwnd(WinWindow* self, const DisplaySpec& spec)
 {
+  int exStyle = WS_EX_ACCEPTFILES;
+  int style = 0;
+  if (spec.titled()) {
+    exStyle |= WS_EX_APPWINDOW;
+    style |= WS_OVERLAPPED | WS_SYSMENU | WS_CAPTION;
+  }
+  else {
+    style |= WS_POPUP;
+  }
+  if (spec.miniaturizable()) {
+    style |= WS_SYSMENU | WS_MINIMIZEBOX;
+  }
+  if (spec.resizable()) {
+    style |= WS_THICKFRAME | WS_MAXIMIZEBOX;
+  }
+
+  gfx::Rect rc;
+
+  switch (spec.position()) {
+    case DisplaySpec::Position::Default:
+      rc.x = CW_USEDEFAULT;
+      rc.y = CW_USEDEFAULT;
+      break;
+    case DisplaySpec::Position::Frame:
+      rc = spec.frame();
+      break;
+    case DisplaySpec::Position::ContentRect:
+      rc = spec.contentRect();
+      break;
+  }
+
+  if (!spec.contentRect().isEmpty()) {
+    rc.w = spec.contentRect().w;
+    rc.h = spec.contentRect().h;
+    RECT ncrc = { 0, 0, rc.w, rc.h };
+    AdjustWindowRectEx(&ncrc, style,
+                       false,     // Add a field to DisplaySpec to add native menu bars
+                       exStyle);
+
+    if (rc.x != CW_USEDEFAULT) rc.x += ncrc.left;
+    if (rc.y != CW_USEDEFAULT) rc.y += ncrc.top;
+    rc.w = ncrc.right - ncrc.left;
+    rc.h = ncrc.bottom - ncrc.top;
+  }
+  else if (!spec.frame().isEmpty()) {
+    rc.w = spec.frame().w;
+    rc.h = spec.frame().h;
+  }
+  else {
+    rc.w = CW_USEDEFAULT;
+    rc.h = CW_USEDEFAULT;
+  }
+
   HWND hwnd = CreateWindowEx(
-    WS_EX_APPWINDOW | WS_EX_ACCEPTFILES,
+    exStyle,
     OS_WND_CLASS_NAME,
     L"",
-    WS_OVERLAPPEDWINDOW | WS_HSCROLL | WS_VSCROLL,
-    CW_USEDEFAULT, CW_USEDEFAULT,
-    width, height,
+    style,
+    rc.x, rc.y, rc.w, rc.h,
     nullptr,
     nullptr,
     GetModuleHandle(nullptr),
     reinterpret_cast<LPVOID>(self));
   if (!hwnd)
     return nullptr;
-
-  // Center the window
-  RECT workarea;
-  if (SystemParametersInfo(SPI_GETWORKAREA, 0, (PVOID)&workarea, 0)) {
-    SetWindowPos(hwnd, nullptr,
-                 (workarea.right-workarea.left)/2-width/2,
-                 (workarea.bottom-workarea.top)/2-height/2, 0, 0,
-                 SWP_NOSIZE |
-                 SWP_NOSENDCHANGING |
-                 SWP_NOOWNERZORDER |
-                 SWP_NOZORDER |
-                 SWP_NOREDRAW);
-  }
 
   // Set scroll info to receive WM_HSCROLL/VSCROLL events (events
   // generated by some trackpad drivers).

@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2020  Igara Studio S.A.
+// Copyright (C) 2018-2021  Igara Studio S.A.
 // Copyright (C) 2015-2016  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -18,13 +18,15 @@ class OSXWindowImpl;
 
 @interface OSXView : NSView {
 @private
-  NSTrackingArea* m_trackingArea;
-  NSCursor* m_nsCursor;
+  NSTrackingArea* __strong m_trackingArea;
+  NSCursor* __strong m_nsCursor;
   bool m_visibleMouse;
   os::PointerType m_pointerType;
-  OSXWindowImpl* m_impl;
+  OSXWindowImpl* __weak m_impl;
 }
 - (id)initWithFrame:(NSRect)frameRect;
+- (void)dealloc;
+- (void)removeImpl;
 - (BOOL)acceptsFirstResponder;
 - (void)viewDidChangeBackingProperties;
 - (void)viewDidHide;

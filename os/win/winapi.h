@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2021  Igara Studio S.A.
 // Copyright (C) 2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -47,6 +48,8 @@ namespace os {
     UINT32 pointerCount,
     const POINTER_INFO* pointerInfo);
 
+  typedef BOOL (WINAPI* SetProcessDpiAwarenessContext_Func)(DPI_AWARENESS_CONTEXT value);
+
   class WinAPI {
   public:
     WinAPI();
@@ -68,6 +71,9 @@ namespace os {
     SetInteractionConfigurationInteractionContext_Func SetInteractionConfigurationInteractionContext;
     SetPropertyInteractionContext_Func SetPropertyInteractionContext;
     ProcessPointerFramesInteractionContext_Func ProcessPointerFramesInteractionContext;
+
+    // Functions introduced on Windows 10 version 1703
+    SetProcessDpiAwarenessContext_Func SetProcessDpiAwarenessContext;
 
   private:
     base::dll m_user32;

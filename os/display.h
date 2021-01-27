@@ -13,6 +13,7 @@
 #include "os/color_space.h"
 #include "os/native_cursor.h"
 #include "os/ref.h"
+#include "os/screen.h"
 #include "os/surface_list.h"
 
 #include <functional>
@@ -39,6 +40,15 @@ namespace os {
     //      of a public property.
     std::function<void(os::Display*)> handleResize = nullptr;
 
+    // Real rectangle of this window (including title bar, etc.) in
+    // the screen. (The scale is not involved.)
+    virtual gfx::Rect frame() const = 0;
+
+    // Rectangle of the content, the origin is 0,0 and the
+    // width/height dimensions are specified in real screen pixels.
+    // (The scale is not involved.)
+    virtual gfx::Rect contentRect() const = 0;
+
     // Returns the real and current display's size (without scale applied).
     virtual int width() const = 0;
     virtual int height() const = 0;
@@ -58,6 +68,12 @@ namespace os {
     //                                     Display::height() / scale)
     virtual void setScale(int scale) = 0;
 
+    // Returns true if the window is visible in the screen.
+    virtual bool isVisible() const = 0;
+
+    // Shows or hides the window (doesn't destroy it).
+    virtual void setVisible(bool visible) = 0;
+
     // Returns the main surface to draw into this display.
     virtual Surface* surface() = 0;
 
@@ -74,7 +90,9 @@ namespace os {
     virtual bool isFullscreen() const = 0;
     virtual void setFullscreen(bool state) = 0;
 
+    virtual std::string title() const = 0;
     virtual void setTitle(const std::string& title) = 0;
+
     virtual void setIcons(const SurfaceList& icons) = 0;
 
     virtual NativeCursor nativeMouseCursor() = 0;
@@ -82,7 +100,10 @@ namespace os {
     virtual bool setNativeMouseCursor(const os::Surface* cursor,
                                       const gfx::Point& focus,
                                       const int scale) = 0;
+
+    // TODO position? relative to upper-left corner
     virtual void setMousePosition(const gfx::Point& position) = 0;
+
     virtual void captureMouse() = 0;
     virtual void releaseMouse() = 0;
 
@@ -96,6 +117,9 @@ namespace os {
     // fingers as pan/scroll (true by default). If you want to pan
     // with one finger, call this function with false.
     virtual void setInterpretOneFingerGestureAsMouseMovement(bool state) = 0;
+
+    // Returns the screen where this display belongs.
+    virtual os::ScreenRef screen() const = 0;
 
     // Returns the color space of the display where the window is located.
     virtual os::ColorSpaceRef colorSpace() const = 0;

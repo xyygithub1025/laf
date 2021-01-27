@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2020  Igara Studio S.A.
+// Copyright (C) 2018-2021  Igara Studio S.A.
 // Copyright (C) 2012-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -12,6 +12,7 @@
 #include "gfx/color_space.h"
 #include "gfx/size.h"
 #include "os/common/system.h"
+#include "os/display_spec.h"
 #include "os/skia/skia_color_space.h"
 #include "os/skia/skia_display.h"
 #include "os/skia/skia_font_manager.h"
@@ -95,8 +96,8 @@ public:
     return m_defaultDisplay;
   }
 
-  DisplayRef makeDisplay(int width, int height, int scale) override {
-    auto display = make_ref<SkiaDisplay>(width, height, scale);
+  DisplayRef makeDisplay(const DisplaySpec& spec) override {
+    auto display = make_ref<SkiaDisplay>(spec);
     if (!m_defaultDisplay)
       m_defaultDisplay = display.get();
     if (display && m_displayCS)

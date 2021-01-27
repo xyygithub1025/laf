@@ -9,7 +9,7 @@ class OSXWindowImpl;
 
 @interface OSXWindowDelegate : NSObject {
 @private
-  OSXWindowImpl* m_impl;
+  OSXWindowImpl* __weak m_impl;
 }
 @end
 
@@ -21,24 +21,31 @@ class OSXWindowImpl;
   return self;
 }
 
-- (BOOL)windowShouldClose:(id)sender
+- (void)removeImpl
 {
-  os::Event ev;
-  ev.setType(os::Event::CloseDisplay);
-  ASSERT(m_impl);
-  if (m_impl)
+  m_impl = nullptr;
+}
+
+- (BOOL)windowShouldClose:(NSWindow*)sender
+{
+  if (m_impl) {
+    os::Event ev;
+    ev.setType(os::Event::CloseDisplay);
     m_impl->queueEvent(ev);
+  }
   return NO;
 }
 
 - (void)windowWillClose:(NSNotification*)notification
 {
-  m_impl->onClose();
+  if (m_impl)
+    m_impl->onClose();
 }
 
 - (void)windowWillStartLiveResize:(NSNotification*)notification
 {
-  m_impl->onStartResizing();
+  if (m_impl)
+    m_impl->onStartResizing();
 }
 
 - (NSSize)windowWillResize:(NSWindow*)sender
@@ -46,13 +53,15 @@ class OSXWindowImpl;
 {
   NSView* view = sender.contentView;
   gfx::Size sz(view.bounds.size.width, view.bounds.size.height);
-  m_impl->onResizing(sz);
+  if (m_impl)
+    m_impl->onResizing(sz);
   return frameSize;
 }
 
 - (void)windowDidEndLiveResize:(NSNotification*)notification
 {
-  m_impl->onEndResizing();
+  if (m_impl)
+    m_impl->onEndResizing();
 }
 
 - (void)windowDidMiniaturize:(NSNotification*)notification
@@ -61,17 +70,20 @@ class OSXWindowImpl;
 
 - (void)windowWillEnterFullScreen:(NSNotification*)notification
 {
-  m_impl->onStartResizing();
+  if (m_impl)
+    m_impl->onStartResizing();
 }
 
 - (void)windowDidEnterFullScreen:(NSNotification*)notification
 {
-  m_impl->onEndResizing();
+  if (m_impl)
+    m_impl->onEndResizing();
 }
 
 - (void)windowWillExitFullScreen:(NSNotification*)notification
 {
-  m_impl->onStartResizing();
+  if (m_impl)
+    m_impl->onStartResizing();
 }
 
 - (void)windowDidExitFullScreen:(NSNotification*)notification
@@ -80,7 +92,8 @@ class OSXWindowImpl;
   // surface and re-draw the entire screen. Without this there will be
   // some cases where the app view is not updated anymore until we
   // resize the window.
-  m_impl->onEndResizing();
+  if (m_impl)
+    m_impl->onEndResizing();
 }
 
 @end
