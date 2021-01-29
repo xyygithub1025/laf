@@ -98,13 +98,15 @@ public:
 
   gfx::Rect frame() const {
     NSRect r = m_window.frame;
-    return gfx::Rect(r.origin.x, r.origin.y,
+    return gfx::Rect(r.origin.x,
+                     m_window.screen.frame.size.height - r.origin.y - r.size.height,
                      r.size.width, r.size.height);
   }
 
   gfx::Rect contentRect() const {
-    NSRect r = m_window.contentView.bounds;
-    return gfx::Rect(r.origin.x, r.origin.y,
+    NSRect r = [m_window contentRectForFrameRect:m_window.frame];
+    return gfx::Rect(r.origin.x,
+                     m_window.screen.frame.size.height - r.origin.y - r.size.height,
                      r.size.width, r.size.height);
   }
 

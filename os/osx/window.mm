@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2019-2020  Igara Studio S.A.
+// Copyright (C) 2019-2021  Igara Studio S.A.
 // Copyright (C) 2012-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -29,6 +29,12 @@ using namespace os;
   m_impl = impl;
   m_scale = spec->scale();
 
+  NSScreen* nsScreen;
+  if (spec->screen())
+    nsScreen = (__bridge NSScreen*)spec->screen()->nativeHandle();
+  else
+    nsScreen = [NSScreen mainScreen];
+
   NSWindowStyleMask style = NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable;
   if (spec->titled()) style |= NSWindowStyleMaskTitled;
   if (spec->resizable()) style |= NSWindowStyleMaskResizable;
@@ -36,13 +42,18 @@ using namespace os;
   NSRect contentRect;
   if (!spec->contentRect().isEmpty()) {
     contentRect =
-      NSMakeRect(spec->contentRect().x, spec->contentRect().y,
-                 spec->contentRect().w, spec->contentRect().h);
+      NSMakeRect(spec->contentRect().x,
+                 nsScreen.frame.size.height - spec->contentRect().y2(),
+                 spec->contentRect().w,
+                 spec->contentRect().h);
   }
   else if (!spec->frame().isEmpty()) {
     NSRect frameRect =
-      NSMakeRect(spec->frame().x, spec->frame().y,
-                 spec->frame().w, spec->frame().h);
+      NSMakeRect(spec->frame().x,
+                 nsScreen.frame.size.height - spec->frame().y2(),
+                 spec->frame().w,
+                 spec->frame().h);
+
     contentRect =
       [NSWindow contentRectForFrameRect:frameRect
                               styleMask:style];
@@ -51,10 +62,6 @@ using namespace os;
     // TODO is there a default size for macOS apps?
     contentRect = NSMakeRect(0, 0, 400, 300);
   }
-
-  NSScreen* nsScreen = nil;
-  if (spec->screen())
-      nsScreen = (__bridge NSScreen*)spec->screen()->nativeHandle();
 
   self = [self initWithContentRect:contentRect
                          styleMask:style
