@@ -18,7 +18,7 @@ class LogWindow {
 public:
   LogWindow(os::System* system)
     : m_window(system->makeWindow(800, 600)) {
-    m_window->setNativeMouseCursor(os::kArrowCursor);
+    m_window->setNativeMouseCursor(os::NativeCursor::Arrow);
     m_window->setTitle("All Events");
 
     recalcMaxLines();

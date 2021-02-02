@@ -53,7 +53,7 @@
 {
   [[[NSApplication sharedApplication] mainMenu] setAutoenablesItems:NO];
   os::NativeCursor oldCursor = window->nativeMouseCursor();
-  window->setNativeMouseCursor(os::kArrowCursor);
+  window->setNativeMouseCursor(os::NativeCursor::Arrow);
 
 #ifndef __MAC_10_6              // runModalForTypes is deprecated in 10.6
   if ([panel isKindOfClass:[NSOpenPanel class]]) {

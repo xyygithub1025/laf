@@ -21,7 +21,7 @@ public:
     , m_scroll(0.0, 0.0)
     , m_zoom(1.0)
     , m_hasCapture(false) {
-    m_window->setNativeMouseCursor(os::kArrowCursor);
+    m_window->setNativeMouseCursor(os::NativeCursor::Arrow);
     m_window->setTitle("Pan Viewport");
 
     repaint();
@@ -49,7 +49,7 @@ public:
 
       case os::Event::MouseDown:
         if (!m_hasCapture) {
-          m_window->setNativeMouseCursor(os::kMoveCursor);
+          m_window->setNativeMouseCursor(os::NativeCursor::Move);
           m_window->captureMouse();
           m_hasCapture = true;
           m_capturePos = ev.position();
@@ -59,7 +59,7 @@ public:
 
       case os::Event::MouseUp:
         if (m_hasCapture) {
-          m_window->setNativeMouseCursor(os::kArrowCursor);
+          m_window->setNativeMouseCursor(os::NativeCursor::Arrow);
           m_window->releaseMouse();
           m_hasCapture = false;
         }

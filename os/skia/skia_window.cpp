@@ -22,7 +22,7 @@ namespace os {
 
 SkiaWindow::SkiaWindow(const WindowSpec& spec)
   : SkiaWindowPlatform(instance()->eventQueue(), spec)
-  , m_nativeCursor(kArrowCursor)
+  , m_nativeCursor(NativeCursor::Arrow)
 {
   setScale(spec.scale());
   setVisible(true);

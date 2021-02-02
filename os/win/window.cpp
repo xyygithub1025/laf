@@ -476,49 +476,49 @@ bool WindowWin::setNativeMouseCursor(NativeCursor cursor)
   HCURSOR hcursor = NULL;
 
   switch (cursor) {
-    case kNoCursor:
+    case NativeCursor::Hidden:
       // Do nothing, just set to null
       break;
-    case kArrowCursor:
+    case NativeCursor::Arrow:
       hcursor = LoadCursor(NULL, IDC_ARROW);
       break;
-    case kCrosshairCursor:
+    case NativeCursor::Crosshair:
       hcursor = LoadCursor(NULL, IDC_CROSS);
       break;
-    case kIBeamCursor:
+    case NativeCursor::IBeam:
       hcursor = LoadCursor(NULL, IDC_IBEAM);
       break;
-    case kWaitCursor:
+    case NativeCursor::Wait:
       hcursor = LoadCursor(NULL, IDC_WAIT);
       break;
-    case kLinkCursor:
+    case NativeCursor::Link:
       hcursor = LoadCursor(NULL, IDC_HAND);
       break;
-    case kHelpCursor:
+    case NativeCursor::Help:
       hcursor = LoadCursor(NULL, IDC_HELP);
       break;
-    case kForbiddenCursor:
+    case NativeCursor::Forbidden:
       hcursor = LoadCursor(NULL, IDC_NO);
       break;
-    case kMoveCursor:
+    case NativeCursor::Move:
       hcursor = LoadCursor(NULL, IDC_SIZEALL);
       break;
-    case kSizeNCursor:
-    case kSizeNSCursor:
-    case kSizeSCursor:
+    case NativeCursor::SizeN:
+    case NativeCursor::SizeNS:
+    case NativeCursor::SizeS:
       hcursor = LoadCursor(NULL, IDC_SIZENS);
       break;
-    case kSizeECursor:
-    case kSizeWCursor:
-    case kSizeWECursor:
+    case NativeCursor::SizeE:
+    case NativeCursor::SizeW:
+    case NativeCursor::SizeWE:
       hcursor = LoadCursor(NULL, IDC_SIZEWE);
       break;
-    case kSizeNWCursor:
-    case kSizeSECursor:
+    case NativeCursor::SizeNW:
+    case NativeCursor::SizeSE:
       hcursor = LoadCursor(NULL, IDC_SIZENWSE);
       break;
-    case kSizeNECursor:
-    case kSizeSWCursor:
+    case NativeCursor::SizeNE:
+    case NativeCursor::SizeSW:
       hcursor = LoadCursor(NULL, IDC_SIZENESW);
       break;
   }

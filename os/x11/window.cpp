@@ -442,7 +442,7 @@ bool WindowX11::setNativeMouseCursor(NativeCursor cursor)
   Cursor xcursor = None;
 
   switch (cursor) {
-    case kNoCursor: {
+    case NativeCursor::Hidden: {
       if (empty_xcursor == None) {
         char data = 0;
         Pixmap image = XCreateBitmapFromData(
@@ -457,58 +457,58 @@ bool WindowX11::setNativeMouseCursor(NativeCursor cursor)
       xcursor = empty_xcursor;
       break;
     }
-    case kArrowCursor:
+    case NativeCursor::Arrow:
       xcursor = XCreateFontCursor(m_display, XC_arrow);
       break;
-    case kCrosshairCursor:
+    case NativeCursor::Crosshair:
       xcursor = XCreateFontCursor(m_display, XC_crosshair);
       break;
-    case kIBeamCursor:
+    case NativeCursor::IBeam:
       xcursor = XCreateFontCursor(m_display, XC_xterm);
       break;
-    case kWaitCursor:
+    case NativeCursor::Wait:
       xcursor = XCreateFontCursor(m_display, XC_watch);
       break;
-    case kLinkCursor:
+    case NativeCursor::Link:
       xcursor = XCreateFontCursor(m_display, XC_hand1);
       break;
-    case kHelpCursor:
+    case NativeCursor::Help:
       xcursor = XCreateFontCursor(m_display, XC_question_arrow);
       break;
-    case kForbiddenCursor:
+    case NativeCursor::Forbidden:
       xcursor = XCreateFontCursor(m_display, XC_X_cursor);
       break;
-    case kMoveCursor:
+    case NativeCursor::Move:
       xcursor = XCreateFontCursor(m_display, XC_fleur);
       break;
-    case kSizeNCursor:
+    case NativeCursor::SizeN:
       xcursor = XCreateFontCursor(m_display, XC_top_side);
       break;
-    case kSizeNSCursor:
+    case NativeCursor::SizeNS:
       xcursor = XCreateFontCursor(m_display, XC_sb_v_double_arrow);
       break;
-    case kSizeSCursor:
+    case NativeCursor::SizeS:
       xcursor = XCreateFontCursor(m_display, XC_bottom_side);
       break;
-    case kSizeWCursor:
+    case NativeCursor::SizeW:
       xcursor = XCreateFontCursor(m_display, XC_left_side);
       break;
-    case kSizeECursor:
+    case NativeCursor::SizeE:
       xcursor = XCreateFontCursor(m_display, XC_right_side);
       break;
-    case kSizeWECursor:
+    case NativeCursor::SizeWE:
       xcursor = XCreateFontCursor(m_display, XC_sb_h_double_arrow);
       break;
-    case kSizeNWCursor:
+    case NativeCursor::SizeNW:
       xcursor = XCreateFontCursor(m_display, XC_top_left_corner);
       break;
-    case kSizeNECursor:
+    case NativeCursor::SizeNE:
       xcursor = XCreateFontCursor(m_display, XC_top_right_corner);
       break;
-    case kSizeSWCursor:
+    case NativeCursor::SizeSW:
       xcursor = XCreateFontCursor(m_display, XC_bottom_left_corner);
       break;
-    case kSizeSECursor:
+    case NativeCursor::SizeSE:
       xcursor = XCreateFontCursor(m_display, XC_bottom_right_corner);
       break;
   }

@@ -171,46 +171,46 @@
   NSCursor* nsCursor = nullptr;
 
   switch (cursor) {
-    case os::kArrowCursor:
-    case os::kWaitCursor:
-    case os::kHelpCursor:
-    case os::kSizeNECursor:
-    case os::kSizeNWCursor:
-    case os::kSizeSECursor:
-    case os::kSizeSWCursor:
+    case os::NativeCursor::Arrow:
+    case os::NativeCursor::Wait:
+    case os::NativeCursor::Help:
+    case os::NativeCursor::SizeNE:
+    case os::NativeCursor::SizeNW:
+    case os::NativeCursor::SizeSE:
+    case os::NativeCursor::SizeSW:
       nsCursor = [NSCursor arrowCursor];
       break;
-    case os::kCrosshairCursor:
+    case os::NativeCursor::Crosshair:
       nsCursor = [NSCursor crosshairCursor];
       break;
-    case os::kIBeamCursor:
+    case os::NativeCursor::IBeam:
       nsCursor = [NSCursor IBeamCursor];
       break;
-    case os::kLinkCursor:
+    case os::NativeCursor::Link:
       nsCursor = [NSCursor pointingHandCursor];
       break;
-    case os::kForbiddenCursor:
+    case os::NativeCursor::Forbidden:
       nsCursor = [NSCursor operationNotAllowedCursor];
       break;
-    case os::kMoveCursor:
+    case os::NativeCursor::Move:
       nsCursor = [NSCursor openHandCursor];
       break;
-    case os::kSizeNSCursor:
+    case os::NativeCursor::SizeNS:
       nsCursor = [NSCursor resizeUpDownCursor];
       break;
-    case os::kSizeWECursor:
+    case os::NativeCursor::SizeWE:
       nsCursor = [NSCursor resizeLeftRightCursor];
       break;
-    case os::kSizeNCursor:
+    case os::NativeCursor::SizeN:
       nsCursor = [NSCursor resizeUpCursor];
       break;
-    case os::kSizeECursor:
+    case os::NativeCursor::SizeE:
       nsCursor = [NSCursor resizeRightCursor];
       break;
-    case os::kSizeSCursor:
+    case os::NativeCursor::SizeS:
       nsCursor = [NSCursor resizeDownCursor];
       break;
-    case os::kSizeWCursor:
+    case os::NativeCursor::SizeW:
       nsCursor = [NSCursor resizeLeftCursor];
       break;
   }
