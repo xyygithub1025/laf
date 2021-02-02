@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2021  Igara Studio S.A.
 // Copyright (C) 2016  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -15,7 +16,7 @@
 
 namespace os {
 
-class X11System : public CommonSystem {
+class SystemX11 : public CommonSystem {
 public:
   bool isKeyPressed(KeyScancode scancode) override {
     return x11_is_key_pressed(scancode);
@@ -26,14 +27,14 @@ public:
   }
 
   ScreenRef mainScreen() override {
-    return make_ref<X11Screen>(
+    return make_ref<ScreenX11>(
       XDefaultScreen(X11::instance()->display()));
   }
 
   void listScreens(ScreenList& list) override {
     const int nscreen = XScreenCount(X11::instance()->display());
     for (int screen=0; screen<nscreen; screen++)
-      list.push_back(make_ref<X11Screen>(screen));
+      list.push_back(make_ref<ScreenX11>(screen));
   }
 
 };

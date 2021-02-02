@@ -16,7 +16,7 @@
 
 namespace os {
 
-class X11EventQueue : public EventQueue {
+class EventQueueX11 : public EventQueue {
 public:
   void queueEvent(const Event& ev) override;
   void getEvent(Event& ev, bool canWait) override;
@@ -29,7 +29,7 @@ private:
   std::deque<Event> m_events;
 };
 
-using EventQueueImpl = X11EventQueue;
+using EventQueueImpl = EventQueueX11;
 
 } // namespace os
 

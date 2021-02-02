@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2019-2020  Igara Studio S.A.
+// Copyright (C) 2019-2021  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -65,7 +65,7 @@ public:
   NativeDialogs* nativeDialogs() override {
     if (!m_nativeDialogs) {
 #ifdef _WIN32
-      m_nativeDialogs.reset(new NativeDialogsWin32);
+      m_nativeDialogs.reset(new NativeDialogsWin);
 #elif defined(__APPLE__)
       m_nativeDialogs.reset(new NativeDialogsOSX);
 #elif defined(LAF_OS_WITH_GTK)

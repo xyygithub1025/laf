@@ -267,7 +267,7 @@ os::ScreenRef WindowWin::screen() const
 {
   if (m_hwnd) {
     HMONITOR monitor = MonitorFromWindow(m_hwnd, MONITOR_DEFAULTTONEAREST);
-    return os::make_ref<WinScreen>(monitor);
+    return os::make_ref<ScreenWin>(monitor);
   }
   else
     return os::instance()->mainScreen();
@@ -2121,9 +2121,9 @@ void CALLBACK WindowWin::staticInteractionContextCallback(
 }
 
 // static
-WinSystem* WindowWin::system()
+SystemWin* WindowWin::system()
 {
-  return static_cast<WinSystem*>(os::instance());
+  return static_cast<SystemWin*>(os::instance());
 }
 
 } // namespace os

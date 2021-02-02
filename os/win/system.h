@@ -15,10 +15,10 @@
 
 namespace os {
 
-class WinSystem : public CommonSystem {
+class SystemWin : public CommonSystem {
 public:
-  WinSystem();
-  ~WinSystem();
+  SystemWin();
+  ~SystemWin();
 
   WinAPI& winApi() { return m_winApi; }
   WintabAPI& wintabApi() { return m_wintabApi; }

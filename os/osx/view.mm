@@ -24,7 +24,7 @@
 
 namespace os {
 
-// Global variable used between View and OSXNSMenu to check if the
+// Global variable used between View and NSMenuOSX to check if the
 // keyDown: event was used by a key equivalent in the menu.
 //
 // TODO I'm not proud of this, but it does the job
@@ -120,7 +120,7 @@ void osx_set_async_view(bool state)
 
 using namespace os;
 
-@implementation OSXView
+@implementation ViewOSX
 
 - (id)initWithFrame:(NSRect)frameRect
 {
@@ -288,7 +288,7 @@ using namespace os;
 - (void)flagsChanged:(NSEvent*)event
 {
   [super flagsChanged:event];
-  [OSXView updateKeyFlags:event];
+  [ViewOSX updateKeyFlags:event];
 }
 
 + (void)updateKeyFlags:(NSEvent*)event

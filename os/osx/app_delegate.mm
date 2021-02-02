@@ -20,7 +20,7 @@
 #include "os/osx/view.h"
 #include "os/system.h"
 
-@implementation OSXNSApplication
+@implementation NSApplicationOSX
 
 - (void)sendEvent:(NSEvent *)event
 {
@@ -59,11 +59,11 @@
 
 @end
 
-@protocol OSXValidateMenuItemProtocol
+@protocol ValidateMenuItemProtocolOSX
 - (void)validateMenuItem;
 @end
 
-@implementation OSXAppDelegate
+@implementation AppDelegateOSX
 
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication*)sender
 {
@@ -86,14 +86,14 @@
 {
   NSEvent* event = [NSApp currentEvent];
   if (event != nil)
-    [OSXView updateKeyFlags:event];
+    [ViewOSX updateKeyFlags:event];
 }
 
 - (void)applicationDidBecomeActive:(NSNotification*)notification
 {
   NSEvent* event = [NSApp currentEvent];
   if (event != nil)
-    [OSXView updateKeyFlags:event];
+    [ViewOSX updateKeyFlags:event];
 }
 
 - (BOOL)application:(NSApplication*)app openFiles:(NSArray*)filenames
@@ -128,7 +128,7 @@
 - (BOOL)validateMenuItem:(NSMenuItem*)menuItem
 {
   if ([menuItem respondsToSelector:@selector(validateMenuItem)]) {
-    [((id<OSXValidateMenuItemProtocol>)menuItem) validateMenuItem];
+    [((id<ValidateMenuItemProtocolOSX>)menuItem) validateMenuItem];
     return menuItem.enabled;
   }
   else

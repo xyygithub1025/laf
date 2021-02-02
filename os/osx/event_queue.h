@@ -17,9 +17,9 @@
 
 namespace os {
 
-class OSXEventQueue : public EventQueue {
+class EventQueueOSX : public EventQueue {
 public:
-  OSXEventQueue();
+  EventQueueOSX();
 
   void getEvent(Event& ev, bool canWait) override;
   void queueEvent(const Event& ev) override;
@@ -31,7 +31,7 @@ private:
   std::atomic<bool> m_sleeping;
 };
 
-using EventQueueImpl = OSXEventQueue;
+using EventQueueImpl = EventQueueOSX;
 
 } // namespace os
 

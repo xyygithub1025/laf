@@ -214,7 +214,7 @@ void WindowX11::queueEvent(Event& ev)
 
 os::ScreenRef WindowX11::screen() const
 {
-  return os::make_ref<X11Screen>(DefaultScreen(m_display));
+  return os::make_ref<ScreenX11>(DefaultScreen(m_display));
 }
 
 os::ColorSpaceRef WindowX11::colorSpace() const

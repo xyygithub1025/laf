@@ -66,12 +66,12 @@ const char* get_event_name(XEvent& event)
 } // anonymous namespace
 #endif
 
-void X11EventQueue::queueEvent(const Event& ev)
+void EventQueueX11::queueEvent(const Event& ev)
 {
   m_events.push_back(ev);
 }
 
-void X11EventQueue::getEvent(Event& ev, bool canWait)
+void EventQueueX11::getEvent(Event& ev, bool canWait)
 {
   ev.setWindow(nullptr);
 
@@ -99,12 +99,12 @@ void X11EventQueue::getEvent(Event& ev, bool canWait)
   }
 }
 
-void X11EventQueue::clear()
+void EventQueueX11::clear()
 {
   m_events.clear();
 }
 
-void X11EventQueue::processX11Event(XEvent& event)
+void EventQueueX11::processX11Event(XEvent& event)
 {
   EV_TRACE("XEvent: %s (%d)\n", get_event_name(event), event.type);
 

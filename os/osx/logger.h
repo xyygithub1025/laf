@@ -5,16 +5,19 @@
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
 
-#include "os/osx/logger.h"
+#ifndef OS_OSX_LOGGER_H_INCLUDED
+#define OS_OSX_LOGGER_H_INCLUDED
+#pragma once
 
-#include <CoreFoundation/CoreFoundation.h>
-#include <Foundation/Foundation.h>
+#include "os/logger.h"
 
 namespace os {
 
-void LoggerOSX::logError(const char* error)
-{
-  NSLog([NSString stringWithUTF8String:error]);
-}
+  class LoggerOSX : public Logger {
+  public:
+    void logError(const char* error) override;
+  };
 
 } // namespace os
+
+#endif // OS_OSX_LOGGER_H_INCLUDED

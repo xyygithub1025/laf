@@ -26,7 +26,7 @@
 
 namespace os {
   class Surface;
-  class WinSystem;
+  class SystemWin;
   class WindowSpec;
 
   class WindowWin : public Window {
@@ -104,7 +104,7 @@ namespace os {
       void* clientData,
       const INTERACTION_CONTEXT_OUTPUT* output);
 
-    static WinSystem* system();
+    static SystemWin* system();
 
     mutable HWND m_hwnd;
     HCURSOR m_hcursor;

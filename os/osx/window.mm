@@ -76,7 +76,7 @@
   // for Screen Scaling > 1 and <= 4)
   self.contentResizeIncrements = NSMakeSize(4, 4); // TODO make this configurable?
 
-  OSXView* view = [[OSXView alloc] initWithFrame:contentRect];
+  ViewOSX* view = [[ViewOSX alloc] initWithFrame:contentRect];
   m_view = view;
   [view setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
 
@@ -107,7 +107,7 @@
 
 - (void)removeImpl
 {
-  [((OSXView*)self.contentView) removeImpl];
+  [((ViewOSX*)self.contentView) removeImpl];
 
   [self setDelegate:nil];
   [m_delegate removeImpl];
@@ -317,7 +317,7 @@ void WindowOSX::destroyWindow()
     return;
 
   [m_nsWindow removeImpl];
-  [(OSXView*)m_nsWindow.contentView destroyMouseTrackingArea];
+  [(ViewOSX*)m_nsWindow.contentView destroyMouseTrackingArea];
 
   // Select other window
   {
@@ -426,7 +426,7 @@ void WindowOSX::setMousePosition(const gfx::Point& position)
 os::ScreenRef WindowOSX::screen() const
 {
   ASSERT(m_nsWindow);
-  return os::make_ref<os::OSXScreen>(m_nsWindow.screen);
+  return os::make_ref<os::ScreenOSX>(m_nsWindow.screen);
 }
 
 os::ColorSpaceRef WindowOSX::colorSpace() const

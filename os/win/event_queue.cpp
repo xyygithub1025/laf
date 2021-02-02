@@ -17,12 +17,12 @@
 
 namespace os {
 
-void WinEventQueue::queueEvent(const Event& ev)
+void EventQueueWin::queueEvent(const Event& ev)
 {
   m_events.push(ev);
 }
 
-void WinEventQueue::getEvent(Event& ev, bool canWait)
+void EventQueueWin::getEvent(Event& ev, bool canWait)
 {
   MSG msg;
 

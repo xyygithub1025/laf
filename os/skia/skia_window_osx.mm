@@ -150,7 +150,7 @@ void SkiaWindowOSX::invalidateRegion(const gfx::Region& rgn)
 
 void SkiaWindowOSX::setTranslateDeadKeys(bool state)
 {
-  OSXView* view = (OSXView*)m_nsWindow.contentView;
+  ViewOSX* view = (ViewOSX*)m_nsWindow.contentView;
   [view setTranslateDeadKeys:(state ? YES: NO)];
 }
 

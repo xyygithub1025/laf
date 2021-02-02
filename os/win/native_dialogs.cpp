@@ -359,11 +359,11 @@ private:
   std::wstring m_initialDir;
 };
 
-NativeDialogsWin32::NativeDialogsWin32()
+NativeDialogsWin::NativeDialogsWin()
 {
 }
 
-FileDialogRef NativeDialogsWin32::makeFileDialog()
+FileDialogRef NativeDialogsWin::makeFileDialog()
 {
   return make_ref<FileDialogWin32>();
 }

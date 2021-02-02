@@ -18,12 +18,12 @@
 
 namespace os {
 
-OSXEventQueue::OSXEventQueue()
+EventQueueOSX::EventQueueOSX()
   : m_sleeping(false)
 {
 }
 
-void OSXEventQueue::getEvent(Event& ev, bool canWait)
+void EventQueueOSX::getEvent(Event& ev, bool canWait)
 {
   ev.setType(Event::None);
   ev.setWindow(nullptr);
@@ -73,7 +73,7 @@ void OSXEventQueue::getEvent(Event& ev, bool canWait)
   }
 }
 
-void OSXEventQueue::queueEvent(const Event& ev)
+void EventQueueOSX::queueEvent(const Event& ev)
 {
   if (m_sleeping) {
     // Wake up the macOS event queue. This is necessary in case that we
@@ -90,7 +90,7 @@ void OSXEventQueue::queueEvent(const Event& ev)
   m_events.push(ev);
 }
 
-void OSXEventQueue::wakeUpQueue()
+void EventQueueOSX::wakeUpQueue()
 {
   EV_TRACE("EV: Force queue wake up!\n");
 

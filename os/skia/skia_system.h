@@ -21,14 +21,14 @@
 #ifdef _WIN32
   #include "os/win/color_space.h"
   #include "os/win/system.h"
-  #define SkiaSystemBase WinSystem
+  #define SkiaSystemBase SystemWin
 #elif __APPLE__
   #include "os/osx/color_space.h"
   #include "os/osx/system.h"
-  #define SkiaSystemBase OSXSystem
+  #define SkiaSystemBase SystemOSX
 #else
   #include "os/x11/system.h"
-  #define SkiaSystemBase X11System
+  #define SkiaSystemBase SystemX11
 #endif
 
 #include "SkGraphics.h"

@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2019-2020  Igara Studio S.A.
+// Copyright (C) 2019-2021  Igara Studio S.A.
 // Copyright (C) 2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -18,15 +18,15 @@ namespace os {
   class MenuItemOSX;
 }
 
-@interface OSXNSMenu : NSMenu
+@interface NSMenuOSX : NSMenu
 - (BOOL)performKeyEquivalent:(NSEvent*)event;
 @end
 
-@interface OSXNSMenuItem : NSMenuItem {
+@interface NSMenuItemOSX : NSMenuItem {
 @public
   os::Ref<os::MenuItemOSX> original;
 }
-+ (OSXNSMenuItem*)alloc:(const os::Ref<os::MenuItemOSX>&)original;
++ (NSMenuItemOSX*)alloc:(const os::Ref<os::MenuItemOSX>&)original;
 - (void)executeMenuItem:(id)sender;
 - (void)validateMenuItem;
 @end
@@ -46,7 +46,7 @@ public:
   void setShortcut(const Shortcut& shortcut) override;
   NSMenuItem* handle() { return m_handle; }
 
-  // Called by OSXNSMenuItem.executeMenuItem
+  // Called by NSMenuItemOSX.executeMenuItem
   void execute();
   void validate();
 
@@ -73,7 +73,7 @@ private:
 
 } // namespace os
 
-@implementation OSXNSMenu
+@implementation NSMenuOSX
 - (BOOL)performKeyEquivalent:(NSEvent*)event
 {
   BOOL result = [super performKeyEquivalent:event];
@@ -83,10 +83,10 @@ private:
 }
 @end
 
-@implementation OSXNSMenuItem
-+ (OSXNSMenuItem*)alloc:(const os::Ref<os::MenuItemOSX>&)original
+@implementation NSMenuItemOSX
++ (NSMenuItemOSX*)alloc:(const os::Ref<os::MenuItemOSX>&)original
 {
-  OSXNSMenuItem* item = [super alloc];
+  NSMenuItemOSX* item = [super alloc];
   item->original = original;
   return item;
 }
@@ -99,7 +99,7 @@ private:
   // here, because if the callback invalidates some Display region
   // (SkiaWindow::invalidateRegion()) the display is not updated
   // inmediately when the event queue is locked/waiting for events
-  // (OSXEventQueue::getEvent with canWait=true) until we move the
+  // (EventQueueOSX::getEvent with canWait=true) until we move the
   // mouse (i.e. some kind of event is generated).
   os::Event ev;
   ev.setType(os::Event::Callback);
@@ -132,9 +132,9 @@ MenuItemOSX::MenuItemOSX(const MenuItemInfo& info)
           sel = @selector(executeMenuItem:);
 
           // TODO this is strange, it doesn't work, we receive the
-          // message in OSXAppDelegate anyway. So
-          // OSXAppDelegate.executeMenuItem: will redirect the message
-          // to OSXNSMenuItem.executeMenuItem:
+          // message in AppDelegateOSX anyway. So
+          // AppDelegateOSX.executeMenuItem: will redirect the message
+          // to NSMenuItemOSX.executeMenuItem:
           target = m_handle;
           break;
 
@@ -164,7 +164,7 @@ MenuItemOSX::MenuItemOSX(const MenuItemInfo& info)
       }
 
       m_handle =
-        [[OSXNSMenuItem alloc:AddRef(this)]
+        [[NSMenuItemOSX alloc:AddRef(this)]
             initWithTitle:[NSString stringWithUTF8String:info.text.c_str()]
                    action:sel
             keyEquivalent:@""];
@@ -275,7 +275,7 @@ void MenuItemOSX::syncTitle()
 
 MenuOSX::MenuOSX()
 {
-  m_handle = [[OSXNSMenu alloc] init];
+  m_handle = [[NSMenuOSX alloc] init];
 }
 
 MenuOSX::~MenuOSX()
@@ -287,8 +287,8 @@ MenuOSX::~MenuOSX()
   }
 
   for (NSMenuItem* nsItem : items) {
-    if ([nsItem isKindOfClass:[OSXNSMenuItem class]]) {
-      auto item = (OSXNSMenuItem*)nsItem;
+    if ([nsItem isKindOfClass:[NSMenuItemOSX class]]) {
+      auto item = (NSMenuItemOSX*)nsItem;
       item->original->dispose();
     }
   }

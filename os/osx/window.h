@@ -39,7 +39,7 @@ namespace os {
 @private
   os::WindowOSX* __weak m_impl;
   WindowOSXDelegate* __strong m_delegate;
-  OSXView* __strong m_view;
+  ViewOSX* __strong m_view;
   int m_scale;
 }
 - (WindowOSXObjc*)initWithImpl:(os::WindowOSX*)impl

@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (c) 2020  Igara Studio S.A.
+// Copyright (c) 2020-2021  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -14,16 +14,16 @@
 
 namespace os {
 
-ScreenRef OSXSystem::mainScreen()
+ScreenRef SystemOSX::mainScreen()
 {
-  return make_ref<OSXScreen>([NSScreen mainScreen]);
+  return make_ref<ScreenOSX>([NSScreen mainScreen]);
 }
 
-void OSXSystem::listScreens(ScreenList& list)
+void SystemOSX::listScreens(ScreenList& list)
 {
   auto screens = [NSScreen screens];
   for (NSScreen* screen : screens)
-    list.push_back(make_ref<OSXScreen>(screen));
+    list.push_back(make_ref<ScreenOSX>(screen));
 }
 
 }

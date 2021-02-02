@@ -17,36 +17,36 @@ namespace os {
 bool win_is_key_pressed(KeyScancode scancode);
 int win_get_unicode_from_scancode(KeyScancode scancode);
 
-WinSystem::WinSystem() { }
-WinSystem::~WinSystem() { }
+SystemWin::SystemWin() { }
+SystemWin::~SystemWin() { }
 
-void WinSystem::setAppName(const std::string& appName)
+void SystemWin::setAppName(const std::string& appName)
 {
   m_appName = appName;
 }
 
-void WinSystem::setTabletAPI(TabletAPI api)
+void SystemWin::setTabletAPI(TabletAPI api)
 {
   m_tabletAPI = api;
 }
 
-bool WinSystem::isKeyPressed(KeyScancode scancode)
+bool SystemWin::isKeyPressed(KeyScancode scancode)
 {
   return win_is_key_pressed(scancode);
 }
 
-int WinSystem::getUnicodeFromScancode(KeyScancode scancode)
+int SystemWin::getUnicodeFromScancode(KeyScancode scancode)
 {
   return win_get_unicode_from_scancode(scancode);
 }
 
-ScreenRef WinSystem::mainScreen()
+ScreenRef SystemWin::mainScreen()
 {
   // This is one of three possible ways to get the primary monitor
   // https://devblogs.microsoft.com/oldnewthing/20141106-00/?p=43683
   HMONITOR monitor = MonitorFromWindow(nullptr, MONITOR_DEFAULTTOPRIMARY);
   if (monitor)
-    return make_ref<WinScreen>(monitor);
+    return make_ref<ScreenWin>(monitor);
   else
     return nullptr;
 }
@@ -56,11 +56,11 @@ static BOOL CALLBACK list_screen_enumproc(HMONITOR monitor,
                                           LPARAM data)
 {
   auto list = (ScreenList*)data;
-  list->push_back(make_ref<WinScreen>(monitor));
+  list->push_back(make_ref<ScreenWin>(monitor));
   return TRUE;
 }
 
-void WinSystem::listScreens(ScreenList& list)
+void SystemWin::listScreens(ScreenList& list)
 {
   EnumDisplayMonitors(
     nullptr, nullptr,

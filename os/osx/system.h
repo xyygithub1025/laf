@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2020  Igara Studio S.A.
+// Copyright (C) 2020-2021  Igara Studio S.A.
 // Copyright (C) 2016  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -13,10 +13,9 @@
 
 #include "os/menus.h"
 #include "os/osx/app.h"
+#include "os/osx/logger.h"
 
 namespace os {
-
-Logger* get_macos_logger();
 
 bool osx_is_key_pressed(KeyScancode scancode);
 int osx_get_unicode_from_scancode(KeyScancode scancode);
@@ -28,31 +27,31 @@ int osx_get_unicode_from_scancode(KeyScancode scancode);
 // Catalina was released).
 void osx_set_async_view(bool state);
 
-class OSXSystem : public CommonSystem {
+class SystemOSX : public CommonSystem {
 public:
-  OSXSystem() : m_menus(nullptr) { }
+  SystemOSX() : m_menus(nullptr) { }
 
   void setAppMode(AppMode appMode) override {
-    OSXApp::instance()->setAppMode(appMode);
+    AppOSX::instance()->setAppMode(appMode);
   }
 
   void markCliFileAsProcessed(const std::string& fn) override {
-    OSXApp::instance()->markCliFileAsProcessed(fn);
+    AppOSX::instance()->markCliFileAsProcessed(fn);
   }
 
   void finishLaunching() override {
     // Start processing NSApplicationDelegate events. (E.g. after
     // calling this we'll receive application:openFiles: and we'll
     // generate DropFiles events.)  events
-    OSXApp::instance()->finishLaunching();
+    AppOSX::instance()->finishLaunching();
   }
 
   void activateApp() override {
-    OSXApp::instance()->activateApp();
+    AppOSX::instance()->activateApp();
   }
 
   Logger* logger() override {
-    return get_macos_logger();
+    return new LoggerOSX;
   }
 
   Menus* menus() override {

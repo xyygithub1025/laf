@@ -52,7 +52,7 @@ X11::~X11()
   //
   //      The event queue should be inside the System instance (so
   //      when the system is deleted, the queue is deleted).
-  ((os::X11EventQueue*)os::EventQueue::instance())->clear();
+  ((os::EventQueueX11*)os::EventQueue::instance())->clear();
 
   if (m_xim) {
     XCloseIM(m_xim);

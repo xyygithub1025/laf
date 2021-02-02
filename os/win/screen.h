@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (c) 2020  Igara Studio S.A.
+// Copyright (c) 2020-2021  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -13,9 +13,9 @@
 
 namespace os {
 
-class WinScreen : public Screen {
+class ScreenWin : public Screen {
 public:
-  WinScreen(HMONITOR hmonitor) : m_monitor(hmonitor) {
+  ScreenWin(HMONITOR hmonitor) : m_monitor(hmonitor) {
     MONITORINFOEXA mi;
     memset((void*)&mi, 0, sizeof(mi));
     mi.cbSize = sizeof(mi);

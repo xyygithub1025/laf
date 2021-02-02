@@ -1,4 +1,5 @@
 // LAF OS Library
+// Copyright (C) 2021  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -57,7 +58,7 @@ int wmain(int argc, wchar_t* wargv[], wchar_t* envp[]) {
 
 int main(int argc, char* argv[]) {
 #if __APPLE__
-  os::OSXApp app;
+  os::AppOSX app;
   if (!app.init())
     return 1;
 #elif !defined(_WIN32)

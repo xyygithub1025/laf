@@ -17,9 +17,9 @@
 
 namespace os {
 
-class OSXScreen : public Screen {
+class ScreenOSX : public Screen {
 public:
-  OSXScreen(NSScreen* screen) : m_screen(screen) {
+  ScreenOSX(NSScreen* screen) : m_screen(screen) {
     auto rc = screen.frame;
     auto wa = screen.visibleFrame;
 

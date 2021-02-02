@@ -20,7 +20,7 @@ namespace os {
   class WindowOSX;
 }
 
-@interface OSXView : NSView {
+@interface ViewOSX : NSView {
 @private
   NSTrackingArea* __strong m_trackingArea;
   NSCursor* __strong m_nsCursor;

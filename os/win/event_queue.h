@@ -16,7 +16,7 @@
 
 namespace os {
 
-class WinEventQueue : public EventQueue {
+class EventQueueWin : public EventQueue {
 public:
   void queueEvent(const Event& ev) override;
   void getEvent(Event& ev, bool canWait) override;
@@ -25,7 +25,7 @@ private:
   std::queue<Event> m_events;
 };
 
-using EventQueueImpl = WinEventQueue;
+using EventQueueImpl = EventQueueWin;
 
 } // namespace os
 
