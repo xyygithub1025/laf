@@ -19,6 +19,7 @@
 #include "os/native_cursor.h"
 #include "os/screen.h"
 #include "os/surface_list.h"
+#include "os/window.h"
 
 #include <X11/Xatom.h>
 #include <X11/Xcursor/Xcursor.h>
@@ -30,24 +31,29 @@
 
 namespace os {
 
-class DisplaySpec;
 class Surface;
+class WindowSpec;
 
-class X11Window {
+class WindowX11 : public Window {
 public:
-  X11Window(::Display* display, const DisplaySpec& spec);
-  ~X11Window();
+  WindowX11(::Display* display,
+            const WindowSpec& spec);
+  ~WindowX11();
 
   void queueEvent(Event& ev);
 
-  os::ScreenRef screen() const;
-  os::ColorSpaceRef colorSpace() const;
+  os::ScreenRef screen() const override;
+  os::ColorSpaceRef colorSpace() const override;
 
-  int scale() const { return m_scale; }
-  void setScale(const int scale);
+  int scale() const override { return m_scale; }
+  void setScale(const int scale) override;
 
-  bool isVisible() const;
-  void setVisible(bool visible);
+  bool isVisible() const override;
+  void setVisible(bool visible) override;
+
+  void maximize() override;
+  bool isMaximized() const override;
+  bool isMinimized() const override;
 
   bool isFullscreen() const;
   void setFullscreen(bool state);
@@ -71,15 +77,17 @@ public:
                             const int scale);
 
   ::Display* x11display() const { return m_display; }
-  ::Window handle() const { return m_window; }
+  ::Window x11window() const { return m_window; }
   ::GC gc() const { return m_gc; }
+
+  NativeHandle nativeHandle() const override { return (NativeHandle)x11window(); }
 
   void setTranslateDeadKeys(bool state) {
     // TODO
   }
 
   void processX11Event(XEvent& event);
-  static X11Window* getPointerFromHandle(Window handle);
+  static WindowX11* getPointerFromHandle(::Window handle);
 
 protected:
   virtual void onQueueEvent(Event& event) = 0;
@@ -89,8 +97,8 @@ protected:
 private:
   void setWMClass(const std::string& res_class);
   bool setX11Cursor(::Cursor xcursor);
-  static void addWindow(X11Window* window);
-  static void removeWindow(X11Window* window);
+  static void addWindow(WindowX11* window);
+  static void removeWindow(WindowX11* window);
 
   ::Display* m_display;
   ::Window m_window;

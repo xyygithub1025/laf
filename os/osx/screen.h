@@ -8,6 +8,8 @@
 #define OS_OSX_SCREEN_H_INCLUDED
 #pragma once
 
+#ifdef __OBJC__
+
 #include "os/osx/color_space.h"
 #include "os/screen.h"
 
@@ -49,5 +51,7 @@ private:
 };
 
 } // namespace os
+
+#endif // __OBJC__
 
 #endif

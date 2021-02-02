@@ -5,17 +5,19 @@
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
 
-class OSXWindowImpl;
+namespace os {
+  class WindowOSX;
+}
 
-@interface OSXWindowDelegate : NSObject {
+@interface WindowOSXDelegate : NSObject {
 @private
-  OSXWindowImpl* __weak m_impl;
+  os::WindowOSX* __weak m_impl;
 }
 @end
 
-@implementation OSXWindowDelegate
+@implementation WindowOSXDelegate
 
-- (OSXWindowDelegate*)initWithWindowImpl:(OSXWindowImpl*)impl
+- (WindowOSXDelegate*)initWithWindowImpl:(os::WindowOSX*)impl
 {
   m_impl = impl;
   return self;
@@ -30,7 +32,7 @@ class OSXWindowImpl;
 {
   if (m_impl) {
     os::Event ev;
-    ev.setType(os::Event::CloseDisplay);
+    ev.setType(os::Event::CloseWindow);
     m_impl->queueEvent(ev);
   }
   return NO;

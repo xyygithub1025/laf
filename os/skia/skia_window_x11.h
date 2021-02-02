@@ -12,6 +12,7 @@
 #include "base/disable_copying.h"
 #include "gfx/size.h"
 #include "os/native_cursor.h"
+#include "os/skia/skia_window_base.h"
 #include "os/x11/window.h"
 
 #include <string>
@@ -22,18 +23,12 @@ namespace os {
 class EventQueue;
 class SkiaDisplay;
 
-class SkiaWindow : public X11Window {
+class SkiaWindowX11 : public SkiaWindowBase<WindowX11> {
 public:
   enum class Backend { NONE, GL };
 
-  SkiaWindow(EventQueue* queue, SkiaDisplay* display,
-             const DisplaySpec& spec);
-  ~SkiaWindow();
-
-  void setVisible(bool visible);
-  void maximize();
-  bool isMaximized() const;
-  bool isMinimized() const;
+  SkiaWindowX11(EventQueue* queue,
+                const WindowSpec& spec);
 
   std::string getLayout() { return ""; }
   void setLayout(const std::string& layout) { }
@@ -44,10 +39,9 @@ private:
   void onResize(const gfx::Size& sz) override;
 
   EventQueue* m_queue;
-  SkiaDisplay* m_display;
   std::vector<uint8_t> m_buffer;
 
-  DISABLE_COPYING(SkiaWindow);
+  DISABLE_COPYING(SkiaWindowX11);
 };
 
 } // namespace os

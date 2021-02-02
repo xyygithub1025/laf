@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2020  Igara Studio S.A.
+// Copyright (C) 2020-2021  Igara Studio S.A.
 // Copyright (C) 2012-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -15,10 +15,10 @@
 
 namespace os {
 
-class WindowSystem : public CommonSystem {
+class WinSystem : public CommonSystem {
 public:
-  WindowSystem();
-  ~WindowSystem();
+  WinSystem();
+  ~WinSystem();
 
   WinAPI& winApi() { return m_winApi; }
   WintabAPI& wintabApi() { return m_wintabApi; }

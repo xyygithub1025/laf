@@ -14,38 +14,38 @@
 #include <cstdio>
 #include <vector>
 
-static std::vector<os::DisplayRef> displays;
+static std::vector<os::WindowRef> windows;
 
 const char* lines[] = { "A: Switch mouse cursor to Arrow <-> Move",
                         "H: Hide window (or show all windows again)",
                         "",
-                        "C: Change display frame to content",
-                        "F: Change display content to frame",
-                        "W: Change display content to workarea",
+                        "C: Change window frame to content",
+                        "F: Change window content to frame",
+                        "W: Change window content to workarea",
                         "",
-                        "D: Duplicate display",
+                        "D: Duplicate window",
                         "",
                         "Q: Close all windows",
-                        "ESC: Close this display" };
+                        "ESC: Close this window" };
 
-static void redraw_display(os::Display* display)
+static void redraw_window(os::Window* window)
 {
-  os::Surface* s = display->surface();
+  os::Surface* s = window->surface();
   os::Paint paint;
   paint.color(gfx::rgba(0, 0, 0));
-  s->drawRect(display->bounds(), paint);
+  s->drawRect(window->bounds(), paint);
 
   paint.color(gfx::rgba(255, 255, 255));
 
   char buf[256];
   int y = 12;
 
-  gfx::Rect rc = display->frame();
+  gfx::Rect rc = window->frame();
   std::sprintf(buf, "Frame = (%d %d %d %d)", rc.x, rc.y, rc.w, rc.h);
   os::draw_text(s, nullptr, buf, gfx::Point(0, y), &paint);
   y += 12;
 
-  rc = display->contentRect();
+  rc = window->contentRect();
   std::sprintf(buf, "Content Rect = (%d %d %d %d)", rc.x, rc.y, rc.w, rc.h);
   os::draw_text(s, nullptr, buf, gfx::Point(0, y), &paint);
   y += 12;
@@ -56,44 +56,44 @@ static void redraw_display(os::Display* display)
   }
 
   paint.style(os::Paint::Style::Stroke);
-  s->drawRect(display->bounds(), paint);
+  s->drawRect(window->bounds(), paint);
 }
 
-static os::DisplayRef add_display(const std::string& title,
-                                  const os::DisplaySpec& spec)
+static os::WindowRef add_window(const std::string& title,
+                                  const os::WindowSpec& spec)
 {
-  os::DisplayRef newDisplay = os::instance()->makeDisplay(spec);
-  newDisplay->setNativeMouseCursor(os::kArrowCursor);
-  newDisplay->setTitle(title);
-  newDisplay->handleResize = redraw_display;
-  displays.emplace_back(newDisplay);
+  os::WindowRef newWindow = os::instance()->makeWindow(spec);
+  newWindow->setNativeMouseCursor(os::kArrowCursor);
+  newWindow->setTitle(title);
+  newWindow->handleResize = redraw_window;
+  windows.emplace_back(newWindow);
 
-  redraw_display(newDisplay.get());
-  return newDisplay;
+  redraw_window(newWindow.get());
+  return newWindow;
 }
 
-static void check_show_all_displays()
+static void check_show_all_windows()
 {
-  // If all displays are hidden, show then again
-  auto hidden = std::count_if(displays.begin(), displays.end(),
-                              [](os::DisplayRef display){
-                                return !display->isVisible();
+  // If all windows are hidden, show then again
+  auto hidden = std::count_if(windows.begin(), windows.end(),
+                              [](os::WindowRef window){
+                                return !window->isVisible();
                               });
-  if (hidden == displays.size()) {
-    std::for_each(displays.begin(), displays.end(),
-                  [](os::DisplayRef display){
-                    display->setVisible(true);
+  if (hidden == windows.size()) {
+    std::for_each(windows.begin(), windows.end(),
+                  [](os::WindowRef window){
+                    window->setVisible(true);
                   });
   }
 }
 
-static void destroy_display(const os::DisplayRef& display)
+static void destroy_window(const os::WindowRef& window)
 {
-  auto it = std::find(displays.begin(), displays.end(), display);
-  if (it != displays.end())
-    displays.erase(it);
+  auto it = std::find(windows.begin(), windows.end(), window);
+  if (it != windows.end())
+    windows.erase(it);
 
-  check_show_all_displays();
+  check_show_all_windows();
 }
 
 int app_main(int argc, char* argv[])
@@ -107,9 +107,9 @@ int app_main(int argc, char* argv[])
   system->listScreens(screens);
   char chr = 'A';
   for (os::ScreenRef& screen : screens) {
-    os::DisplaySpec spec;
+    os::WindowSpec spec;
     spec.titled(true);
-    spec.position(os::DisplaySpec::Position::Frame);
+    spec.position(os::WindowSpec::Position::Frame);
     spec.frame(screen->workarea());
     spec.screen(screen);
 
@@ -118,14 +118,14 @@ int app_main(int argc, char* argv[])
                            gfx::PointF(0.0, 0.5),
                            gfx::PointF(0.5, 0.5) };
     for (auto& p : pos) {
-      os::DisplaySpec s = spec;
+      os::WindowSpec s = spec;
       gfx::Rect frame = s.frame();
       frame.x += frame.w*p.x;
       frame.y += frame.h*p.y;
       frame.w /= 2;
       frame.h /= 2;
       s.frame(frame);
-      add_display(std::string(1, chr++), s);
+      add_window(std::string(1, chr++), s);
     }
   }
 
@@ -134,79 +134,79 @@ int app_main(int argc, char* argv[])
 
   os::EventQueue* queue = system->eventQueue();
   os::Event ev;
-  while (!displays.empty()) {
+  while (!windows.empty()) {
     queue->getEvent(ev, true);
 
     switch (ev.type()) {
 
       case os::Event::CloseApp:
-        displays.clear(); // Close all displays
+        windows.clear(); // Close all windows
         break;
 
-      case os::Event::CloseDisplay:
-        destroy_display(ev.display());
+      case os::Event::CloseWindow:
+        destroy_window(ev.window());
         break;
 
-      case os::Event::ResizeDisplay:
-        redraw_display(ev.display().get());
-        ev.display()->invalidate();
+      case os::Event::ResizeWindow:
+        redraw_window(ev.window().get());
+        ev.window()->invalidate();
         break;
 
       case os::Event::KeyDown:
         switch (ev.scancode()) {
 
           case os::kKeyQ:
-            displays.clear();
+            windows.clear();
             break;
 
           case os::kKeyEsc:
-            destroy_display(ev.display());
+            destroy_window(ev.window());
             break;
 
-          // Switch between Arrow/Move cursor in this specific display
+          // Switch between Arrow/Move cursor in this specific window
           case os::kKeyA:
-            ev.display()->setNativeMouseCursor(
-              ev.display()->nativeMouseCursor() == os::kArrowCursor ?
+            ev.window()->setNativeMouseCursor(
+              ev.window()->nativeMouseCursor() == os::kArrowCursor ?
                 os::kMoveCursor:
                 os::kArrowCursor);
             break;
 
           case os::kKeyH:
-            ev.display()->setVisible(!ev.display()->isVisible());
-            check_show_all_displays();
+            ev.window()->setVisible(!ev.window()->isVisible());
+            check_show_all_windows();
             break;
 
-          // Duplicate display
+          // Duplicate window
           case os::kKeyD: {
-            std::string title = ev.display()->title();
-            os::DisplaySpec spec;
-            spec.position(os::DisplaySpec::Position::Frame);
-            spec.frame(ev.display()->frame());
-            add_display(title, spec);
+            std::string title = ev.window()->title();
+            os::WindowSpec spec;
+            spec.position(os::WindowSpec::Position::Frame);
+            spec.frame(ev.window()->frame());
+            add_window(title, spec);
             break;
           }
 
           case os::kKeyF:
           case os::kKeyC:
           case os::kKeyW: {
-            std::string title = ev.display()->title();
-            os::DisplaySpec spec;
+            std::string title = ev.window()->title();
+            os::WindowSpec spec;
             if (ev.scancode() == os::kKeyF) {
-              spec.position(os::DisplaySpec::Position::ContentRect);
-              spec.contentRect(ev.display()->frame());
+              spec.position(os::WindowSpec::Position::ContentRect);
+              spec.contentRect(ev.window()->frame());
             }
             else if (ev.scancode() == os::kKeyC) {
-              spec.position(os::DisplaySpec::Position::Frame);
-              spec.frame(ev.display()->contentRect());
+              spec.position(os::WindowSpec::Position::Frame);
+              spec.frame(ev.window()->contentRect());
             }
             else if (ev.scancode() == os::kKeyW) {
-              spec.position(os::DisplaySpec::Position::Frame);
-              spec.frame(ev.display()->screen()->workarea());
+              spec.position(os::WindowSpec::Position::Frame);
+              spec.frame(ev.window()->screen()->workarea());
             }
 
-            // TODO add a new os::Display::setSpec() method instead of re-creating display
-            destroy_display(ev.display());
-            add_display(title, spec);
+            // TODO add a new os::Window::setSpec() method instead of re-creating window
+            destroy_window(ev.window());
+            add_window(title, spec);
             break;
           }
 
@@ -214,9 +214,9 @@ int app_main(int argc, char* argv[])
           case os::kKeyUp:
           case os::kKeyRight:
           case os::kKeyDown: {
-            std::string title = ev.display()->title();
-            os::DisplaySpec spec;
-            gfx::Rect rc = ev.display()->frame();
+            std::string title = ev.window()->title();
+            os::WindowSpec spec;
+            gfx::Rect rc = ev.window()->frame();
 
             switch (ev.scancode()) {
               case os::kKeyLeft:  rc.x -= rc.w; break;
@@ -225,11 +225,11 @@ int app_main(int argc, char* argv[])
               case os::kKeyDown:  rc.y += rc.h; break;
             }
 
-            spec.position(os::DisplaySpec::Position::Frame);
+            spec.position(os::WindowSpec::Position::Frame);
             spec.frame(rc);
 
-            destroy_display(ev.display());
-            add_display(title, spec);
+            destroy_window(ev.window());
+            add_window(title, spec);
             break;
           }
 

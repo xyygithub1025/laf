@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2020  Igara Studio S.A.
+// Copyright (C) 2020-2021  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -17,30 +17,30 @@ namespace os {
 bool win_is_key_pressed(KeyScancode scancode);
 int win_get_unicode_from_scancode(KeyScancode scancode);
 
-WindowSystem::WindowSystem() { }
-WindowSystem::~WindowSystem() { }
+WinSystem::WinSystem() { }
+WinSystem::~WinSystem() { }
 
-void WindowSystem::setAppName(const std::string& appName)
+void WinSystem::setAppName(const std::string& appName)
 {
   m_appName = appName;
 }
 
-void WindowSystem::setTabletAPI(TabletAPI api)
+void WinSystem::setTabletAPI(TabletAPI api)
 {
   m_tabletAPI = api;
 }
 
-bool WindowSystem::isKeyPressed(KeyScancode scancode)
+bool WinSystem::isKeyPressed(KeyScancode scancode)
 {
   return win_is_key_pressed(scancode);
 }
 
-int WindowSystem::getUnicodeFromScancode(KeyScancode scancode)
+int WinSystem::getUnicodeFromScancode(KeyScancode scancode)
 {
   return win_get_unicode_from_scancode(scancode);
 }
 
-ScreenRef WindowSystem::mainScreen()
+ScreenRef WinSystem::mainScreen()
 {
   // This is one of three possible ways to get the primary monitor
   // https://devblogs.microsoft.com/oldnewthing/20141106-00/?p=43683
@@ -60,7 +60,7 @@ static BOOL CALLBACK list_screen_enumproc(HMONITOR monitor,
   return TRUE;
 }
 
-void WindowSystem::listScreens(ScreenList& list)
+void WinSystem::listScreens(ScreenList& list)
 {
   EnumDisplayMonitors(
     nullptr, nullptr,

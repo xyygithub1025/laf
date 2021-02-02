@@ -25,49 +25,49 @@
 #define OS_USE_POINTER_API_FOR_MOUSE 0
 
 namespace os {
-  class DisplaySpec;
   class Surface;
-  class WindowSystem;
+  class WinSystem;
+  class WindowSpec;
 
-  class WinWindow {
+  class WindowWin : public Window {
   public:
-    WinWindow(const DisplaySpec& spec);
-    ~WinWindow();
+    WindowWin(const WindowSpec& spec);
+    ~WindowWin();
 
     void queueEvent(Event& ev);
-    os::ScreenRef screen() const;
-    os::ColorSpaceRef colorSpace() const;
-    int scale() const { return m_scale; }
-    void setScale(int scale);
-    bool isVisible() const;
-    void setVisible(bool visible);
-    void maximize();
-    bool isMaximized() const;
-    bool isMinimized() const;
-    bool isFullscreen() const;
-    void setFullscreen(bool state);
+    os::ScreenRef screen() const override;
+    os::ColorSpaceRef colorSpace() const override;
+    int scale() const override { return m_scale; }
+    void setScale(int scale) override;
+    bool isVisible() const override;
+    void setVisible(bool visible) override;
+    void maximize() override;
+    bool isMaximized() const override;
+    bool isMinimized() const override;
+    bool isFullscreen() const override;
+    void setFullscreen(bool state) override;
     gfx::Size clientSize() const;
     gfx::Size restoredSize() const;
-    gfx::Rect frame() const;
-    gfx::Rect contentRect() const;
-    std::string title() const;
-    void setTitle(const std::string& title);
-    void captureMouse();
-    void releaseMouse();
-    void setMousePosition(const gfx::Point& position);
-    bool setNativeMouseCursor(NativeCursor cursor);
+    gfx::Rect frame() const override;
+    gfx::Rect contentRect() const override;
+    std::string title() const override;
+    void setTitle(const std::string& title) override;
+    void captureMouse() override;
+    void releaseMouse() override;
+    void setMousePosition(const gfx::Point& position) override;
+    bool setNativeMouseCursor(NativeCursor cursor) override;
     bool setNativeMouseCursor(const os::Surface* surface,
                               const gfx::Point& focus,
-                              const int scale);
-    void invalidateRegion(const gfx::Region& rgn);
-    std::string getLayout();
+                              const int scale) override;
+    void invalidateRegion(const gfx::Region& rgn) override;
+    std::string getLayout() override;
 
-    void setLayout(const std::string& layout);
+    void setLayout(const std::string& layout) override;
     void setTranslateDeadKeys(bool state);
-    void setInterpretOneFingerGestureAsMouseMovement(bool state);
+    void setInterpretOneFingerGestureAsMouseMovement(bool state) override;
     void onTabletAPIChange();
 
-    HWND handle() { return m_hwnd; }
+    NativeHandle nativeHandle() const override { return m_hwnd; }
 
   private:
     bool setCursor(HCURSOR hcursor, bool custom);
@@ -97,14 +97,14 @@ namespace os {
     virtual void onChangeColorSpace() { }
 
     static void registerClass();
-    static HWND createHwnd(WinWindow* self, const DisplaySpec& spec);
+    static HWND createHwnd(WindowWin* self, const WindowSpec& spec);
     static LRESULT CALLBACK staticWndProc(
       HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
     static void CALLBACK staticInteractionContextCallback(
       void* clientData,
       const INTERACTION_CONTEXT_OUTPUT* output);
 
-    static WindowSystem* system();
+    static WinSystem* system();
 
     mutable HWND m_hwnd;
     HCURSOR m_hcursor;

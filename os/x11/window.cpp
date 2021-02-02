@@ -17,11 +17,11 @@
 #include "gfx/border.h"
 #include "gfx/rect.h"
 #include "gfx/region.h"
-#include "os/display_spec.h"
 #include "os/event.h"
 #include "os/event_queue.h"
 #include "os/surface.h"
 #include "os/system.h"
+#include "os/window_spec.h"
 #include "os/x11/keys.h"
 #include "os/x11/screen.h"
 #include "os/x11/x11.h"
@@ -53,8 +53,8 @@ Cursor empty_xcursor = None;
 
 // See https://bugs.freedesktop.org/show_bug.cgi?id=12871 for more
 // information, it looks like the official way to convert a X Window
-// into our own user data pointer (X11Window instance) is using a map.
-std::map<::Window, X11Window*> g_activeWindows;
+// into our own user data pointer (WindowX11 instance) is using a map.
+std::map<::Window, WindowX11*> g_activeWindows;
 
 // Last time an XInput event was received, it's used to avoid
 // processing mouse motion events that are generated at the same time
@@ -84,7 +84,7 @@ gfx::Point get_mouse_wheel_delta(int button)
 } // anonymous namespace
 
 // static
-X11Window* X11Window::getPointerFromHandle(Window handle)
+WindowX11* WindowX11::getPointerFromHandle(::Window handle)
 {
   auto it = g_activeWindows.find(handle);
   if (it != g_activeWindows.end())
@@ -94,16 +94,16 @@ X11Window* X11Window::getPointerFromHandle(Window handle)
 }
 
 // static
-void X11Window::addWindow(X11Window* window)
+void WindowX11::addWindow(WindowX11* window)
 {
-  ASSERT(g_activeWindows.find(window->handle()) == g_activeWindows.end());
-  g_activeWindows[window->handle()] = window;
+  ASSERT(g_activeWindows.find(window->x11window()) == g_activeWindows.end());
+  g_activeWindows[window->x11window()] = window;
 }
 
 // static
-void X11Window::removeWindow(X11Window* window)
+void WindowX11::removeWindow(WindowX11* window)
 {
-  auto it = g_activeWindows.find(window->handle());
+  auto it = g_activeWindows.find(window->x11window());
   ASSERT(it != g_activeWindows.end());
   if (it != g_activeWindows.end()) {
     ASSERT(it->second == window);
@@ -111,7 +111,7 @@ void X11Window::removeWindow(X11Window* window)
   }
 }
 
-X11Window::X11Window(::Display* display, const DisplaySpec& spec)
+WindowX11::WindowX11(::Display* display, const WindowSpec& spec)
   : m_display(display)
   , m_gc(nullptr)
   , m_cursor(None)
@@ -122,7 +122,7 @@ X11Window::X11Window(::Display* display, const DisplaySpec& spec)
   , m_lastClientSize(0, 0)
   , m_doubleClickButton(Event::NoneButton)
 {
-  // Initialize special messages (just the first time a X11Window is
+  // Initialize special messages (just the first time a WindowX11 is
   // created)
   if (!WM_DELETE_WINDOW)
     WM_DELETE_WINDOW = XInternAtom(m_display, "WM_DELETE_WINDOW", False);
@@ -192,10 +192,10 @@ X11Window::X11Window(::Display* display, const DisplaySpec& spec)
                       XNFocusWindow, m_window,
                       nullptr);
   }
-  X11Window::addWindow(this);
+  WindowX11::addWindow(this);
 }
 
-X11Window::~X11Window()
+WindowX11::~WindowX11()
 {
   if (m_xcursorImage != None)
     XcursorImageDestroy(m_xcursorImage);
@@ -204,49 +204,64 @@ X11Window::~X11Window()
   XFreeGC(m_display, m_gc);
   XDestroyWindow(m_display, m_window);
 
-  X11Window::removeWindow(this);
+  WindowX11::removeWindow(this);
 }
 
-void X11Window::queueEvent(Event& ev)
+void WindowX11::queueEvent(Event& ev)
 {
   onQueueEvent(ev);
 }
 
-os::ScreenRef X11Window::screen() const
+os::ScreenRef WindowX11::screen() const
 {
   return os::make_ref<X11Screen>(DefaultScreen(m_display));
 }
 
-os::ColorSpaceRef X11Window::colorSpace() const
+os::ColorSpaceRef WindowX11::colorSpace() const
 {
   // TODO get the window color space
   return os::instance()->makeColorSpace(gfx::ColorSpace::MakeSRGB());
 }
 
-void X11Window::setScale(const int scale)
+void WindowX11::setScale(const int scale)
 {
   m_scale = scale;
   onResize(clientSize());
 }
 
-bool X11Window::isVisible() const
+bool WindowX11::isVisible() const
 {
   // TODO
   return true;
 }
 
-void X11Window::setVisible(bool visible)
+void WindowX11::setVisible(bool visible)
 {
   // TODO
 }
 
-bool X11Window::isFullscreen() const
+void WindowX11::maximize()
+{
+  // TODO
+}
+
+bool WindowX11::isMaximized() const
+{
+  return false;
+}
+
+bool WindowX11::isMinimized() const
+{
+  return false;
+}
+
+bool WindowX11::isFullscreen() const
 {
   // TODO ask _NET_WM_STATE_FULLSCREEN atom in _NET_WM_STATE window property
   return m_fullScreen;
 }
 
-void X11Window::setFullscreen(bool state)
+void WindowX11::setFullscreen(bool state)
 {
   if (isFullscreen() == state)
     return;
@@ -286,7 +301,7 @@ void X11Window::setFullscreen(bool state)
   m_fullScreen = state;
 }
 
-void X11Window::setTitle(const std::string& title)
+void WindowX11::setTitle(const std::string& title)
 {
   XTextProperty prop;
   prop.value = (unsigned char*)title.c_str();
@@ -296,7 +311,7 @@ void X11Window::setTitle(const std::string& title)
   XSetWMName(m_display, m_window, &prop);
 }
 
-void X11Window::setIcons(const SurfaceList& icons)
+void WindowX11::setIcons(const SurfaceList& icons)
 {
   if (!m_display || !m_window)
     return;
@@ -336,29 +351,29 @@ void X11Window::setIcons(const SurfaceList& icons)
   }
 }
 
-gfx::Rect X11Window::frame() const
+gfx::Rect WindowX11::frame() const
 {
   gfx::Rect rc = contentRect();
   rc.enlarge(m_frameExtents);
   return rc;
 }
 
-gfx::Rect X11Window::contentRect() const
+gfx::Rect WindowX11::contentRect() const
 {
-  Window root;
+  ::Window root;
   int x, y;
   unsigned int width, height, border, depth;
   XGetGeometry(m_display, m_window, &root,
                &x, &y, &width, &height, &border, &depth);
 
-  Window child_return;
+  ::Window child_return;
   XTranslateCoordinates(m_display, m_window, root,
                         0, 0, &x, &y, &child_return);
 
   return gfx::Rect(x, y, int(width), int(height));
 }
 
-std::string X11Window::title() const
+std::string WindowX11::title() const
 {
   XTextProperty prop;
   if (!XGetWMName(m_display, m_window, &prop) || !prop.value)
@@ -369,9 +384,9 @@ std::string X11Window::title() const
   return value;
 }
 
-gfx::Size X11Window::clientSize() const
+gfx::Size WindowX11::clientSize() const
 {
-  Window root;
+  ::Window root;
   int x, y;
   unsigned int width, height, border, depth;
   XGetGeometry(m_display, m_window, &root,
@@ -379,9 +394,9 @@ gfx::Size X11Window::clientSize() const
   return gfx::Size(int(width), int(height));
 }
 
-gfx::Size X11Window::restoredSize() const
+gfx::Size WindowX11::restoredSize() const
 {
-  Window root;
+  ::Window root;
   int x, y;
   unsigned int width, height, border, depth;
   XGetGeometry(m_display, m_window, &root,
@@ -389,7 +404,7 @@ gfx::Size X11Window::restoredSize() const
   return gfx::Size(int(width), int(height));
 }
 
-void X11Window::captureMouse()
+void WindowX11::captureMouse()
 {
   XGrabPointer(m_display, m_window, False,
                PointerMotionMask | ButtonPressMask | ButtonReleaseMask,
@@ -397,14 +412,14 @@ void X11Window::captureMouse()
                None, None, CurrentTime);
 }
 
-void X11Window::releaseMouse()
+void WindowX11::releaseMouse()
 {
   XUngrabPointer(m_display, CurrentTime);
 }
 
-void X11Window::setMousePosition(const gfx::Point& position)
+void WindowX11::setMousePosition(const gfx::Point& position)
 {
-  Window root;
+  ::Window root;
   int x, y;
   unsigned int w, h, border, depth;
   XGetGeometry(m_display, m_window, &root,
@@ -413,7 +428,7 @@ void X11Window::setMousePosition(const gfx::Point& position)
                position.x*m_scale, position.y*m_scale);
 }
 
-void X11Window::invalidateRegion(const gfx::Region& rgn)
+void WindowX11::invalidateRegion(const gfx::Region& rgn)
 {
   gfx::Rect bounds = rgn.bounds();
   onPaint(gfx::Rect(bounds.x*m_scale,
@@ -422,7 +437,7 @@ void X11Window::invalidateRegion(const gfx::Region& rgn)
                     bounds.h*m_scale));
 }
 
-bool X11Window::setNativeMouseCursor(NativeCursor cursor)
+bool WindowX11::setNativeMouseCursor(NativeCursor cursor)
 {
   Cursor xcursor = None;
 
@@ -501,7 +516,7 @@ bool X11Window::setNativeMouseCursor(NativeCursor cursor)
   return setX11Cursor(xcursor);
 }
 
-bool X11Window::setNativeMouseCursor(const os::Surface* surface,
+bool WindowX11::setNativeMouseCursor(const os::Surface* surface,
                                      const gfx::Point& focus,
                                      const int scale)
 {
@@ -556,7 +571,7 @@ bool X11Window::setNativeMouseCursor(const os::Surface* surface,
   return setX11Cursor(xcursor);
 }
 
-void X11Window::setWMClass(const std::string& res_class)
+void WindowX11::setWMClass(const std::string& res_class)
 {
   std::string res_name = base::string_to_lower(res_class);
   XClassHint ch;
@@ -565,7 +580,7 @@ void X11Window::setWMClass(const std::string& res_class)
   XSetClassHint(m_display, m_window, &ch);
 }
 
-bool X11Window::setX11Cursor(::Cursor xcursor)
+bool WindowX11::setX11Cursor(::Cursor xcursor)
 {
   if (m_cursor != None) {
     if (m_cursor != empty_xcursor) // Don't delete empty_xcursor
@@ -581,7 +596,7 @@ bool X11Window::setX11Cursor(::Cursor xcursor)
     return false;
 }
 
-void X11Window::processX11Event(XEvent& event)
+void WindowX11::processX11Event(XEvent& event)
 {
   auto xinput = &X11::instance()->xinput();
   if (xinput->handleExtensionEvent(event)) {
@@ -801,7 +816,7 @@ void X11Window::processX11Event(XEvent& event)
       // When the close button is pressed
       if (Atom(event.xclient.data.l[0]) == WM_DELETE_WINDOW) {
         Event ev;
-        ev.setType(Event::CloseDisplay);
+        ev.setType(Event::CloseWindow);
         queueEvent(ev);
       }
       break;

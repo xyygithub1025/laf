@@ -14,7 +14,7 @@
 #include "base/log.h"
 #include "os/event.h"
 #include "os/event_queue.h"
-#include "os/skia/skia_display.h"
+#include "os/skia/skia_window.h"
 #include "os/system.h"
 
 #if SK_SUPPORT_GPU
@@ -38,11 +38,10 @@
 
 namespace os {
 
-SkiaWindow::SkiaWindow(EventQueue* queue, SkiaDisplay* display,
-                       const DisplaySpec& spec)
-  : WinWindow(spec)
+SkiaWindowWin::SkiaWindowWin(EventQueue* queue,
+                             const WindowSpec& spec)
+  : SkiaWindowBase<WindowWin>(spec)
   , m_queue(queue)
-  , m_display(display)
   , m_backend(Backend::NONE)
 #if SK_SUPPORT_GPU
   , m_skSurface(nullptr)
@@ -50,9 +49,10 @@ SkiaWindow::SkiaWindow(EventQueue* queue, SkiaDisplay* display,
   , m_stencilBits(0)
 #endif
 {
+  initColorSpace();
 }
 
-SkiaWindow::~SkiaWindow()
+SkiaWindowWin::~SkiaWindowWin()
 {
   switch (m_backend) {
 
@@ -71,13 +71,13 @@ SkiaWindow::~SkiaWindow()
   }
 }
 
-void SkiaWindow::onQueueEvent(Event& ev)
+void SkiaWindowWin::onQueueEvent(Event& ev)
 {
-  ev.setDisplay(AddRef(m_display));
+  ev.setWindow(AddRef(this));
   m_queue->queueEvent(ev);
 }
 
-void SkiaWindow::onPaint(HDC hdc)
+void SkiaWindowWin::onPaint(HDC hdc)
 {
   switch (m_backend) {
 
@@ -91,7 +91,7 @@ void SkiaWindow::onPaint(HDC hdc)
     case Backend::ANGLE:
       // Flush operations to the SkCanvas
       {
-        SkiaSurface* surface = static_cast<SkiaSurface*>(m_display->getSurface());
+        SkiaSurface* surface = static_cast<SkiaSurface*>(this->getSurface());
         surface->flush();
       }
 
@@ -133,9 +133,9 @@ void SkiaWindow::onPaint(HDC hdc)
   }
 }
 
-void SkiaWindow::paintHDC(HDC hdc)
+void SkiaWindowWin::paintHDC(HDC hdc)
 {
-  SkiaSurface* surface = static_cast<SkiaSurface*>(m_display->surface());
+  SkiaSurface* surface = static_cast<SkiaSurface*>(this->surface());
   ASSERT(surface);
   if (!surface->isValid())
     return;
@@ -199,7 +199,7 @@ static const GrGLInterface* get_angle_gl_interface() {
   return GrGLAssembleGLESInterface(&context, angle_get_gl_proc);
 }
 
-bool SkiaWindow::attachANGLE()
+bool SkiaWindowWin::attachANGLE()
 {
   if (!m_glCtx) {
     try {
@@ -235,7 +235,7 @@ bool SkiaWindow::attachANGLE()
 
 #endif // SK_ANGLE
 
-bool SkiaWindow::attachGL()
+bool SkiaWindowWin::attachGL()
 {
   if (!m_glCtx) {
     try {
@@ -269,10 +269,10 @@ bool SkiaWindow::attachGL()
     return false;
 }
 
-void SkiaWindow::detachGL()
+void SkiaWindowWin::detachGL()
 {
-  if (m_glCtx && m_display)
-    m_display->resetSkiaSurface();
+  if (m_glCtx)
+    this->resetSkiaSurface();
 
   m_skSurface.reset(nullptr);
   m_skSurfaceDirect.reset(nullptr);
@@ -280,9 +280,9 @@ void SkiaWindow::detachGL()
   m_glCtx.reset(nullptr);
 }
 
-void SkiaWindow::createRenderTarget(const gfx::Size& size)
+void SkiaWindowWin::createRenderTarget(const gfx::Size& size)
 {
-  int scale = m_display->scale();
+  int scale = this->scale();
   m_lastSize = size;
 
   GrGLint buffer;
@@ -322,12 +322,12 @@ void SkiaWindow::createRenderTarget(const gfx::Size& size)
   if (!m_skSurface)
     throw std::runtime_error("Error creating surface for main display");
 
-  m_display->setSkiaSurface(new SkiaSurface(m_skSurface));
+  this->setSkiaSurface(new SkiaSurface(m_skSurface));
 }
 
 #endif // SK_SUPPORT_GPU
 
-void SkiaWindow::onResize(const gfx::Size& size)
+void SkiaWindowWin::onResize(const gfx::Size& size)
 {
   bool gpu = instance()->gpuAcceleration();
   (void)gpu;
@@ -358,36 +358,35 @@ void SkiaWindow::onResize(const gfx::Size& size)
 
   // TODO the next code is quite similar to SkiaWindow::onResize() for X11.
 
-  m_display->resizeSkiaSurface(size);
-  if (m_display->handleResize)
-    m_display->handleResize(m_display);
+  this->resizeSkiaSurface(size);
+  if (this->handleResize)
+    this->handleResize(this);
   else if (!m_resizing) {
     Event ev;
-    ev.setType(Event::ResizeDisplay);
-    ev.setDisplay(AddRef(m_display));
+    ev.setType(Event::ResizeWindow);
+    ev.setWindow(AddRef(this));
     queue_event(ev);
   }
 }
 
-void SkiaWindow::onStartResizing()
+void SkiaWindowWin::onStartResizing()
 {
   m_resizing = true;
 }
 
-void SkiaWindow::onEndResizing()
+void SkiaWindowWin::onEndResizing()
 {
   m_resizing = false;
 
   Event ev;
-  ev.setType(Event::ResizeDisplay);
-  ev.setDisplay(AddRef(m_display));
+  ev.setType(Event::ResizeWindow);
+  ev.setWindow(AddRef(this));
   queue_event(ev);
 }
 
-void SkiaWindow::onChangeColorSpace()
+void SkiaWindowWin::onChangeColorSpace()
 {
-  if (m_display)
-    m_display->setColorSpace(colorSpace());
+  this->setColorSpace(colorSpace());
 }
 
 } // namespace os

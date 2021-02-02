@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (c) 2020  Igara Studio S.A.
+// Copyright (c) 2020-2021  Igara Studio S.A.
 // Copyright (c) 2015-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -15,7 +15,7 @@
 #include <string>
 
 namespace os {
-  class Display;
+  class Window;
   class FileDialog;
   class NativeDialogs;
   using FileDialogRef = Ref<FileDialog>;
@@ -37,7 +37,7 @@ namespace os {
     virtual std::string fileName() = 0;
     virtual void getMultipleFileNames(base::paths& output) = 0;
     virtual void setFileName(const std::string& filename) = 0;
-    virtual bool show(Display* parent) = 0;
+    virtual bool show(Window* parent) = 0;
   };
 
   class NativeDialogs : public RefCount {

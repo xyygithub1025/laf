@@ -73,7 +73,7 @@ void X11EventQueue::queueEvent(const Event& ev)
 
 void X11EventQueue::getEvent(Event& ev, bool canWait)
 {
-  ev.setDisplay(nullptr);
+  ev.setWindow(nullptr);
 
   ::Display* display = X11::instance()->display();
   XSync(display, False);
@@ -108,7 +108,7 @@ void X11EventQueue::processX11Event(XEvent& event)
 {
   EV_TRACE("XEvent: %s (%d)\n", get_event_name(event), event.type);
 
-  X11Window* window = X11Window::getPointerFromHandle(event.xany.window);
+  WindowX11* window = WindowX11::getPointerFromHandle(event.xany.window);
   // In MappingNotify the window can be nullptr
   if (window)
     window->processX11Event(event);

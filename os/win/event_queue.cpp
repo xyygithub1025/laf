@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2019  Igara Studio S.A.
+// Copyright (C) 2019-2021  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -26,7 +26,7 @@ void WinEventQueue::getEvent(Event& ev, bool canWait)
 {
   MSG msg;
 
-  ev.setDisplay(nullptr);
+  ev.setWindow(nullptr);
 
   while (m_events.empty()) {
     BOOL res;
@@ -41,7 +41,7 @@ void WinEventQueue::getEvent(Event& ev, bool canWait)
     if (res) {
       // Avoid transforming WM_KEYDOWN/UP into WM_DEADCHAR/WM_CHAR
       // messages. Dead keys are converted manually in the
-      // WM_KEYDOWN processing on our WinWindow<T> class.
+      // WM_KEYDOWN processing on our WindowWin<T> class.
       //
       // From MSDN TranslateMessage() documentation:
       //   "WM_KEYDOWN and WM_KEYUP combinations produce a WM_CHAR

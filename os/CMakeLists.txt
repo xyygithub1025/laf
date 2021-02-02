@@ -1,5 +1,5 @@
 # LAF OS
-# Copyright (C) 2018-2020  Igara Studio S.A.
+# Copyright (C) 2018-2021  Igara Studio S.A.
 # Copyright (C) 2012-2018  David Capello
 
 ######################################################################
@@ -8,8 +8,8 @@
 set(LAF_OS_SOURCES
   common/event_queue.cpp
   common/main.cpp
-  display.cpp
-  system.cpp)
+  system.cpp
+  window.cpp)
 if(WIN32)
   list(APPEND LAF_OS_SOURCES
     win/color_space.cpp
@@ -60,10 +60,10 @@ if(LAF_BACKEND STREQUAL "skia")
   list(APPEND LAF_OS_SOURCES
     skia/os.cpp
     skia/skia_color_space.cpp
-    skia/skia_display.cpp
     skia/skia_draw_text.cpp
     skia/skia_draw_text_with_shaper.cpp
-    skia/skia_surface.cpp)
+    skia/skia_surface.cpp
+    skia/skia_window.cpp)
   if(WIN32)
     list(APPEND LAF_OS_SOURCES
       skia/skia_window_win.cpp)

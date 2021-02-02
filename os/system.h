@@ -13,11 +13,11 @@
 #include "os/app_mode.h"
 #include "os/capabilities.h"
 #include "os/color_space.h"
-#include "os/display.h"
-#include "os/display_spec.h"
 #include "os/keys.h"
 #include "os/ref.h"
 #include "os/screen.h"
+#include "os/window.h"
+#include "os/window_spec.h"
 
 #include <memory>
 #include <stdexcept>
@@ -37,11 +37,11 @@ namespace os {
 
   using SystemRef = Ref<System>;
 
-  // TODO why we just don't return nullptr if the display creation fails?
+  // TODO why we just don't return nullptr if the window creation fails?
   //      maybe an error handler function?
-  class DisplayCreationException : public std::runtime_error {
+  class WindowCreationException : public std::runtime_error {
   public:
-    DisplayCreationException(const char* msg) throw()
+    WindowCreationException(const char* msg) throw()
       : std::runtime_error(msg) { }
   };
 
@@ -148,17 +148,17 @@ namespace os {
     // Returns a list of screens attached to the computer.
     virtual void listScreens(ScreenList& screens) = 0;
 
-    virtual gfx::Size defaultNewDisplaySize() = 0;
-    virtual Display* defaultDisplay() = 0;
+    virtual gfx::Size defaultNewWindowSize() = 0;
+    virtual Window* defaultWindow() = 0;
 
     // Creates a new window in the operating system with the given
     // specs (width, height, etc.).
-    virtual DisplayRef makeDisplay(const DisplaySpec& spec) = 0;
+    virtual WindowRef makeWindow(const WindowSpec& spec) = 0;
 
-    DisplayRef makeDisplay(const int contentWidth,
+    WindowRef makeWindow(const int contentWidth,
                            const int contentHeight,
                            const int scale = 1) {
-      return makeDisplay(DisplaySpec(contentWidth, contentHeight, scale));
+      return makeWindow(WindowSpec(contentWidth, contentHeight, scale));
     }
 
     virtual Ref<Surface> makeSurface(int width, int height, const os::ColorSpaceRef& colorSpace = nullptr) = 0;
@@ -197,11 +197,11 @@ namespace os {
       const os::ColorSpaceRef& src,
       const os::ColorSpaceRef& dst) = 0;
 
-    // Set a default color profile for all displays (nullptr to use
-    // the active monitor color profile and change it dynamically when
-    // the window changes to another monitor).
-    virtual void setDisplaysColorSpace(const os::ColorSpaceRef& cs) = 0;
-    virtual os::ColorSpaceRef displaysColorSpace() = 0;
+    // Set a default color profile for all windows (nullptr to use the
+    // active monitor color profile and change it dynamically when the
+    // window changes to another monitor).
+    virtual void setWindowsColorSpace(const os::ColorSpaceRef& cs) = 0;
+    virtual os::ColorSpaceRef windowsColorSpace() = 0;
   };
 
   SystemRef make_system();

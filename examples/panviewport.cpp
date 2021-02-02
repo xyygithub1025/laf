@@ -1,5 +1,5 @@
 // LAF Library
-// Copyright (C) 2020  Igara Studio S.A.
+// Copyright (C) 2020-2021  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -17,12 +17,12 @@
 class PanWindow {
 public:
   PanWindow(os::System* system)
-    : m_display(system->makeDisplay(800, 600))
+    : m_window(system->makeWindow(800, 600))
     , m_scroll(0.0, 0.0)
     , m_zoom(1.0)
     , m_hasCapture(false) {
-    m_display->setNativeMouseCursor(os::kArrowCursor);
-    m_display->setTitle("Pan Viewport");
+    m_window->setNativeMouseCursor(os::kArrowCursor);
+    m_window->setTitle("Pan Viewport");
 
     repaint();
   }
@@ -30,10 +30,10 @@ public:
   bool processEvent(const os::Event& ev) {
     switch (ev.type()) {
 
-      case os::Event::CloseDisplay:
+      case os::Event::CloseWindow:
         return false;
 
-      case os::Event::ResizeDisplay:
+      case os::Event::ResizeWindow:
         repaint();
         break;
 
@@ -49,8 +49,8 @@ public:
 
       case os::Event::MouseDown:
         if (!m_hasCapture) {
-          m_display->setNativeMouseCursor(os::kMoveCursor);
-          m_display->captureMouse();
+          m_window->setNativeMouseCursor(os::kMoveCursor);
+          m_window->captureMouse();
           m_hasCapture = true;
           m_capturePos = ev.position();
           m_captureScroll = m_scroll;
@@ -59,8 +59,8 @@ public:
 
       case os::Event::MouseUp:
         if (m_hasCapture) {
-          m_display->setNativeMouseCursor(os::kArrowCursor);
-          m_display->releaseMouse();
+          m_window->setNativeMouseCursor(os::kArrowCursor);
+          m_window->releaseMouse();
           m_hasCapture = false;
         }
         break;
@@ -83,8 +83,8 @@ public:
           m_scroll += gfx::PointF(-ev.wheelDelta());
         }
         else {
-          m_scroll += gfx::PointF(-ev.wheelDelta().x*m_display->width()/32,
-                                  -ev.wheelDelta().y*m_display->height()/32);
+          m_scroll += gfx::PointF(-ev.wheelDelta().x*m_window->width()/32,
+                                  -ev.wheelDelta().y*m_window->height()/32);
         }
         repaint();
         break;
@@ -103,7 +103,7 @@ public:
                  // Ctrl+Command+F for macOS
                  (ev.scancode() == os::kKeyF &&
                   ev.modifiers() == (os::kKeyCmdModifier | os::kKeyCtrlModifier))) {
-          m_display->setFullscreen(!m_display->isFullscreen());
+          m_window->setFullscreen(!m_window->isFullscreen());
         }
         break;
 
@@ -116,7 +116,7 @@ public:
 
 private:
   void repaint() {
-    os::Surface* surface = m_display->surface();
+    os::Surface* surface = m_window->surface();
     os::SurfaceLock lock(surface);
     const gfx::Rect rc(surface->bounds());
 
@@ -153,7 +153,7 @@ private:
       os::draw_text(surface, nullptr, &buf[0], gfx::Point(12, 12), &p);
     }
 
-    m_display->invalidate();
+    m_window->invalidate();
   }
 
   void setZoom(const gfx::PointF& mousePos, double newZoom) {
@@ -177,11 +177,11 @@ private:
   }
 
   gfx::Point center() const {
-    return gfx::Point(m_display->width()/2,
-                      m_display->height()/2);
+    return gfx::Point(m_window->width()/2,
+                      m_window->height()/2);
   }
 
-  os::DisplayRef m_display;
+  os::WindowRef m_window;
   gfx::PointF m_scroll;
   double m_zoom;
 

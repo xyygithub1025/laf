@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (c) 2018-2020  Igara Studio S.A.
+// Copyright (c) 2018-2021  Igara Studio S.A.
 // Copyright (c) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -578,8 +578,8 @@ public:
 
     // Without left side
     if (center.x == 0) {
-      srcRect.fLeft -= SkIntToScalar(1);
-      dstRect.fLeft -= SkIntToScalar(1);
+      srcRect.fLeft -= 1;
+      dstRect.fLeft -= 1;
       rectTypes[0] =
       rectTypes[3] =
       rectTypes[6] = SkCanvas::Lattice::kTransparent;
@@ -587,8 +587,8 @@ public:
 
     // Without right side
     if (center.x2() == src.w) {
-      srcRect.fRight += SkIntToScalar(1);
-      dstRect.fRight += SkIntToScalar(1);
+      srcRect.fRight += 1;
+      dstRect.fRight += 1;
       rectTypes[2] =
       rectTypes[5] =
       rectTypes[8] = SkCanvas::Lattice::kTransparent;
@@ -596,8 +596,8 @@ public:
 
     // Without top side
     if (center.y == 0) {
-      srcRect.fTop -= SkIntToScalar(1);
-      dstRect.fTop -= SkIntToScalar(1);
+      srcRect.fTop -= 1;
+      dstRect.fTop -= 1;
       rectTypes[0] =
       rectTypes[1] =
       rectTypes[2] = SkCanvas::Lattice::kTransparent;
@@ -605,8 +605,8 @@ public:
 
     // Without bottom side
     if (center.y2() == src.h) {
-      srcRect.fBottom += SkIntToScalar(1);
-      srcRect.fBottom += SkIntToScalar(1);
+      srcRect.fBottom += 1;
+      srcRect.fBottom += 1;
       rectTypes[6] =
       rectTypes[7] =
       rectTypes[8] = SkCanvas::Lattice::kTransparent;

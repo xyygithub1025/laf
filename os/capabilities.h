@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (c) 2018  Igara Studio S.A.
+// Copyright (c) 2018-2021  Igara Studio S.A.
 // Copyright (C) 2012-2015  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -12,9 +12,9 @@
 namespace os {
 
   enum class Capabilities {
-    MultipleDisplays = 1,
-    CanResizeDisplay = 2,
-    DisplayScale = 4,
+    MultipleWindows = 1,
+    CanResizeWindow = 2,
+    WindowScale = 4,
     CustomNativeMouseCursor = 8,
     GpuAccelerationSwitch = 16,
     ColorSpaces = 32

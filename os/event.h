@@ -12,9 +12,9 @@
 #include "base/paths.h"
 #include "gfx/point.h"
 #include "gfx/size.h"
-#include "os/display.h"
 #include "os/keys.h"
 #include "os/pointer_type.h"
+#include "os/window.h"
 
 #include <functional>
 
@@ -33,9 +33,9 @@ namespace os {
       CloseApp,
 
       // When the X is pressed in the current window.
-      CloseDisplay,
+      CloseWindow,
 
-      ResizeDisplay,
+      ResizeWindow,
       DropFiles,
       MouseEnter,
       MouseLeave,
@@ -60,7 +60,7 @@ namespace os {
     };
 
     Event() : m_type(None),
-              m_display(nullptr),
+              m_window(nullptr),
               m_scancode(kKeyNil),
               m_modifiers(kKeyUninitializedModifier),
               m_unicodeChar(0),
@@ -74,7 +74,7 @@ namespace os {
     }
 
     Type type() const { return m_type; }
-    DisplayRef display() const { return m_display; }
+    WindowRef window() const { return m_window; }
     const base::paths& files() const { return m_files; }
     // TODO Rename this to virtualKey(), which is the real
     // meaning. Then we need another kind of "scan code" with the
@@ -100,7 +100,7 @@ namespace os {
     float pressure() const { return m_pressure; }
 
     void setType(Type type) { m_type = type; }
-    void setDisplay(const DisplayRef& display) { m_display = display; }
+    void setWindow(const WindowRef& window) { m_window = window; }
     void setFiles(const base::paths& files) { m_files = files; }
     void setCallback(std::function<void()>&& func) { m_callback = std::move(func); }
 
@@ -121,7 +121,7 @@ namespace os {
 
   private:
     Type m_type;
-    DisplayRef m_display;
+    WindowRef m_window;
     base::paths m_files;
     std::function<void()> m_callback;
     KeyScancode m_scancode;

@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2020  Igara Studio S.A.
+// Copyright (C) 2020-2021  Igara Studio S.A.
 // Copyright (C) 2015-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -15,8 +15,8 @@
 #include "base/string.h"
 #include "base/win/comptr.h"
 #include "os/common/file_dialog.h"
-#include "os/display.h"
 #include "os/error.h"
+#include "os/window.h"
 
 #include <windows.h>
 #include <shobjidl.h>
@@ -49,7 +49,7 @@ public:
     m_initialDir = base::from_utf8(base::get_file_path(filename));
   }
 
-  bool show(Display* parent) override {
+  bool show(Window* parent) override {
     bool result = false;
     bool shown = false;
 
@@ -65,7 +65,7 @@ public:
 
 private:
 
-  HRESULT showWithNewAPI(Display* parent, bool& result, bool& shown) {
+  HRESULT showWithNewAPI(Window* parent, bool& result, bool& shown) {
     base::ComPtr<IFileDialog> dlg;
     HRESULT hr = CoCreateInstance(
       (m_type == Type::SaveFile ? CLSID_FileSaveDialog:
@@ -205,7 +205,7 @@ private:
     return S_OK;
   }
 
-  HRESULT showWithOldAPI(Display* parent, bool& result) {
+  HRESULT showWithOldAPI(Window* parent, bool& result) {
     std::wstring title = base::from_utf8(m_title);
     std::wstring defExt = base::from_utf8(m_defExtension);
     std::wstring filtersWStr = getFiltersForGetOpenFileName();

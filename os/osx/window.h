@@ -9,38 +9,42 @@
 #define OS_OSX_WINDOW_H_INCLUDED
 #pragma once
 
+#ifdef __OBJC__
 #include <Cocoa/Cocoa.h>
+#endif
 
 #include "gfx/point.h"
 #include "gfx/rect.h"
 #include "gfx/size.h"
-#include "os/display_spec.h"
 #include "os/keys.h"
 #include "os/native_cursor.h"
 #include "os/osx/color_space.h"
 #include "os/osx/screen.h"
 #include "os/osx/view.h"
 #include "os/system.h"
+#include "os/window.h"
+#include "os/window_spec.h"
 
 namespace os {
   class Event;
   class Surface;
+  class WindowOSX;
 }
 
-class OSXWindowImpl;
+#ifdef __OBJC__
 
-@class OSXWindowDelegate;
+@class WindowOSXDelegate;
 
-@interface OSXWindow : NSWindow {
+@interface WindowOSXObjc : NSWindow {
 @private
-  OSXWindowImpl* __weak m_impl;
-  OSXWindowDelegate* __strong m_delegate;
+  os::WindowOSX* __weak m_impl;
+  WindowOSXDelegate* __strong m_delegate;
   OSXView* __strong m_view;
   int m_scale;
 }
-- (OSXWindow*)initWithImpl:(OSXWindowImpl*)impl
-                      spec:(const os::DisplaySpec*)spec;
-- (OSXWindowImpl*)impl;
+- (WindowOSXObjc*)initWithImpl:(os::WindowOSX*)impl
+                          spec:(const os::WindowSpec*)spec;
+- (os::WindowOSX*)impl;
 - (void)removeImpl;
 - (int)scale;
 - (void)setScale:(int)scale;
@@ -54,86 +58,58 @@ class OSXWindowImpl;
 - (BOOL)canBecomeKeyWindow;
 @end
 
-class OSXWindowImpl {
+using WindowOSXObjc_id = WindowOSXObjc*;
+
+#else
+
+#include <objc/objc-runtime.h>
+using WindowOSXObjc_id = id;
+
+#endif
+
+namespace os {
+
+class WindowOSX : public os::Window {
 public:
-  void createWindow(const os::DisplaySpec& spec) {
-    m_window = [[OSXWindow alloc] initWithImpl:this
-                                          spec:&spec];
-    m_window.releasedWhenClosed = true;
-  }
+  void createWindow(const os::WindowSpec& spec);
+  void destroyWindow();
 
-  virtual ~OSXWindowImpl() {
-    if (m_window) {
-      [m_window removeImpl];
-      [(OSXView*)m_window.contentView destroyMouseTrackingArea];
+  gfx::Size clientSize() const;
+  gfx::Size restoredSize() const;
+  gfx::Rect frame() const override;
+  gfx::Rect contentRect() const override;
 
-      // Select other window
-      {
-        auto app = [NSApplication sharedApplication];
-        auto index = [app.windows indexOfObject:m_window];
-        if (index+1 < app.windows.count) {
-          ++index;
-        }
-        else {
-          --index;
-        }
-        if (index >= 0 && index < app.windows.count)
-          [[app.windows objectAtIndex:index] makeKeyWindow];
-      }
+  void maximize() override;
+  bool isMaximized() const override;
+  bool isMinimized() const override;
+  bool isFullscreen() const override;
+  void setFullscreen(bool state) override;
 
-      [m_window discardEventsMatchingMask:NSEventMaskAny
-                              beforeEvent:nullptr];
-      [m_window close];
-      m_window = nil;
-    }
-  }
+  std::string title() const override;
+  void setTitle(const std::string& title) override;
 
-  gfx::Size clientSize() const {
-    return [m_window clientSize];
-  }
+  void captureMouse() override;
+  void releaseMouse() override;
+  void setMousePosition(const gfx::Point& position) override;
 
-  gfx::Size restoredSize() const {
-    return [m_window restoredSize];
-  }
+  os::ScreenRef screen() const override;
+  os::ColorSpaceRef colorSpace() const override;
 
-  gfx::Rect frame() const {
-    NSRect r = m_window.frame;
-    return gfx::Rect(r.origin.x,
-                     m_window.screen.frame.size.height - r.origin.y - r.size.height,
-                     r.size.width, r.size.height);
-  }
-
-  gfx::Rect contentRect() const {
-    NSRect r = [m_window contentRectForFrameRect:m_window.frame];
-    return gfx::Rect(r.origin.x,
-                     m_window.screen.frame.size.height - r.origin.y - r.size.height,
-                     r.size.width, r.size.height);
-  }
-
-  os::ScreenRef screen() const {
-    ASSERT(m_window);
-    return os::make_ref<os::OSXScreen>(m_window.screen);
-  }
-
-  os::ColorSpaceRef colorSpace() const {
-    if (auto defaultCS = os::instance()->displaysColorSpace())
-      return defaultCS;
-
-    ASSERT(m_window);
-    return os::convert_nscolorspace_to_os_colorspace([m_window colorSpace]);
-  }
-
-  int scale() const {
-    return [m_window scale];
-  }
-
-  void setScale(int scale) {
-    [m_window setScale:scale];
-  }
+  int scale() const override;
+  void setScale(int scale) override;
+  bool isVisible() const override;
+  void setVisible(bool visible) override;
 
   void queueEvent(os::Event& ev) {
     onQueueEvent(ev);
   }
+
+  bool setNativeMouseCursor(NativeCursor cursor) override;
+  bool setNativeMouseCursor(const Surface* surface,
+                            const gfx::Point& focus,
+                            const int scale) override;
+
+  void* nativeHandle() const override;
 
   virtual void onQueueEvent(os::Event& ev) = 0;
   virtual void onClose() = 0;
@@ -150,7 +126,9 @@ public:
   virtual void onChangeBackingProperties() = 0;
 
 protected:
-  OSXWindow* __weak m_window = nullptr;
+  WindowOSXObjc_id __strong m_nsWindow = nullptr;
 };
+
+} // namespace os
 
 #endif

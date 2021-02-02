@@ -6,9 +6,9 @@
 
 #include "os/os.h"
 
-void draw_display(os::Display* display)
+void draw_window(os::Window* window)
 {
-  os::Surface* surface = display->surface();
+  os::Surface* surface = window->surface();
   os::SurfaceLock lock(surface);
   const gfx::Rect rc = surface->bounds();
 
@@ -24,8 +24,8 @@ void draw_display(os::Display* display)
   os::draw_text(surface, nullptr, "Hello World", rc.center(),
                 &p, os::TextAlign::Center);
 
-  // Invalidates the whole display to show it on the screen.
-  display->invalidateRegion(gfx::Region(rc));
+  // Invalidates the whole window to show it on the screen.
+  window->invalidateRegion(gfx::Region(rc));
 }
 
 int app_main(int argc, char* argv[])
@@ -33,10 +33,10 @@ int app_main(int argc, char* argv[])
   os::SystemRef system = os::make_system();
   system->setAppMode(os::AppMode::GUI);
 
-  os::DisplayRef display = system->makeDisplay(400, 300);
-  display->setNativeMouseCursor(os::kArrowCursor);
-  display->setTitle("Hello World");
-  display->handleResize = draw_display;
+  os::WindowRef window = system->makeWindow(400, 300);
+  window->setNativeMouseCursor(os::kArrowCursor);
+  window->setTitle("Hello World");
+  window->handleResize = draw_window;
 
   // On macOS: With finishLaunching() we start processing
   // NSApplicationDelegate events. After calling this we'll start
@@ -57,7 +57,7 @@ int app_main(int argc, char* argv[])
   while (running) {
     if (redraw) {
       redraw = false;
-      draw_display(display.get());
+      draw_window(window.get());
     }
     // Wait for an event in the queue, the "true" parameter indicates
     // that we'll wait for a new event, and the next line will not be
@@ -69,7 +69,7 @@ int app_main(int argc, char* argv[])
     switch (ev.type()) {
 
       case os::Event::CloseApp:
-      case os::Event::CloseDisplay:
+      case os::Event::CloseWindow:
         running = false;
         break;
 
@@ -88,13 +88,13 @@ int app_main(int argc, char* argv[])
           case os::kKey8:
           case os::kKey9:
             // Set scale
-            display->setScale(1 + (int)(ev.scancode() - os::kKey1));
+            window->setScale(1 + (int)(ev.scancode() - os::kKey1));
             redraw = true;
             break;
 
           case os::kKeyF:
           case os::kKeyF11:
-            display->setFullscreen(!display->isFullscreen());
+            window->setFullscreen(!window->isFullscreen());
             break;
 
           default:
@@ -103,7 +103,7 @@ int app_main(int argc, char* argv[])
         }
         break;
 
-      case os::Event::ResizeDisplay:
+      case os::Event::ResizeWindow:
         redraw = true;
         break;
 

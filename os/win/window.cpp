@@ -29,7 +29,6 @@
 #include "base/thread.h"
 #include "gfx/region.h"
 #include "gfx/size.h"
-#include "os/display_spec.h"
 #include "os/event.h"
 #include "os/native_cursor.h"
 #include "os/win/color_space.h"
@@ -37,6 +36,7 @@
 #include "os/win/screen.h"
 #include "os/win/system.h"
 #include "os/win/window_dde.h"
+#include "os/window_spec.h"
 
 // TODO the window name should be customized from the CMakeLists.txt
 //      properties (see LAF_X11_WM_CLASS too)
@@ -107,7 +107,7 @@ static BOOL CALLBACK log_monitor_info(HMONITOR monitor,
   return TRUE;
 }
 
-WinWindow::Touch::Touch()
+WindowWin::Touch::Touch()
   : fingers(0)
   , canBeMouse(false)
   , asMouse(false)
@@ -115,7 +115,7 @@ WinWindow::Touch::Touch()
 {
 }
 
-WinWindow::WinWindow(const DisplaySpec& spec)
+WindowWin::WindowWin(const WindowSpec& spec)
   : m_hwnd(nullptr)
   , m_hcursor(nullptr)
   , m_clientSize(1, 1)
@@ -177,7 +177,7 @@ WinWindow::WinWindow(const DisplaySpec& spec)
       HRESULT hr = winApi.CreateInteractionContext(&m_ictx);
       if (SUCCEEDED(hr)) {
         hr = winApi.RegisterOutputCallbackInteractionContext(
-          m_ictx, &WinWindow::staticInteractionContextCallback, this);
+          m_ictx, &WindowWin::staticInteractionContextCallback, this);
       }
       if (SUCCEEDED(hr)) {
         INTERACTION_CONTEXT_CONFIGURATION cfg[] = {
@@ -248,7 +248,7 @@ WinWindow::WinWindow(const DisplaySpec& spec)
   }
 }
 
-WinWindow::~WinWindow()
+WindowWin::~WindowWin()
 {
   auto& winApi = system()->winApi();
   if (m_ictx && winApi.DestroyInteractionContext)
@@ -258,12 +258,12 @@ WinWindow::~WinWindow()
     DestroyWindow(m_hwnd);
 }
 
-void WinWindow::queueEvent(Event& ev)
+void WindowWin::queueEvent(Event& ev)
 {
   onQueueEvent(ev);
 }
 
-os::ScreenRef WinWindow::screen() const
+os::ScreenRef WindowWin::screen() const
 {
   if (m_hwnd) {
     HMONITOR monitor = MonitorFromWindow(m_hwnd, MONITOR_DEFAULTTONEAREST);
@@ -273,9 +273,9 @@ os::ScreenRef WinWindow::screen() const
     return os::instance()->mainScreen();
 }
 
-os::ColorSpaceRef WinWindow::colorSpace() const
+os::ColorSpaceRef WindowWin::colorSpace() const
 {
-  if (auto defaultCS = os::instance()->displaysColorSpace())
+  if (auto defaultCS = os::instance()->windowsColorSpace())
     return defaultCS;
 
   if (m_hwnd) {
@@ -293,18 +293,18 @@ os::ColorSpaceRef WinWindow::colorSpace() const
   return m_lastColorProfile;
 }
 
-void WinWindow::setScale(int scale)
+void WindowWin::setScale(int scale)
 {
   m_scale = scale;
   onResize(m_clientSize);
 }
 
-bool WinWindow::isVisible() const
+bool WindowWin::isVisible() const
 {
   return (IsWindowVisible(m_hwnd) ? true: false);
 }
 
-void WinWindow::setVisible(bool visible)
+void WindowWin::setVisible(bool visible)
 {
   if (visible) {
     ShowWindow(m_hwnd, SW_SHOWNORMAL);
@@ -315,27 +315,27 @@ void WinWindow::setVisible(bool visible)
     ShowWindow(m_hwnd, SW_HIDE);
 }
 
-void WinWindow::maximize()
+void WindowWin::maximize()
 {
   ShowWindow(m_hwnd, SW_MAXIMIZE);
 }
 
-bool WinWindow::isMaximized() const
+bool WindowWin::isMaximized() const
 {
   return (IsZoomed(m_hwnd) ? true: false);
 }
 
-bool WinWindow::isMinimized() const
+bool WindowWin::isMinimized() const
 {
   return (GetWindowLong(m_hwnd, GWL_STYLE) & WS_MINIMIZE ? true: false);
 }
 
-bool WinWindow::isFullscreen() const
+bool WindowWin::isFullscreen() const
 {
   return (GetWindowLong(m_hwnd, GWL_STYLE) & WS_THICKFRAME ? false: true);
 }
 
-void WinWindow::setFullscreen(bool state)
+void WindowWin::setFullscreen(bool state)
 {
   const bool currentFullscreen = isFullscreen();
 
@@ -395,17 +395,17 @@ void WinWindow::setFullscreen(bool state)
   }
 }
 
-gfx::Size WinWindow::clientSize() const
+gfx::Size WindowWin::clientSize() const
 {
   return m_clientSize;
 }
 
-gfx::Size WinWindow::restoredSize() const
+gfx::Size WindowWin::restoredSize() const
 {
   return m_restoredSize;
 }
 
-gfx::Rect WinWindow::frame() const
+gfx::Rect WindowWin::frame() const
 {
   RECT rc;
   BOOL withShadow = false;
@@ -417,7 +417,7 @@ gfx::Rect WinWindow::frame() const
   return gfx::Rect(rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
 }
 
-gfx::Rect WinWindow::contentRect() const
+gfx::Rect WindowWin::contentRect() const
 {
   RECT rc;
   GetClientRect(m_hwnd, &rc);
@@ -425,7 +425,7 @@ gfx::Rect WinWindow::contentRect() const
   return gfx::Rect(rc.left, rc.top, rc.right, rc.bottom);
 }
 
-std::string WinWindow::title() const
+std::string WindowWin::title() const
 {
   int n = GetWindowTextLength(m_hwnd);
   if (!n)
@@ -438,12 +438,12 @@ std::string WinWindow::title() const
   return base::to_utf8(&buf[0], n);
 }
 
-void WinWindow::setTitle(const std::string& title)
+void WindowWin::setTitle(const std::string& title)
 {
   SetWindowText(m_hwnd, base::from_utf8(title).c_str());
 }
 
-void WinWindow::captureMouse()
+void WindowWin::captureMouse()
 {
   m_captureMouse = true;
 
@@ -453,7 +453,7 @@ void WinWindow::captureMouse()
   }
 }
 
-void WinWindow::releaseMouse()
+void WindowWin::releaseMouse()
 {
   m_captureMouse = false;
 
@@ -463,7 +463,7 @@ void WinWindow::releaseMouse()
   }
 }
 
-void WinWindow::setMousePosition(const gfx::Point& position)
+void WindowWin::setMousePosition(const gfx::Point& position)
 {
   POINT pos = { position.x * m_scale,
                 position.y * m_scale };
@@ -471,7 +471,7 @@ void WinWindow::setMousePosition(const gfx::Point& position)
   SetCursorPos(pos.x, pos.y);
 }
 
-bool WinWindow::setNativeMouseCursor(NativeCursor cursor)
+bool WindowWin::setNativeMouseCursor(NativeCursor cursor)
 {
   HCURSOR hcursor = NULL;
 
@@ -526,7 +526,7 @@ bool WinWindow::setNativeMouseCursor(NativeCursor cursor)
   return setCursor(hcursor, false);
 }
 
-bool WinWindow::setNativeMouseCursor(const os::Surface* surface,
+bool WindowWin::setNativeMouseCursor(const os::Surface* surface,
                                      const gfx::Point& focus,
                                      const int scale)
 {
@@ -606,7 +606,7 @@ bool WinWindow::setNativeMouseCursor(const os::Surface* surface,
   return setCursor(hcursor, true);
 }
 
-void WinWindow::invalidateRegion(const gfx::Region& rgn)
+void WindowWin::invalidateRegion(const gfx::Region& rgn)
 {
 #if 0 // Invalidating the region generates a flicker, because it looks
       // like regions are then painted and refreshed on the screen
@@ -644,7 +644,7 @@ void WinWindow::invalidateRegion(const gfx::Region& rgn)
 #endif
 }
 
-std::string WinWindow::getLayout()
+std::string WindowWin::getLayout()
 {
   WINDOWPLACEMENT wp;
   wp.length = sizeof(WINDOWPLACEMENT);
@@ -666,7 +666,7 @@ std::string WinWindow::getLayout()
   return "";
 }
 
-void WinWindow::setLayout(const std::string& layout)
+void WindowWin::setLayout(const std::string& layout)
 {
   WINDOWPLACEMENT wp;
   wp.length = sizeof(WINDOWPLACEMENT);
@@ -694,7 +694,7 @@ void WinWindow::setLayout(const std::string& layout)
   }
 }
 
-void WinWindow::setTranslateDeadKeys(bool state)
+void WindowWin::setTranslateDeadKeys(bool state)
 {
   m_translateDeadKeys = state;
 
@@ -712,7 +712,7 @@ void WinWindow::setTranslateDeadKeys(bool state)
   }
 }
 
-void WinWindow::setInterpretOneFingerGestureAsMouseMovement(bool state)
+void WindowWin::setInterpretOneFingerGestureAsMouseMovement(bool state)
 {
   if (state) {
     if (!m_touch)
@@ -725,7 +725,7 @@ void WinWindow::setInterpretOneFingerGestureAsMouseMovement(bool state)
   }
 }
 
-void WinWindow::onTabletAPIChange()
+void WindowWin::onTabletAPIChange()
 {
   LOG("WIN: On window %p tablet API change %d\n",
       m_hwnd, int(system()->tabletAPI()));
@@ -735,7 +735,7 @@ void WinWindow::onTabletAPIChange()
   openWintabCtx();
 }
 
-bool WinWindow::setCursor(HCURSOR hcursor, bool custom)
+bool WindowWin::setCursor(HCURSOR hcursor, bool custom)
 {
   SetCursor(hcursor);
   if (m_hcursor && m_customHcursor)
@@ -745,7 +745,7 @@ bool WinWindow::setCursor(HCURSOR hcursor, bool custom)
   return (hcursor ? true: false);
 }
 
-LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
+LRESULT WindowWin::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
 {
   switch (msg) {
 
@@ -810,11 +810,11 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
 
     case WM_CLOSE: {
       Event ev;
-      ev.setType(Event::CloseDisplay);
+      ev.setType(Event::CloseWindow);
       queueEvent(ev);
 
       // Don't close the window, it must be closed manually after
-      // the CloseDisplay event is processed.
+      // the CloseWindow event is processed.
       return 0;
     }
 
@@ -1647,7 +1647,7 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
   return DefWindowProc(m_hwnd, msg, wparam, lparam);
 }
 
-void WinWindow::mouseEvent(LPARAM lparam, Event& ev)
+void WindowWin::mouseEvent(LPARAM lparam, Event& ev)
 {
   ev.setModifiers(get_modifiers_from_last_win32_message());
   ev.setPosition(gfx::Point(
@@ -1655,7 +1655,7 @@ void WinWindow::mouseEvent(LPARAM lparam, Event& ev)
                    GET_Y_LPARAM(lparam) / m_scale));
 }
 
-bool WinWindow::pointerEvent(WPARAM wparam, Event& ev, POINTER_INFO& pi)
+bool WindowWin::pointerEvent(WPARAM wparam, Event& ev, POINTER_INFO& pi)
 {
   if (!m_usePointerApi)
     return false;
@@ -1714,7 +1714,7 @@ bool WinWindow::pointerEvent(WPARAM wparam, Event& ev, POINTER_INFO& pi)
   return true;
 }
 
-void WinWindow::handlePointerButtonChange(Event& ev, POINTER_INFO& pi)
+void WindowWin::handlePointerButtonChange(Event& ev, POINTER_INFO& pi)
 {
   if (pi.ButtonChangeType == POINTER_CHANGE_NONE) {
 #if OS_USE_POINTER_API_FOR_MOUSE
@@ -1798,7 +1798,7 @@ void WinWindow::handlePointerButtonChange(Event& ev, POINTER_INFO& pi)
   queueEvent(ev);
 }
 
-void WinWindow::handleInteractionContextOutput(
+void WindowWin::handleInteractionContextOutput(
   const INTERACTION_CONTEXT_OUTPUT* output)
 {
   MOUSE_TRACE("%s (%d) xy=%.16g %.16g flags=%d type=%d\n",
@@ -1890,7 +1890,7 @@ void WinWindow::handleInteractionContextOutput(
   }
 }
 
-void WinWindow::waitTimerToConvertFingerAsMouseMovement()
+void WindowWin::waitTimerToConvertFingerAsMouseMovement()
 {
   ASSERT(m_touch);
   m_touch->canBeMouse = true;
@@ -1900,14 +1900,14 @@ void WinWindow::waitTimerToConvertFingerAsMouseMovement()
   TOUCH_TRACE(" - Set timer\n");
 }
 
-void WinWindow::convertFingerAsMouseMovement()
+void WindowWin::convertFingerAsMouseMovement()
 {
   ASSERT(m_touch);
   m_touch->asMouse = true;
   sendDelayedTouchEvents();
 }
 
-void WinWindow::delegateFingerToInteractionContext()
+void WindowWin::delegateFingerToInteractionContext()
 {
   ASSERT(m_touch);
   m_touch->canBeMouse = false;
@@ -1917,7 +1917,7 @@ void WinWindow::delegateFingerToInteractionContext()
     killTouchTimer();
 }
 
-void WinWindow::sendDelayedTouchEvents()
+void WindowWin::sendDelayedTouchEvents()
 {
   ASSERT(m_touch);
   for (auto& ev : m_touch->delayedEvents)
@@ -1925,13 +1925,13 @@ void WinWindow::sendDelayedTouchEvents()
   clearDelayedTouchEvents();
 }
 
-void WinWindow::clearDelayedTouchEvents()
+void WindowWin::clearDelayedTouchEvents()
 {
   ASSERT(m_touch);
   m_touch->delayedEvents.clear();
 }
 
-void WinWindow::killTouchTimer()
+void WindowWin::killTouchTimer()
 {
   ASSERT(m_touch);
   if (m_touch->timerID > 0) {
@@ -1941,7 +1941,7 @@ void WinWindow::killTouchTimer()
   }
 }
 
-void WinWindow::checkColorSpaceChange()
+void WindowWin::checkColorSpaceChange()
 {
   os::ColorSpaceRef oldColorSpace = m_lastColorProfile;
   os::ColorSpaceRef newColorSpace = colorSpace();
@@ -1949,7 +1949,7 @@ void WinWindow::checkColorSpaceChange()
     onChangeColorSpace();
 }
 
-void WinWindow::openWintabCtx()
+void WindowWin::openWintabCtx()
 {
   const TabletAPI tabletAPI = system()->tabletAPI();
   if (tabletAPI == TabletAPI::Wintab ||
@@ -1962,7 +1962,7 @@ void WinWindow::openWintabCtx()
   }
 }
 
-void WinWindow::closeWintabCtx()
+void WindowWin::closeWintabCtx()
 {
   if (m_hpenctx) {
     auto& api = system()->wintabApi();
@@ -1972,7 +1972,7 @@ void WinWindow::closeWintabCtx()
 }
 
 //static
-void WinWindow::registerClass()
+void WindowWin::registerClass()
 {
   HMODULE instance = GetModuleHandle(nullptr);
 
@@ -1982,7 +1982,7 @@ void WinWindow::registerClass()
 
   wcex.cbSize        = sizeof(WNDCLASSEX);
   wcex.style         = CS_DBLCLKS;
-  wcex.lpfnWndProc   = &WinWindow::staticWndProc;
+  wcex.lpfnWndProc   = &WindowWin::staticWndProc;
   wcex.cbClsExtra    = 0;
   wcex.cbWndExtra    = 0;
   wcex.hInstance     = instance;
@@ -1998,7 +1998,7 @@ void WinWindow::registerClass()
 }
 
 //static
-HWND WinWindow::createHwnd(WinWindow* self, const DisplaySpec& spec)
+HWND WindowWin::createHwnd(WindowWin* self, const WindowSpec& spec)
 {
   int exStyle = WS_EX_ACCEPTFILES;
   int style = 0;
@@ -2019,14 +2019,14 @@ HWND WinWindow::createHwnd(WinWindow* self, const DisplaySpec& spec)
   gfx::Rect rc;
 
   switch (spec.position()) {
-    case DisplaySpec::Position::Default:
+    case WindowSpec::Position::Default:
       rc.x = CW_USEDEFAULT;
       rc.y = CW_USEDEFAULT;
       break;
-    case DisplaySpec::Position::Frame:
+    case WindowSpec::Position::Frame:
       rc = spec.frame();
       break;
-    case DisplaySpec::Position::ContentRect:
+    case WindowSpec::Position::ContentRect:
       rc = spec.contentRect();
       break;
   }
@@ -2036,7 +2036,7 @@ HWND WinWindow::createHwnd(WinWindow* self, const DisplaySpec& spec)
     rc.h = spec.contentRect().h;
     RECT ncrc = { 0, 0, rc.w, rc.h };
     AdjustWindowRectEx(&ncrc, style,
-                       false,     // Add a field to DisplaySpec to add native menu bars
+                       false,     // Add a field to WindowSpec to add native menu bars
                        exStyle);
 
     if (rc.x != CW_USEDEFAULT) rc.x += ncrc.left;
@@ -2082,20 +2082,20 @@ HWND WinWindow::createHwnd(WinWindow* self, const DisplaySpec& spec)
 }
 
 //static
-LRESULT CALLBACK WinWindow::staticWndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
+LRESULT CALLBACK WindowWin::staticWndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
-  WinWindow* wnd = nullptr;
+  WindowWin* wnd = nullptr;
 
   if (msg == WM_CREATE) {
     wnd =
-      reinterpret_cast<WinWindow*>(
+      reinterpret_cast<WindowWin*>(
         reinterpret_cast<LPCREATESTRUCT>(lparam)->lpCreateParams);
 
     if (wnd && wnd->m_hwnd == nullptr)
       wnd->m_hwnd = hwnd;
   }
   else {
-    wnd = reinterpret_cast<WinWindow*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+    wnd = reinterpret_cast<WindowWin*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
     // Check that the user data makes sense
     if (wnd && wnd->m_hwnd != hwnd)
@@ -2112,18 +2112,18 @@ LRESULT CALLBACK WinWindow::staticWndProc(HWND hwnd, UINT msg, WPARAM wparam, LP
 }
 
 //static
-void CALLBACK WinWindow::staticInteractionContextCallback(
+void CALLBACK WindowWin::staticInteractionContextCallback(
   void* clientData,
   const INTERACTION_CONTEXT_OUTPUT* output)
 {
-  WinWindow* self = reinterpret_cast<WinWindow*>(clientData);
+  WindowWin* self = reinterpret_cast<WindowWin*>(clientData);
   self->handleInteractionContextOutput(output);
 }
 
 // static
-WindowSystem* WinWindow::system()
+WinSystem* WindowWin::system()
 {
-  return static_cast<WindowSystem*>(os::instance());
+  return static_cast<WinSystem*>(os::instance());
 }
 
 } // namespace os

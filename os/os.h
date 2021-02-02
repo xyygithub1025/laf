@@ -14,8 +14,6 @@
 #include "gfx/region.h"
 #include "gfx/size.h"
 #include "os/capabilities.h"
-#include "os/display.h"
-#include "os/display_spec.h"
 #include "os/draw_text.h"
 #include "os/error.h"
 #include "os/event.h"
@@ -38,5 +36,7 @@
 #include "os/surface_format.h"
 #include "os/system.h"
 #include "os/typeface.h"
+#include "os/window.h"
+#include "os/window_spec.h"
 
 #endif

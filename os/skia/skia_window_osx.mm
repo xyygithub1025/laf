@@ -20,10 +20,9 @@
 #include "os/event_queue.h"
 #include "os/osx/event_queue.h"
 #include "os/osx/view.h"
-#include "os/osx/window.h"
 #include "os/skia/skia_color_space.h"
-#include "os/skia/skia_display.h"
 #include "os/skia/skia_surface.h"
+#include "os/skia/skia_window_osx.h"
 #include "os/system.h"
 
 #include "mac/SkCGUtils.h"
@@ -44,105 +43,51 @@
 
 namespace os {
 
-class SkiaWindow::Impl : public OSXWindowImpl {
-public:
-  Impl(SkiaDisplay* display,
-       const DisplaySpec& spec)
-    : m_display(display)
+SkiaWindowOSX::SkiaWindowOSX(EventQueue* queue,
+                             const WindowSpec& spec)
 #if SK_SUPPORT_GPU
-    , m_nsGL(nil)
-    , m_nsPixelFormat(nil)
-    , m_skSurface(nullptr)
+  : m_nsGL(nil)
+  , m_nsPixelFormat(nil)
+  , m_skSurface(nullptr)
 #endif
-  {
-    m_closing = false;
-    createWindow(spec);
-  }
+{
+  m_closing = false;
+  createWindow(spec);
+  initColorSpace();
+}
 
-  ~Impl() {
+SkiaWindowOSX::~SkiaWindowOSX()
+{
 #if SK_SUPPORT_GPU
-    if (m_backend == Backend::GL)
-      detachGL();
+  if (m_backend == Backend::GL)
+    detachGL();
 #endif
-  }
+  destroyWindow();
+}
 
-  bool isVisible() const {
-    return m_window.isVisible;
-  }
+void SkiaWindowOSX::setFullscreen(bool state)
+{
+  // Do not call toggleFullScreen in the middle of other toggleFullScreen
+  if (m_resizingCount > 0)
+    return;
 
-  void setVisible(bool visible) {
-    if (visible) {
-      // The main window can be changed only when the NSWindow
-      // is visible (i.e. when NSWindow::canBecomeMainWindow
-      // returns YES).
-      if (m_window.canBecomeMainWindow)
-        [m_window makeMainWindow];
-    }
-    else {
-      [m_window setIsVisible:false];
-    }
-  }
+  WindowOSX::setFullscreen(state);
+}
 
-  bool isMinimized() const {
-    return (m_window.miniaturized ? true: false);
-  }
+void SkiaWindowOSX::invalidateRegion(const gfx::Region& rgn)
+{
+  switch (m_backend) {
 
-  bool isFullscreen() const {
-    return ((m_window.styleMask & NSWindowStyleMaskFullScreen) == NSWindowStyleMaskFullScreen);
-  }
-
-  void setFullscreen(bool state) {
-    // Do not call toggleFullScreen in the middle of other toggleFullScreen
-    if (m_resizingCount > 0)
-      return;
-
-    if (state) {
-      if (!isFullscreen())
-        [m_window toggleFullScreen:m_window];
-    }
-    else {
-      if (isFullscreen())
-        [m_window toggleFullScreen:m_window];
-    }
-  }
-
-  std::string title() const {
-    return [m_window.title UTF8String];
-  }
-
-  void setTitle(const std::string& title) {
-    [m_window setTitle:[NSString stringWithUTF8String:title.c_str()]];
-  }
-
-  void setMousePosition(const gfx::Point& position) {
-    [m_window setMousePosition:position];
-  }
-
-  bool setNativeMouseCursor(NativeCursor cursor) {
-    return ([m_window setNativeMouseCursor:cursor] ? true: false);
-  }
-
-  bool setNativeMouseCursor(const Surface* surface,
-                            const gfx::Point& focus,
-                            const int scale) {
-    return ([m_window setNativeMouseCursor:surface
-                                     focus:focus
-                                     scale:scale] ? true: false);
-  }
-
-  void invalidateRegion(const gfx::Region& rgn) {
-    switch (m_backend) {
-
-      case Backend::NONE:
-        @autoreleasepool {
-          gfx::Rect bounds = rgn.bounds(); // TODO use only the region?
-          int scale = this->scale();
-          NSView* view = m_window.contentView;
-          [view setNeedsDisplayInRect:
-                  NSMakeRect(bounds.x*scale,
-                             view.frame.size.height - (bounds.y+bounds.h)*scale,
-                             bounds.w*scale,
-                             bounds.h*scale)];
+    case Backend::NONE:
+      @autoreleasepool {
+        gfx::Rect bounds = rgn.bounds(); // TODO use only the region?
+        int scale = this->scale();
+        NSView* view = m_nsWindow.contentView;
+        [view setNeedsDisplayInRect:
+                NSMakeRect(bounds.x*scale,
+                           view.frame.size.height - (bounds.y+bounds.h)*scale,
+                           bounds.w*scale,
+                           bounds.h*scale)];
 
 #if 0     // Do not refresh immediately. Note: This might be required
           // for debugging purposes in some scenarios, but now this is
@@ -150,606 +95,400 @@ public:
           //
           // TODO maybe in a future we could add an Display::update()
           //      or Display::refresh() member function
-          [view displayIfNeeded];
+        [view displayIfNeeded];
 #endif
-        }
-        break;
+      }
+      break;
 
 #if SK_SUPPORT_GPU
-      case Backend::GL:
+    case Backend::GL:
+      if (m_skSurfaceDirect) {
+        if (m_skSurface != m_skSurfaceDirect) {
+          SkPaint paint;
+          paint.setBlendMode(SkBlendMode::kSrc);
+          sk_sp<SkImage> snapshot = m_skSurface->makeImageSnapshot();
+
+          m_skSurfaceDirect->getCanvas()->drawImageRect(
+            snapshot,
+            SkRect::Make(SkIRect::MakeXYWH(0, 0, snapshot->width(), snapshot->height())),
+            SkRect::Make(SkIRect::MakeXYWH(0, 0, m_skSurfaceDirect->width(), m_skSurfaceDirect->height())),
+            &paint, SkCanvas::kStrict_SrcRectConstraint);
+        }
+        // We have use SkSurface::flush() explicitly because we are
+        // going to call a native OpenGL function. Skia calls
+        // flush() automatically only when you interact with their
+        // API, but when you need to call the native API manually,
+        // it's necessary to call it explicitly.
+        m_skSurfaceDirect->flush();
+      }
+      if (m_nsGL) {
+        // Flush all commands and swap front/back buffers (this will
+        // make the back buffer visible to the user)
+        [m_nsGL flushBuffer];
+
+        // Copy the front buffer to the back buffer. This is because
+        // in the non-GPU backend the back buffer persists between
+        // each flip: each frame is not drawn from scratch, so we
+        // can draw only the differences. In this way we keep both
+        // buffers in sync to support this kind of behavior.
+        //
+        // TODO make this configurable in case that we want to draw
+        //      each frame from scratch, e.g. game-like frame rendering
         if (m_skSurfaceDirect) {
-          if (m_skSurface != m_skSurfaceDirect) {
-            SkPaint paint;
-            paint.setBlendMode(SkBlendMode::kSrc);
-            sk_sp<SkImage> snapshot = m_skSurface->makeImageSnapshot();
-
-            m_skSurfaceDirect->getCanvas()->drawImageRect(
-              snapshot,
-              SkRect::Make(SkIRect::MakeXYWH(0, 0, snapshot->width(), snapshot->height())),
-              SkRect::Make(SkIRect::MakeXYWH(0, 0, m_skSurfaceDirect->width(), m_skSurfaceDirect->height())),
-              &paint, SkCanvas::kStrict_SrcRectConstraint);
-          }
-          // We have use SkSurface::flush() explicitly because we are
-          // going to call a native OpenGL function. Skia calls
-          // flush() automatically only when you interact with their
-          // API, but when you need to call the native API manually,
-          // it's necessary to call it explicitly.
-          m_skSurfaceDirect->flush();
+          const int w = m_skSurfaceDirect->width();
+          const int h = m_skSurfaceDirect->height();
+          glReadBuffer(GL_FRONT);
+          glDrawBuffer(GL_BACK);
+          glBlitFramebuffer(0, 0, w, h, 0, 0, w, h, GL_COLOR_BUFFER_BIT, GL_NEAREST);
         }
-        if (m_nsGL) {
-          // Flush all commands and swap front/back buffers (this will
-          // make the back buffer visible to the user)
-          [m_nsGL flushBuffer];
-
-          // Copy the front buffer to the back buffer. This is because
-          // in the non-GPU backend the back buffer persists between
-          // each flip: each frame is not drawn from scratch, so we
-          // can draw only the differences. In this way we keep both
-          // buffers in sync to support this kind of behavior.
-          //
-          // TODO make this configurable in case that we want to draw
-          //      each frame from scratch, e.g. game-like frame rendering
-          if (m_skSurfaceDirect) {
-            const int w = m_skSurfaceDirect->width();
-            const int h = m_skSurfaceDirect->height();
-            glReadBuffer(GL_FRONT);
-            glDrawBuffer(GL_BACK);
-            glBlitFramebuffer(0, 0, w, h, 0, 0, w, h, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-          }
-        }
-        break;
+      }
+      break;
 #endif
 
-    }
+  }
+}
+
+void SkiaWindowOSX::setTranslateDeadKeys(bool state)
+{
+  OSXView* view = (OSXView*)m_nsWindow.contentView;
+  [view setTranslateDeadKeys:(state ? YES: NO)];
+}
+
+void SkiaWindowOSX::onQueueEvent(Event& ev)
+{
+  ev.setWindow(AddRef(this));
+  os::queue_event(ev);
+}
+
+void SkiaWindowOSX::onClose()
+{
+  m_closing = true;
+}
+
+void SkiaWindowOSX::onResize(const gfx::Size& size)
+{
+  bool gpu = os::instance()->gpuAcceleration();
+  (void)gpu;
+
+#if SK_SUPPORT_GPU
+  if (gpu && attachGL()) {
+    m_backend = Backend::GL;
+  }
+  else
+#endif
+  {
+#if SK_SUPPORT_GPU
+    detachGL();
+#endif
+    m_backend = Backend::NONE;
   }
 
-  void setTranslateDeadKeys(bool state) {
-    OSXView* view = (OSXView*)m_window.contentView;
-    [view setTranslateDeadKeys:(state ? YES: NO)];
+#if SK_SUPPORT_GPU
+  if (m_nsGL && this->isInitialized())
+    createRenderTarget(size);
+#endif
+
+  this->resizeSkiaSurface(size);
+  if (m_backend == Backend::GL)
+    invalidateRegion(gfx::Region(gfx::Rect(size)));
+}
+
+void SkiaWindowOSX::onDrawRect(const gfx::Rect& rect)
+{
+  if (m_nsWindow.contentView.inLiveResize) {
+    if (this->handleResize)
+      this->handleResize(this);
   }
 
-  void* handle() {
-    return (__bridge void*)m_window;
+  switch (m_backend) {
+
+    case Backend::NONE:
+      paintGC(rect);
+      break;
+
+#if SK_SUPPORT_GPU
+    case Backend::GL:
+      // Do nothing
+      break;
+#endif
   }
+}
 
-  // OSXWindowImpl impl
+void SkiaWindowOSX::onWindowChanged()
+{
+#if SK_SUPPORT_GPU
+  if (m_nsGL)
+    [m_nsGL setView:[m_nsWindow contentView]];
+#endif
+}
 
-  void onQueueEvent(Event& ev) override {
-    ev.setDisplay(AddRef(m_display));
+void SkiaWindowOSX::onStartResizing()
+{
+  if (++m_resizingCount > 1)
+    return;
+}
+
+void SkiaWindowOSX::onResizing(gfx::Size& size)
+{
+  this->resizeSkiaSurface(size);
+  if (this->handleResize) {
+    this->handleResize(this);
+  }
+}
+
+void SkiaWindowOSX::onEndResizing()
+{
+  if (--m_resizingCount > 0)
+    return;
+
+  // Generate the resizing display event for the user.
+  if (!this->handleResize) {
+    Event ev;
+    ev.setType(Event::ResizeWindow);
+    ev.setWindow(AddRef(this));
     os::queue_event(ev);
   }
+}
 
-  void onClose() override {
-    m_closing = true;
-  }
-
-  void onResize(const gfx::Size& size) override {
-    bool gpu = os::instance()->gpuAcceleration();
-    (void)gpu;
-
-#if SK_SUPPORT_GPU
-    if (gpu && attachGL()) {
-      m_backend = Backend::GL;
-    }
-    else
-#endif
-    {
-#if SK_SUPPORT_GPU
-      detachGL();
-#endif
-      m_backend = Backend::NONE;
-    }
+void SkiaWindowOSX::onChangeBackingProperties()
+{
+  if (m_nsWindow)
+    setColorSpace(colorSpace());
+}
 
 #if SK_SUPPORT_GPU
-    if (m_nsGL && m_display->isInitialized())
-      createRenderTarget(size);
-#endif
+bool SkiaWindowOSX::attachGL()
+{
+  if (m_nsGL)
+    return true;
+  try {
+    // set up pixel format
+    std::vector<NSOpenGLPixelFormatAttribute> attr;
+    attr.push_back(NSOpenGLPFAAccelerated);
+    attr.push_back(NSOpenGLPFAClosestPolicy);
+    attr.push_back(NSOpenGLPFADoubleBuffer);
+    attr.push_back(NSOpenGLPFAOpenGLProfile);
+    attr.push_back(NSOpenGLProfileVersion3_2Core);
+    attr.push_back(NSOpenGLPFAColorSize);
+    attr.push_back(24);
+    attr.push_back(NSOpenGLPFAAlphaSize);
+    attr.push_back(8);
+    attr.push_back(NSOpenGLPFADepthSize);
+    attr.push_back(0);
+    attr.push_back(NSOpenGLPFAStencilSize);
+    attr.push_back(8);
+    attr.push_back(NSOpenGLPFASampleBuffers);
+    attr.push_back(0);
+    attr.push_back(0);
 
-    m_display->resizeSkiaSurface(size);
-    if (m_backend == Backend::GL)
-      invalidateRegion(gfx::Region(gfx::Rect(size)));
-  }
+    m_nsPixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:&attr[0]];
+    if (nil == m_nsPixelFormat)
+      return false;
 
-  void onDrawRect(const gfx::Rect& rect) override {
-    if (m_window.contentView.inLiveResize) {
-      if (m_display->handleResize)
-        m_display->handleResize(m_display);
+    m_nsGL = [[NSOpenGLContext alloc] initWithFormat:m_nsPixelFormat
+                                        shareContext:nil];
+    if (!m_nsGL) {
+      m_nsPixelFormat = nil;
+      return false;
     }
 
-    switch (m_backend) {
+    [m_nsGL setView:m_nsWindow.contentView];
 
-      case Backend::NONE:
-        paintGC(rect);
-        break;
+    GLint swapInterval = 0;   // disable vsync
+    [m_nsGL setValues:&swapInterval forParameter:NSOpenGLCPSwapInterval];
 
-#if SK_SUPPORT_GPU
-      case Backend::GL:
-        // Do nothing
-        break;
-#endif
-    }
-  }
+    // TODO publish an API method to change this value to YES in
+    // case that the user wants full control of the Retina pixels.
+    [m_nsWindow.contentView setWantsBestResolutionOpenGLSurface:NO];
 
-  void onWindowChanged() override {
-#if SK_SUPPORT_GPU
-    if (m_nsGL)
-      [m_nsGL setView:[m_window contentView]];
-#endif
-  }
+    [m_nsGL makeCurrentContext];
 
-  void onStartResizing() override {
-    if (++m_resizingCount > 1)
-      return;
-  }
-
-  void onResizing(gfx::Size& size) override {
-    m_display->resizeSkiaSurface(size);
-    if (m_display->handleResize) {
-      m_display->handleResize(m_display);
-    }
-  }
-
-  void onEndResizing() override {
-    if (--m_resizingCount > 0)
-      return;
-
-    // Generate the resizing display event for the user.
-    if (!m_display->handleResize) {
-      Event ev;
-      ev.setType(Event::ResizeDisplay);
-      ev.setDisplay(AddRef(m_display));
-      os::queue_event(ev);
-    }
-  }
-
-  void onChangeBackingProperties() override {
-    if (m_window && m_display)
-      m_display->setColorSpace(colorSpace());
-  }
-
-private:
-#if SK_SUPPORT_GPU
-  bool attachGL() {
-    if (m_nsGL)
-      return true;
-    try {
-      // set up pixel format
-      std::vector<NSOpenGLPixelFormatAttribute> attr;
-      attr.push_back(NSOpenGLPFAAccelerated);
-      attr.push_back(NSOpenGLPFAClosestPolicy);
-      attr.push_back(NSOpenGLPFADoubleBuffer);
-      attr.push_back(NSOpenGLPFAOpenGLProfile);
-      attr.push_back(NSOpenGLProfileVersion3_2Core);
-      attr.push_back(NSOpenGLPFAColorSize);
-      attr.push_back(24);
-      attr.push_back(NSOpenGLPFAAlphaSize);
-      attr.push_back(8);
-      attr.push_back(NSOpenGLPFADepthSize);
-      attr.push_back(0);
-      attr.push_back(NSOpenGLPFAStencilSize);
-      attr.push_back(8);
-      attr.push_back(NSOpenGLPFASampleBuffers);
-      attr.push_back(0);
-      attr.push_back(0);
-
-      m_nsPixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:&attr[0]];
-      if (nil == m_nsPixelFormat)
-        return false;
-
-      m_nsGL = [[NSOpenGLContext alloc] initWithFormat:m_nsPixelFormat
-                                          shareContext:nil];
-      if (!m_nsGL) {
-        m_nsPixelFormat = nil;
-        return false;
-      }
-
-      [m_nsGL setView:m_window.contentView];
-
-      GLint swapInterval = 0;   // disable vsync
-      [m_nsGL setValues:&swapInterval forParameter:NSOpenGLCPSwapInterval];
-
-      // TODO publish an API method to change this value to YES in
-      // case that the user wants full control of the Retina pixels.
-      [m_window.contentView setWantsBestResolutionOpenGLSurface:NO];
-
-      [m_nsGL makeCurrentContext];
-
-      m_glInterfaces.reset(GrGLCreateNativeInterface());
-      if (!m_glInterfaces || !m_glInterfaces->validate()) {
-        LOG(ERROR) << "OS: Cannot create GL interfaces\n";
-        detachGL();
-        return false;
-      }
-
-      m_grCtx = GrContext::MakeGL(m_glInterfaces);
-      if (!m_grCtx) {
-        LOG(ERROR) << "OS: Cannot create GrContext\n";
-        detachGL();
-        return false;
-      }
-
-      LOG("OS: Using OpenGL backend\n");
-
-      createRenderTarget(clientSize());
-    }
-    catch (const std::exception& ex) {
-      LOG(ERROR) << "OS: Cannot create GL context: " << ex.what() << "\n";
+    m_glInterfaces.reset(GrGLCreateNativeInterface());
+    if (!m_glInterfaces || !m_glInterfaces->validate()) {
+      LOG(ERROR) << "OS: Cannot create GL interfaces\n";
       detachGL();
       return false;
     }
-    return true;
-  }
 
-  void detachGL() {
-    if (m_nsGL) {
-      LOG(INFO, "OS: detach GL context\n");
-      m_nsGL = nil;
+    m_grCtx = GrContext::MakeGL(m_glInterfaces);
+    if (!m_grCtx) {
+      LOG(ERROR) << "OS: Cannot create GrContext\n";
+      detachGL();
+      return false;
     }
 
-    m_skSurface.reset(nullptr);
-    m_skSurfaceDirect.reset(nullptr);
-    m_grCtx.reset(nullptr);
+    LOG("OS: Using OpenGL backend\n");
+
+    createRenderTarget(clientSize());
+  }
+  catch (const std::exception& ex) {
+    LOG(ERROR) << "OS: Cannot create GL context: " << ex.what() << "\n";
+    detachGL();
+    return false;
+  }
+  return true;
+}
+
+void SkiaWindowOSX::detachGL()
+{
+  if (m_nsGL) {
+    LOG(INFO, "OS: detach GL context\n");
+    m_nsGL = nil;
   }
 
-  void createRenderTarget(const gfx::Size& size) {
-    [m_nsGL update];
+  m_skSurface.reset(nullptr);
+  m_skSurfaceDirect.reset(nullptr);
+  m_grCtx.reset(nullptr);
+}
 
-    // Setup of a SkSurface connected to the framebuffer
+void SkiaWindowOSX::createRenderTarget(const gfx::Size& size)
+{
+  [m_nsGL update];
 
-    const int scale = this->scale();
-    auto colorSpace = ((SkiaColorSpace*)this->colorSpace().get())->skColorSpace();
+  // Setup of a SkSurface connected to the framebuffer
 
-    GrGLint buffer;
-    m_glInterfaces->fFunctions.fGetIntegerv(GR_GL_FRAMEBUFFER_BINDING, &buffer);
+  const int scale = this->scale();
+  auto colorSpace = ((SkiaColorSpace*)this->colorSpace().get())->skColorSpace();
 
-    GrGLFramebufferInfo fbInfo;
-    fbInfo.fFBOID = buffer;
-    fbInfo.fFormat = GR_GL_RGBA8;
+  GrGLint buffer;
+  m_glInterfaces->fFunctions.fGetIntegerv(GR_GL_FRAMEBUFFER_BINDING, &buffer);
 
-    SkSurfaceProps props(SkSurfaceProps::kUseDeviceIndependentFonts_Flag,
-                         SkSurfaceProps::kLegacyFontHost_InitType);
+  GrGLFramebufferInfo fbInfo;
+  fbInfo.fFBOID = buffer;
+  fbInfo.fFormat = GR_GL_RGBA8;
 
-    GLint stencilBits;
-    [m_nsGL.pixelFormat getValues:&stencilBits
-                     forAttribute:NSOpenGLPFAStencilSize
-                 forVirtualScreen:0];
+  SkSurfaceProps props(SkSurfaceProps::kUseDeviceIndependentFonts_Flag,
+                       SkSurfaceProps::kLegacyFontHost_InitType);
 
-    GLint sampleCount;
-    [m_nsGL.pixelFormat getValues:&sampleCount
-                     forAttribute:NSOpenGLPFASamples
-                 forVirtualScreen:0];
-    sampleCount = std::max(sampleCount, 1);
+  GLint stencilBits;
+  [m_nsGL.pixelFormat getValues:&stencilBits
+                   forAttribute:NSOpenGLPFAStencilSize
+               forVirtualScreen:0];
 
-    GrBackendRenderTarget backendRT(size.w, size.h,
-                                    sampleCount,
-                                    stencilBits,
-                                    fbInfo);
+  GLint sampleCount;
+  [m_nsGL.pixelFormat getValues:&sampleCount
+                   forAttribute:NSOpenGLPFASamples
+               forVirtualScreen:0];
+  sampleCount = std::max(sampleCount, 1);
 
-    m_skSurface.reset(nullptr); // set m_skSurface comparing with the old m_skSurfaceDirect
-    m_skSurfaceDirect =
-      SkSurface::MakeFromBackendRenderTarget(
-        m_grCtx.get(), backendRT,
-        kBottomLeft_GrSurfaceOrigin,
-        kRGBA_8888_SkColorType,
-        colorSpace,
-        &props);
+  GrBackendRenderTarget backendRT(size.w, size.h,
+                                  sampleCount,
+                                  stencilBits,
+                                  fbInfo);
 
-    if (scale == 1 && m_skSurfaceDirect) {
-      LOG("OS: Using GL direct surface %p\n", m_skSurfaceDirect.get());
-      m_skSurface = m_skSurfaceDirect;
-    }
-    else {
-      LOG("OS: Using double buffering\n");
+  m_skSurface.reset(nullptr); // set m_skSurface comparing with the old m_skSurfaceDirect
+  m_skSurfaceDirect =
+    SkSurface::MakeFromBackendRenderTarget(
+      m_grCtx.get(), backendRT,
+      kBottomLeft_GrSurfaceOrigin,
+      kRGBA_8888_SkColorType,
+      colorSpace,
+      &props);
 
-      SkImageInfo info = SkImageInfo::Make(
-        std::max(1, size.w / scale),
-        std::max(1, size.h / scale),
-        kN32_SkColorType,
-        kOpaque_SkAlphaType,
-        colorSpace);
-
-      m_skSurface =
-        SkSurface::MakeRenderTarget(
-          m_grCtx.get(), SkBudgeted::kNo,
-          info, sampleCount, &props);
-    }
-
-    if (!m_skSurface)
-      throw std::runtime_error("Error creating surface for main display");
-
-    m_display->setSkiaSurface(new SkiaSurface(m_skSurface));
+  if (scale == 1 && m_skSurfaceDirect) {
+    LOG("OS: Using GL direct surface %p\n", m_skSurfaceDirect.get());
+    m_skSurface = m_skSurfaceDirect;
   }
+  else {
+    LOG("OS: Using double buffering\n");
+
+    SkImageInfo info = SkImageInfo::Make(
+      std::max(1, size.w / scale),
+      std::max(1, size.h / scale),
+      kN32_SkColorType,
+      kOpaque_SkAlphaType,
+      colorSpace);
+
+    m_skSurface =
+      SkSurface::MakeRenderTarget(
+        m_grCtx.get(), SkBudgeted::kNo,
+        info, sampleCount, &props);
+  }
+
+  if (!m_skSurface)
+    throw std::runtime_error("Error creating surface for main display");
+
+  this->setSkiaSurface(new SkiaSurface(m_skSurface));
+}
 
 #endif
 
-  void paintGC(const gfx::Rect& rect) {
-    if (!m_display->isInitialized())
+void SkiaWindowOSX::paintGC(const gfx::Rect& rect)
+{
+  if (!this->isInitialized())
+    return;
+
+  if (rect.isEmpty())
+    return;
+
+  NSRect viewBounds = m_nsWindow.contentView.bounds;
+  int scale = this->scale();
+
+  SkiaSurface* surface = static_cast<SkiaSurface*>(this->surface());
+  if (!surface->isValid())
+    return;
+
+  const SkBitmap& origBitmap = surface->bitmap();
+
+  SkBitmap bitmap;
+  if (scale == 1) {
+    // Create a subset to draw on the view
+    if (!origBitmap.extractSubset(
+          &bitmap, SkIRect::MakeXYWH(rect.x,
+                                     (viewBounds.size.height-(rect.y+rect.h)),
+                                     rect.w,
+                                     rect.h)))
+      return;
+  }
+  else {
+    // Create a bitmap to draw the original one scaled. This is
+    // faster than doing the scaling directly in
+    // CGContextDrawImage(). This avoid a slow path where the
+    // internal macOS argb32_image_mark_RGB32() function is called
+    // (which is a performance hit).
+    if (!bitmap.tryAllocN32Pixels(rect.w, rect.h, true))
       return;
 
-    if (rect.isEmpty())
-      return;
+    SkCanvas canvas(bitmap);
+    canvas.drawBitmapRect(origBitmap,
+                          SkIRect::MakeXYWH(rect.x/scale,
+                                            (viewBounds.size.height-(rect.y+rect.h))/scale,
+                                            rect.w/scale,
+                                            rect.h/scale),
+                          SkRect::MakeXYWH(0, 0, rect.w, rect.h),
+                          nullptr);
+  }
 
-    NSRect viewBounds = m_window.contentView.bounds;
-    int scale = this->scale();
+  @autoreleasepool {
+    NSGraphicsContext* gc = [NSGraphicsContext currentContext];
+    CGContextRef cg = (CGContextRef)[gc graphicsPort];
+    // TODO we can be in other displays (non-main display)
+    CGColorSpaceRef colorSpace = CGDisplayCopyColorSpace(CGMainDisplayID());
+    CGImageRef img = SkCreateCGImageRefWithColorspace(bitmap, colorSpace);
+    if (img) {
+      CGRect r = CGRectMake(viewBounds.origin.x+rect.x,
+                            viewBounds.origin.y+rect.y,
+                            rect.w, rect.h);
 
-    SkiaSurface* surface = static_cast<SkiaSurface*>(m_display->surface());
-    if (!surface->isValid())
-      return;
-
-    const SkBitmap& origBitmap = surface->bitmap();
-
-    SkBitmap bitmap;
-    if (scale == 1) {
-      // Create a subset to draw on the view
-      if (!origBitmap.extractSubset(
-            &bitmap, SkIRect::MakeXYWH(rect.x,
-                                       (viewBounds.size.height-(rect.y+rect.h)),
-                                       rect.w,
-                                       rect.h)))
-        return;
-    }
-    else {
-      // Create a bitmap to draw the original one scaled. This is
-      // faster than doing the scaling directly in
-      // CGContextDrawImage(). This avoid a slow path where the
-      // internal macOS argb32_image_mark_RGB32() function is called
-      // (which is a performance hit).
-      if (!bitmap.tryAllocN32Pixels(rect.w, rect.h, true))
-        return;
-
-      SkCanvas canvas(bitmap);
-      canvas.drawBitmapRect(origBitmap,
-                            SkIRect::MakeXYWH(rect.x/scale,
-                                              (viewBounds.size.height-(rect.y+rect.h))/scale,
-                                              rect.w/scale,
-                                              rect.h/scale),
-                            SkRect::MakeXYWH(0, 0, rect.w, rect.h),
-                            nullptr);
-    }
-
-    @autoreleasepool {
-      NSGraphicsContext* gc = [NSGraphicsContext currentContext];
-      CGContextRef cg = (CGContextRef)[gc graphicsPort];
-      // TODO we can be in other displays (non-main display)
-      CGColorSpaceRef colorSpace = CGDisplayCopyColorSpace(CGMainDisplayID());
-      CGImageRef img = SkCreateCGImageRefWithColorspace(bitmap, colorSpace);
-      if (img) {
-        CGRect r = CGRectMake(viewBounds.origin.x+rect.x,
-                              viewBounds.origin.y+rect.y,
-                              rect.w, rect.h);
-
-        CGContextSaveGState(cg);
-        CGContextSetInterpolationQuality(cg, kCGInterpolationNone);
-        CGContextDrawImage(cg, r, img);
+      CGContextSaveGState(cg);
+      CGContextSetInterpolationQuality(cg, kCGInterpolationNone);
+      CGContextDrawImage(cg, r, img);
 #ifdef DEBUG_UPDATE_RECTS
-        {
-          static int i = 0;
-          i = (i+1) % 8;
-          CGContextSetRGBStrokeColor(cg,
-                                     (i & 1 ? 1.0f: 0.0f),
-                                     (i & 2 ? 1.0f: 0.0f),
-                                     (i & 4 ? 1.0f: 0.0f), 1.0f);
-          CGContextStrokeRectWithWidth(cg, r, 2.0f);
-        }
-#endif
-        CGContextRestoreGState(cg);
-        CGImageRelease(img);
+      {
+        static int i = 0;
+        i = (i+1) % 8;
+        CGContextSetRGBStrokeColor(cg,
+                                   (i & 1 ? 1.0f: 0.0f),
+                                   (i & 2 ? 1.0f: 0.0f),
+                                   (i & 4 ? 1.0f: 0.0f), 1.0f);
+        CGContextStrokeRectWithWidth(cg, r, 2.0f);
       }
-      CGColorSpaceRelease(colorSpace);
-    }
-  }
-
-  SkiaDisplay* m_display = nullptr;
-  Backend m_backend = Backend::NONE;
-  bool m_closing = false;
-
-  // Counter used to match each onStart/EndResizing() call because we
-  // can receive multiple calls in case of windowWill/DidEnter/ExitFullScreen
-  // and windowWill/DidStart/EndLiveResize notifications.
-  int m_resizingCount = 0;
-
-#if SK_SUPPORT_GPU
-  sk_sp<const GrGLInterface> m_glInterfaces;
-  NSOpenGLContext* m_nsGL;
-  NSOpenGLPixelFormat* m_nsPixelFormat;
-  sk_sp<GrContext> m_grCtx;
-  sk_sp<SkSurface> m_skSurfaceDirect;
-  sk_sp<SkSurface> m_skSurface;
 #endif
-};
-
-SkiaWindow::SkiaWindow(EventQueue* queue, SkiaDisplay* display,
-                       const DisplaySpec& spec)
-  : m_impl(new Impl(display, spec))
-{
-}
-
-SkiaWindow::~SkiaWindow()
-{
-  destroyImpl();
-}
-
-void SkiaWindow::destroyImpl()
-{
-  delete m_impl;
-  m_impl = nullptr;
-}
-
-ScreenRef SkiaWindow::screen() const
-{
-  if (m_impl)
-    return m_impl->screen();
-  else
-    return nullptr;
-}
-
-ColorSpaceRef SkiaWindow::colorSpace() const
-{
-  if (m_impl)
-    return m_impl->colorSpace();
-  else
-    return nullptr;
-}
-
-int SkiaWindow::scale() const
-{
-  if (m_impl)
-    return m_impl->scale();
-  else
-    return 1;
-}
-
-void SkiaWindow::setScale(int scale)
-{
-  if (m_impl)
-    m_impl->setScale(scale);
-}
-
-bool SkiaWindow::isVisible() const
-{
-  if (!m_impl)
-    return false;
-
-  return m_impl->isVisible();
-}
-
-void SkiaWindow::setVisible(bool visible)
-{
-  if (!m_impl)
-    return;
-
-  m_impl->setVisible(visible);
-}
-
-void SkiaWindow::maximize()
-{
-}
-
-bool SkiaWindow::isMaximized() const
-{
-  return false;
-}
-
-bool SkiaWindow::isMinimized() const
-{
-  if (m_impl)
-    return m_impl->isMinimized();
-  else
-    return false;
-}
-
-bool SkiaWindow::isFullscreen() const
-{
-  if (m_impl)
-    return m_impl->isFullscreen();
-  else
-    return false;
-}
-
-void SkiaWindow::setFullscreen(bool state)
-{
-  if (m_impl)
-    m_impl->setFullscreen(state);
-}
-
-gfx::Size SkiaWindow::clientSize() const
-{
-  if (!m_impl)
-    return gfx::Size(0, 0);
-
-  return m_impl->clientSize();
-}
-
-gfx::Size SkiaWindow::restoredSize() const
-{
-  if (!m_impl)
-    return gfx::Size(0, 0);
-
-  return m_impl->restoredSize();
-}
-
-gfx::Rect SkiaWindow::frame() const
-{
-  if (m_impl)
-    return m_impl->frame();
-  else
-    return gfx::Rect(0, 0, 0, 0);
-}
-
-gfx::Rect SkiaWindow::contentRect() const
-{
-  if (m_impl)
-    return m_impl->contentRect();
-  else
-    return gfx::Rect(0, 0, 0, 0);
-}
-
-std::string SkiaWindow::title() const
-{
-  if (m_impl)
-    return m_impl->title();
-  else
-    return std::string();
-}
-
-void SkiaWindow::setTitle(const std::string& title)
-{
-  if (!m_impl)
-    return;
-
-  m_impl->setTitle(title);
-}
-
-void SkiaWindow::captureMouse()
-{
-}
-
-void SkiaWindow::releaseMouse()
-{
-}
-
-void SkiaWindow::setMousePosition(const gfx::Point& position)
-{
-  if (m_impl)
-    m_impl->setMousePosition(position);
-}
-
-bool SkiaWindow::setNativeMouseCursor(NativeCursor cursor)
-{
-  if (m_impl)
-    return m_impl->setNativeMouseCursor(cursor);
-  else
-    return false;
-}
-
-bool SkiaWindow::setNativeMouseCursor(const Surface* surface,
-                                      const gfx::Point& focus,
-                                      const int scale)
-{
-  if (m_impl)
-    return m_impl->setNativeMouseCursor(surface, focus, scale);
-  else
-    return false;
-}
-
-void SkiaWindow::invalidateRegion(const gfx::Region& rgn)
-{
-  if (m_impl)
-    m_impl->invalidateRegion(rgn);
-}
-
-void SkiaWindow::setTranslateDeadKeys(bool state)
-{
-  if (m_impl)
-    m_impl->setTranslateDeadKeys(state);
-}
-
-void* SkiaWindow::handle()
-{
-  if (m_impl)
-    return (void*)m_impl->handle();
-  else
-    return nullptr;
+      CGContextRestoreGState(cg);
+      CGImageRelease(img);
+    }
+    CGColorSpaceRelease(colorSpace);
+  }
 }
 
 } // namespace os

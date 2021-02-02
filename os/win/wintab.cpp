@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2020  Igara Studio S.A.
+// Copyright (C) 2020-2021  Igara Studio S.A.
 // Copyright (C) 2016-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -158,7 +158,7 @@ HCTX WintabAPI::open(HWND hwnd, bool moveMouse)
   LOG("PEN: Opening context, options 0x%x\n", logctx.lcOptions);
   HCTX ctx = WTOpen(hwnd, &logctx, TRUE);
   if (!ctx) {
-    LOG("PEN: Error attaching pen to display\n");
+    LOG("PEN: Error attaching pen to window\n");
     return nullptr;
   }
 
@@ -183,7 +183,7 @@ HCTX WintabAPI::open(HWND hwnd, bool moveMouse)
   m_queueSize = q = WTQueueSizeGet(ctx);
   LOG("PEN: New queue size=%d\n", q);
 
-  LOG("PEN: Pen attached to display, new context %p\n", ctx);
+  LOG("PEN: Pen attached to window, new context %p\n", ctx);
   return ctx;
 }
 

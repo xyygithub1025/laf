@@ -4,8 +4,8 @@
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
 
-#ifndef OS_DISPLAY_SPEC_H_INCLUDED
-#define OS_DISPLAY_SPEC_H_INCLUDED
+#ifndef OS_WINDOW_SPEC_H_INCLUDED
+#define OS_WINDOW_SPEC_H_INCLUDED
 #pragma once
 
 #include "gfx/rect.h"
@@ -14,7 +14,7 @@
 
 namespace os {
 
-  class DisplaySpec {
+  class WindowSpec {
   public:
     // Position of the window by default
     enum class Position {
@@ -24,10 +24,10 @@ namespace os {
       Center,
     };
 
-    DisplaySpec() {
+    WindowSpec() {
     }
 
-    DisplaySpec(int width, int height, int scale = 1)
+    WindowSpec(int width, int height, int scale = 1)
       : m_contentRect(0, 0, width, height)
       , m_scale(scale) {
     }

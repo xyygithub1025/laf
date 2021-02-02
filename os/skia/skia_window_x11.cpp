@@ -14,8 +14,8 @@
 #include "gfx/size.h"
 #include "os/event.h"
 #include "os/event_queue.h"
-#include "os/skia/skia_display.h"
 #include "os/skia/skia_surface.h"
+#include "os/skia/skia_window.h"
 #include "os/x11/x11.h"
 
 #include "SkBitmap.h"
@@ -45,47 +45,23 @@ bool convert_skia_bitmap_to_ximage(const SkBitmap& bitmap, XImage& image)
 
 } // anonymous namespace
 
-SkiaWindow::SkiaWindow(EventQueue* queue, SkiaDisplay* display,
-                       const DisplaySpec& spec)
-  : X11Window(X11::instance()->display(), spec)
+SkiaWindowX11::SkiaWindowX11(EventQueue* queue,
+                             const WindowSpec& spec)
+  : SkiaWindowBase<WindowX11>(X11::instance()->display(), spec)
   , m_queue(queue)
-  , m_display(display)
 {
+  initColorSpace();
 }
 
-SkiaWindow::~SkiaWindow()
+void SkiaWindowX11::onQueueEvent(Event& ev)
 {
-}
-
-void SkiaWindow::setVisible(bool visible)
-{
-  // TODO
-}
-
-void SkiaWindow::maximize()
-{
-  // TODO
-}
-
-bool SkiaWindow::isMaximized() const
-{
-  return false;
-}
-
-bool SkiaWindow::isMinimized() const
-{
-  return false;
-}
-
-void SkiaWindow::onQueueEvent(Event& ev)
-{
-  ev.setDisplay(AddRef(m_display));
+  ev.setWindow(AddRef(this));
   m_queue->queueEvent(ev);
 }
 
-void SkiaWindow::onPaint(const gfx::Rect& rc)
+void SkiaWindowX11::onPaint(const gfx::Rect& rc)
 {
-  auto surface = static_cast<SkiaSurface*>(m_display->surface());
+  auto surface = static_cast<SkiaSurface*>(this->surface());
   const SkBitmap& bitmap = surface->bitmap();
 
   int scale = this->scale();
@@ -93,7 +69,7 @@ void SkiaWindow::onPaint(const gfx::Rect& rc)
     XImage image;
     if (convert_skia_bitmap_to_ximage(bitmap, image)) {
       XPutImage(
-        x11display(), handle(), gc(), &image,
+        x11display(), x11window(), gc(), &image,
         rc.x, rc.y,
         rc.x, rc.y,
         rc.w, rc.h);
@@ -125,7 +101,7 @@ void SkiaWindow::onPaint(const gfx::Rect& rc)
       XImage image;
       if (convert_skia_bitmap_to_ximage(scaled, image)) {
         XPutImage(
-          x11display(), handle(), gc(), &image,
+          x11display(), x11window(), gc(), &image,
           0, 0,
           rc.x, rc.y,
           rc.w, rc.h);
@@ -134,15 +110,15 @@ void SkiaWindow::onPaint(const gfx::Rect& rc)
   }
 }
 
-void SkiaWindow::onResize(const gfx::Size& sz)
+void SkiaWindowX11::onResize(const gfx::Size& sz)
 {
-  m_display->resizeSkiaSurface(sz);
-  if (m_display->handleResize)
-    m_display->handleResize(m_display);
+  resizeSkiaSurface(sz);
+  if (this->handleResize)
+    this->handleResize(this);
   else {
     Event ev;
-    ev.setType(Event::ResizeDisplay);
-    ev.setDisplay(AddRef(m_display));
+    ev.setType(Event::ResizeWindow);
+    ev.setWindow(AddRef(this));
     queue_event(ev);
   }
 }

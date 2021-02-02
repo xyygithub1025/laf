@@ -47,7 +47,7 @@ gfx::Point get_local_mouse_pos(NSView* view, NSEvent* event)
                             fromView:nil];
   int scale = 1;
   if ([view window])
-    scale = [(OSXWindow*)[view window] scale];
+    scale = [(WindowOSXObjc*)[view window] scale];
 
   // "os" layer coordinates expect (X,Y) origin at the top-left corner.
   return gfx::Point(point.x / scale,
@@ -188,7 +188,7 @@ using namespace os;
   [super viewDidMoveToWindow];
 
   if ([self window]) {
-    m_impl = [((OSXWindow*)[self window]) impl];
+    m_impl = [((WindowOSXObjc*)[self window]) impl];
     if (m_impl)
       m_impl->onWindowChanged();
   }
@@ -470,7 +470,7 @@ using namespace os;
   [self destroyMouseTrackingArea];
   [self createMouseTrackingArea];
 
-  // Call OSXWindowImpl::onResize handler
+  // Call WindowOSX::onResize handler
   if (m_impl) {
     m_impl->onResize(gfx::Size(newSize.width,
                                newSize.height));
@@ -487,7 +487,7 @@ using namespace os;
 
   int scale = 1;
   if (self.window)
-    scale = [(OSXWindow*)self.window scale];
+    scale = [(WindowOSXObjc*)self.window scale];
 
   if (event.hasPreciseScrollingDeltas) {
     ev.setPointerType(os::PointerType::Touchpad);

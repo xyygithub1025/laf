@@ -31,10 +31,10 @@ public:
 
 os::FontRef font = nullptr;
 
-void draw_display(os::Display* display,
+void draw_window(os::Window* window,
                   const gfx::Point& mousePos)
 {
-  os::Surface* surface = display->surface();
+  os::Surface* surface = window->surface();
   os::SurfaceLock lock(surface);
   const gfx::Rect rc = surface->bounds();
 
@@ -70,11 +70,11 @@ void draw_display(os::Display* display,
     pos.y += font->height() + 4;
   }
 
-  // Flip the back surface to the display surface
+  // Flip the back surface to the window surface
   surface->drawSurface(backSurface.get(), 0, 0);
 
-  // Invalidates the whole display to show it on the screen.
-  display->invalidateRegion(gfx::Region(rc));
+  // Invalidates the whole window to show it on the screen.
+  window->invalidateRegion(gfx::Region(rc));
 }
 
 int app_main(int argc, char* argv[])
@@ -82,7 +82,7 @@ int app_main(int argc, char* argv[])
   os::SystemRef system = os::make_system();
   system->setAppMode(os::AppMode::GUI);
 
-  os::DisplayRef display = system->makeDisplay(400, 300);
+  os::WindowRef window = system->makeWindow(400, 300);
 
   // TODO use new fonts (SkFont wrappers with system->fontManager())
   font = os::instance()->loadTrueTypeFont("/Library/Fonts/Arial Unicode.ttf", 32);
@@ -91,8 +91,8 @@ int app_main(int argc, char* argv[])
     return 1;
   }
 
-  display->setNativeMouseCursor(os::kArrowCursor);
-  display->setTitle("CTL");
+  window->setNativeMouseCursor(os::kArrowCursor);
+  window->setTitle("CTL");
 
   system->finishLaunching();
   system->activateApp();
@@ -105,7 +105,7 @@ int app_main(int argc, char* argv[])
   while (running) {
     if (redraw) {
       redraw = false;
-      draw_display(display.get(), mousePos);
+      draw_window(window.get(), mousePos);
     }
     // Wait for an event in the queue, the "true" parameter indicates
     // that we'll wait for a new event, and the next line will not be
@@ -116,7 +116,7 @@ int app_main(int argc, char* argv[])
 
     switch (ev.type()) {
 
-      case os::Event::CloseDisplay:
+      case os::Event::CloseWindow:
         running = false;
         break;
 
@@ -135,7 +135,7 @@ int app_main(int argc, char* argv[])
           case os::kKey8:
           case os::kKey9:
             // Set scale
-            display->setScale(1 + (int)(ev.scancode() - os::kKey1));
+            window->setScale(1 + (int)(ev.scancode() - os::kKey1));
             redraw = true;
             break;
           default:
@@ -144,7 +144,7 @@ int app_main(int argc, char* argv[])
         }
         break;
 
-      case os::Event::ResizeDisplay:
+      case os::Event::ResizeWindow:
         redraw = true;
         break;
 

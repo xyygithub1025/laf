@@ -12,16 +12,16 @@
 #include "gfx/color_space.h"
 #include "gfx/size.h"
 #include "os/common/system.h"
-#include "os/display_spec.h"
 #include "os/skia/skia_color_space.h"
-#include "os/skia/skia_display.h"
 #include "os/skia/skia_font_manager.h"
 #include "os/skia/skia_surface.h"
+#include "os/skia/skia_window.h"
+#include "os/window_spec.h"
 
 #ifdef _WIN32
   #include "os/win/color_space.h"
   #include "os/win/system.h"
-  #define SkiaSystemBase WindowSystem
+  #define SkiaSystemBase WinSystem
 #elif __APPLE__
   #include "os/osx/color_space.h"
   #include "os/osx/system.h"
@@ -41,7 +41,7 @@ namespace os {
 class SkiaSystem : public SkiaSystemBase {
 public:
   SkiaSystem()
-    : m_defaultDisplay(nullptr)
+    : m_defaultWindow(nullptr)
     , m_gpuAcceleration(false) {
     SkGraphics::Init();
   }
@@ -52,9 +52,9 @@ public:
 
   Capabilities capabilities() const override {
     return Capabilities(
-      int(Capabilities::MultipleDisplays) |
-      int(Capabilities::CanResizeDisplay) |
-      int(Capabilities::DisplayScale) |
+      int(Capabilities::MultipleWindows) |
+      int(Capabilities::CanResizeWindow) |
+      int(Capabilities::WindowScale) |
       int(Capabilities::CustomNativeMouseCursor) |
       int(Capabilities::ColorSpaces)
     // TODO enable this when the GPU support is ready
@@ -73,13 +73,15 @@ public:
   }
 
   void setTabletAPI(TabletAPI api) override {
+#if _WIN32
     SkiaSystemBase::setTabletAPI(api);
-    if (SkiaDisplay* display = dynamic_cast<SkiaDisplay*>(defaultDisplay())) {
-      display->onTabletAPIChange();
+    if (SkiaWindow* window = dynamic_cast<SkiaWindow*>(defaultWindow())) {
+      window->onTabletAPIChange();
     }
+#endif
   }
 
-  gfx::Size defaultNewDisplaySize() override {
+  gfx::Size defaultNewWindowSize() override {
     gfx::Size sz;
 #ifdef _WIN32
     sz.w = GetSystemMetrics(SM_CXMAXIMIZED);
@@ -92,17 +94,17 @@ public:
     return sz;
   }
 
-  Display* defaultDisplay() override {
-    return m_defaultDisplay;
+  Window* defaultWindow() override {
+    return m_defaultWindow;
   }
 
-  DisplayRef makeDisplay(const DisplaySpec& spec) override {
-    auto display = make_ref<SkiaDisplay>(spec);
-    if (!m_defaultDisplay)
-      m_defaultDisplay = display.get();
-    if (display && m_displayCS)
-      display->setColorSpace(m_displayCS);
-    return display;
+  WindowRef makeWindow(const WindowSpec& spec) override {
+    auto window = make_ref<SkiaWindow>(spec);
+    if (!m_defaultWindow)
+      m_defaultWindow = window.get();
+    if (window && m_windowCS)
+      window->setColorSpace(m_windowCS);
+    return window;
   }
 
   SurfaceRef makeSurface(int width, int height,
@@ -134,8 +136,8 @@ public:
   }
 
   void setTranslateDeadKeys(bool state) override {
-    if (m_defaultDisplay)
-      m_defaultDisplay->setTranslateDeadKeys(state);
+    if (m_defaultWindow)
+      m_defaultWindow->setTranslateDeadKeys(state);
   }
 
   void listColorSpaces(std::vector<os::ColorSpaceRef>& list) override {
@@ -157,24 +159,27 @@ public:
     return os::make_ref<SkiaColorSpaceConversion>(src, dst);
   }
 
-  void setDisplaysColorSpace(const os::ColorSpaceRef& cs) override {
-    m_displayCS = cs;
-    if (m_defaultDisplay) {
-      m_defaultDisplay->setColorSpace(
-        m_displayCS ? m_displayCS:
-                      m_defaultDisplay->currentMonitorColorSpace());
+  void setWindowsColorSpace(const os::ColorSpaceRef& cs) override {
+    m_windowCS = cs;
+
+    if (m_defaultWindow) {
+      m_defaultWindow->setColorSpace(
+        m_windowCS ? m_windowCS:
+                      m_defaultWindow->SkiaWindowPlatform::colorSpace());
     }
+
+    // TODO change the color space of all windows
   }
 
-  os::ColorSpaceRef displaysColorSpace() override {
-    return m_displayCS;
+  os::ColorSpaceRef windowsColorSpace() override {
+    return m_windowCS;
   }
 
 private:
-  SkiaDisplay* m_defaultDisplay;
+  SkiaWindow* m_defaultWindow;
   Ref<FontManager> m_fontManager;
   bool m_gpuAcceleration;
-  ColorSpaceRef m_displayCS;
+  ColorSpaceRef m_windowCS;
 };
 
 } // namespace os

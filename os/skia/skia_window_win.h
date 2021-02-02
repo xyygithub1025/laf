@@ -10,7 +10,7 @@
 #pragma once
 
 #include "base/disable_copying.h"
-#include "os/skia/skia_surface.h"
+#include "os/skia/skia_window_base.h"
 #include "os/win/window.h"
 
 #if SK_SUPPORT_GPU
@@ -21,15 +21,14 @@
 namespace os {
 
 class EventQueue;
-class SkiaDisplay;
 
-class SkiaWindow : public WinWindow {
+class SkiaWindowWin : public SkiaWindowBase<WindowWin> {
 public:
   enum class Backend { NONE, GL, ANGLE };
 
-  SkiaWindow(EventQueue* queue, SkiaDisplay* display,
-             const DisplaySpec& spec);
-  ~SkiaWindow();
+  SkiaWindowWin(EventQueue* queue,
+                const WindowSpec& spec);
+  ~SkiaWindowWin();
 
 private:
   void onQueueEvent(Event& ev) override;
@@ -50,7 +49,6 @@ private:
 #endif // SK_SUPPORT_GPU
 
   EventQueue* m_queue;
-  SkiaDisplay* m_display;
   Backend m_backend;
   bool m_resizing = false;
 #if SK_SUPPORT_GPU
@@ -64,7 +62,7 @@ private:
   gfx::Size m_lastSize;
 #endif // SK_SUPPORT_GPU
 
-  DISABLE_COPYING(SkiaWindow);
+  DISABLE_COPYING(SkiaWindowWin);
 };
 
 } // namespace os

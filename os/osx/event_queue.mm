@@ -26,7 +26,7 @@ OSXEventQueue::OSXEventQueue()
 void OSXEventQueue::getEvent(Event& ev, bool canWait)
 {
   ev.setType(Event::None);
-  ev.setDisplay(nullptr);
+  ev.setWindow(nullptr);
 
   NSApplication* app = [NSApplication sharedApplication];
   if (!app)

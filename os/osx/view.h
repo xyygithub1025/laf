@@ -12,9 +12,13 @@
 #include "os/event.h"
 #include "os/pointer_type.h"
 
+#ifdef __OBJC__
+
 #include <Cocoa/Cocoa.h>
 
-class OSXWindowImpl;
+namespace os {
+  class WindowOSX;
+}
 
 @interface OSXView : NSView {
 @private
@@ -22,7 +26,7 @@ class OSXWindowImpl;
   NSCursor* __strong m_nsCursor;
   bool m_visibleMouse;
   os::PointerType m_pointerType;
-  OSXWindowImpl* __weak m_impl;
+  os::WindowOSX* __weak m_impl;
 }
 - (id)initWithFrame:(NSRect)frameRect;
 - (void)dealloc;
@@ -65,5 +69,7 @@ class OSXWindowImpl;
 - (void)setTranslateDeadKeys:(BOOL)state;
 - (void)queueEvent:(os::Event&)ev;
 @end
+
+#endif
 
 #endif

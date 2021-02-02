@@ -12,19 +12,17 @@
 #include "os/osx/window.h"
 
 #include "base/debug.h"
-#include "os/display_spec.h"
 #include "os/event.h"
 #include "os/osx/event_queue.h"
 #include "os/osx/view.h"
 #include "os/osx/window_delegate.h"
 #include "os/surface.h"
+#include "os/window_spec.h"
 
-using namespace os;
+@implementation WindowOSXObjc
 
-@implementation OSXWindow
-
-- (OSXWindow*)initWithImpl:(OSXWindowImpl*)impl
-                      spec:(const DisplaySpec*)spec
+- (WindowOSXObjc*)initWithImpl:(os::WindowOSX*)impl
+                          spec:(const os::WindowSpec*)spec
 {
   m_impl = impl;
   m_scale = spec->scale();
@@ -71,7 +69,7 @@ using namespace os;
   if (!self)
     return nil;
 
-  m_delegate = [[OSXWindowDelegate alloc] initWithWindowImpl:impl];
+  m_delegate = [[WindowOSXDelegate alloc] initWithWindowImpl:impl];
 
   // The NSView width and height will be a multiple of 4. In this way
   // all scaled pixels should be exactly the same
@@ -89,7 +87,7 @@ using namespace os;
   [self setDelegate:m_delegate];
   [self setContentView:view];
 
-  if (spec->position() == DisplaySpec::Position::Center) {
+  if (spec->position() == os::WindowSpec::Position::Center) {
     [self center];
   }
 
@@ -102,7 +100,7 @@ using namespace os;
   return self;
 }
 
-- (OSXWindowImpl*)impl
+- (os::WindowOSX*)impl
 {
   return m_impl;
 }
@@ -168,51 +166,51 @@ using namespace os;
    CFRelease(event);
 }
 
-- (BOOL)setNativeMouseCursor:(NativeCursor)cursor
+- (BOOL)setNativeMouseCursor:(os::NativeCursor)cursor
 {
   NSCursor* nsCursor = nullptr;
 
   switch (cursor) {
-    case kArrowCursor:
-    case kWaitCursor:
-    case kHelpCursor:
-    case kSizeNECursor:
-    case kSizeNWCursor:
-    case kSizeSECursor:
-    case kSizeSWCursor:
+    case os::kArrowCursor:
+    case os::kWaitCursor:
+    case os::kHelpCursor:
+    case os::kSizeNECursor:
+    case os::kSizeNWCursor:
+    case os::kSizeSECursor:
+    case os::kSizeSWCursor:
       nsCursor = [NSCursor arrowCursor];
       break;
-    case kCrosshairCursor:
+    case os::kCrosshairCursor:
       nsCursor = [NSCursor crosshairCursor];
       break;
-    case kIBeamCursor:
+    case os::kIBeamCursor:
       nsCursor = [NSCursor IBeamCursor];
       break;
-    case kLinkCursor:
+    case os::kLinkCursor:
       nsCursor = [NSCursor pointingHandCursor];
       break;
-    case kForbiddenCursor:
+    case os::kForbiddenCursor:
       nsCursor = [NSCursor operationNotAllowedCursor];
       break;
-    case kMoveCursor:
+    case os::kMoveCursor:
       nsCursor = [NSCursor openHandCursor];
       break;
-    case kSizeNSCursor:
+    case os::kSizeNSCursor:
       nsCursor = [NSCursor resizeUpDownCursor];
       break;
-    case kSizeWECursor:
+    case os::kSizeWECursor:
       nsCursor = [NSCursor resizeLeftRightCursor];
       break;
-    case kSizeNCursor:
+    case os::kSizeNCursor:
       nsCursor = [NSCursor resizeUpCursor];
       break;
-    case kSizeECursor:
+    case os::kSizeECursor:
       nsCursor = [NSCursor resizeRightCursor];
       break;
-    case kSizeSCursor:
+    case os::kSizeSCursor:
       nsCursor = [NSCursor resizeDownCursor];
       break;
-    case kSizeWCursor:
+    case os::kSizeWCursor:
       nsCursor = [NSCursor resizeLeftCursor];
       break;
   }
@@ -226,7 +224,7 @@ using namespace os;
                        scale:(const int)scale
 {
   ASSERT(surface);
-  SurfaceFormatData format;
+  os::SurfaceFormatData format;
   surface->getFormat(&format);
   if (format.bitsPerPixel != 32)
     return NO;
@@ -303,3 +301,189 @@ using namespace os;
 }
 
 @end
+
+namespace os {
+
+void WindowOSX::createWindow(const os::WindowSpec& spec)
+{
+  m_nsWindow = [[WindowOSXObjc alloc] initWithImpl:this
+                                              spec:&spec];
+  m_nsWindow.releasedWhenClosed = true;
+}
+
+void WindowOSX::destroyWindow()
+{
+  if (!m_nsWindow)
+    return;
+
+  [m_nsWindow removeImpl];
+  [(OSXView*)m_nsWindow.contentView destroyMouseTrackingArea];
+
+  // Select other window
+  {
+    auto app = [NSApplication sharedApplication];
+    auto index = [app.windows indexOfObject:m_nsWindow];
+    if (index+1 < app.windows.count) {
+      ++index;
+    }
+    else {
+      --index;
+    }
+    if (index >= 0 && index < app.windows.count)
+      [[app.windows objectAtIndex:index] makeKeyWindow];
+  }
+
+  [m_nsWindow discardEventsMatchingMask:NSEventMaskAny
+                            beforeEvent:nullptr];
+  [m_nsWindow close];
+  m_nsWindow = nil;
+}
+
+gfx::Size WindowOSX::clientSize() const
+{
+  return [m_nsWindow clientSize];
+}
+
+gfx::Size WindowOSX::restoredSize() const
+{
+  return [m_nsWindow restoredSize];
+}
+
+gfx::Rect WindowOSX::frame() const
+{
+  NSRect r = m_nsWindow.frame;
+  return gfx::Rect(r.origin.x,
+                   m_nsWindow.screen.frame.size.height - r.origin.y - r.size.height,
+                   r.size.width, r.size.height);
+}
+
+gfx::Rect WindowOSX::contentRect() const
+{
+  NSRect r = [m_nsWindow contentRectForFrameRect:m_nsWindow.frame];
+  return gfx::Rect(r.origin.x,
+                   m_nsWindow.screen.frame.size.height - r.origin.y - r.size.height,
+                   r.size.width, r.size.height);
+}
+
+void WindowOSX::maximize()
+{
+  // TODO
+}
+
+bool WindowOSX::isMaximized() const
+{
+  return false;
+}
+
+bool WindowOSX::isMinimized() const
+{
+  return (m_nsWindow.miniaturized ? true: false);
+}
+
+bool WindowOSX::isFullscreen() const
+{
+  return ((m_nsWindow.styleMask & NSWindowStyleMaskFullScreen) == NSWindowStyleMaskFullScreen);
+}
+
+void WindowOSX::setFullscreen(bool state)
+{
+  if (state) {
+    if (!isFullscreen())
+      [m_nsWindow toggleFullScreen:m_nsWindow];
+  }
+  else {
+    if (isFullscreen())
+      [m_nsWindow toggleFullScreen:m_nsWindow];
+  }
+}
+
+std::string WindowOSX::title() const
+{
+  return [m_nsWindow.title UTF8String];
+}
+
+void WindowOSX::setTitle(const std::string& title)
+{
+  [m_nsWindow setTitle:[NSString stringWithUTF8String:title.c_str()]];
+}
+
+void WindowOSX::captureMouse()
+{
+  // TODO
+}
+
+void WindowOSX::releaseMouse()
+{
+  // TODO
+}
+
+void WindowOSX::setMousePosition(const gfx::Point& position)
+{
+  [m_nsWindow setMousePosition:position];
+}
+
+
+os::ScreenRef WindowOSX::screen() const
+{
+  ASSERT(m_nsWindow);
+  return os::make_ref<os::OSXScreen>(m_nsWindow.screen);
+}
+
+os::ColorSpaceRef WindowOSX::colorSpace() const
+{
+  if (auto defaultCS = os::instance()->windowsColorSpace())
+    return defaultCS;
+
+  ASSERT(m_nsWindow);
+  return os::convert_nscolorspace_to_os_colorspace([m_nsWindow colorSpace]);
+}
+
+int WindowOSX::scale() const
+{
+  return [m_nsWindow scale];
+}
+
+void WindowOSX::setScale(int scale)
+{
+  [m_nsWindow setScale:scale];
+}
+
+bool WindowOSX::isVisible() const
+{
+  return m_nsWindow.isVisible;
+}
+
+void WindowOSX::setVisible(bool visible)
+{
+  if (visible) {
+    // The main window can be changed only when the NSWindow
+    // is visible (i.e. when NSWindow::canBecomeMainWindow
+    // returns YES).
+    if (m_nsWindow.canBecomeMainWindow)
+      [m_nsWindow makeMainWindow];
+  }
+  else {
+    [m_nsWindow setIsVisible:false];
+  }
+}
+
+bool WindowOSX::setNativeMouseCursor(NativeCursor cursor)
+{
+  return ([m_nsWindow setNativeMouseCursor:cursor] ? true: false);
+}
+
+bool WindowOSX::setNativeMouseCursor(const Surface* surface,
+                                     const gfx::Point& focus,
+                                     const int scale)
+{
+  return ([m_nsWindow setNativeMouseCursor:surface
+                                     focus:focus
+                                     scale:scale] ? true: false);
+}
+
+void* WindowOSX::nativeHandle() const
+{
+  return (__bridge void*)m_nsWindow;
+}
+
+} // namespace os

@@ -12,9 +12,9 @@
 #include "base/memory.h"
 #include "base/string.h"
 #include "gfx/size.h"
-#include "os/display.h"
 #include "os/font.h"
 #include "os/system.h"
+#include "os/window.h"
 
 namespace os {
 
@@ -38,9 +38,9 @@ public:
   void setGpuAcceleration(bool state) override { }
   ScreenRef mainScreen() override { return nullptr; }
   void listScreens(ScreenList& screens) override { }
-  gfx::Size defaultNewDisplaySize() override { return gfx::Size(0, 0); }
-  Display* defaultDisplay() override { return nullptr; }
-  Ref<Display> makeDisplay(const DisplaySpec& spec) override { return nullptr; }
+  gfx::Size defaultNewWindowSize() override { return gfx::Size(0, 0); }
+  Window* defaultWindow() override { return nullptr; }
+  Ref<Window> makeWindow(const WindowSpec& spec) override { return nullptr; }
   Ref<Surface> makeSurface(int width, int height,
                            const os::ColorSpaceRef& colorSpace) override { return nullptr; }
   Ref<Surface> makeRgbaSurface(int width, int height,
@@ -58,8 +58,8 @@ public:
   os::ColorSpaceRef makeColorSpace(const gfx::ColorSpaceRef& cs) override { return nullptr; }
   Ref<ColorSpaceConversion> convertBetweenColorSpace(
     const os::ColorSpaceRef& src, const os::ColorSpaceRef& dst) override { return nullptr; }
-  void setDisplaysColorSpace(const os::ColorSpaceRef& cs) override { }
-  os::ColorSpaceRef displaysColorSpace() override { return nullptr; }
+  void setWindowsColorSpace(const os::ColorSpaceRef& cs) override { }
+  os::ColorSpaceRef windowsColorSpace() override { return nullptr; }
 };
 
 System* make_system_impl() {

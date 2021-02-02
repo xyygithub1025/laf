@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2020  Igara Studio S.A.
+// Copyright (C) 2020-2021  Igara Studio S.A.
 // Copyright (C) 2017-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -14,8 +14,8 @@
 #include "base/fs.h"
 #include "base/string.h"
 #include "os/common/file_dialog.h"
-#include "os/display.h"
 #include "os/error.h"
+#include "os/window.h"
 
 #include <gdk/gdk.h>
 #include <gdk/gdkx.h>
@@ -41,7 +41,7 @@ public:
     m_initialDir = base::get_file_path(filename);
   }
 
-  bool show(Display* parent) override {
+  bool show(Window* parent) override {
     static std::string s_lastUsedDir;
     if (s_lastUsedDir.empty())
       s_lastUsedDir = g_get_user_special_dir(G_USER_DIRECTORY_DESKTOP);
