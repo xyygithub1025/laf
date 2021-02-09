@@ -37,12 +37,18 @@ namespace os {
     bool closable() const { return m_closable; }
     bool miniaturizable() const { return m_miniaturizable; }
     bool resizable() const { return m_resizable; }
+    bool floating() const { return m_floating; }
+
+    // Parent window used for floating windows
+    Window* parent() const { return m_parent; }
 
     void position(const Position p) { m_position = p; }
     void titled(const bool s) { m_titled = s; }
     void closable(const bool s) { m_closable = s; }
     void miniaturizable(const bool s) { m_miniaturizable = s; }
     void resizable(const bool s) { m_resizable = s; }
+    void floating(const bool s) { m_floating = s; }
+    void parent(Window* p) { m_parent = p; }
 
     const gfx::Rect& frame() const { return m_frame; }
     const gfx::Rect& contentRect() const { return m_contentRect; }
@@ -60,10 +66,12 @@ namespace os {
     bool m_closable = true;
     bool m_miniaturizable = true;
     bool m_resizable = true;
+    bool m_floating = false;
     gfx::Rect m_frame;
     gfx::Rect m_contentRect;
     int m_scale = 1;
     ScreenRef m_screen;
+    Window* m_parent = nullptr;
   };
 
 } // namespace os

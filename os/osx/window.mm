@@ -93,6 +93,9 @@
 
   [self makeKeyAndOrderFront:self];
 
+  if (spec->floating())
+    [self setLevel:NSFloatingWindowLevel];
+
   // Hide the "View > Show Tab Bar" menu item
   if ([self respondsToSelector:@selector(setTabbingMode:)])
     [self setTabbingMode:NSWindowTabbingModeDisallowed];

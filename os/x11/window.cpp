@@ -182,6 +182,14 @@ WindowX11::WindowX11(::Display* display, const WindowSpec& spec)
   XMapWindow(m_display, m_window);
   XSetWMProtocols(m_display, m_window, &WM_DELETE_WINDOW, 1);
 
+  if (spec.floating() && spec.parent()) {
+    ASSERT(static_cast<WindowX11*>(spec.parent())->m_window);
+    XSetTransientForHint(
+      m_display,
+      m_window,
+      static_cast<WindowX11*>(spec.parent())->m_window);
+  }
+
   m_gc = XCreateGC(m_display, m_window, 0, nullptr);
 
   XIM xim = X11::instance()->xim();

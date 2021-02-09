@@ -2008,7 +2008,8 @@ HWND WindowWin::createHwnd(WindowWin* self, const WindowSpec& spec)
   int exStyle = WS_EX_ACCEPTFILES;
   int style = 0;
   if (spec.titled()) {
-    exStyle |= WS_EX_APPWINDOW;
+    if (!spec.parent())
+      exStyle |= WS_EX_APPWINDOW;
     style |= WS_OVERLAPPED | WS_SYSMENU | WS_CAPTION;
   }
   else {
@@ -2019,6 +2020,9 @@ HWND WindowWin::createHwnd(WindowWin* self, const WindowSpec& spec)
   }
   if (spec.resizable()) {
     style |= WS_THICKFRAME | WS_MAXIMIZEBOX;
+  }
+  if (spec.floating()) {
+    exStyle |= WS_EX_TOPMOST;
   }
 
   gfx::Rect rc;
@@ -2064,7 +2068,7 @@ HWND WindowWin::createHwnd(WindowWin* self, const WindowSpec& spec)
     L"",
     style,
     rc.x, rc.y, rc.w, rc.h,
-    nullptr,
+    (HWND)(spec.parent() ? static_cast<WindowWin*>(spec.parent())->nativeHandle(): nullptr),
     nullptr,
     GetModuleHandle(nullptr),
     reinterpret_cast<LPVOID>(self));
