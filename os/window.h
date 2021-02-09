@@ -117,6 +117,15 @@ namespace os {
 
     // Returns the HWND on Windows, X11 Window, or bridged NSWindow pointer.
     virtual NativeHandle nativeHandle() const = 0;
+
+    template<typename T>
+    T* userData() { return reinterpret_cast<T*>(m_userData); }
+
+    template<typename T>
+    void setUserData(T* data) { m_userData = reinterpret_cast<void*>(data); }
+
+  private:
+    void* m_userData;
   };
 
 } // namespace os
