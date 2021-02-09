@@ -315,6 +315,11 @@ void WindowWin::setVisible(bool visible)
     ShowWindow(m_hwnd, SW_HIDE);
 }
 
+void WindowWin::activate()
+{
+  SetActiveWindow(m_hwnd);
+}
+
 void WindowWin::maximize()
 {
   ShowWindow(m_hwnd, SW_MAXIMIZE);

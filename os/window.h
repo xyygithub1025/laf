@@ -74,6 +74,8 @@ namespace os {
     virtual void invalidateRegion(const gfx::Region& rgn) = 0;
     void invalidate();
 
+    // Focus the window to receive the keyboard input by default.
+    virtual void activate() = 0;
     virtual void maximize() = 0;
     virtual bool isMaximized() const = 0;
     virtual bool isMinimized() const = 0;

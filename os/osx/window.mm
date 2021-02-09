@@ -365,6 +365,11 @@ gfx::Rect WindowOSX::contentRect() const
                    r.size.width, r.size.height);
 }
 
+void WindowOSX::activate()
+{
+  [m_nsWindow makeKeyWindow];
+}
+
 void WindowOSX::maximize()
 {
   // TODO

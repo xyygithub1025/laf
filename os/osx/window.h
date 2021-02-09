@@ -79,6 +79,7 @@ public:
   gfx::Rect frame() const override;
   gfx::Rect contentRect() const override;
 
+  void activate() override;
   void maximize() override;
   bool isMaximized() const override;
   bool isMinimized() const override;

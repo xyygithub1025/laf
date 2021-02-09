@@ -240,6 +240,28 @@ void WindowX11::setVisible(bool visible)
   // TODO
 }
 
+void WindowX11::activate()
+{
+  Atom _NET_ACTIVE_WINDOW = XInternAtom(m_display, "_NET_ACTIVE_WINDOW", False);
+  if (!_NET_ACTIVE_WINDOW)
+    return;                     // No atoms?
+
+  ::Window root = XDefaultRootWindow(m_display);
+  XEvent event;
+  memset(&event, 0, sizeof(event));
+  event.xany.type = ClientMessage;
+  event.xclient.window = m_window;
+  event.xclient.message_type = _NET_ACTIVE_WINDOW;
+  event.xclient.format = 32;
+  event.xclient.data.l[0] = 1; // 1 when the request comes from an application
+  event.xclient.data.l[1] = CurrentTime;
+  event.xclient.data.l[2] = 0;
+  event.xclient.data.l[3] = 0;
+
+  XSendEvent(m_display, root, 0,
+             SubstructureNotifyMask | SubstructureRedirectMask, &event);
+}
+
 void WindowX11::maximize()
 {
   // TODO

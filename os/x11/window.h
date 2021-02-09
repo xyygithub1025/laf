@@ -51,6 +51,7 @@ public:
   bool isVisible() const override;
   void setVisible(bool visible) override;
 
+  void activate() override;
   void maximize() override;
   bool isMaximized() const override;
   bool isMinimized() const override;
