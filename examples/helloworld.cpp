@@ -36,7 +36,7 @@ int app_main(int argc, char* argv[])
   os::WindowRef window = system->makeWindow(400, 300);
   window->setNativeMouseCursor(os::NativeCursor::Arrow);
   window->setTitle("Hello World");
-  window->handleResize = draw_window;
+  system->handleWindowResize = draw_window;
 
   // On macOS: With finishLaunching() we start processing
   // NSApplicationDelegate events. After calling this we'll start

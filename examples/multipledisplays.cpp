@@ -65,7 +65,6 @@ static os::WindowRef add_window(const std::string& title,
   os::WindowRef newWindow = os::instance()->makeWindow(spec);
   newWindow->setNativeMouseCursor(os::NativeCursor::Arrow);
   newWindow->setTitle(title);
-  newWindow->handleResize = redraw_window;
   windows.emplace_back(newWindow);
 
   redraw_window(newWindow.get());
@@ -100,6 +99,7 @@ int app_main(int argc, char* argv[])
 {
   auto system = os::make_system();
   system->setAppMode(os::AppMode::GUI);
+  system->handleWindowResize = redraw_window;
 
   // Create four windows for each screen with the bounds of the
   // workarea.

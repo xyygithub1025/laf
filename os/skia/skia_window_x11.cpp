@@ -16,6 +16,7 @@
 #include "os/event_queue.h"
 #include "os/skia/skia_surface.h"
 #include "os/skia/skia_window.h"
+#include "os/system.h"
 #include "os/x11/x11.h"
 
 #include "SkBitmap.h"
@@ -113,8 +114,13 @@ void SkiaWindowX11::onPaint(const gfx::Rect& rc)
 void SkiaWindowX11::onResize(const gfx::Size& sz)
 {
   resizeSkiaSurface(sz);
-  if (this->handleResize)
-    this->handleResize(this);
+  if (os::instance()->handleWindowResize &&
+      // Check that the surface is created to avoid a call to
+      // handleWindowResize() with an empty surface (or null
+      // SkiaSurface::m_canvas) when the window is being created.
+      isInitialized()) {
+    os::instance()->handleWindowResize(this);
+  }
   else {
     Event ev;
     ev.setType(Event::ResizeWindow);

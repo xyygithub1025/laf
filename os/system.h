@@ -19,6 +19,7 @@
 #include "os/window.h"
 #include "os/window_spec.h"
 
+#include <functional>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -202,6 +203,14 @@ namespace os {
     // window changes to another monitor).
     virtual void setWindowsColorSpace(const os::ColorSpaceRef& cs) = 0;
     virtual os::ColorSpaceRef windowsColorSpace() = 0;
+
+    // Function called to handle a "live resize"/resizing loop of a
+    // native window. If this is nullptr, an Event::ResizeWindow is
+    // generated when the resizing is finished.
+    //
+    // TODO I think we should have a SystemDelegate or something
+    //      similar instead of a public property.
+    std::function<void(os::Window*)> handleWindowResize = nullptr;
   };
 
   SystemRef make_system();

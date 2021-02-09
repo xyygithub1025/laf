@@ -359,8 +359,13 @@ void SkiaWindowWin::onResize(const gfx::Size& size)
   // TODO the next code is quite similar to SkiaWindow::onResize() for X11.
 
   this->resizeSkiaSurface(size);
-  if (this->handleResize)
-    this->handleResize(this);
+  if (os::instance()->handleWindowResize &&
+      // Check that the surface is created to avoid a call to
+      // handleWindowResize() with an empty surface (or null
+      // SkiaSurface::m_canvas) when the window is being created.
+      isInitialized()) {
+    os::instance()->handleWindowResize(this);
+  }
   else if (!m_resizing) {
     Event ev;
     ev.setType(Event::ResizeWindow);

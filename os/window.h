@@ -16,7 +16,6 @@
 #include "os/screen.h"
 #include "os/surface_list.h"
 
-#include <functional>
 #include <string>
 
 namespace os {
@@ -31,14 +30,6 @@ namespace os {
     typedef void* NativeHandle;
 
     virtual ~Window() { }
-
-    // Function called to handle a "live resize"/resizing loop. If
-    // this is nullptr, an Event::ResizeWindow is generated when the
-    // resizing is finished.
-    //
-    // TODO I think we should have a WindowDelegate for this instead
-    //      of a public property.
-    std::function<void(os::Window*)> handleResize = nullptr;
 
     // Real rectangle of this window (including title bar, etc.) in
     // the screen. (The scale is not involved.)
