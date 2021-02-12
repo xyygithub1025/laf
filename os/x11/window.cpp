@@ -38,6 +38,22 @@
 //      properties (see OS_WND_CLASS_NAME too)
 #define LAF_X11_WM_CLASS "Aseprite"
 
+const int _NET_WM_STATE_REMOVE = 0;
+const int _NET_WM_STATE_ADD    = 1;
+
+const int _NET_WM_MOVERESIZE_SIZE_TOPLEFT      = 0;
+const int _NET_WM_MOVERESIZE_SIZE_TOP          = 1;
+const int _NET_WM_MOVERESIZE_SIZE_TOPRIGHT     = 2;
+const int _NET_WM_MOVERESIZE_SIZE_RIGHT        = 3;
+const int _NET_WM_MOVERESIZE_SIZE_BOTTOMRIGHT  = 4;
+const int _NET_WM_MOVERESIZE_SIZE_BOTTOM       = 5;
+const int _NET_WM_MOVERESIZE_SIZE_BOTTOMLEFT   = 6;
+const int _NET_WM_MOVERESIZE_SIZE_LEFT         = 7;
+const int _NET_WM_MOVERESIZE_MOVE              = 8;
+const int _NET_WM_MOVERESIZE_SIZE_KEYBOARD     = 9;
+const int _NET_WM_MOVERESIZE_MOVE_KEYBOARD    = 10;
+const int _NET_WM_MOVERESIZE_CANCEL           = 11;
+
 namespace os {
 
 namespace {
@@ -47,6 +63,10 @@ namespace {
 Atom WM_DELETE_WINDOW = 0;
 
 Atom _NET_FRAME_EXTENTS = 0;
+
+Atom _NET_WM_STATE = 0;
+Atom _NET_WM_STATE_MAXIMIZED_VERT;
+Atom _NET_WM_STATE_MAXIMIZED_HORZ;
 
 // Cursor Without pixels to simulate a hidden X11 cursor
 Cursor empty_xcursor = None;
@@ -121,14 +141,21 @@ WindowX11::WindowX11(::Display* display, const WindowSpec& spec)
   , m_lastMousePos(-1, -1)
   , m_lastClientSize(0, 0)
   , m_doubleClickButton(Event::NoneButton)
+  , m_borderless(spec.borderless())
 {
+  // Cache some atoms (TODO improve this to cache more atoms)
+  if (!_NET_FRAME_EXTENTS)
+    _NET_FRAME_EXTENTS = XInternAtom(m_display, "_NET_FRAME_EXTENTS", False);
+  if (!_NET_WM_STATE) {
+    _NET_WM_STATE = XInternAtom(m_display, "_NET_WM_STATE", False);
+    _NET_WM_STATE_MAXIMIZED_VERT = XInternAtom(m_display, "_NET_WM_STATE_MAXIMIZED_VERT", False);
+    _NET_WM_STATE_MAXIMIZED_HORZ = XInternAtom(m_display, "_NET_WM_STATE_MAXIMIZED_HORZ", False);
+  }
+
   // Initialize special messages (just the first time a WindowX11 is
   // created)
   if (!WM_DELETE_WINDOW)
     WM_DELETE_WINDOW = XInternAtom(m_display, "WM_DELETE_WINDOW", False);
-
-  if (!_NET_FRAME_EXTENTS)
-    _NET_FRAME_EXTENTS = XInternAtom(m_display, "_NET_FRAME_EXTENTS", False);
 
   ::Window root = XDefaultRootWindow(m_display);
 
@@ -137,6 +164,11 @@ WindowX11::WindowX11(::Display* display, const WindowSpec& spec)
                     EnterWindowMask | LeaveWindowMask | FocusChangeMask |
                     ButtonPressMask | ButtonReleaseMask | PointerMotionMask |
                     KeyPressMask | KeyReleaseMask);
+
+  // We cannot use the override-redirect state because it removes too
+  // much behavior of the WM (cannot resize the custom frame as other
+  // regular windows in the WM, etc.)
+  //swa.override_redirect = (spec.borderless() ? True: False);
 
   gfx::Rect rc;
 
@@ -153,13 +185,50 @@ WindowX11::WindowX11(::Display* display, const WindowSpec& spec)
     CopyFromParent,
     InputOutput,
     CopyFromParent,
-    CWEventMask,
+    CWEventMask, // Do not use CWOverrideRedirect
     &swa);
 
   if (!m_window)
     throw std::runtime_error("Cannot create X11 window");
 
   setWMClass(LAF_X11_WM_CLASS);
+
+  // Special frame for this window
+  if (spec.floating()) {
+    // We use _NET_WM_WINDOW_TYPE_UTILITY for floating windows
+    Atom _NET_WM_WINDOW_TYPE = XInternAtom(m_display, "_NET_WM_WINDOW_TYPE", False);
+    Atom _NET_WM_WINDOW_TYPE_UTILITY = XInternAtom(m_display, "_NET_WM_WINDOW_TYPE_UTILITY", False);
+    Atom _NET_WM_WINDOW_TYPE_NORMAL = XInternAtom(m_display, "_NET_WM_WINDOW_TYPE_NORMAL", False);
+    if (_NET_WM_WINDOW_TYPE &&
+        _NET_WM_WINDOW_TYPE_UTILITY &&
+        _NET_WM_WINDOW_TYPE_NORMAL) {
+      // We've to specify the window types in order of preference (but
+      // must include at least one of the basic window type atoms).
+      std::vector<Atom> data = { _NET_WM_WINDOW_TYPE_UTILITY,
+                                 _NET_WM_WINDOW_TYPE_NORMAL };
+      XChangeProperty(
+        m_display, m_window, _NET_WM_WINDOW_TYPE,
+        XA_ATOM, 32, PropModeReplace,
+        (const unsigned char*)&data[0], data.size());
+    }
+  }
+
+  // To remove the borders and keep the window behavior of the WM
+  // (e.g. Super key + mouse to resize/move the window), we can use
+  // this trick setting the _MOTIF_WM_HINTS flag to 2.
+  //
+  // The alternatives (using _NET_WM_WINDOW_TYPE or override-redirect)
+  // are useless because they remove the default behavior of the
+  // operating system (making a complete "naked" window without
+  // behavior at all).
+  if (spec.borderless()) {
+    std::vector<uint32_t> data = { 2 };
+    Atom _MOTIF_WM_HINTS = XInternAtom(m_display, "_MOTIF_WM_HINTS", False);
+    XChangeProperty(
+      m_display, m_window, _MOTIF_WM_HINTS,
+      XA_CARDINAL, 32, PropModeReplace,
+      (const unsigned char*)&data[0], data.size());
+  }
 
   // Receive stylus/eraser events
   X11::instance()->xinput().selectExtensionEvents(m_display, m_window);
@@ -200,6 +269,7 @@ WindowX11::WindowX11(::Display* display, const WindowSpec& spec)
                       XNFocusWindow, m_window,
                       nullptr);
   }
+
   WindowX11::addWindow(this);
 }
 
@@ -272,12 +342,53 @@ void WindowX11::activate()
 
 void WindowX11::maximize()
 {
-  // TODO
+  ::Window root = XDefaultRootWindow(m_display);
+  XEvent event;
+  memset(&event, 0, sizeof(event));
+  event.xany.type = ClientMessage;
+  event.xclient.window = m_window;
+  event.xclient.message_type = _NET_WM_STATE;
+  event.xclient.format = 32;
+  event.xclient.data.l[0] = (isMaximized() ? _NET_WM_STATE_REMOVE:
+                                             _NET_WM_STATE_ADD);
+  event.xclient.data.l[1] = _NET_WM_STATE_MAXIMIZED_VERT;
+  event.xclient.data.l[2] = _NET_WM_STATE_MAXIMIZED_HORZ;
+
+  XSendEvent(m_display, root, 0,
+             SubstructureNotifyMask | SubstructureRedirectMask, &event);
+}
+
+void WindowX11::minimize()
+{
+  XIconifyWindow(m_display, m_window, DefaultScreen(m_display));
 }
 
 bool WindowX11::isMaximized() const
 {
-  return false;
+  bool result = false;
+  Atom actual_type;
+  int actual_format;
+  unsigned long nitems;
+  unsigned long bytes_after;
+  Atom* prop = nullptr;
+  int res = XGetWindowProperty(m_display, m_window,
+                               _NET_WM_STATE,
+                               0, 4,
+                               False, XA_ATOM,
+                               &actual_type, &actual_format,
+                               &nitems, &bytes_after,
+                               (unsigned char**)&prop);
+
+  if (res == Success) {
+    for (int i=0; i<nitems; ++i) {
+      if (prop[i] == _NET_WM_STATE_MAXIMIZED_VERT ||
+          prop[i] == _NET_WM_STATE_MAXIMIZED_HORZ) {
+        result = true;
+      }
+    }
+    XFree(prop);
+  }
+  return result;
 }
 
 bool WindowX11::isMinimized() const
@@ -296,7 +407,6 @@ void WindowX11::setFullscreen(bool state)
   if (isFullscreen() == state)
     return;
 
-  Atom _NET_WM_STATE = XInternAtom(m_display, "_NET_WM_STATE", False);
   Atom _NET_WM_STATE_FULLSCREEN = XInternAtom(m_display, "_NET_WM_STATE_FULLSCREEN", False);
   if (!_NET_WM_STATE || !_NET_WM_STATE_FULLSCREEN)
     return;                     // No atoms?
@@ -308,9 +418,6 @@ void WindowX11::setFullscreen(bool state)
   //    Manager MUST keep this property updated to reflect the
   //    current state of the window."
   //
-  const int _NET_WM_STATE_REMOVE = 0;
-  const int _NET_WM_STATE_ADD = 1;
-
   ::Window root = XDefaultRootWindow(m_display);
   XEvent event;
   memset(&event, 0, sizeof(event));
@@ -601,6 +708,58 @@ bool WindowX11::setNativeMouseCursor(const os::Surface* surface,
   return setX11Cursor(xcursor);
 }
 
+void WindowX11::performWindowAction(const WindowAction action,
+                                    const Event* ev)
+{
+  Atom _NET_WM_MOVERESIZE = XInternAtom(m_display, "_NET_WM_MOVERESIZE", False);
+  if (!_NET_WM_MOVERESIZE)
+    return;                     // No atoms?
+
+  int x = (ev ? ev->position().x: 0);
+  int y = (ev ? ev->position().y: 0);
+  int button = (ev ? get_x_mouse_button_from_event(ev->button()): 0);
+  Atom direction = 0;
+  switch (action) {
+    case WindowAction::Cancel:                direction = _NET_WM_MOVERESIZE_CANCEL; break;
+    case WindowAction::Move:                  direction = _NET_WM_MOVERESIZE_MOVE; break;
+    case WindowAction::ResizeFromTopLeft:     direction = _NET_WM_MOVERESIZE_SIZE_TOPLEFT; break;
+    case WindowAction::ResizeFromTop:         direction = _NET_WM_MOVERESIZE_SIZE_TOP; break;
+    case WindowAction::ResizeFromTopRight:    direction = _NET_WM_MOVERESIZE_SIZE_TOPRIGHT; break;
+    case WindowAction::ResizeFromLeft:        direction = _NET_WM_MOVERESIZE_SIZE_LEFT; break;
+    case WindowAction::ResizeFromRight:       direction = _NET_WM_MOVERESIZE_SIZE_RIGHT; break;
+    case WindowAction::ResizeFromBottomLeft:  direction = _NET_WM_MOVERESIZE_SIZE_BOTTOMLEFT; break;
+    case WindowAction::ResizeFromBottom:      direction = _NET_WM_MOVERESIZE_SIZE_BOTTOM; break;
+    case WindowAction::ResizeFromBottomRight: direction = _NET_WM_MOVERESIZE_SIZE_BOTTOMRIGHT; break;
+  }
+
+  // From:
+  // https://specifications.freedesktop.org/wm-spec/latest/ar01s04.html#idm46075117309248
+  // "The Client MUST release all grabs prior to sending such
+  //  message (except for the _NET_WM_MOVERESIZE_CANCEL message)."
+  if (direction != _NET_WM_MOVERESIZE_CANCEL)
+    releaseMouse();
+
+  ::Window root = XDefaultRootWindow(m_display);
+  ::Window child_return;
+  XTranslateCoordinates(m_display, m_window, root,
+                        x, y, &x, &y, &child_return);
+
+  XEvent event;
+  memset(&event, 0, sizeof(event));
+  event.xany.type = ClientMessage;
+  event.xclient.window = m_window;
+  event.xclient.message_type = _NET_WM_MOVERESIZE;
+  event.xclient.format = 32;
+  event.xclient.data.l[0] = x;
+  event.xclient.data.l[1] = y;
+  event.xclient.data.l[2] = direction;
+  event.xclient.data.l[3] = button;
+  event.xclient.data.l[4] = 0;
+
+  XSendEvent(m_display, root, 0,
+             SubstructureNotifyMask | SubstructureRedirectMask, &event);
+}
+
 void WindowX11::setWMClass(const std::string& res_class)
 {
   std::string res_name = base::string_to_lower(res_class);
@@ -773,8 +932,8 @@ void WindowX11::processX11Event(XEvent& event)
         }
       }
       else {
-        ev.setType(event.type == ButtonPress? Event::MouseDown:
-                                              Event::MouseUp);
+        ev.setType(event.type == ButtonPress ? Event::MouseDown:
+                                               Event::MouseUp);
 
         Event::MouseButton button =
           get_mouse_button_from_x(event.xbutton.button);
@@ -853,6 +1012,13 @@ void WindowX11::processX11Event(XEvent& event)
 
     case PropertyNotify:
       if (event.xproperty.atom == _NET_FRAME_EXTENTS) {
+        if (m_borderless) {
+          std::vector<unsigned long> data(4, 0);
+          XChangeProperty(
+            m_display, m_window, _NET_FRAME_EXTENTS, XA_CARDINAL, 32,
+            PropModeReplace, (const unsigned char*)&data[0], data.size());
+        }
+
         Atom actual_type;
         int actual_format;
         unsigned long nitems;

@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (c) 2019  Igara Studio S.A.
+// Copyright (c) 2019-2021  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -54,10 +54,14 @@ namespace os {
     gfx::Color color() const { return m_color; }
     void color(const gfx::Color color) { m_color = color; }
 
+    float strokeWidth() const { return m_strokeWidth; }
+    void strokeWidth(const float strokeWidth) { m_strokeWidth = strokeWidth; }
+
   private:
     Flags m_flags = kNone;
     Style m_style = Fill;
     gfx::Color m_color = gfx::ColorNone;
+    float m_strokeWidth = 1.0f;
   };
 
 } // namespace os

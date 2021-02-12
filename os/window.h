@@ -20,9 +20,23 @@
 
 namespace os {
 
+  class Event;
   class Surface;
   class Window;
   using WindowRef = Ref<Window>;
+
+  enum class WindowAction {
+    Cancel,
+    Move,
+    ResizeFromTopLeft,
+    ResizeFromTop,
+    ResizeFromTopRight,
+    ResizeFromLeft,
+    ResizeFromRight,
+    ResizeFromBottomLeft,
+    ResizeFromBottom,
+    ResizeFromBottomRight,
+  };
 
   // A window to show graphics.
   class Window : public RefCount {
@@ -77,6 +91,7 @@ namespace os {
     // Focus the window to receive the keyboard input by default.
     virtual void activate() = 0;
     virtual void maximize() = 0;
+    virtual void minimize() = 0;
     virtual bool isMaximized() const = 0;
     virtual bool isMinimized() const = 0;
 
@@ -99,6 +114,12 @@ namespace os {
 
     virtual void captureMouse() = 0;
     virtual void releaseMouse() = 0;
+
+    // Performs the user action to move or resize the window. It's
+    // useful in case that you want to design your own regions to
+    // resize or move/drag the window.
+    virtual void performWindowAction(const WindowAction action,
+                                     const Event* event = nullptr) = 0;
 
     // Set/get the specific information to restore the exact same
     // window position (e.g. in the same monitor).

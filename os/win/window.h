@@ -43,6 +43,7 @@ namespace os {
     void setVisible(bool visible) override;
     void activate() override;
     void maximize() override;
+    void minimize() override;
     bool isMaximized() const override;
     bool isMinimized() const override;
     bool isFullscreen() const override;
@@ -60,6 +61,8 @@ namespace os {
     bool setNativeMouseCursor(const os::Surface* surface,
                               const gfx::Point& focus,
                               const int scale) override;
+    void performWindowAction(const WindowAction action,
+                             const Event* event) override;
     void invalidateRegion(const gfx::Region& rgn) override;
     std::string getLayout() override;
 
@@ -89,6 +92,17 @@ namespace os {
 
     void openWintabCtx();
     void closeWintabCtx();
+
+    // Informs the taskbar that we are going (or exiting) the
+    // fullscreen mode so it doesn't popup if it's hidden.
+    void notifyFullScreenStateToShell();
+
+    bool useScrollBarsHack() const {
+      // TODO check if we can "return !m_usePointerApi" here in the
+      //      future anyway it's not high-priority as we fixed the
+      //      issue with the scrollbar grip
+      return true;
+    }
 
     virtual void onQueueEvent(Event& ev) { }
     virtual void onResize(const gfx::Size& sz) { }
@@ -226,6 +240,10 @@ namespace os {
     float m_pressure;
     std::vector<PACKET> m_packets;
     Event m_lastWintabEvent;
+    bool m_fullscreen;
+    bool m_titled;
+    bool m_borderless;
+    bool m_fixingPos;
   };
 
 } // namespace os

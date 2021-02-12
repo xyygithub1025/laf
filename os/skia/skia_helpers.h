@@ -47,6 +47,7 @@ inline void to_skia(const Paint& paint, SkPaint& skPaint) {
   skPaint.setColor(to_skia(paint.color()));
   skPaint.setStyle((SkPaint::Style)paint.style());
   skPaint.setAntiAlias(paint.antialias());
+  skPaint.setStrokeWidth(paint.strokeWidth());
 }
 
 } // namespace os

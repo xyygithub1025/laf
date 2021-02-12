@@ -12,12 +12,32 @@
 namespace os {
 
   enum class Capabilities {
+    // Supports the creation of multiple os::Window. If this is not
+    // set, the system supports just one display, like a phone device.
     MultipleWindows = 1,
+
+    // When os::Window can be resized.
     CanResizeWindow = 2,
+
+    // When we can change the window scale.
     WindowScale = 4,
+
+    // When we can set the mouse cursor with a custom os::Surface
+    // using os::Window::setNativeMouseCursor(const os::Surface*, ...)
     CustomNativeMouseCursor = 8,
+
+    // When GPU acceleration can be turned on.
+    // TODO this is being developed
     GpuAccelerationSwitch = 16,
-    ColorSpaces = 32
+
+    // When the platform support changing the color space of the
+    // window.
+    ColorSpaces = 32,
+
+    // Windows & Linux allow to the programmer to start the
+    // drag-window-to-resize-it loop from a os::Event:MouseDown, but
+    // macOS doesn't (macOS supports only start moving the window).
+    CanStartWindowResize = 64
   };
 
 } // namespace os

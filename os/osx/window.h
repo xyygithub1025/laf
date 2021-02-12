@@ -81,6 +81,7 @@ public:
 
   void activate() override;
   void maximize() override;
+  void minimize() override;
   bool isMaximized() const override;
   bool isMinimized() const override;
   bool isFullscreen() const override;
@@ -92,6 +93,9 @@ public:
   void captureMouse() override;
   void releaseMouse() override;
   void setMousePosition(const gfx::Point& position) override;
+
+  void performWindowAction(const WindowAction action,
+                           const Event* event) override;
 
   os::ScreenRef screen() const override;
   os::ColorSpaceRef colorSpace() const override;

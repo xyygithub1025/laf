@@ -53,6 +53,7 @@ public:
 
   void activate() override;
   void maximize() override;
+  void minimize() override;
   bool isMaximized() const override;
   bool isMinimized() const override;
 
@@ -76,6 +77,9 @@ public:
   bool setNativeMouseCursor(const os::Surface* surface,
                             const gfx::Point& focus,
                             const int scale);
+
+  void performWindowAction(const WindowAction action,
+                           const Event* event) override;
 
   ::Display* x11display() const { return m_display; }
   ::Window x11window() const { return m_window; }
@@ -113,6 +117,7 @@ private:
   gfx::Border m_frameExtents;
   bool m_initializingFromFrame = false;
   bool m_fullScreen = false;
+  bool m_borderless = false;
 
   // Double-click info
   Event::MouseButton m_doubleClickButton;

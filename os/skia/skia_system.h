@@ -57,6 +57,9 @@ public:
       int(Capabilities::WindowScale) |
       int(Capabilities::CustomNativeMouseCursor) |
       int(Capabilities::ColorSpaces)
+#ifndef __APPLE__
+      | int(Capabilities::CanStartWindowResize)
+#endif
     // TODO enable this when the GPU support is ready
 #if 0 // SK_SUPPORT_GPU
       | int(Capabilities::GpuAccelerationSwitch)

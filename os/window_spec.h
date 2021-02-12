@@ -34,6 +34,7 @@ namespace os {
 
     Position position() const { return m_position; }
     bool titled() const { return m_titled; }
+    bool borderless() const { return m_borderless; }
     bool closable() const { return m_closable; }
     bool miniaturizable() const { return m_miniaturizable; }
     bool resizable() const { return m_resizable; }
@@ -44,6 +45,7 @@ namespace os {
 
     void position(const Position p) { m_position = p; }
     void titled(const bool s) { m_titled = s; }
+    void borderless(const bool s) { m_borderless = s; }
     void closable(const bool s) { m_closable = s; }
     void miniaturizable(const bool s) { m_miniaturizable = s; }
     void resizable(const bool s) { m_resizable = s; }
@@ -63,6 +65,7 @@ namespace os {
   private:
     Position m_position = Position::Default;
     bool m_titled = true;
+    bool m_borderless = false;
     bool m_closable = true;
     bool m_miniaturizable = true;
     bool m_resizable = true;

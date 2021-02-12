@@ -36,6 +36,7 @@
   NSWindowStyleMask style = NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable;
   if (spec->titled()) style |= NSWindowStyleMaskTitled;
   if (spec->resizable()) style |= NSWindowStyleMaskResizable;
+  if (spec->borderless()) style |= NSWindowStyleMaskBorderless;
 
   NSRect contentRect;
   if (!spec->contentRect().isEmpty()) {
@@ -375,7 +376,12 @@ void WindowOSX::activate()
 
 void WindowOSX::maximize()
 {
-  // TODO
+  [m_nsWindow zoom:m_nsWindow];
+}
+
+void WindowOSX::minimize()
+{
+  [m_nsWindow miniaturize:m_nsWindow];
 }
 
 bool WindowOSX::isMaximized() const
@@ -396,12 +402,15 @@ bool WindowOSX::isFullscreen() const
 void WindowOSX::setFullscreen(bool state)
 {
   if (state) {
-    if (!isFullscreen())
+    if (!isFullscreen()) {
+      // TODO this doesn't work for borderless windows
       [m_nsWindow toggleFullScreen:m_nsWindow];
+    }
   }
   else {
-    if (isFullscreen())
+    if (isFullscreen()) {
       [m_nsWindow toggleFullScreen:m_nsWindow];
+    }
   }
 }
 
@@ -430,6 +439,14 @@ void WindowOSX::setMousePosition(const gfx::Point& position)
   [m_nsWindow setMousePosition:position];
 }
 
+void WindowOSX::performWindowAction(const WindowAction action,
+                                    const Event* event)
+{
+  if (action == WindowAction::Move) {
+    // TODO we should use the specified "event"
+    [m_nsWindow performWindowDragWithEvent:m_nsWindow.currentEvent];
+  }
+}
 
 os::ScreenRef WindowOSX::screen() const
 {
