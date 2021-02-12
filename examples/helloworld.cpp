@@ -34,8 +34,15 @@ int app_main(int argc, char* argv[])
   system->setAppMode(os::AppMode::GUI);
 
   os::WindowRef window = system->makeWindow(400, 300);
-  window->setNativeMouseCursor(os::NativeCursor::Arrow);
+
+  // Set the title bar caption of the native window.
   window->setTitle("Hello World");
+
+  // We can change the cursor to use when the mouse is above this
+  // window, this line is not required because by default the native
+  // cursor to be shown in a window is the arrow.
+  window->setNativeMouseCursor(os::NativeCursor::Arrow);
+
   system->handleWindowResize = draw_window;
 
   // On macOS: With finishLaunching() we start processing

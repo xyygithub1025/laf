@@ -196,7 +196,6 @@ os::WindowRef create_window()
   spec.borderless(true);
 
   os::WindowRef window = os::instance()->makeWindow(spec);
-  window->setNativeMouseCursor(os::NativeCursor::Arrow);
   window->setTitle("Custom Window");
   return window;
 }

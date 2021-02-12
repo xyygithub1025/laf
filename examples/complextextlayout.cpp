@@ -91,7 +91,6 @@ int app_main(int argc, char* argv[])
     return 1;
   }
 
-  window->setNativeMouseCursor(os::NativeCursor::Arrow);
   window->setTitle("CTL");
 
   system->finishLaunching();
