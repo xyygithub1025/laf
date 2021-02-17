@@ -116,7 +116,10 @@ elseif(APPLE)
   endif()
 
   target_compile_options(laf-os PRIVATE
-    -Wno-ignored-attributes -Wno-unused-result -Wno-deprecated-declarations
+    -Wno-ignored-attributes
+    -Wno-unused-result
+    -Wno-deprecated-declarations
+    -Werror=inconsistent-missing-override
     # Use Automatic Reference Counting
     -fobjc-arc)
 else()
@@ -146,6 +149,8 @@ else()
     target_include_directories(laf-os PRIVATE ${GTK_INCLUDE_DIRS})
     target_compile_definitions(laf-os PRIVATE LAF_OS_WITH_GTK)
   endif()
+
+  target_compile_options(laf-os PRIVATE -Werror=suggest-override)
 endif()
 
 target_link_libraries(laf-os ${LAF_OS_PLATFORM_LIBS})

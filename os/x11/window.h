@@ -57,26 +57,26 @@ public:
   bool isMaximized() const override;
   bool isMinimized() const override;
 
-  bool isFullscreen() const;
-  void setFullscreen(bool state);
+  bool isFullscreen() const override;
+  void setFullscreen(bool state) override;
 
-  void setTitle(const std::string& title);
-  void setIcons(const SurfaceList& icons);
+  void setTitle(const std::string& title) override;
+  void setIcons(const SurfaceList& icons) override;
 
-  gfx::Rect frame() const;
-  gfx::Rect contentRect() const;
-  std::string title() const;
+  gfx::Rect frame() const override;
+  gfx::Rect contentRect() const override;
+  std::string title() const override;
 
   gfx::Size clientSize() const;
   gfx::Size restoredSize() const;
-  void captureMouse();
-  void releaseMouse();
-  void setMousePosition(const gfx::Point& position);
-  void invalidateRegion(const gfx::Region& rgn);
-  bool setNativeMouseCursor(NativeCursor cursor);
+  void captureMouse() override;
+  void releaseMouse() override;
+  void setMousePosition(const gfx::Point& position) override;
+  void invalidateRegion(const gfx::Region& rgn) override;
+  bool setNativeMouseCursor(NativeCursor cursor) override;
   bool setNativeMouseCursor(const os::Surface* surface,
                             const gfx::Point& focus,
-                            const int scale);
+                            const int scale) override;
 
   void performWindowAction(const WindowAction action,
                            const Event* event) override;

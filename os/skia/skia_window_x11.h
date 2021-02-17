@@ -30,8 +30,8 @@ public:
   SkiaWindowX11(EventQueue* queue,
                 const WindowSpec& spec);
 
-  std::string getLayout() { return ""; }
-  void setLayout(const std::string& layout) { }
+  std::string getLayout() override { return ""; }
+  void setLayout(const std::string& layout) override { }
 
 private:
   void onQueueEvent(Event& ev) override;
