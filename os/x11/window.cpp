@@ -734,8 +734,21 @@ void WindowX11::performWindowAction(const WindowAction action,
   if (!_NET_WM_MOVERESIZE)
     return;                     // No atoms?
 
-  int x = (ev ? ev->position().x: 0);
-  int y = (ev ? ev->position().y: 0);
+  int x, y;
+  if (ev) {
+    x = ev->position().x;
+    y = ev->position().y;
+  }
+  else {
+    int rootx, rooty;
+    unsigned int mask;
+    ::Window root, child;
+    if (!XQueryPointer(m_display, m_window, &root, &child, &rootx, &rooty, &x, &y, &mask)) {
+      x = 0;
+      y = 0;
+    }
+  }
+
   int button = (ev ? get_x_mouse_button_from_event(ev->button()): 0);
   Atom direction = 0;
   switch (action) {
@@ -759,9 +772,9 @@ void WindowX11::performWindowAction(const WindowAction action,
     releaseMouse();
 
   ::Window root = XDefaultRootWindow(m_display);
-  ::Window child_return;
+  ::Window child;
   XTranslateCoordinates(m_display, m_window, root,
-                        x, y, &x, &y, &child_return);
+                        x, y, &x, &y, &child);
 
   XEvent event;
   memset(&event, 0, sizeof(event));
