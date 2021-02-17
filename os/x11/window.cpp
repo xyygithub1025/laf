@@ -497,14 +497,16 @@ void WindowX11::setIcons(const SurfaceList& icons)
 gfx::Rect WindowX11::frame() const
 {
   gfx::Rect rc = contentRect();
-  rc.enlarge(m_frameExtents);
+  if (!m_borderless)
+    rc.enlarge(m_frameExtents);
   return rc;
 }
 
 void WindowX11::setFrame(const gfx::Rect& bounds)
 {
   gfx::Rect rc = bounds;
-  rc.shrink(m_frameExtents);
+  if (!m_borderless)
+    rc.shrink(m_frameExtents);
   XMoveResizeWindow(
     m_display,
     m_window,
