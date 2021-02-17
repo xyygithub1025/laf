@@ -368,6 +368,15 @@ gfx::Rect WindowOSX::frame() const
                    r.size.width, r.size.height);
 }
 
+void WindowOSX::setFrame(const gfx::Rect& bounds)
+{
+  [m_nsWindow setFrame:NSMakeRect(bounds.x,
+                                  m_nsWindow.screen.frame.size.height - bounds.y2(),
+                                  bounds.w,
+                                  bounds.h)
+               display:YES];
+}
+
 gfx::Rect WindowOSX::contentRect() const
 {
   NSRect r = [m_nsWindow contentRectForFrameRect:m_nsWindow.frame];

@@ -29,6 +29,7 @@
 #include "base/string.h"
 #include "base/thread.h"
 #include "base/win/comptr.h"
+#include "gfx/border.h"
 #include "gfx/region.h"
 #include "gfx/size.h"
 #include "os/event.h"
@@ -450,10 +451,40 @@ gfx::Rect WindowWin::frame() const
   BOOL withShadow = false;
   if ((DwmIsCompositionEnabled(&withShadow) != S_OK) ||
       !withShadow ||
+      // DwmGetWindowAttribute() returns the true bounds from the
+      // frame edges (not from the shadow) when the DWM composition is
+      // enabled.
       (DwmGetWindowAttribute(m_hwnd, DWMWA_EXTENDED_FRAME_BOUNDS, &rc, sizeof(RECT)) != S_OK)) {
+    // In other case we can just use the GetWindowRect() function.
     GetWindowRect(m_hwnd, &rc);
   }
   return gfx::Rect(rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
+}
+
+void WindowWin::setFrame(const gfx::Rect& _bounds)
+{
+  gfx::Rect bounds = _bounds;
+
+  // If the Desktop Window Manager (DWM) composition is enabled, the
+  // window has an extra shadown, so we have to adjust the given
+  // "_bounds" (which represent the frame edges) with the extra shadow
+  // size. This is because SetWindowPos() receives the bounds of the
+  // frame from the shadow (not from the window edges).
+  RECT inner, outer;
+  BOOL withShadow = false;
+  if ((DwmIsCompositionEnabled(&withShadow) == S_OK) &&
+      withShadow &&
+      (DwmGetWindowAttribute(m_hwnd, DWMWA_EXTENDED_FRAME_BOUNDS, &inner, sizeof(RECT)) == S_OK)) {
+    GetWindowRect(m_hwnd, &outer);
+    bounds.enlarge(gfx::Border(inner.left - outer.left,
+                               inner.top - outer.top,
+                               outer.right - inner.right,
+                               outer.bottom - inner.bottom));
+  }
+  SetWindowPos(m_hwnd, nullptr,
+               bounds.x, bounds.y,
+               bounds.w, bounds.h,
+               SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
 }
 
 gfx::Rect WindowWin::contentRect() const

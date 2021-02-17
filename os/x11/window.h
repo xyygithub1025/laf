@@ -64,6 +64,7 @@ public:
   void setIcons(const SurfaceList& icons) override;
 
   gfx::Rect frame() const override;
+  void setFrame(const gfx::Rect& bounds) override;
   gfx::Rect contentRect() const override;
   std::string title() const override;
 

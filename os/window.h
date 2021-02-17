@@ -48,6 +48,7 @@ namespace os {
     // Real rectangle of this window (including title bar, etc.) in
     // the screen. (The scale is not involved.)
     virtual gfx::Rect frame() const = 0;
+    virtual void setFrame(const gfx::Rect& bounds) = 0;
 
     // Rectangle of the content, the origin is 0,0 and the
     // width/height dimensions are specified in real screen pixels.

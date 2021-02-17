@@ -210,26 +210,19 @@ int app_main(int argc, char* argv[])
             break;
           }
 
+          // With arrow keys we can thest the os::Window::setFrame() function
           case os::kKeyLeft:
           case os::kKeyUp:
           case os::kKeyRight:
           case os::kKeyDown: {
-            std::string title = ev.window()->title();
-            os::WindowSpec spec;
             gfx::Rect rc = ev.window()->frame();
-
             switch (ev.scancode()) {
               case os::kKeyLeft:  rc.x -= rc.w; break;
               case os::kKeyUp:    rc.y -= rc.h; break;
               case os::kKeyRight: rc.x += rc.w; break;
               case os::kKeyDown:  rc.y += rc.h; break;
             }
-
-            spec.position(os::WindowSpec::Position::Frame);
-            spec.frame(rc);
-
-            destroy_window(ev.window());
-            add_window(title, spec);
+            ev.window()->setFrame(rc);
             break;
           }
 

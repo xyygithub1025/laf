@@ -77,6 +77,7 @@ public:
   gfx::Size clientSize() const;
   gfx::Size restoredSize() const;
   gfx::Rect frame() const override;
+  void setFrame(const gfx::Rect& bounds) override;
   gfx::Rect contentRect() const override;
 
   void activate() override;
