@@ -94,10 +94,15 @@
     [self center];
   }
 
+  if (spec->parent())
+    self.parentWindow = (__bridge NSWindow*)static_cast<os::WindowOSX*>(spec->parent())->nativeHandle();
+
   [self makeKeyAndOrderFront:self];
 
-  if (spec->floating())
-    [self setLevel:NSFloatingWindowLevel];
+  if (spec->floating()) {
+    self.level = NSFloatingWindowLevel;
+    self.hidesOnDeactivate = true;
+  }
 
   // Hide the "View > Show Tab Bar" menu item
   if ([self respondsToSelector:@selector(setTabbingMode:)])
