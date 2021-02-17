@@ -101,6 +101,7 @@ protected:
 
 private:
   void setWMClass(const std::string& res_class);
+  void setAllowedActions();
   bool setX11Cursor(::Cursor xcursor);
   static void addWindow(WindowX11* window);
   static void removeWindow(WindowX11* window);
@@ -116,8 +117,13 @@ private:
   gfx::Size m_lastClientSize;
   gfx::Border m_frameExtents;
   bool m_initializingFromFrame = false;
-  bool m_fullScreen = false;
+  bool m_initializingActions = true;
+  bool m_fullscreen = false;
   bool m_borderless = false;
+  bool m_closable = false;
+  bool m_maximizable = false;
+  bool m_minimizable = false;
+  bool m_resizable = false;
 
   // Double-click info
   Event::MouseButton m_doubleClickButton;

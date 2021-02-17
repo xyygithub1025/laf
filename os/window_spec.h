@@ -36,7 +36,8 @@ namespace os {
     bool titled() const { return m_titled; }
     bool borderless() const { return m_borderless; }
     bool closable() const { return m_closable; }
-    bool miniaturizable() const { return m_miniaturizable; }
+    bool maximizable() const { return m_maximizable; }
+    bool minimizable() const { return m_minimizable; }
     bool resizable() const { return m_resizable; }
     bool floating() const { return m_floating; }
 
@@ -47,7 +48,8 @@ namespace os {
     void titled(const bool s) { m_titled = s; }
     void borderless(const bool s) { m_borderless = s; }
     void closable(const bool s) { m_closable = s; }
-    void miniaturizable(const bool s) { m_miniaturizable = s; }
+    void maximizable(const bool s) { m_maximizable = s; }
+    void minimizable(const bool s) { m_minimizable = s; }
     void resizable(const bool s) { m_resizable = s; }
     void floating(const bool s) { m_floating = s; }
     void parent(Window* p) { m_parent = p; }
@@ -67,7 +69,8 @@ namespace os {
     bool m_titled = true;
     bool m_borderless = false;
     bool m_closable = true;
-    bool m_miniaturizable = true;
+    bool m_maximizable = true;
+    bool m_minimizable = true;
     bool m_resizable = true;
     bool m_floating = false;
     gfx::Rect m_frame;

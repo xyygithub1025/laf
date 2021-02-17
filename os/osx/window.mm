@@ -33,8 +33,10 @@
   else
     nsScreen = [NSScreen mainScreen];
 
-  NSWindowStyleMask style = NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable;
+  NSWindowStyleMask style = 0;
   if (spec->titled()) style |= NSWindowStyleMaskTitled;
+  if (spec->closable()) style |= NSWindowStyleMaskClosable;
+  if (spec->minimizable()) style |= NSWindowStyleMaskMiniaturizable;
   if (spec->resizable()) style |= NSWindowStyleMaskResizable;
   if (spec->borderless()) style |= NSWindowStyleMaskBorderless;
 

@@ -16,7 +16,7 @@ public:
     if (parent) {
       spec.floating(true);
       spec.parent(parent);
-      spec.miniaturizable(false);
+      spec.minimizable(false);
 
       gfx::Rect rc = parent->frame();
       spec.frame(gfx::Rect(rc.x2()-w/2, rc.y+rc.h/2-h/2, w, h));

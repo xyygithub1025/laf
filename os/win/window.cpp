@@ -2184,14 +2184,17 @@ HWND WindowWin::createHwnd(WindowWin* self, const WindowSpec& spec)
   else {
     style |= WS_POPUP;
   }
-  if (spec.miniaturizable()) {
+  if (spec.minimizable()) {
     style |= WS_SYSMENU | WS_MINIMIZEBOX;
   }
   if (spec.resizable()) {
-    style |= WS_THICKFRAME | WS_MAXIMIZEBOX;
+    style |= WS_THICKFRAME;
+  }
+  if (spec.maximizable()) {
+    style |= WS_MAXIMIZEBOX;
   }
   if (spec.floating()) {
-    exStyle |= WS_EX_TOPMOST;
+    exStyle |= WS_EX_TOOLWINDOW;
   }
 
   gfx::Rect rc;
