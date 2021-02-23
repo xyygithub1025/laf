@@ -54,6 +54,7 @@ public:
   KeyModifiers keyModifiers() override { return kKeyNoneModifier; }
   int getUnicodeFromScancode(KeyScancode scancode) override { return 0; }
   void setTranslateDeadKeys(bool state) override { }
+  gfx::Color getColorFromScreen(const gfx::Point& screenPosition) const override { return gfx::ColorNone; }
   void listColorSpaces(std::vector<os::ColorSpaceRef>& list) override { }
   os::ColorSpaceRef makeColorSpace(const gfx::ColorSpaceRef& cs) override { return nullptr; }
   Ref<ColorSpaceConversion> convertBetweenColorSpace(

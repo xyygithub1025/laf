@@ -50,9 +50,8 @@ namespace os {
     virtual gfx::Rect frame() const = 0;
     virtual void setFrame(const gfx::Rect& bounds) = 0;
 
-    // Rectangle of the content, the origin is 0,0 and the
-    // width/height dimensions are specified in real screen pixels.
-    // (The scale is not involved.)
+    // Rectangle of the content, the origin and the size are specified
+    // in real screen pixels.  (The scale is not involved.)
     virtual gfx::Rect contentRect() const = 0;
 
     // Returns the real and current window's size (without scale applied).
@@ -110,11 +109,15 @@ namespace os {
                                       const gfx::Point& focus,
                                       const int scale) = 0;
 
-    // TODO position? relative to upper-left corner
+    // Sets the mouse position to the given point in surface coordinates.
     virtual void setMousePosition(const gfx::Point& position) = 0;
 
     virtual void captureMouse() = 0;
     virtual void releaseMouse() = 0;
+
+    // Convert points between window surface bounds (scaled) <-> screen absolute position
+    gfx::Point pointToScreen(const gfx::Point& clientPosition);
+    gfx::Point pointFromScreen(const gfx::Point& screenPosition);
 
     // Performs the user action to move or resize the window. It's
     // useful in case that you want to design your own regions to

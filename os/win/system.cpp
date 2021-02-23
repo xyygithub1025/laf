@@ -10,6 +10,7 @@
 
 #include "os/win/system.h"
 
+#include "gfx/color.h"
 #include "os/win/screen.h"
 
 namespace os {
@@ -38,6 +39,16 @@ bool SystemWin::isKeyPressed(KeyScancode scancode)
 int SystemWin::getUnicodeFromScancode(KeyScancode scancode)
 {
   return win_get_unicode_from_scancode(scancode);
+}
+
+gfx::Color SystemWin::getColorFromScreen(const gfx::Point& screenPosition) const
+{
+  HDC dc = GetDC(nullptr);
+  COLORREF c = GetPixel(dc, screenPosition.x, screenPosition.y);
+  ReleaseDC(nullptr, dc);
+  return gfx::rgba(GetRValue(c),
+                   GetGValue(c),
+                   GetBValue(c));
 }
 
 ScreenRef SystemWin::mainScreen()

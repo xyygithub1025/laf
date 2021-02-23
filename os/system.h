@@ -189,6 +189,15 @@ namespace os {
     // to true when you're inside a text field in your app.
     virtual void setTranslateDeadKeys(bool state) = 0;
 
+    // Gets a color from the desktop in given screen position.
+    //
+    // WARNING for macOS: This function will ask the user for
+    // permissions to record the screen. If the app is not in a signed
+    // bundle, the color will be from the wallpaper, but if the
+    // function is used in a signed bundled app, the color will be
+    // from any opened window.
+    virtual gfx::Color getColorFromScreen(const gfx::Point& screenPosition) const = 0;
+
     // Color management
     virtual void listColorSpaces(
       std::vector<os::ColorSpaceRef>& list) = 0;

@@ -26,6 +26,31 @@ public:
     return x11_get_unicode_from_scancode(scancode);
   }
 
+  gfx::Color getColorFromScreen(const gfx::Point& screenPosition) const override {
+#if 0
+    ::Display* display = X11::instance()->display();
+    int screen = XDefaultScreen(display);
+    ::Window root = XDefaultRootWindow(display);
+
+    // TODO XGetImage() crashes with a BadMatch error
+    XImage* image = XGetImage(display, root,
+                              screenPosition.x,
+                              screenPosition.y, 1, 1, AllPlanes, ZPixmap);
+    if (image) {
+      XColor color;
+      color.pixel = XGetPixel(image, screenPosition.x, screenPosition.y);
+      XFree(image);
+
+      XQueryColor(display, XDefaultColormap(display, screen), &color);
+
+      // Each red/green/blue channel is 16-bit, so we have to convert to 8-bit.
+      return gfx::rgba(color.red>>8, color.green>>8, color.blue>>8);
+    }
+    else
+#endif
+      return gfx::ColorNone;
+  }
+
   ScreenRef mainScreen() override {
     return make_ref<ScreenX11>(
       XDefaultScreen(X11::instance()->display()));

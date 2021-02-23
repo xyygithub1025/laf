@@ -32,6 +32,8 @@ public:
   bool isKeyPressed(KeyScancode scancode) override;
   int getUnicodeFromScancode(KeyScancode scancode) override;
 
+  gfx::Color getColorFromScreen(const gfx::Point& screenPosition) const override;
+
   ScreenRef mainScreen() override;
   void listScreens(ScreenList& list) override;
 

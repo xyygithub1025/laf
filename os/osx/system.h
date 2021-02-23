@@ -68,6 +68,8 @@ public:
     return osx_get_unicode_from_scancode(scancode);
   }
 
+  gfx::Color getColorFromScreen(const gfx::Point& screenPosition) const override;
+
   ScreenRef mainScreen() override;
   void listScreens(ScreenList& list) override;
 
