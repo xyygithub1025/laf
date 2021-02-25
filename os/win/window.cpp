@@ -507,17 +507,22 @@ bool WinWindow::setNativeMouseCursor(const os::Surface* surface,
 
 void WinWindow::invalidateRegion(const gfx::Region& rgn)
 {
-#if 0 // Invalidating the region generates a flicker, because it looks
-      // like regions are then painted and refreshed on the screen
-      // without synchronization or double-buffering (not even
-      // WS_EX_COMPOSITED fixes the issue).
+#if 1 // Invalidating the region generates a flicker in Aseprite's
+      // BrushPreview, because it looks like regions are then painted
+      // and refreshed on the screen without synchronization (without
+      // vsync?) or double-buffering (not even WS_EX_COMPOSITED fixes
+      // the issue).
+      //
+      // Anyway we're going to give a try to this fix to improve the
+      // performance in high-resolutions and fix the BrushPreview
+      // later with an alternative solution.
   HRGN hrgn = nullptr;
   for (const gfx::Rect& rc : rgn) {
     HRGN rcHrgn = CreateRectRgn(
       rc.x*m_scale,
       rc.y*m_scale,
-      rc.x*m_scale+rc.w*m_scale,
-      rc.y*m_scale+rc.h*m_scale);
+      rc.x2()*m_scale,
+      rc.y2()*m_scale);
     if (!hrgn)
       hrgn = rcHrgn;
     else
