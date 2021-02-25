@@ -638,12 +638,17 @@ bool WindowWin::setNativeMouseCursor(const os::Surface* surface,
   if (!hbmp)
     return false;
 
+  bool completelyTransparent = true;
   for (int y=0; y<h; ++y) {
     const uint32_t* ptr = (const uint32_t*)surface->getData(0, (h-1-y)/scale);
     for (int x=0, u=0; x<w; ++x, ++bits) {
       uint32_t c = *ptr;
-      *bits =
-        (((c & format.alphaMask) >> format.alphaShift) << 24) |
+      uint32_t a = ((c & format.alphaMask) >> format.alphaShift);
+
+      if (a)
+        completelyTransparent = false;
+
+      *bits = (a << 24) |
         (((c & format.redMask  ) >> format.redShift  ) << 16) |
         (((c & format.greenMask) >> format.greenShift) << 8) |
         (((c & format.blueMask ) >> format.blueShift ));
@@ -652,6 +657,17 @@ bool WindowWin::setNativeMouseCursor(const os::Surface* surface,
         ++ptr;
       }
     }
+  }
+
+  // It looks like if we set a cursor that is completely transparent
+  // (all pixels with alpha=0), Windows will create a black opaque
+  // rectangle cursor. Which is not what we are looking for. So in
+  // this specific case we put a "no cursor" which has the expected
+  // result.
+  if (completelyTransparent) {
+    DeleteObject(hbmp);
+    setNativeMouseCursor(kNoCursor);
+    return true;
   }
 
   // Create an empty mask bitmap.
@@ -709,17 +725,22 @@ void WindowWin::performWindowAction(const WindowAction action,
 
 void WindowWin::invalidateRegion(const gfx::Region& rgn)
 {
-#if 0 // Invalidating the region generates a flicker, because it looks
-      // like regions are then painted and refreshed on the screen
-      // without synchronization or double-buffering (not even
-      // WS_EX_COMPOSITED fixes the issue).
+#if 1 // Invalidating the region generates a flicker in Aseprite's
+      // BrushPreview, because it looks like regions are then painted
+      // and refreshed on the screen without synchronization (without
+      // vsync?) or double-buffering (not even WS_EX_COMPOSITED fixes
+      // the issue).
+      //
+      // Anyway we're going to give a try to this fix to improve the
+      // performance in high-resolutions and fix the BrushPreview
+      // later with an alternative solution.
   HRGN hrgn = nullptr;
   for (const gfx::Rect& rc : rgn) {
     HRGN rcHrgn = CreateRectRgn(
       rc.x*m_scale,
       rc.y*m_scale,
-      rc.x*m_scale+rc.w*m_scale,
-      rc.y*m_scale+rc.h*m_scale);
+      rc.x2()*m_scale,
+      rc.y2()*m_scale);
     if (!hrgn)
       hrgn = rcHrgn;
     else

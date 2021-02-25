@@ -11,6 +11,7 @@
 
 #include "os/x11/window.h"
 
+#include "base/clamp.h"
 #include "base/debug.h"
 #include "base/string.h"
 #include "base/thread.h"
@@ -718,8 +719,14 @@ bool WindowX11::setNativeMouseCursor(const os::Surface* surface,
       }
     }
 
-    m_xcursorImage->xhot = scale*focus.x + scale/2;
-    m_xcursorImage->yhot = scale*focus.y + scale/2;
+    // We have to limit the focus position inside the cursor area to
+    // avoid crash from XcursorImageLoadCursor():
+    //
+    //   X Error of failed request:  BadMatch (invalid parameter attributes)
+    //     Major opcode of failed request:  138 (RENDER)
+    //     Minor opcode of failed request:  27 (RenderCreateCursor)
+    m_xcursorImage->xhot = base::clamp(scale*focus.x + scale/2, 0, w-1);
+    m_xcursorImage->yhot = base::clamp(scale*focus.y + scale/2, 0, h-1);
     xcursor = XcursorImageLoadCursor(m_display,
                                      m_xcursorImage);
   }
