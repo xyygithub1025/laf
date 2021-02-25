@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2020  Igara Studio S.A.
+// Copyright (C) 2018-2021  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -451,12 +451,17 @@ bool WinWindow::setNativeMouseCursor(const os::Surface* surface,
   if (!hbmp)
     return false;
 
+  bool completelyTransparent = true;
   for (int y=0; y<h; ++y) {
     const uint32_t* ptr = (const uint32_t*)surface->getData(0, (h-1-y)/scale);
     for (int x=0, u=0; x<w; ++x, ++bits) {
       uint32_t c = *ptr;
-      *bits =
-        (((c & format.alphaMask) >> format.alphaShift) << 24) |
+      uint32_t a = ((c & format.alphaMask) >> format.alphaShift);
+
+      if (a)
+        completelyTransparent = false;
+
+      *bits = (a << 24) |
         (((c & format.redMask  ) >> format.redShift  ) << 16) |
         (((c & format.greenMask) >> format.greenShift) << 8) |
         (((c & format.blueMask ) >> format.blueShift ));
@@ -465,6 +470,17 @@ bool WinWindow::setNativeMouseCursor(const os::Surface* surface,
         ++ptr;
       }
     }
+  }
+
+  // It looks like if we set a cursor that is completely transparent
+  // (all pixels with alpha=0), Windows will create a black opaque
+  // rectangle cursor. Which is not what we are looking for. So in
+  // this specific case we put a "no cursor" which has the expected
+  // result.
+  if (completelyTransparent) {
+    DeleteObject(hbmp);
+    setNativeMouseCursor(kNoCursor);
+    return true;
   }
 
   // Create an empty mask bitmap.
