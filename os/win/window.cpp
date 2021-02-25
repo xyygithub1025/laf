@@ -666,7 +666,7 @@ bool WindowWin::setNativeMouseCursor(const os::Surface* surface,
   // result.
   if (completelyTransparent) {
     DeleteObject(hbmp);
-    setNativeMouseCursor(kNoCursor);
+    setNativeMouseCursor(NativeCursor::Hidden);
     return true;
   }
 
