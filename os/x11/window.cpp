@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2020  Igara Studio S.A.
+// Copyright (C) 2018-2021  Igara Studio S.A.
 // Copyright (C) 2017-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -11,6 +11,7 @@
 
 #include "os/x11/window.h"
 
+#include "base/clamp.h"
 #include "base/debug.h"
 #include "base/string.h"
 #include "gfx/rect.h"
@@ -418,8 +419,14 @@ bool X11Window::setNativeMouseCursor(const os::Surface* surface,
       }
     }
 
-    m_xcursorImage->xhot = scale*focus.x + scale/2;
-    m_xcursorImage->yhot = scale*focus.y + scale/2;
+    // We have to limit the focus position inside the cursor area to
+    // avoid crash from XcursorImageLoadCursor():
+    //
+    //   X Error of failed request:  BadMatch (invalid parameter attributes)
+    //     Major opcode of failed request:  138 (RENDER)
+    //     Minor opcode of failed request:  27 (RenderCreateCursor)
+    m_xcursorImage->xhot = base::clamp(scale*focus.x + scale/2, 0, w-1);
+    m_xcursorImage->yhot = base::clamp(scale*focus.y + scale/2, 0, h-1);
     xcursor = XcursorImageLoadCursor(m_display,
                                      m_xcursorImage);
   }
