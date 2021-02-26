@@ -525,8 +525,10 @@ void WinWindow::invalidateRegion(const gfx::Region& rgn)
       rc.y2()*m_scale);
     if (!hrgn)
       hrgn = rcHrgn;
-    else
+    else {
       CombineRgn(hrgn, hrgn, rcHrgn, RGN_OR);
+      DeleteObject(rcHrgn);
+    }
   }
   if (hrgn) {
     InvalidateRgn(m_hwnd, hrgn, FALSE);
@@ -705,6 +707,12 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
       if (m_isCreated) {
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(m_hwnd, &ps);
+
+        // If BeginPaint() returns null, it's highly probable that we
+        // reached the limit of 10000 GDI objects (so there might be
+        // some GDI leaks in the program).
+        ASSERT(hdc);
+
         onPaint(hdc);
         EndPaint(m_hwnd, &ps);
         return true;
