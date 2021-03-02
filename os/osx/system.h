@@ -68,6 +68,8 @@ public:
     return osx_get_unicode_from_scancode(scancode);
   }
 
+  gfx::Point mousePosition() const override;
+  void setMousePosition(const gfx::Point& screenPosition) override;
   gfx::Color getColorFromScreen(const gfx::Point& screenPosition) const override;
 
   ScreenRef mainScreen() override;

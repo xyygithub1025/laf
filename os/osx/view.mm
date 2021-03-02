@@ -40,6 +40,7 @@ namespace {
 int g_pressedKeys[kKeyScancodes];
 bool g_translateDeadKeys = false;
 UInt32 g_lastDeadKeyState = 0;
+NSCursor* g_emptyNsCursor = nil;
 
 gfx::Point get_local_mouse_pos(NSView* view, NSEvent* event)
 {
@@ -358,10 +359,8 @@ using namespace os;
 - (void)mouseExited:(NSEvent*)event
 {
   // Restore arrow cursor
-  if (!m_visibleMouse) {
+  if (!m_visibleMouse)
     m_visibleMouse = true;
-    [NSCursor unhide];
-  }
   [[NSCursor arrowCursor] set];
 
   Event ev;
@@ -580,15 +579,22 @@ using namespace os;
 - (void)updateCurrentCursor
 {
   if (m_nsCursor) {
-    if (!m_visibleMouse) {
+    if (!m_visibleMouse)
       m_visibleMouse = true;
-      [NSCursor unhide];
-    }
     [m_nsCursor set];
   }
   else if (m_visibleMouse) {
     m_visibleMouse = false;
-    [NSCursor hide];
+
+    // Instead of using [NSCursor hide], we use a NSCursor with an
+    // empty image. This is better because [NSCursor hide/unhide]
+    // functions are hard to balance.
+    if (!g_emptyNsCursor) {
+      NSImage* img = [[NSImage alloc] initWithSize:NSMakeSize(1, 1)];
+      g_emptyNsCursor = [[NSCursor alloc] initWithImage:img
+                                                hotSpot:NSMakePoint(0, 0)];
+    }
+    [g_emptyNsCursor set];
   }
 }
 

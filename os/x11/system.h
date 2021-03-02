@@ -26,6 +26,22 @@ public:
     return x11_get_unicode_from_scancode(scancode);
   }
 
+  gfx::Point mousePosition() const override {
+    int rootx, rooty, x, y;
+    unsigned int mask;
+    ::Display* display = X11::instance()->display();
+    ::Window root = XDefaultRootWindow(display);
+    ::Window child;
+    if (!XQueryPointer(display, root, &root, &child, &rootx, &rooty, &x, &y, &mask)) {
+      rootx = rooty = 0;
+    }
+    return gfx::Point(rootx, rooty);
+  }
+
+  void setMousePosition(const gfx::Point& screenPosition) override {
+    // TODO
+  }
+
   gfx::Color getColorFromScreen(const gfx::Point& screenPosition) const override {
 #if 0
     ::Display* display = X11::instance()->display();

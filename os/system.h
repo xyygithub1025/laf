@@ -189,6 +189,12 @@ namespace os {
     // to true when you're inside a text field in your app.
     virtual void setTranslateDeadKeys(bool state) = 0;
 
+    // Returns the mouse position in the screen.
+    virtual gfx::Point mousePosition() const = 0;
+
+    // Sets the mouse position to a specific point in the screen.
+    virtual void setMousePosition(const gfx::Point& screenPosition) = 0;
+
     // Gets a color from the desktop in given screen position.
     //
     // WARNING for macOS: This function will ask the user for

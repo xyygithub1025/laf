@@ -41,6 +41,18 @@ int SystemWin::getUnicodeFromScancode(KeyScancode scancode)
   return win_get_unicode_from_scancode(scancode);
 }
 
+gfx::Point SystemWin::mousePosition() const
+{
+  POINT pt;
+  GetCursorPos(&pt);
+  return gfx::Point(pt.x, pt.y);
+}
+
+void SystemWin::setMousePosition(const gfx::Point& screenPosition)
+{
+  SetCursorPos(screenPosition.x, screenPosition.y);
+}
+
 gfx::Color SystemWin::getColorFromScreen(const gfx::Point& screenPosition) const
 {
   HDC dc = GetDC(nullptr);

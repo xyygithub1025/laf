@@ -14,6 +14,26 @@
 
 namespace os {
 
+gfx::Point SystemOSX::mousePosition() const
+{
+  // From https://developer.apple.com/documentation/appkit/nsscreen/1388371-mainscreen
+  //
+  //   "The screen containing the menu bar is always the first
+  //   object (index 0) in the array returned by the screens method."
+  //
+  NSScreen* menuBarScreen = [NSScreen screens][0];
+  NSPoint pos = [NSEvent mouseLocation];
+  return gfx::Point(pos.x, menuBarScreen.frame.size.height - pos.y);
+}
+
+void SystemOSX::setMousePosition(const gfx::Point& screenPosition)
+{
+  NSScreen* menuBarScreen = [NSScreen screens][0];
+  CGWarpMouseCursorPosition(
+    CGPointMake(screenPosition.x,
+                menuBarScreen.frame.size.height - screenPosition.y));
+}
+
 gfx::Color SystemOSX::getColorFromScreen(const gfx::Point& screenPosition) const
 {
   gfx::Color color = gfx::ColorNone;
