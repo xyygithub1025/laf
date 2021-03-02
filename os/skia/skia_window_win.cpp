@@ -137,7 +137,10 @@ void SkiaWindowWin::paintHDC(HDC hdc)
 {
   SkiaSurface* surface = static_cast<SkiaSurface*>(this->surface());
   ASSERT(surface);
-  if (!surface->isValid())
+
+  // It looks like the surface can be nullptr here from a WM_PAINT
+  // message (issue received from a dmp file).
+  if (!surface || !surface->isValid())
     return;
 
   const SkBitmap& bitmap = surface->bitmap();
