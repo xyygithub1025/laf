@@ -32,6 +32,8 @@ namespace os {
 - (void)dealloc;
 - (void)removeImpl;
 - (BOOL)acceptsFirstResponder;
+- (BOOL)acceptsFirstMouse:(NSEvent*)event;
+- (BOOL)mouseDownCanMoveWindow;
 - (void)viewDidChangeBackingProperties;
 - (void)viewDidHide;
 - (void)viewDidUnhide;

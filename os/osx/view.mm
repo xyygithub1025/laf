@@ -165,6 +165,17 @@ using namespace os;
   return YES;
 }
 
+- (BOOL)acceptsFirstMouse:(NSEvent*)event
+{
+  [super acceptsFirstMouse:event];
+  return YES;
+}
+
+- (BOOL)mouseDownCanMoveWindow
+{
+  return YES;
+}
+
 - (void)viewDidChangeBackingProperties
 {
   [super viewDidChangeBackingProperties];
