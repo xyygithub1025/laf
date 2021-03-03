@@ -616,6 +616,8 @@ bool WindowWin::setNativeMouseCursor(const os::Surface* surface,
                                      const int scale)
 {
   ASSERT(surface);
+  if (!surface)
+    return false;
 
   SurfaceFormatData format;
   surface->getFormat(&format);
