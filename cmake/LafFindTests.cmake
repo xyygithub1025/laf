@@ -16,7 +16,6 @@ function(laf_find_tests dir dependencies)
     add_test(NAME ${testname} COMMAND ${testname})
 
     if(MSVC)
-      # Fix problem compiling gen from a Visual Studio solution
       set_target_properties(${testname}
         PROPERTIES LINK_FLAGS -ENTRY:"mainCRTStartup")
     endif()
