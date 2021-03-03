@@ -74,10 +74,8 @@
 
   m_delegate = [[WindowOSXDelegate alloc] initWithWindowImpl:impl];
 
-  // The NSView width and height will be a multiple of 4. In this way
-  // all scaled pixels should be exactly the same
-  // for Screen Scaling > 1 and <= 4)
-  self.contentResizeIncrements = NSMakeSize(4, 4); // TODO make this configurable?
+  // The NSView width and height will be a multiple of scale().
+  self.contentResizeIncrements = NSMakeSize(m_scale, m_scale);
 
   ViewOSX* view = [[ViewOSX alloc] initWithFrame:contentRect];
   m_view = view;
@@ -139,6 +137,7 @@
     return;
 
   m_scale = scale;
+  self.contentResizeIncrements = NSMakeSize(m_scale, m_scale);
 
   if (m_impl) {
     NSRect bounds = [[self contentView] bounds];

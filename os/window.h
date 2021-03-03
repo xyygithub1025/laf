@@ -71,6 +71,8 @@ namespace os {
     // Changes the scale.
     // The available surface size will be (Window::width() / scale,
     //                                     Window::height() / scale)
+    //
+    // The window size will be a multiple of the scale.
     virtual void setScale(int scale) = 0;
 
     // Returns true if the window is visible in the screen.

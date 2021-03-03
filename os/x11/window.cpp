@@ -248,8 +248,8 @@ WindowX11::WindowX11(::Display* display, const WindowSpec& spec)
   hints->y = rc.y;
   hints->width  = rc.w;
   hints->height = rc.h;
-  hints->width_inc = 4;
-  hints->height_inc = 4;
+  hints->width_inc = m_scale;
+  hints->height_inc = m_scale;
   hints->win_gravity = SouthGravity;
   XSetWMNormalHints(m_display, m_window, hints);
   XFree(hints);
@@ -310,6 +310,15 @@ os::ColorSpaceRef WindowX11::colorSpace() const
 void WindowX11::setScale(const int scale)
 {
   m_scale = scale;
+
+  // Adjust increment/decrement of the window to be multiplies of m_scale
+  XSizeHints* hints = XAllocSizeHints();
+  hints->flags  = PResizeInc;
+  hints->width_inc = m_scale;
+  hints->height_inc = m_scale;
+  XSetWMNormalHints(m_display, m_window, hints);
+  XFree(hints);
+
   onResize(clientSize());
 }
 

@@ -41,6 +41,8 @@
 #include "os/win/window_dde.h"
 #include "os/window_spec.h"
 
+#include <algorithm>
+
 // TODO the window name should be customized from the CMakeLists.txt
 //      properties (see LAF_X11_WM_CLASS too)
 #define OS_WND_CLASS_NAME L"Aseprite.Window"
@@ -320,6 +322,19 @@ os::ColorSpaceRef WindowWin::colorSpace() const
 void WindowWin::setScale(int scale)
 {
   m_scale = scale;
+
+  // Align window size to new scale
+  {
+    RECT rc;
+    GetWindowRect(m_hwnd, &rc);
+    SendMessage(m_hwnd, WM_SIZING, 0, (LPARAM)&rc);
+    SetWindowPos(m_hwnd, nullptr,
+                 rc.left, rc.top,
+                 rc.right - rc.left,
+                 rc.bottom - rc.top,
+                 SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+  }
+
   onResize(m_clientSize);
 }
 
@@ -1031,6 +1046,59 @@ LRESULT WindowWin::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
         return true;
       }
       break;
+
+    case WM_SIZING: {
+      RECT* rect = reinterpret_cast<RECT*>(lparam);
+
+      // Get the border needed on each side between the window rect
+      // and the client area.
+      int dx, dy;
+      {
+        RECT frame, client;
+        GetWindowRect(m_hwnd, &frame);
+        GetClientRect(m_hwnd, &client);
+        dx = (frame.right - frame.left) - (client.right - client.left);
+        dy = (frame.bottom - frame.top) - (client.bottom - client.top);
+      }
+
+      // We align the client area size to the m_scale.
+      int w = std::max<int>(rect->right - rect->left, 0) - dx;
+      int h = std::max<int>(rect->bottom - rect->top, 0) - dy;
+      w = std::max<int>(w - (w % m_scale), 8*m_scale) + dx;
+      h = std::max<int>(h - (h % m_scale), 8*m_scale) + dy;
+
+      switch (wparam) {
+        case WMSZ_LEFT:
+          rect->left = rect->right - w;
+          break;
+        case WMSZ_RIGHT:
+          rect->right = rect->left + w;
+          break;
+        case WMSZ_TOP:
+          rect->top = rect->bottom - h;
+          break;
+        case WMSZ_TOPLEFT:
+          rect->left = rect->right - w;
+          rect->top = rect->bottom - h;
+          break;
+        case WMSZ_TOPRIGHT:
+          rect->top = rect->bottom - h;
+          rect->right = rect->left + w;
+          break;
+        case WMSZ_BOTTOM:
+          rect->bottom = rect->top + h;
+          break;
+        case WMSZ_BOTTOMLEFT:
+          rect->left = rect->right - w;
+          rect->bottom = rect->top + h;
+          break;
+        case WMSZ_BOTTOMRIGHT:
+          rect->right = rect->left + w;
+          rect->bottom = rect->top + h;
+          break;
+      }
+      break;
+    }
 
     case WM_SIZE:
       if (m_isCreated) {
