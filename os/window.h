@@ -118,8 +118,8 @@ namespace os {
     virtual void releaseMouse() = 0;
 
     // Convert points between window surface bounds (scaled) <-> screen absolute position
-    gfx::Point pointToScreen(const gfx::Point& clientPosition);
-    gfx::Point pointFromScreen(const gfx::Point& screenPosition);
+    gfx::Point pointToScreen(const gfx::Point& clientPosition) const;
+    gfx::Point pointFromScreen(const gfx::Point& screenPosition) const;
 
     // Performs the user action to move or resize the window. It's
     // useful in case that you want to design your own regions to

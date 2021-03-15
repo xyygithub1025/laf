@@ -25,7 +25,7 @@ void Window::invalidate()
   invalidateRegion(gfx::Region(bounds()));
 }
 
-gfx::Point Window::pointToScreen(const gfx::Point& clientPosition)
+gfx::Point Window::pointToScreen(const gfx::Point& clientPosition) const
 {
   gfx::Point res = clientPosition;
   res *= scale();
@@ -33,7 +33,7 @@ gfx::Point Window::pointToScreen(const gfx::Point& clientPosition)
   return res;
 }
 
-gfx::Point Window::pointFromScreen(const gfx::Point& screenPosition)
+gfx::Point Window::pointFromScreen(const gfx::Point& screenPosition) const
 {
   gfx::Point res = screenPosition;
   res -= contentRect().origin();
