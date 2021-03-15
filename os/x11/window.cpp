@@ -917,7 +917,8 @@ void WindowX11::processX11Event(XEvent& event)
 
         rc.w -= m_frameExtents.width();
         rc.h -= m_frameExtents.height();
-        rc.h += 4; // TODO it's one unit of PResizeInc, try to get this value in other way
+        if (!m_borderless)
+          rc.h += 4; // TODO it's one unit of PResizeInc, try to get this value in other way
 
         XResizeWindow(m_display, m_window, rc.w, rc.h);
         return;
