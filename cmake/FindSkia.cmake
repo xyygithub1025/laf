@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2020  Igara Studio S.A.
+# Copyright (C) 2019-2021  Igara Studio S.A.
 #
 # This file is released under the terms of the MIT license.
 # Read LICENSE.txt for more information.
@@ -7,9 +7,9 @@ set(SKIA_DIR "" CACHE PATH "Skia source code directory")
 if(NOT SKIA_DIR)
   set(SKIA_LIBRARY_DIR "" CACHE PATH "Skia library directory (where libskia.a is located)")
 else()
-  if("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64")
+  if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(SKIA_ARCH "x64")
-  else()
+  elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
     set(SKIA_ARCH "x86")
   endif()
   if(CMAKE_BUILD_TYPE STREQUAL Debug)
