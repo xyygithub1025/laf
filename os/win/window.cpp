@@ -348,7 +348,6 @@ void WindowWin::setVisible(bool visible)
   if (visible) {
     ShowWindow(m_hwnd, SW_SHOWNORMAL);
     UpdateWindow(m_hwnd);
-    DrawMenuBar(m_hwnd);
   }
   else
     ShowWindow(m_hwnd, SW_HIDE);
