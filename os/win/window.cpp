@@ -239,6 +239,10 @@ WindowWin::WindowWin(const WindowSpec& spec)
   // fully initialized yet.)
   m_isCreated = true;
 
+  // We activate main windows by default only (TODO we could add a
+  // WindowSpec::activate() flag for this)
+  m_activate = (spec.parent() == nullptr);
+
   // Log information about the system (for debugging/user support
   // purposes in case the window doesn't display anything)
   if (base::get_log_level() >= INFO) {
@@ -346,7 +350,11 @@ bool WindowWin::isVisible() const
 void WindowWin::setVisible(bool visible)
 {
   if (visible) {
-    ShowWindow(m_hwnd, SW_SHOWNORMAL);
+    if (m_activate)
+      ShowWindow(m_hwnd, SW_SHOWNORMAL);
+    else
+      ShowWindow(m_hwnd, SW_SHOWNOACTIVATE);
+
     UpdateWindow(m_hwnd);
   }
   else

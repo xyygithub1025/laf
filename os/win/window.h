@@ -245,6 +245,7 @@ namespace os {
     bool m_titled;
     bool m_borderless;
     bool m_fixingPos;
+    bool m_activate;
   };
 
 } // namespace os
