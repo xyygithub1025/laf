@@ -56,6 +56,10 @@ namespace os {
     LONG m_maxPressure = 0;
     int m_queueSize = 1;
     gfx::Rect m_outBounds;
+
+    // Used to avoid calling LoadLibrary() for each created window
+    // when the wintab.dll is not found.
+    bool m_alreadyTried = false;
   };
 
 } // namespace os

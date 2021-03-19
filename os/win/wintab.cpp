@@ -284,7 +284,13 @@ bool WintabAPI::loadWintab()
 {
   ASSERT(!m_wintabLib);
 
+  // Don't try to call LoadLibrary() multiple times because it's
+  // really slow.
+  if (m_alreadyTried)
+    return false;
+
   m_wintabLib = base::load_dll("wintab32.dll");
+  m_alreadyTried = true;
   if (!m_wintabLib) {
     LOG(ERROR, "PEN: wintab32.dll is not present\n");
     return false;
