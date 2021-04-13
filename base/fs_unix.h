@@ -1,4 +1,5 @@
 // LAF Base Library
+// Copyright (c) 2021 Igara Studio S.A.
 // Copyright (c) 2001-2018 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -97,10 +98,11 @@ Time get_modification_time(const std::string& path)
   if (result != 0)
     return Time();
 
-  std::tm* t = std::localtime(&sts.st_mtime);
+  std::tm t;
+  safe_localtime(sts.st_mtime, &t);
   return Time(
-    t->tm_year+1900, t->tm_mon+1, t->tm_mday,
-    t->tm_hour, t->tm_min, t->tm_sec);
+    t.tm_year+1900, t.tm_mon+1, t.tm_mday,
+    t.tm_hour, t.tm_min, t.tm_sec);
 }
 
 void remove_directory(const std::string& path)

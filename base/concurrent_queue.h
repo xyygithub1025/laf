@@ -36,6 +36,11 @@ namespace base {
       return result;
     }
 
+    void clear() {
+      scoped_lock hold(m_mutex);
+      m_queue.clear();
+    }
+
     size_t size() const {
       size_t result;
       {

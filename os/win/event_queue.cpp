@@ -57,12 +57,8 @@ void EventQueueWin::getEvent(Event& ev, bool canWait)
       break;
   }
 
-  if (m_events.empty()) {
+  if (!m_events.try_pop(ev)) {
     ev.setType(Event::None);
-  }
-  else {
-    ev = m_events.front();
-    m_events.pop();
   }
 }
 

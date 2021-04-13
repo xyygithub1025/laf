@@ -68,7 +68,7 @@ const char* get_event_name(XEvent& event)
 
 void EventQueueX11::queueEvent(const Event& ev)
 {
-  m_events.push_back(ev);
+  m_events.push(ev);
 }
 
 void EventQueueX11::getEvent(Event& ev, bool canWait)
@@ -87,15 +87,11 @@ void EventQueueX11::getEvent(Event& ev, bool canWait)
     processX11Event(event);
   }
 
-  if (m_events.empty()) {
+  if (!m_events.try_pop(ev)) {
 #pragma push_macro("None")
 #undef None // Undefine the X11 None macro
     ev.setType(Event::None);
 #pragma pop_macro("None")
-  }
-  else {
-    ev = m_events.front();
-    m_events.pop_front();
   }
 }
 

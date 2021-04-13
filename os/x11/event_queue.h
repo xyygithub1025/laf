@@ -9,6 +9,7 @@
 #define OS_X11_EVENT_QUEUE_INCLUDED
 #pragma once
 
+#include "base/concurrent_queue.h"
 #include "os/event_queue.h"
 #include "os/x11/x11.h"
 
@@ -26,7 +27,7 @@ public:
 private:
   void processX11Event(XEvent& event);
 
-  std::deque<Event> m_events;
+  base::concurrent_queue<Event> m_events;
 };
 
 using EventQueueImpl = EventQueueX11;
