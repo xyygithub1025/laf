@@ -9,6 +9,7 @@
 #define OS_WIN_EVENT_QUEUE_INCLUDED
 #pragma once
 
+#include "base/concurrent_queue.h"
 #include "os/event.h"
 #include "os/event_queue.h"
 
@@ -22,7 +23,7 @@ public:
   void getEvent(Event& ev, bool canWait) override;
 
 private:
-  std::queue<Event> m_events;
+  base::concurrent_queue<Event> m_events;
 };
 
 using EventQueueImpl = EventQueueWin;
