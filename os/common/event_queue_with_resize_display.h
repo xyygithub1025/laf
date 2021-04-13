@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2019  Igara Studio S.A.
+// Copyright (C) 2019-2021  Igara Studio S.A.
 // Copyright (C) 2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -9,10 +9,12 @@
 #define OS_COMMON_EVENT_QUEUE_WITH_RESIZE_DISPLAY_INCLUDED
 #pragma once
 
+#include "base/concurrent_queue.h"
 #include "base/time.h"
 #include "os/event.h"
 #include "os/event_queue.h"
 
+#include <atomic>
 #include <queue>
 
 namespace os {
@@ -53,8 +55,8 @@ public:
     // If we are enqueuing another event and we have a pending
     // ResizeDisplay event, we first enqueue the ResizeDisplay event,
     // because it means that the resize operation is over.
-    if (m_resizeEvent.type() != Event::None)
-      enqueueResizeDisplayEvent();
+    enqueueResizeDisplayEvent();
+
     m_events.push(ev);
   }
 
@@ -65,21 +67,25 @@ public:
   // Returns true if this is the first ResizeDisplay event of a
   // sequence of resize events.
   bool setResizeDisplayEvent(const Event& resizeEvent) {
-    bool isNewEvent = (m_resizeEvent.type() == Event::None);
     m_resizeEvent = resizeEvent;
     m_resizeEventTick = base::current_tick();
-    return isNewEvent;
+
+    bool alreadyHadResizeEvent = m_hasResizeEvent.exchange(true);
+    return !alreadyHadResizeEvent;
   }
 
   void enqueueResizeDisplayEvent() {
-    m_events.push(m_resizeEvent);
-    m_resizeEvent.setType(Event::None);
-    m_resizeEventTick = 0;
+    if (m_hasResizeEvent.exchange(false)) {
+      m_events.push(m_resizeEvent);
+      m_resizeEvent.setType(Event::None);
+      m_resizeEventTick = 0;
+    }
   }
 
 protected:
-  std::queue<Event> m_events;
+  base::concurrent_queue<Event> m_events;
 
+  std::atomic<bool> m_hasResizeEvent = { false };
   Event m_resizeEvent;
   base::tick_t m_resizeEventTick = 0;
 };

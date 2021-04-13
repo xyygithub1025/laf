@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2019  Igara Studio S.A.
+// Copyright (C) 2019-2021  Igara Studio S.A.
 // Copyright (C) 2016-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -82,15 +82,11 @@ void X11EventQueue::getEvent(Event& ev, bool canWait)
     processX11Event(event);
   }
 
-  if (m_events.empty()) {
+  if (!m_events.try_pop(ev)) {
 #pragma push_macro("None")
 #undef None // Undefine the X11 None macro
     ev.setType(Event::None);
 #pragma pop_macro("None")
-  }
-  else {
-    ev = m_events.front();
-    m_events.pop();
   }
 }
 
