@@ -1,4 +1,5 @@
 // LAF Base Library
+// Copyright (c) 2021 Igara Studio S.A.
 // Copyright (c) 2001-2018 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -10,6 +11,7 @@
 
 #include "base/ints.h"
 
+#include <ctime>
 #include <string>
 
 namespace base {
@@ -63,6 +65,8 @@ namespace base {
 
     bool operator<(const Time& other) const;
   };
+
+  bool safe_localtime(const std::time_t time, std::tm* result);
 
   Time current_time();
   tick_t current_tick();

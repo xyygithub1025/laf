@@ -1,4 +1,5 @@
 // LAF Base Library
+// Copyright (c) 2021 Igara Studio S.A.
 // Copyright (c) 2001-2018 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -10,7 +11,6 @@
 
 #include "base/time.h"
 
-#include <ctime>
 #if _WIN32
   #include <windows.h>
 #else
@@ -23,6 +23,16 @@
 
 namespace base {
 
+bool safe_localtime(const std::time_t time, std::tm* result)
+{
+#if _WIN32
+  // localtime_s returns errno_t == 0 if there is no error
+  return (localtime_s(result, &time) != 0);
+#else
+  return (localtime_r(&time, result) != nullptr);
+#endif
+}
+
 Time current_time()
 {
 #if _WIN32
@@ -34,10 +44,11 @@ Time current_time()
 #else
 
   std::time_t now = std::time(nullptr);
-  std::tm* t = std::localtime(&now);
+  std::tm t;
+  safe_localtime(now, &t);
   return Time(
-    t->tm_year+1900, t->tm_mon+1, t->tm_mday,
-    t->tm_hour, t->tm_min, t->tm_sec);
+    t.tm_year+1900, t.tm_mon+1, t.tm_mday,
+    t.tm_hour, t.tm_min, t.tm_sec);
 
 #endif
 }
@@ -81,14 +92,15 @@ Time& Time::addSeconds(const int seconds)
 
   tt += seconds;
 
-  std::tm* t = std::localtime(&tt);
+  std::tm t;
+  safe_localtime(tt, &t);
 
-  year = t->tm_year+1900;
-  month = t->tm_mon+1;
-  day = t->tm_mday;
-  hour = t->tm_hour;
-  minute = t->tm_min;
-  second = t->tm_sec;
+  year = t.tm_year+1900;
+  month = t.tm_mon+1;
+  day = t.tm_mday;
+  hour = t.tm_hour;
+  minute = t.tm_min;
+  second = t.tm_sec;
 
   return *this;
 }
