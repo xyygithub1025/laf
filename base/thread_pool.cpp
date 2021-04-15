@@ -1,5 +1,5 @@
 // LAF Base Library
-// Copyright (C) 2019  Igara Studio S.A.
+// Copyright (C) 2019-2021  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -21,7 +21,7 @@ thread_pool::thread_pool(const size_t n)
 {
   std::unique_lock<std::mutex> lock(m_mutex);
   for (size_t i=0; i<n; ++i)
-    m_threads.push_back(std::move(std::thread([this]{ worker(); })));
+    m_threads[i] = std::thread([this]{ worker(); });
 }
 
 thread_pool::~thread_pool()
