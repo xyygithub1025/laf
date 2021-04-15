@@ -78,7 +78,7 @@ void thread_pool::worker()
       m_cv.wait(lock, [this]() -> bool {
                         return !m_running || !m_work.empty();
                       });
-      if (!m_work.empty()) {
+      if (m_running && !m_work.empty()) {
         func = std::move(m_work.front());
         ++m_doingWork;
         m_work.pop();
