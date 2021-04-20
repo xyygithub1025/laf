@@ -242,7 +242,10 @@ void SkiaWindowOSX::onEndResizing()
     return;
 
   // Generate the resizing display event for the user.
-  if (!os::instance()->handleWindowResize) {
+  if (os::instance()->handleWindowResize) {
+    os::instance()->handleWindowResize(this);
+  }
+  else {
     Event ev;
     ev.setType(Event::ResizeWindow);
     ev.setWindow(AddRef(this));
