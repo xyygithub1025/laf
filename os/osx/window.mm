@@ -43,15 +43,15 @@
   NSRect contentRect;
   if (!spec->contentRect().isEmpty()) {
     contentRect =
-      NSMakeRect(spec->contentRect().x,
-                 nsScreen.frame.size.height - spec->contentRect().y2(),
+      NSMakeRect(spec->contentRect().x - nsScreen.frame.origin.x,
+                 nsScreen.frame.size.height - spec->contentRect().y2() - nsScreen.frame.origin.y,
                  spec->contentRect().w,
                  spec->contentRect().h);
   }
   else if (!spec->frame().isEmpty()) {
     NSRect frameRect =
-      NSMakeRect(spec->frame().x,
-                 nsScreen.frame.size.height - spec->frame().y2(),
+      NSMakeRect(spec->frame().x - nsScreen.frame.origin.x,
+                 nsScreen.frame.size.height - spec->frame().y2() - nsScreen.frame.origin.y,
                  spec->frame().w,
                  spec->frame().h);
 
