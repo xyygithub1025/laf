@@ -81,6 +81,13 @@
   m_view = view;
   [view setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
 
+  // Remove shadow for borderless windows (the shadow is too dark and
+  // creates a thick black border arround our windows).
+  //
+  // TODO add a property in WindowSpec
+  if (spec->borderless())
+    self.hasShadow = NO;
+
   // Redraw the entire window content when we resize it.
   // TODO add support to avoid redrawing the entire window
   self.preservesContentDuringLiveResize = false;
