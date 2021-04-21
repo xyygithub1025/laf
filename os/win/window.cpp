@@ -886,7 +886,6 @@ void WindowWin::onTabletAPIChange()
   LOG("WIN: On window %p tablet API change %d\n",
       m_hwnd, int(system()->tabletAPI()));
 
-  auto& api = system()->wintabApi();
   closeWintabCtx();
   openWintabCtx();
 }
@@ -2264,6 +2263,9 @@ void WindowWin::openWintabCtx()
     m_hpenctx = api.open(
       m_hwnd,
       true); // We want to move the cursor with the pen in any case
+
+    if (api.crashedBefore())
+      system()->setTabletAPI(TabletAPI::Default);
   }
 }
 

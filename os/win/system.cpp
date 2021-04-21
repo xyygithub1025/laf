@@ -29,6 +29,13 @@ void SystemWin::setAppName(const std::string& appName)
 void SystemWin::setTabletAPI(TabletAPI api)
 {
   m_tabletAPI = api;
+
+  // If the user selects the wintab API again, we remove any possible
+  // file indicating a crash in the past.
+  if (m_tabletAPI == TabletAPI::Wintab ||
+      m_tabletAPI == TabletAPI::WintabPackets) {
+    m_wintabApi.resetCrashFileIfPresent();
+  }
 }
 
 bool SystemWin::isKeyPressed(KeyScancode scancode)

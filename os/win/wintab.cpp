@@ -13,11 +13,13 @@
 
 #include "base/convert_to.h"
 #include "base/debug.h"
+#include "base/file_handle.h"
 #include "base/fs.h"
 #include "base/log.h"
 #include "base/sha1.h"
 #include "base/string.h"
 #include "base/version.h"
+#include "os/win/system.h"
 
 #include <iostream>
 #include <algorithm>
@@ -46,6 +48,67 @@ WTOverlap_Func WTOverlap;
 WTQueueSizeGet_Func WTQueueSizeGet;
 WTQueueSizeSet_Func WTQueueSizeSet;
 
+// Detects if WTOpen() crashes (which can happen if the stylus driver
+// is in a buggy state), writes a .crash file to avoid loading
+// wintab32.dll again in the next run, until the file is deleted,
+// i.e. when the System::setTabletAPI() is called again with the
+// TabletAPI::Wintab value.
+class HandleSigSegv {
+ public:
+  HandleSigSegv() {
+    m_file = getFilename();
+    m_oldHandler = SetUnhandledExceptionFilter(&HandleSigSegv::handler);
+  }
+
+  ~HandleSigSegv() {
+    SetUnhandledExceptionFilter(m_oldHandler);
+    m_file.clear();
+  }
+
+  bool crashed() const {
+    return base::is_file(m_file);
+  }
+
+  static void deleteFile() {
+    try {
+      std::string fn = getFilename();
+      if (base::is_file(fn))
+        base::delete_file(fn);
+    }
+    catch (...) {
+      // What can we do?
+    }
+  }
+
+private:
+  static std::string getFilename() {
+    std::string appName = ((SystemWin*)os::instance())->appName();
+    return base::join_path(base::get_temp_path(),
+                           appName + "-wintab32.crash");
+  }
+
+  static LONG API handler(_EXCEPTION_POINTERS* info) {
+    // Write a "wintab32.lock" file so we don't use wintab32 the next
+    // execution.
+    {
+      base::FileHandle fh(base::open_file(m_file, "w"));
+    }
+    if (m_oldHandler)
+      return (*m_oldHandler)(info);
+    else {
+      // Tried a EXCEPTION_CONTINUE_EXECUTION here but it's not
+      // possible. The program aborts anyway.
+      return EXCEPTION_EXECUTE_HANDLER;
+    }
+  }
+
+  static std::string m_file;
+  static LPTOP_LEVEL_EXCEPTION_FILTER m_oldHandler;
+};
+
+std::string HandleSigSegv::m_file;
+LPTOP_LEVEL_EXCEPTION_FILTER HandleSigSegv::m_oldHandler = nullptr;
+
 } // anonymous namespace
 
 WintabAPI::WintabAPI()
@@ -66,6 +129,14 @@ HCTX WintabAPI::open(HWND hwnd, bool moveMouse)
 {
   if (!m_wintabLib && !loadWintab())
     return nullptr;
+
+  HandleSigSegv handler;
+
+  // Check if WTOpen() crashed in a previous execution.
+  if (handler.crashed()) {
+    m_crashedBefore = true;
+    return nullptr;
+  }
 
   // Only on INFO or VERBOSE modes for debugging purposes
   if (base::get_log_level() >= INFO) {
@@ -159,6 +230,16 @@ HCTX WintabAPI::open(HWND hwnd, bool moveMouse)
   HCTX ctx = WTOpen(hwnd, &logctx, TRUE);
   if (!ctx) {
     LOG("PEN: Error attaching pen to window\n");
+
+#if 0 // This is not possible because because we cannot reach this
+      // point: if the WTOpen() segfaults, the program aborts
+      // automatically.
+    if (handler.crashed()) { // Check if WTOpen() crashed in this run
+      m_crashedBefore = true;
+      LOG("PEN: WTOpen() crashed!\n");
+    }
+#endif
+
     return nullptr;
   }
 
@@ -338,6 +419,12 @@ bool WintabAPI::checkDll()
     return false;
 
   return true;
+}
+
+void WintabAPI::resetCrashFileIfPresent()
+{
+  m_crashedBefore = false;
+  HandleSigSegv::deleteFile();
 }
 
 } // namespace os

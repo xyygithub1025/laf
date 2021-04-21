@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2020  Igara Studio S.A.
+// Copyright (C) 2020-2021  Igara Studio S.A.
 // Copyright (C) 2016-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -47,6 +47,9 @@ namespace os {
                          Event::Type& evType,
                          Event::MouseButton& mouseButton);
 
+    bool crashedBefore() const { return m_crashedBefore; }
+    void resetCrashFileIfPresent();
+
   private:
     bool loadWintab();
     bool checkDll();
@@ -60,6 +63,10 @@ namespace os {
     // Used to avoid calling LoadLibrary() for each created window
     // when the wintab.dll is not found.
     bool m_alreadyTried = false;
+
+    // True if the program crashed when called WTOpen() in a past
+    // execution.
+    bool m_crashedBefore = false;
   };
 
 } // namespace os
