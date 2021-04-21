@@ -280,9 +280,17 @@ WindowWin::WindowWin(const WindowSpec& spec)
 
 WindowWin::~WindowWin()
 {
-  auto& winApi = system()->winApi();
-  if (m_ictx && winApi.DestroyInteractionContext)
-    winApi.DestroyInteractionContext(m_ictx);
+  auto sys = system();
+
+  // This makes no sense (because the os::System should be created at
+  // this point), but we had a crash where a ~WindowWin() is called
+  // from an atexit() callback when the System is nullptr.
+  ASSERT(sys);
+  if (sys) {
+    auto& winApi = sys->winApi();
+    if (m_ictx && winApi.DestroyInteractionContext)
+      winApi.DestroyInteractionContext(m_ictx);
+  }
 
   if (m_hwnd)
     DestroyWindow(m_hwnd);
