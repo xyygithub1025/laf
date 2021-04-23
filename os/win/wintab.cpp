@@ -53,6 +53,10 @@ WTQueueSizeSet_Func WTQueueSizeSet;
 // wintab32.dll again in the next run, until the file is deleted,
 // i.e. when the System::setTabletAPI() is called again with the
 // TabletAPI::Wintab value.
+//
+// This is also useful to restore our original
+// UnhandledExceptionFilter() (e.g. base::MemoryDump handler) because
+// some wintab32.dll will overwrite our callback just loading the dll.
 class HandleSigSegv {
  public:
   HandleSigSegv() {
@@ -127,10 +131,14 @@ WintabAPI::~WintabAPI()
 
 HCTX WintabAPI::open(HWND hwnd, bool moveMouse)
 {
+  // We have to use this before calling loadWintab() because just
+  // loading the wintab32.dll can overwrite our
+  // UnhandledExceptionFilter() (e.g. the base::MemoryDump callback).
+  HandleSigSegv handler;
+
+  // Load the library just once (if m_wintabLib wasn't already loaded)
   if (!m_wintabLib && !loadWintab())
     return nullptr;
-
-  HandleSigSegv handler;
 
   // Check if WTOpen() crashed in a previous execution.
   if (handler.crashed()) {
