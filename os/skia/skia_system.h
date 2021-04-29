@@ -84,19 +84,6 @@ public:
 #endif
   }
 
-  gfx::Size defaultNewWindowSize() override {
-    gfx::Size sz;
-#ifdef _WIN32
-    sz.w = GetSystemMetrics(SM_CXMAXIMIZED);
-    sz.h = GetSystemMetrics(SM_CYMAXIMIZED);
-    sz.w -= GetSystemMetrics(SM_CXSIZEFRAME)*4;
-    sz.h -= GetSystemMetrics(SM_CYSIZEFRAME)*4;
-    sz.w = std::max(0, sz.w);
-    sz.h = std::max(0, sz.h);
-#endif
-    return sz;
-  }
-
   Window* defaultWindow() override {
     return m_defaultWindow;
   }

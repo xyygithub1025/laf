@@ -49,7 +49,6 @@ namespace os {
 - (int)scale;
 - (void)setScale:(int)scale;
 - (gfx::Size)clientSize;
-- (gfx::Size)restoredSize;
 - (void)setMousePosition:(const gfx::Point&)position;
 - (BOOL)setNativeMouseCursor:(os::NativeCursor)cursor;
 - (BOOL)setNativeMouseCursor:(const os::Surface*)surface
@@ -75,10 +74,10 @@ public:
   void destroyWindow();
 
   gfx::Size clientSize() const;
-  gfx::Size restoredSize() const;
   gfx::Rect frame() const override;
   void setFrame(const gfx::Rect& bounds) override;
   gfx::Rect contentRect() const override;
+  gfx::Rect restoredFrame() const override;
 
   void activate() override;
   void maximize() override;
@@ -125,6 +124,7 @@ public:
   virtual void onStartResizing() = 0;
   virtual void onResizing(gfx::Size& size) = 0;
   virtual void onEndResizing() = 0;
+  virtual void onBeforeMaximizeFrame();
 
   // This generally happens when the window is moved to another
   // monitor with different scale (e.g. Retina vs non-Retina display)
@@ -133,6 +133,7 @@ public:
 
 protected:
   WindowOSXObjc_id __strong m_nsWindow = nullptr;
+  gfx::Rect m_restoredFrame; // Cached frame() just before it's maximized/zoomed.
 };
 
 } // namespace os

@@ -38,7 +38,6 @@ public:
   void setGpuAcceleration(bool state) override { }
   ScreenRef mainScreen() override { return nullptr; }
   void listScreens(ScreenList& screens) override { }
-  gfx::Size defaultNewWindowSize() override { return gfx::Size(0, 0); }
   Window* defaultWindow() override { return nullptr; }
   Ref<Window> makeWindow(const WindowSpec& spec) override { return nullptr; }
   Ref<Surface> makeSurface(int width, int height,

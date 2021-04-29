@@ -42,10 +42,6 @@ public:
   int width() const override;
   int height() const override;
 
-  // Returns the window when it was not maximized.
-  int originalWidth() const override;
-  int originalHeight() const override;
-
   NativeCursor nativeMouseCursor() override;
   bool setNativeMouseCursor(NativeCursor cursor) override;
 

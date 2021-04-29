@@ -12,6 +12,7 @@ namespace os {
 @interface WindowOSXDelegate : NSObject {
 @private
   os::WindowOSX* __weak m_impl;
+  NSRect m_maximizedFrame;
 }
 @end
 
@@ -96,6 +97,26 @@ namespace os {
   // resize the window.
   if (m_impl)
     m_impl->onEndResizing();
+}
+
+- (NSRect)windowWillUseStandardFrame:(NSWindow*)window
+                        defaultFrame:(NSRect)newFrame
+{
+  // In "newFrame" is the frame size when a window is maximized in the
+  // current screen. We can cache this value to know when we are
+  // maximized after a zoom command.
+  m_maximizedFrame = newFrame;
+  return newFrame;
+}
+
+- (BOOL)windowShouldZoom:(NSWindow*)window
+                 toFrame:(NSRect)newFrame
+{
+  if (m_impl) {
+    if (NSEqualRects(newFrame, m_maximizedFrame))
+      m_impl->onBeforeMaximizeFrame();
+  }
+  return YES;
 }
 
 @end

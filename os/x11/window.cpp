@@ -560,14 +560,14 @@ gfx::Size WindowX11::clientSize() const
   return gfx::Size(int(width), int(height));
 }
 
-gfx::Size WindowX11::restoredSize() const
+gfx::Rect WindowX11::restoredFrame() const
 {
   ::Window root;
   int x, y;
   unsigned int width, height, border, depth;
   XGetGeometry(m_display, m_window, &root,
                &x, &y, &width, &height, &border, &depth);
-  return gfx::Size(int(width), int(height));
+  return gfx::Rect(x, y, int(width), int(height));
 }
 
 void WindowX11::captureMouse()

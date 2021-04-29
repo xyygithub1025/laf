@@ -124,7 +124,6 @@ WindowWin::WindowWin(const WindowSpec& spec)
   : m_hwnd(nullptr)
   , m_hcursor(nullptr)
   , m_clientSize(1, 1)
-  , m_restoredSize(0, 0)
   , m_scale(spec.scale())
   , m_isCreated(false)
   , m_adjustShadow(true)
@@ -470,11 +469,6 @@ gfx::Size WindowWin::clientSize() const
   return m_clientSize;
 }
 
-gfx::Size WindowWin::restoredSize() const
-{
-  return m_restoredSize;
-}
-
 gfx::Rect WindowWin::frame() const
 {
   RECT rc;
@@ -523,6 +517,11 @@ gfx::Rect WindowWin::contentRect() const
   GetClientRect(m_hwnd, &rc);
   ClientToScreen(m_hwnd, (LPPOINT)&rc);
   return gfx::Rect(rc.left, rc.top, rc.right, rc.bottom);
+}
+
+gfx::Rect WindowWin::restoredFrame() const
+{
+  return m_restoredFrame;
 }
 
 std::string WindowWin::title() const
@@ -1131,8 +1130,11 @@ LRESULT WindowWin::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
 
         WINDOWPLACEMENT pl;
         pl.length = sizeof(pl);
-        if (GetWindowPlacement(m_hwnd, &pl)) {
-          m_restoredSize = gfx::Size(
+        if (GetWindowPlacement(m_hwnd, &pl) &&
+            !m_fullscreen) {
+          m_restoredFrame = gfx::Rect(
+            pl.rcNormalPosition.left,
+            pl.rcNormalPosition.top,
             pl.rcNormalPosition.right - pl.rcNormalPosition.left,
             pl.rcNormalPosition.bottom - pl.rcNormalPosition.top);
         }

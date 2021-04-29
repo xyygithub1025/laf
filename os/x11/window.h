@@ -66,10 +66,10 @@ public:
   gfx::Rect frame() const override;
   void setFrame(const gfx::Rect& bounds) override;
   gfx::Rect contentRect() const override;
+  gfx::Rect restoredFrame() const override;
   std::string title() const override;
 
   gfx::Size clientSize() const;
-  gfx::Size restoredSize() const;
   void captureMouse() override;
   void releaseMouse() override;
   void setMousePosition(const gfx::Point& position) override;

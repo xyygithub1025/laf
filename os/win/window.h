@@ -49,10 +49,10 @@ namespace os {
     bool isFullscreen() const override;
     void setFullscreen(bool state) override;
     gfx::Size clientSize() const;
-    gfx::Size restoredSize() const;
     gfx::Rect frame() const override;
     void setFrame(const gfx::Rect& bounds) override;
     gfx::Rect contentRect() const override;
+    gfx::Rect restoredFrame() const override;
     std::string title() const override;
     void setTitle(const std::string& title) override;
     void captureMouse() override;
@@ -125,7 +125,6 @@ namespace os {
     mutable HWND m_hwnd;
     HCURSOR m_hcursor;
     gfx::Size m_clientSize;
-    gfx::Size m_restoredSize;
 
     // Used to store the current window position before toggling on
     // full-screen mode.

@@ -40,16 +40,6 @@ int SkiaWindow::height() const
   return clientSize().h;
 }
 
-int SkiaWindow::originalWidth() const
-{
-  return restoredSize().w;
-}
-
-int SkiaWindow::originalHeight() const
-{
-  return restoredSize().h;
-}
-
 NativeCursor SkiaWindow::nativeMouseCursor()
 {
   return m_nativeCursor;

@@ -159,11 +159,6 @@
                    [[self contentView] frame].size.height);
 }
 
-- (gfx::Size)restoredSize
-{
-  return [self clientSize];
-}
-
 - (void)setMousePosition:(const gfx::Point&)position
 {
   NSView* view = self.contentView;
@@ -361,11 +356,6 @@ gfx::Size WindowOSX::clientSize() const
   return [m_nsWindow clientSize];
 }
 
-gfx::Size WindowOSX::restoredSize() const
-{
-  return [m_nsWindow restoredSize];
-}
-
 gfx::Rect WindowOSX::frame() const
 {
   NSRect r = m_nsWindow.frame;
@@ -391,6 +381,11 @@ gfx::Rect WindowOSX::contentRect() const
                    r.size.width, r.size.height);
 }
 
+gfx::Rect WindowOSX::restoredFrame() const
+{
+  return m_restoredFrame;
+}
+
 void WindowOSX::activate()
 {
   [m_nsWindow makeKeyWindow];
@@ -408,7 +403,7 @@ void WindowOSX::minimize()
 
 bool WindowOSX::isMaximized() const
 {
-  return false;
+  return [m_nsWindow isZoomed];
 }
 
 bool WindowOSX::isMinimized() const
@@ -531,6 +526,11 @@ bool WindowOSX::setNativeMouseCursor(const Surface* surface,
 void* WindowOSX::nativeHandle() const
 {
   return (__bridge void*)m_nsWindow;
+}
+
+void WindowOSX::onBeforeMaximizeFrame()
+{
+  m_restoredFrame = frame();
 }
 
 } // namespace os

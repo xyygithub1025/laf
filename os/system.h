@@ -149,7 +149,6 @@ namespace os {
     // Returns a list of screens attached to the computer.
     virtual void listScreens(ScreenList& screens) = 0;
 
-    virtual gfx::Size defaultNewWindowSize() = 0;
     virtual Window* defaultWindow() = 0;
 
     // Creates a new window in the operating system with the given

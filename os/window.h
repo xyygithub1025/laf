@@ -54,14 +54,14 @@ namespace os {
     // in real screen pixels.  (The scale is not involved.)
     virtual gfx::Rect contentRect() const = 0;
 
+    // Returns the frame() when the window wasn't maximized or in
+    // full-screen mode.
+    virtual gfx::Rect restoredFrame() const = 0;
+
     // Returns the real and current window's size (without scale applied).
     virtual int width() const = 0;
     virtual int height() const = 0;
     gfx::Rect bounds() const;
-
-    // Returns the window when it was not maximized.
-    virtual int originalWidth() const = 0;
-    virtual int originalHeight() const = 0;
 
     // Returns the current window scale. Each pixel in the internal
     // window surface, is represented by SCALExSCALE pixels on the
