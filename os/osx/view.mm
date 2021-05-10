@@ -572,8 +572,9 @@ using namespace os;
         initWithRect:self.bounds
              options:(NSTrackingMouseEnteredAndExited |
                       NSTrackingMouseMoved |
-                      NSTrackingActiveAlways |
-                      NSTrackingEnabledDuringMouseDrag)
+                      NSTrackingActiveInActiveApp |
+                      NSTrackingEnabledDuringMouseDrag |
+                      NSTrackingCursorUpdate)
                owner:self
             userInfo:nil];
   [self addTrackingArea:m_trackingArea];
