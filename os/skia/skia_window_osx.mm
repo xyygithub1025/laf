@@ -83,11 +83,19 @@ void SkiaWindowOSX::invalidateRegion(const gfx::Region& rgn)
         gfx::Rect bounds = rgn.bounds(); // TODO use only the region?
         int scale = this->scale();
         NSView* view = m_nsWindow.contentView;
+
+        // We add an extra pixel (in scale units) at the top, to avoid
+        // some problems non-refreshing invalidated areas.
+        //
+        // TODO investigate why this is really needed, e.g. on
+        // Aseprite, when we move a ui::Display inside other
+        // ui::Display, or in the Preview window to update the brush
+        // preview in real-time.
         [view setNeedsDisplayInRect:
                 NSMakeRect(bounds.x*scale,
-                           view.frame.size.height - (bounds.y+bounds.h)*scale,
+                           view.frame.size.height - bounds.y2()*scale - scale,
                            bounds.w*scale,
-                           bounds.h*scale)];
+                           bounds.h*scale + scale)];
 
 #if 0     // Do not refresh immediately. Note: This might be required
           // for debugging purposes in some scenarios, but now this is
