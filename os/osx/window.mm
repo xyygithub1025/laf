@@ -460,8 +460,24 @@ void WindowOSX::performWindowAction(const WindowAction action,
                                     const Event* event)
 {
   if (action == WindowAction::Move) {
-    // TODO we should use the specified "event"
-    [m_nsWindow performWindowDragWithEvent:m_nsWindow.currentEvent];
+    // We cannot use the "m_nsWindow.currentEvent" event directly
+    // because sometimes it's a NSEventTypeAppKitDefined instead of
+    // the mouse event and the mouse location inside that event is
+    // invalid. So we just use the current mouse position from
+    // [NSEvent mouseLocation] to avoid this creating a new mouse
+    // event.
+    NSEvent* newEvent =
+      [NSEvent mouseEventWithType:NSEventTypeLeftMouseDown
+                         location:[m_nsWindow convertPointFromScreen:[NSEvent mouseLocation]]
+                    modifierFlags:0
+                        timestamp:0
+                     windowNumber:m_nsWindow.windowNumber
+                          context:nil
+                      eventNumber:0
+                       clickCount:1
+                         pressure:1.0];
+
+    [m_nsWindow performWindowDragWithEvent:newEvent];
   }
 }
 
