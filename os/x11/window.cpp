@@ -303,6 +303,9 @@ os::ScreenRef WindowX11::screen() const
 
 os::ColorSpaceRef WindowX11::colorSpace() const
 {
+  if (auto defaultCS = os::instance()->windowsColorSpace())
+    return defaultCS;
+
   // TODO get the window color space
   return os::instance()->makeColorSpace(gfx::ColorSpace::MakeSRGB());
 }
