@@ -86,7 +86,7 @@ public:
     return m_colorSpace;
   }
 
-  void setColorSpace(const os::ColorSpaceRef& colorSpace) {
+  void setColorSpace(const os::ColorSpaceRef& colorSpace) override {
     ASSERT(colorSpace);
     m_colorSpace = colorSpace;
     if (m_surface)
