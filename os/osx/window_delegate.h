@@ -51,14 +51,12 @@ namespace os {
     m_impl->onStartResizing();
 }
 
-- (NSSize)windowWillResize:(NSWindow*)sender
-                    toSize:(NSSize)frameSize
+- (void)windowDidResize:(NSNotification*)notification
 {
-  NSView* view = sender.contentView;
+  NSView* view = [notification.object contentView];
   gfx::Size sz(view.bounds.size.width, view.bounds.size.height);
   if (m_impl)
     m_impl->onResizing(sz);
-  return frameSize;
 }
 
 - (void)windowDidEndLiveResize:(NSNotification*)notification
