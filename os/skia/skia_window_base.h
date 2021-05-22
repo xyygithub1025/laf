@@ -87,8 +87,11 @@ public:
   }
 
   void setColorSpace(const os::ColorSpaceRef& colorSpace) override {
-    ASSERT(colorSpace);
-    m_colorSpace = colorSpace;
+    if (colorSpace)
+      m_colorSpace = colorSpace;
+    else
+      m_colorSpace = T::colorSpace(); // Screen color space
+
     if (m_surface)
       resetSkiaSurface();
 

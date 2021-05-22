@@ -144,7 +144,8 @@ namespace os {
     // Returns the color space of the window where the window is located.
     virtual os::ColorSpaceRef colorSpace() const = 0;
 
-    // Changes the color space to use in this window.
+    // Changes the color space to use in this window. Can be nullptr
+    // if you want to use the current monitor color space.
     virtual void setColorSpace(const os::ColorSpaceRef& colorSpace) = 0;
 
     // Returns the HWND on Windows, X11 Window, or bridged NSWindow pointer.

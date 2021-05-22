@@ -152,11 +152,8 @@ public:
   void setWindowsColorSpace(const os::ColorSpaceRef& cs) override {
     m_windowCS = cs;
 
-    if (m_defaultWindow) {
-      m_defaultWindow->setColorSpace(
-        m_windowCS ? m_windowCS:
-                      m_defaultWindow->SkiaWindowPlatform::colorSpace());
-    }
+    if (m_defaultWindow)
+      m_defaultWindow->setColorSpace(m_windowCS);
 
     // TODO change the color space of all windows
   }
