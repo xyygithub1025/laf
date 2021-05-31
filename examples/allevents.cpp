@@ -159,7 +159,10 @@ private:
     surface->drawCircle(m_mousePos.x, m_mousePos.y, m_brushSize, paint);
 
     // Invalidates the whole window to show it on the screen.
-    m_window->invalidateRegion(gfx::Region(rc));
+    if (m_window->isVisible())
+      m_window->invalidateRegion(gfx::Region(rc));
+    else
+      m_window->setVisible(true);
   }
 
   void logMouseEvent(const os::Event& ev, const char* eventName) {

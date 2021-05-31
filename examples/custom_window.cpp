@@ -172,7 +172,10 @@ void draw_window(os::Window* window, const Hit hit)
                   pos, &p, os::TextAlign::Center);
   }
 
-  window->invalidateRegion(gfx::Region(rc));
+  if (window->isVisible())
+    window->invalidateRegion(gfx::Region(rc));
+  else
+    window->setVisible(true);
 }
 
 bool update_hit(os::Window* window,

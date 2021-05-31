@@ -49,7 +49,11 @@ public:
   void redraw() {
     auto rc = m_nativeWindow->surface()->bounds();
     onRedraw(m_nativeWindow->surface(), rc);
-    m_nativeWindow->invalidateRegion(gfx::Region(rc));
+
+    if (m_nativeWindow->isVisible())
+      m_nativeWindow->invalidateRegion(gfx::Region(rc));
+    else
+      m_nativeWindow->setVisible(true);
   }
 
   virtual bool isFloating() const {

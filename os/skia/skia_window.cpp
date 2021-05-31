@@ -25,7 +25,6 @@ SkiaWindow::SkiaWindow(const WindowSpec& spec)
   , m_nativeCursor(NativeCursor::Arrow)
 {
   setScale(spec.scale());
-  setVisible(true);
   setNativeMouseCursor(m_nativeCursor);
   initializeSurface();
 }

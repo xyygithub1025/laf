@@ -74,7 +74,10 @@ void draw_window(os::Window* window,
   surface->drawSurface(backSurface.get(), 0, 0);
 
   // Invalidates the whole window to show it on the screen.
-  window->invalidateRegion(gfx::Region(rc));
+  if (window->isVisible())
+    window->invalidateRegion(gfx::Region(rc));
+  else
+    window->setVisible(true);
 }
 
 int app_main(int argc, char* argv[])
