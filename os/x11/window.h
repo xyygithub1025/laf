@@ -40,8 +40,6 @@ public:
             const WindowSpec& spec);
   ~WindowX11();
 
-  void queueEvent(Event& ev);
-
   os::ScreenRef screen() const override;
   os::ColorSpaceRef colorSpace() const override;
 
@@ -96,7 +94,6 @@ public:
   static WindowX11* getPointerFromHandle(::Window handle);
 
 protected:
-  virtual void onQueueEvent(Event& event) = 0;
   virtual void onPaint(const gfx::Rect& rc) = 0;
   virtual void onResize(const gfx::Size& sz) = 0;
 

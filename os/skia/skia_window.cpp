@@ -21,7 +21,7 @@
 namespace os {
 
 SkiaWindow::SkiaWindow(const WindowSpec& spec)
-  : SkiaWindowPlatform(instance()->eventQueue(), spec)
+  : SkiaWindowPlatform(spec)
   , m_nativeCursor(NativeCursor::Arrow)
 {
   setScale(spec.scale());

@@ -20,18 +20,14 @@
 
 namespace os {
 
-class EventQueue;
-
 class SkiaWindowWin : public SkiaWindowBase<WindowWin> {
 public:
   enum class Backend { NONE, GL, ANGLE };
 
-  SkiaWindowWin(EventQueue* queue,
-                const WindowSpec& spec);
+  SkiaWindowWin(const WindowSpec& spec);
   ~SkiaWindowWin();
 
 private:
-  void onQueueEvent(Event& ev) override;
   void onPaint(HDC hdc) override;
   void onResize(const gfx::Size& sz) override;
   void onStartResizing() override;
@@ -48,7 +44,6 @@ private:
   void createRenderTarget(const gfx::Size& size);
 #endif // SK_SUPPORT_GPU
 
-  EventQueue* m_queue;
   Backend m_backend;
   bool m_resizing = false;
 #if SK_SUPPORT_GPU

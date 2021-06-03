@@ -295,11 +295,6 @@ WindowWin::~WindowWin()
     DestroyWindow(m_hwnd);
 }
 
-void WindowWin::queueEvent(Event& ev)
-{
-  onQueueEvent(ev);
-}
-
 os::ScreenRef WindowWin::screen() const
 {
   if (m_hwnd) {

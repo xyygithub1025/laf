@@ -43,8 +43,7 @@
 
 namespace os {
 
-SkiaWindowOSX::SkiaWindowOSX(EventQueue* queue,
-                             const WindowSpec& spec)
+SkiaWindowOSX::SkiaWindowOSX(const WindowSpec& spec)
 #if SK_SUPPORT_GPU
   : m_nsGL(nil)
   , m_nsPixelFormat(nil)
@@ -160,12 +159,6 @@ void SkiaWindowOSX::setTranslateDeadKeys(bool state)
 {
   ViewOSX* view = (ViewOSX*)m_nsWindow.contentView;
   [view setTranslateDeadKeys:(state ? YES: NO)];
-}
-
-void SkiaWindowOSX::onQueueEvent(Event& ev)
-{
-  ev.setWindow(AddRef(this));
-  os::queue_event(ev);
 }
 
 void SkiaWindowOSX::onClose()

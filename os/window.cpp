@@ -12,6 +12,8 @@
 
 #include "gfx/rect.h"
 #include "gfx/region.h"
+#include "os/event.h"
+#include "os/event_queue.h"
 
 namespace os {
 
@@ -39,6 +41,24 @@ gfx::Point Window::pointFromScreen(const gfx::Point& screenPosition) const
   res -= contentRect().origin();
   res /= scale();
   return res;
+}
+
+void Window::queueEvent(os::Event& ev)
+{
+  onQueueEvent(ev);
+}
+
+void Window::onQueueEvent(Event& ev)
+{
+  // Some events are used more than one time (e.g. to send MouseEnter
+  // and then MouseMove).
+  if (!ev.window())
+    ev.setWindow(AddRef(this));
+  else {
+    ASSERT(ev.window().get() == this);
+  }
+
+  os::queue_event(ev);
 }
 
 } // namespace os

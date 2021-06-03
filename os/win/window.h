@@ -34,7 +34,6 @@ namespace os {
     WindowWin(const WindowSpec& spec);
     ~WindowWin();
 
-    void queueEvent(Event& ev);
     os::ScreenRef screen() const override;
     os::ColorSpaceRef colorSpace() const override;
     int scale() const override { return m_scale; }
@@ -105,7 +104,6 @@ namespace os {
       return true;
     }
 
-    virtual void onQueueEvent(Event& ev) { }
     virtual void onResize(const gfx::Size& sz) { }
     virtual void onStartResizing() { }
     virtual void onEndResizing() { }

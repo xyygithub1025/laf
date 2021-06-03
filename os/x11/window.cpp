@@ -291,11 +291,6 @@ WindowX11::~WindowX11()
   WindowX11::removeWindow(this);
 }
 
-void WindowX11::queueEvent(Event& ev)
-{
-  onQueueEvent(ev);
-}
-
 os::ScreenRef WindowX11::screen() const
 {
   return os::make_ref<ScreenX11>(DefaultScreen(m_display));

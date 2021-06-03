@@ -121,6 +121,10 @@ namespace os {
     gfx::Point pointToScreen(const gfx::Point& clientPosition) const;
     gfx::Point pointFromScreen(const gfx::Point& screenPosition) const;
 
+    // Queue event for this window (the "ev" window will be set to
+    // this window if it's not set).
+    void queueEvent(os::Event& ev);
+
     // Performs the user action to move or resize the window. It's
     // useful in case that you want to design your own regions to
     // resize or move/drag the window.
@@ -156,6 +160,9 @@ namespace os {
 
     template<typename T>
     void setUserData(T* data) { m_userData = reinterpret_cast<void*>(data); }
+
+  protected:
+    virtual void onQueueEvent(Event& ev);
 
   private:
     void* m_userData;

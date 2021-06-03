@@ -46,18 +46,10 @@ bool convert_skia_bitmap_to_ximage(const SkBitmap& bitmap, XImage& image)
 
 } // anonymous namespace
 
-SkiaWindowX11::SkiaWindowX11(EventQueue* queue,
-                             const WindowSpec& spec)
+SkiaWindowX11::SkiaWindowX11(const WindowSpec& spec)
   : SkiaWindowBase<WindowX11>(X11::instance()->display(), spec)
-  , m_queue(queue)
 {
   initColorSpace();
-}
-
-void SkiaWindowX11::onQueueEvent(Event& ev)
-{
-  ev.setWindow(AddRef(this));
-  m_queue->queueEvent(ev);
 }
 
 void SkiaWindowX11::onPaint(const gfx::Rect& rc)

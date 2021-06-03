@@ -20,7 +20,6 @@
 
 namespace os {
 
-class EventQueue;
 class SkiaDisplay;
 class Surface;
 class WindowSpec;
@@ -29,8 +28,7 @@ class SkiaWindowOSX : public SkiaWindowBase<WindowOSX> {
 public:
   enum class Backend { NONE, GL };
 
-  SkiaWindowOSX(EventQueue* queue,
-                const WindowSpec& spec);
+  SkiaWindowOSX(const WindowSpec& spec);
   ~SkiaWindowOSX();
 
   void setFullscreen(bool state) override;
@@ -41,7 +39,6 @@ public:
   void setTranslateDeadKeys(bool state);
 
   // WindowOSX overrides
-  void onQueueEvent(Event& ev) override;
   void onClose() override;
   void onResize(const gfx::Size& size) override;
   void onDrawRect(const gfx::Rect& rect) override;

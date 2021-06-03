@@ -38,10 +38,8 @@
 
 namespace os {
 
-SkiaWindowWin::SkiaWindowWin(EventQueue* queue,
-                             const WindowSpec& spec)
+SkiaWindowWin::SkiaWindowWin(const WindowSpec& spec)
   : SkiaWindowBase<WindowWin>(spec)
-  , m_queue(queue)
   , m_backend(Backend::NONE)
 #if SK_SUPPORT_GPU
   , m_skSurface(nullptr)
@@ -69,12 +67,6 @@ SkiaWindowWin::~SkiaWindowWin()
 
 #endif // SK_SUPPORT_GPU
   }
-}
-
-void SkiaWindowWin::onQueueEvent(Event& ev)
-{
-  ev.setWindow(AddRef(this));
-  m_queue->queueEvent(ev);
 }
 
 void SkiaWindowWin::onPaint(HDC hdc)

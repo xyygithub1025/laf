@@ -105,10 +105,6 @@ public:
   bool isVisible() const override;
   void setVisible(bool visible) override;
 
-  void queueEvent(os::Event& ev) {
-    onQueueEvent(ev);
-  }
-
   bool setNativeMouseCursor(NativeCursor cursor) override;
   bool setNativeMouseCursor(const Surface* surface,
                             const gfx::Point& focus,
@@ -116,7 +112,6 @@ public:
 
   void* nativeHandle() const override;
 
-  virtual void onQueueEvent(os::Event& ev) = 0;
   virtual void onClose() = 0;
   virtual void onResize(const gfx::Size& size) = 0;
   virtual void onDrawRect(const gfx::Rect& rect) = 0;

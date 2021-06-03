@@ -20,25 +20,21 @@
 
 namespace os {
 
-class EventQueue;
 class SkiaDisplay;
 
 class SkiaWindowX11 : public SkiaWindowBase<WindowX11> {
 public:
   enum class Backend { NONE, GL };
 
-  SkiaWindowX11(EventQueue* queue,
-                const WindowSpec& spec);
+  SkiaWindowX11(const WindowSpec& spec);
 
   std::string getLayout() override { return ""; }
   void setLayout(const std::string& layout) override { }
 
 private:
-  void onQueueEvent(Event& ev) override;
   void onPaint(const gfx::Rect& rc) override;
   void onResize(const gfx::Size& sz) override;
 
-  EventQueue* m_queue;
   std::vector<uint8_t> m_buffer;
 
   DISABLE_COPYING(SkiaWindowX11);
