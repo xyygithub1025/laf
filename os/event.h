@@ -74,7 +74,7 @@ namespace os {
     }
 
     Type type() const { return m_type; }
-    WindowRef window() const { return m_window; }
+    const WindowRef& window() const { return m_window; }
     const base::paths& files() const { return m_files; }
     // TODO Rename this to virtualKey(), which is the real
     // meaning. Then we need another kind of "scan code" with the
