@@ -563,6 +563,8 @@ void WindowWin::setMousePosition(const gfx::Point& position)
                 position.y * m_scale };
   ClientToScreen(m_hwnd, &pos);
   SetCursorPos(pos.x, pos.y);
+
+  system()->_setInternalMousePosition(gfx::Point(pos.x, pos.y));
 }
 
 bool WindowWin::setNativeMouseCursor(NativeCursor cursor)
@@ -1183,12 +1185,15 @@ LRESULT WindowWin::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
 
       ev.setType(Event::MouseMove);
 
-      if (system()->tabletAPI() == TabletAPI::WintabPackets &&
+      auto sys = system();
+      if (sys->tabletAPI() == TabletAPI::WintabPackets &&
           same_mouse_event(ev, m_lastWintabEvent))
         MOUSE_TRACE(" - IGNORED (WinTab)\n");
       else {
         queueEvent(ev);
         m_lastWintabEvent.setType(Event::None);
+
+        sys->_setInternalMousePosition(ev);
       }
       break;
     }
@@ -1203,6 +1208,7 @@ LRESULT WindowWin::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
         ev.setModifiers(get_modifiers_from_last_win32_message());
         queueEvent(ev);
 
+        system()->_clearInternalMousePosition();
         MOUSE_TRACE("-> Event::MouseLeave\n");
       }
       break;
@@ -1433,6 +1439,7 @@ LRESULT WindowWin::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
         ev.setType(Event::MouseEnter);
         queueEvent(ev);
 
+        system()->_setInternalMousePosition(ev);
         MOUSE_TRACE("-> Event::MouseEnter\n");
       }
       return 0;
@@ -1473,6 +1480,8 @@ LRESULT WindowWin::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
           }
         }
       }
+
+      system()->_clearInternalMousePosition();
 
 #if 0 // Don't generate MouseLeave from pen/touch messages
       // TODO we should generate this message, but after this touch
@@ -2097,6 +2106,7 @@ void WindowWin::handlePointerButtonChange(Event& ev, POINTER_INFO& pi)
   }
 
   queueEvent(ev);
+  system()->_setInternalMousePosition(ev);
 }
 
 void WindowWin::handleInteractionContextOutput(

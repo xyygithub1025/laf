@@ -39,11 +39,18 @@ public:
   ScreenRef mainScreen() override;
   void listScreens(ScreenList& list) override;
 
+  // Required because GetMousePos() doesn't return the current mouse
+  // position when we're using a pen/stylus.
+  void _clearInternalMousePosition();
+  void _setInternalMousePosition(const gfx::Point& pos);
+  void _setInternalMousePosition(const Event& ev);
+
 private:
   std::string m_appName;
   TabletAPI m_tabletAPI = TabletAPI::Default;
   WinAPI m_winApi;
   WintabAPI m_wintabApi;
+  gfx::Point m_screenMousePos;
 };
 
 } // namespace os

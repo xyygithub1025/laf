@@ -13,13 +13,24 @@
 #include "gfx/color.h"
 #include "os/win/screen.h"
 
+#include <limits>
+
 namespace os {
 
 bool win_is_key_pressed(KeyScancode scancode);
 int win_get_unicode_from_scancode(KeyScancode scancode);
 
-SystemWin::SystemWin() { }
-SystemWin::~SystemWin() { }
+static const gfx::Point kUnknownPos(std::numeric_limits<int>::min(),
+                                    std::numeric_limits<int>::min());
+
+SystemWin::SystemWin()
+  : m_screenMousePos(kUnknownPos)
+{
+}
+
+SystemWin::~SystemWin()
+{
+}
 
 void SystemWin::setAppName(const std::string& appName)
 {
@@ -50,9 +61,16 @@ int SystemWin::getUnicodeFromScancode(KeyScancode scancode)
 
 gfx::Point SystemWin::mousePosition() const
 {
-  POINT pt;
-  GetCursorPos(&pt);
-  return gfx::Point(pt.x, pt.y);
+  // We cannot use GetCursorPos() directly because it doesn't work
+  // when have a pen connected to a notebook.
+  if (m_screenMousePos != kUnknownPos) {
+    return m_screenMousePos;
+  }
+  else {
+    POINT pt;
+    GetCursorPos(&pt);
+    return gfx::Point(pt.x, pt.y);
+  }
 }
 
 void SystemWin::setMousePosition(const gfx::Point& screenPosition)
@@ -96,6 +114,26 @@ void SystemWin::listScreens(ScreenList& list)
     nullptr, nullptr,
     list_screen_enumproc,
     (LPARAM)&list);
+}
+
+void SystemWin::_clearInternalMousePosition()
+{
+  m_screenMousePos = kUnknownPos;
+}
+
+void SystemWin::_setInternalMousePosition(const gfx::Point& pos)
+{
+  m_screenMousePos = pos;
+}
+
+void SystemWin::_setInternalMousePosition(const Event& ev)
+{
+  ASSERT(ev.window());
+  if (!ev.window()) {           // Invalid Event state
+    m_screenMousePos = kUnknownPos;
+    return;
+  }
+  m_screenMousePos = ev.window()->pointToScreen(ev.position());
 }
 
 } // namespace os

@@ -188,7 +188,8 @@ namespace os {
     // to true when you're inside a text field in your app.
     virtual void setTranslateDeadKeys(bool state) = 0;
 
-    // Returns the mouse position in the screen.
+    // Returns the mouse position in the screen. Try to avoid using
+    // this and prefer the Event mouse position.
     virtual gfx::Point mousePosition() const = 0;
 
     // Sets the mouse position to a specific point in the screen.
