@@ -68,6 +68,7 @@ static os::WindowRef add_window(const std::string& title,
   windows.emplace_back(newWindow);
 
   redraw_window(newWindow.get());
+  newWindow->setVisible(true);
   return newWindow;
 }
 

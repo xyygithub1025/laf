@@ -23,8 +23,8 @@ public:
     , m_hasCapture(false) {
     m_window->setNativeMouseCursor(os::NativeCursor::Arrow);
     m_window->setTitle("Pan Viewport");
-
     repaint();
+    m_window->setVisible(true);
   }
 
   bool processEvent(const os::Event& ev) {
