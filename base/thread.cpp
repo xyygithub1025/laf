@@ -1,5 +1,5 @@
 // LAF Base Library
-// Copyright (C) 2019  Igara Studio S.A.
+// Copyright (C) 2019-2021  Igara Studio S.A.
 // Copyright (C) 2001-2016  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -148,10 +148,10 @@ void this_thread::yield()
 
 #else
 
-  struct timeval timeout;
+  timeval timeout;
   timeout.tv_sec = 0;
   timeout.tv_usec = 0;
-  select(0, NULL, NULL, NULL, &timeout);
+  select(0, nullptr, nullptr, nullptr, &timeout);
 
 #endif
 }
