@@ -74,7 +74,7 @@ int app_main(int argc, char* argv[])
     // processed until we receive a new event. If we use "false" and
     // there is no events in the queue, we receive an "ev.type() == Event::None
     os::Event ev;
-    queue->getEvent(ev, true);
+    queue->getEvent(ev);
 
     switch (ev.type()) {
 

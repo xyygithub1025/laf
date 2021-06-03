@@ -15,13 +15,15 @@
 
 #include <X11/Xlib.h>
 
+#include <sys/select.h>
+
 #define EV_TRACE(...)
 
 namespace os {
 
-#if !defined(NDEBUG)
 namespace {
 
+#if !defined(NDEBUG)
 const char* get_event_name(XEvent& event)
 {
   switch (event.type) {
@@ -62,17 +64,34 @@ const char* get_event_name(XEvent& event)
   }
   return "Unknown";
 }
+#endif
+
+void wait_file_descriptor_for_reading(int fd, base::tick_t timeoutMilliseconds)
+{
+  fd_set fds;
+  FD_ZERO(&fds);
+  FD_SET(fd, &fds);
+
+  timeval timeout;
+  timeout.tv_sec = timeoutMilliseconds / 1000;
+  timeout.tv_usec = ((timeoutMilliseconds % 1000) * 1000);
+
+  // First argument must be set to the highest-numbered file
+  // descriptor in any of the three sets, plus 1.
+  select(fd+1, &fds, nullptr, nullptr, &timeout);
+}
 
 } // anonymous namespace
-#endif
 
 void EventQueueX11::queueEvent(const Event& ev)
 {
   m_events.push(ev);
 }
 
-void EventQueueX11::getEvent(Event& ev, bool canWait)
+void EventQueueX11::getEvent(Event& ev, double timeout)
 {
+  base::tick_t startTime = base::current_tick();
+
   ev.setWindow(nullptr);
 
   ::Display* display = X11::instance()->display();
@@ -80,8 +99,27 @@ void EventQueueX11::getEvent(Event& ev, bool canWait)
 
   XEvent event;
   int events = XEventsQueued(display, QueuedAlready);
-  if (events == 0 && canWait)
-    events = 1;
+  if (events == 0) {
+    if (timeout == kWithoutTimeout) {
+      events = 1;
+    }
+    else if (timeout > 0.0) {
+      // Wait timeout (waiting the X11 connection file description for
+      // a read operation). We've to use this method to wait for
+      // events with timeout because we don't have a X11 function like
+      // XNextEvent() with a timeout.
+      base::tick_t timeoutMsecs = base::tick_t(timeout * 1000.0);
+      base::tick_t elapsedMsecs = base::current_tick() - startTime;
+      if (timeoutMsecs - elapsedMsecs > 0) {
+        int connFileDesc = ConnectionNumber(display);
+        wait_file_descriptor_for_reading(connFileDesc,
+                                         timeoutMsecs - elapsedMsecs);
+      }
+
+      events = XEventsQueued(display, QueuedAlready);
+    }
+  }
+
   for (int i=0; i<events; ++i) {
     XNextEvent(display, &event);
     processX11Event(event);

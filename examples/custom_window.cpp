@@ -271,7 +271,7 @@ int app_main(int argc, char* argv[])
     }
 
     os::Event ev;
-    queue->getEvent(ev, true);
+    queue->getEvent(ev);
 
     switch (ev.type()) {
 

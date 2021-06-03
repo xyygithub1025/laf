@@ -235,7 +235,7 @@ int app_main(int argc, char* argv[])
     window.flush();
 
     os::Event ev;
-    queue->getEvent(ev, true);
+    queue->getEvent(ev);
     if (!window.processEvent(ev))
       break;
   }

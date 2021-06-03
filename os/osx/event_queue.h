@@ -21,7 +21,7 @@ class EventQueueOSX : public EventQueue {
 public:
   EventQueueOSX();
 
-  void getEvent(Event& ev, bool canWait) override;
+  void getEvent(Event& ev, double timeout) override;
   void queueEvent(const Event& ev) override;
 
 private:

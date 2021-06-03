@@ -15,6 +15,8 @@
 
 #include "os/win/event_queue.h"
 
+#include "base/time.h"
+
 namespace os {
 
 void EventQueueWin::queueEvent(const Event& ev)
@@ -22,8 +24,9 @@ void EventQueueWin::queueEvent(const Event& ev)
   m_events.push(ev);
 }
 
-void EventQueueWin::getEvent(Event& ev, bool canWait)
+void EventQueueWin::getEvent(Event& ev, double timeout)
 {
+  base::tick_t untilTick = base::current_tick() + timeout*1000;
   MSG msg;
 
   ev.setWindow(nullptr);
@@ -31,10 +34,16 @@ void EventQueueWin::getEvent(Event& ev, bool canWait)
   while (m_events.empty()) {
     BOOL res;
 
-    if (canWait) {
+    if (timeout == kWithoutTimeout) {
       res = GetMessage(&msg, nullptr, 0, 0);
     }
     else {
+      int msecs = (untilTick - base::current_tick());
+      if (msecs > 0) {
+        MsgWaitForMultipleObjects(0, nullptr, FALSE,
+                                  (DWORD)msecs, // Milliseconds to wait
+                                  QS_ALLINPUT | QS_ALLPOSTMESSAGE);
+      }
       res = PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE);
     }
 
@@ -53,7 +62,7 @@ void EventQueueWin::getEvent(Event& ev, bool canWait)
       }
       DispatchMessage(&msg);
     }
-    else if (!canWait)
+    else if (timeout != kWithoutTimeout)
       break;
   }
 

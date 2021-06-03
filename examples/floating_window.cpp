@@ -177,7 +177,7 @@ int app_main(int argc, char* argv[])
   os::Event ev;
   bool done = false;
   while (!done) {
-    queue->getEvent(ev, true);
+    queue->getEvent(ev);
 
     // Closing the app
     if (ev.type() == os::Event::CloseApp) {

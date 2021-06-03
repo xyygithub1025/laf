@@ -136,7 +136,7 @@ int app_main(int argc, char* argv[])
   os::EventQueue* queue = system->eventQueue();
   os::Event ev;
   while (!windows.empty()) {
-    queue->getEvent(ev, true);
+    queue->getEvent(ev);
 
     switch (ev.type()) {
 

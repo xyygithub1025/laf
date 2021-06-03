@@ -20,7 +20,7 @@ namespace os {
 class EventQueueX11 : public EventQueue {
 public:
   void queueEvent(const Event& ev) override;
-  void getEvent(Event& ev, bool canWait) override;
+  void getEvent(Event& ev, double timeout) override;
 
   void clear();
 

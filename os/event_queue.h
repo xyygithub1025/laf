@@ -15,9 +15,19 @@ namespace os {
 
   class EventQueue {
   public:
+    static constexpr const double kWithoutTimeout = -1.0;
+
     virtual ~EventQueue() { }
-    virtual void getEvent(Event& ev, bool canWait) = 0;
+
+    // Wait for a new event. We can specify a timeout in seconds to
+    // limit the time of wait for the next event.
+    virtual void getEvent(Event& ev, double timeout = kWithoutTimeout) = 0;
     virtual void queueEvent(const Event& ev) = 0;
+
+    // Deprecated old method. We should remove this line after some
+    // releases. It's here to avoid calling getEvent(Event&, double)
+    // even when we use a bool 2nd argument.
+    void getEvent(Event& ev, bool) = delete;
 
     // On macOS we need the EventQueue before the creation of the
     // System. E.g. when we double-click a file an Event to open that

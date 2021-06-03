@@ -20,7 +20,7 @@ namespace os {
 class EventQueueWin : public EventQueue {
 public:
   void queueEvent(const Event& ev) override;
-  void getEvent(Event& ev, bool canWait) override;
+  void getEvent(Event& ev, double timeout) override;
 
 private:
   base::concurrent_queue<Event> m_events;

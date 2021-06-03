@@ -23,8 +23,22 @@ EventQueueOSX::EventQueueOSX()
 {
 }
 
-void EventQueueOSX::getEvent(Event& ev, bool canWait)
+void EventQueueOSX::getEvent(Event& ev, double timeout)
 {
+  // Calculate the date to wait messages if there are no messages in
+  // the queue (we calculate this date here because the "timeout"
+  // parameter depends on the current time, so we prefer to use it
+  // ASAP inside the function).
+  NSDate* untilDate;
+  if (timeout != kWithoutTimeout) {
+    untilDate = [NSDate now];
+    if (timeout > 0.0)
+      untilDate = [untilDate dateByAddingTimeInterval:timeout];
+  }
+  else {
+    untilDate = [NSDate distantFuture];
+  }
+
   ev.setType(Event::None);
   ev.setWindow(nullptr);
 
@@ -56,19 +70,23 @@ void EventQueueOSX::getEvent(Event& ev, bool canWait)
   } while (event);
 
   if (!m_events.try_pop(ev)) {
-    if (canWait) {
+    if (timeout == kWithoutTimeout)
       EV_TRACE("EV: Waiting for events\n");
 
-      // Wait until there is a Cocoa event in queue
-      m_sleeping = true;
-      event = [app nextEventMatchingMask:NSEventMaskAny
-                               untilDate:[NSDate distantFuture]
-                                  inMode:NSDefaultRunLoopMode
-                                 dequeue:YES];
-      m_sleeping = false;
+    // Wait until there is a Cocoa event in queue
+    m_sleeping = true;
+    event = [app nextEventMatchingMask:NSEventMaskAny
+                             untilDate:untilDate
+                                inMode:NSDefaultRunLoopMode
+                               dequeue:YES];
+    m_sleeping = false;
 
+    if (event) {
       EV_TRACE("EV: Event received!\n");
       goto retry;
+    }
+    else {
+      EV_TRACE("EV: Timeout!");
     }
   }
 }
