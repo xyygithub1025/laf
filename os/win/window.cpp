@@ -1022,8 +1022,17 @@ LRESULT WindowWin::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
         // resize grip, a "simple" hack is setting the window as
         // temporarily hidden, and then restoring the style again.
         LONG style = GetWindowLong(m_hwnd, GWL_STYLE);
-        SetWindowLong(m_hwnd, GWL_STYLE, style & ~WS_VISIBLE);
-        auto res = DefWindowProc(m_hwnd, msg, wparam, -1);
+
+        // Remove these styles to avoid drawing the resize grip at the
+        // bottom-right border of the window.
+        style &= ~(WS_HSCROLL | WS_VSCROLL);
+        if (m_borderless) {
+          // Avoid drawing the old-looking frame of the window.
+          style &= ~WS_THICKFRAME;
+        }
+
+        SetWindowLong(m_hwnd, GWL_STYLE, style);
+        auto res = DefWindowProc(m_hwnd, msg, wparam, lparam);
         SetWindowLong(m_hwnd, GWL_STYLE, style);
         return res;
       }
