@@ -1008,6 +1008,17 @@ LRESULT WindowWin::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
       return 0;
     }
 
+    case WM_NCPAINT:
+      if (m_borderless) {
+        // Don't paint frame border/grid grip in the scrollbars.
+        return 0;
+      }
+      break;
+
+    case WM_ERASEBKGND:
+      // Don't erase background to avoid any kind of flickering
+      return TRUE;
+
     case WM_NCACTIVATE:
       // The default WM_NCACTIVATE behavior paints the default NC
       // frame borders (and resize grip if scrollbars are enabled)
