@@ -1032,7 +1032,8 @@ LRESULT WindowWin::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
         // DefWindowProc() will try to draw the whole frame + the
         // resize grip, a "simple" hack is setting the window as
         // temporarily hidden, and then restoring the style again.
-        LONG style = GetWindowLong(m_hwnd, GWL_STYLE);
+        LONG oldStyle, style;
+        oldStyle = style = GetWindowLong(m_hwnd, GWL_STYLE);
 
         // Remove these styles to avoid drawing the resize grip at the
         // bottom-right border of the window.
@@ -1044,7 +1045,7 @@ LRESULT WindowWin::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
 
         SetWindowLong(m_hwnd, GWL_STYLE, style);
         auto res = DefWindowProc(m_hwnd, msg, wparam, lparam);
-        SetWindowLong(m_hwnd, GWL_STYLE, style);
+        SetWindowLong(m_hwnd, GWL_STYLE, oldStyle);
         return res;
       }
       break;
