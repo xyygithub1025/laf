@@ -2337,7 +2337,7 @@ void WindowWin::registerClass()
   wcex.hInstance     = instance;
   wcex.hIcon         = LoadIcon(instance, L"0");
   wcex.hCursor       = NULL;
-  wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
+  wcex.hbrBackground = (HBRUSH)(COLOR_WINDOWFRAME+1);
   wcex.lpszMenuName  = nullptr;
   wcex.lpszClassName = OS_WND_CLASS_NAME;
   wcex.hIconSm       = nullptr;
