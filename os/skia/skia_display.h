@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (c) 2018-2020  Igara Studio S.A.
+// Copyright (c) 2018-2021  Igara Studio S.A.
 // Copyright (c) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -21,6 +21,7 @@ class SkiaSurface;
 class SkiaDisplay : public Display {
 public:
   SkiaDisplay(int width, int height, int scale);
+  ~SkiaDisplay();
 
   bool isInitialized() const { return m_initialized; }
   void setSkiaSurface(SkiaSurface* surface);

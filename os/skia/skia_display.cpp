@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (c) 2018-2020  Igara Studio S.A.
+// Copyright (c) 2018-2021  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -33,6 +33,12 @@ SkiaDisplay::SkiaDisplay(int width, int height, int scale)
   resetSkiaSurface();
 
   m_initialized = true;
+}
+
+SkiaDisplay::~SkiaDisplay()
+{
+  if (m_surface)
+    m_surface->dispose();
 }
 
 void SkiaDisplay::setSkiaSurface(SkiaSurface* surface)
