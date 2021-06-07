@@ -31,7 +31,7 @@ void EventQueueOSX::getEvent(Event& ev, double timeout)
   // ASAP inside the function).
   NSDate* untilDate;
   if (timeout != kWithoutTimeout) {
-    untilDate = [NSDate now];
+    untilDate = [[NSDate alloc] init]; // Equivalent to [NSDate now] on macOS 10.15+
     if (timeout > 0.0)
       untilDate = [untilDate dateByAddingTimeInterval:timeout];
   }
