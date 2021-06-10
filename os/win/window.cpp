@@ -293,6 +293,9 @@ WindowWin::~WindowWin()
 
   if (m_hwnd)
     DestroyWindow(m_hwnd);
+
+  if (m_hcursor && m_customHcursor)
+    DestroyIcon(m_hcursor);
 }
 
 os::ScreenRef WindowWin::screen() const
