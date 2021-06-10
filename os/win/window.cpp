@@ -65,6 +65,92 @@
 
 namespace os {
 
+class HBitmapPtr {
+public:
+  HBitmapPtr() : m_ptr(nullptr) { }
+  ~HBitmapPtr() { reset(); }
+  void reset(HBITMAP p = nullptr) {
+    if (m_ptr)
+      DeleteObject(m_ptr);
+    m_ptr = p;
+  }
+  HBITMAP get() { return m_ptr; }
+  operator bool() { return m_ptr != nullptr; }
+private:
+  HBITMAP m_ptr;
+};
+
+// This class is used to avoid CreateDIBSection() as many times as
+// possible (which is the slowest function if we are going to
+// re-generate the cursor on each mouse movement).
+class WinCursorCache {
+public:
+  WinCursorCache() { }
+  ~WinCursorCache() { }
+
+  bool recreate(const gfx::Size& size) {
+    // Use cached bitmap
+    if (m_hbmp && m_hmonobmp && m_size == size)
+      return true;
+
+    m_hbmp.reset();
+    m_hmonobmp.reset();
+    m_size = size;
+    m_bits = nullptr;
+
+    BITMAPV5HEADER bi;
+    ZeroMemory(&bi, sizeof(BITMAPV5HEADER));
+    bi.bV5Size = sizeof(BITMAPV5HEADER);
+    bi.bV5Width = size.w;
+    bi.bV5Height = size.h;
+    bi.bV5Planes = 1;
+    bi.bV5BitCount = 32;
+    bi.bV5Compression = BI_BITFIELDS;
+    bi.bV5RedMask = 0x00ff0000;
+    bi.bV5GreenMask = 0x0000ff00;
+    bi.bV5BlueMask = 0x000000ff;
+    bi.bV5AlphaMask = 0xff000000;
+
+    HDC hdc = GetDC(nullptr);
+    m_hbmp.reset(
+      CreateDIBSection(
+        hdc, (BITMAPINFO*)&bi, DIB_RGB_COLORS,
+        (void**)&m_bits, NULL, (DWORD)0));
+    ReleaseDC(nullptr, hdc);
+    if (!m_hbmp) {
+      m_bits = nullptr;
+      return false;
+    }
+
+    return true;
+  }
+
+  HBITMAP hbmp() {
+    ASSERT(m_hbmp);
+    return m_hbmp.get();
+  }
+
+  // Create an empty mask bitmap.
+  HBITMAP hmonobmp() {
+    if (!m_hmonobmp)
+      m_hmonobmp.reset(CreateBitmap(m_size.w, m_size.h, 1, 1, nullptr));
+    return m_hmonobmp.get();
+  }
+
+  uint32_t* bits() const {
+    ASSERT(m_bits);
+    return m_bits;
+  }
+
+private:
+  HBitmapPtr m_hbmp;
+  HBitmapPtr m_hmonobmp;
+  uint32_t* m_bits = nullptr;
+  gfx::Size m_size;
+};
+
+static WinCursorCache g_cursor_cache;
+
 static PointerType wt_packet_pkcursor_to_pointer_type(int pkCursor)
 {
   switch (pkCursor % 3) {
@@ -640,39 +726,17 @@ bool WindowWin::setNativeMouseCursor(const os::Surface* surface,
   if (format.bitsPerPixel != 32)
     return false;
 
-  // Based on the following article "How To Create an Alpha
-  // Blended Cursor or Icon in Windows XP":
-  // https://support.microsoft.com/en-us/kb/318876
+  gfx::Size sz(scale*surface->width(),
+               scale*surface->height());
 
-  int w = scale*surface->width();
-  int h = scale*surface->height();
-
-  BITMAPV5HEADER bi;
-  ZeroMemory(&bi, sizeof(BITMAPV5HEADER));
-  bi.bV5Size = sizeof(BITMAPV5HEADER);
-  bi.bV5Width = w;
-  bi.bV5Height = h;
-  bi.bV5Planes = 1;
-  bi.bV5BitCount = 32;
-  bi.bV5Compression = BI_BITFIELDS;
-  bi.bV5RedMask = 0x00ff0000;
-  bi.bV5GreenMask = 0x0000ff00;
-  bi.bV5BlueMask = 0x000000ff;
-  bi.bV5AlphaMask = 0xff000000;
-
-  uint32_t* bits;
-  HDC hdc = GetDC(nullptr);
-  HBITMAP hbmp = CreateDIBSection(
-    hdc, (BITMAPINFO*)&bi, DIB_RGB_COLORS,
-    (void**)&bits, NULL, (DWORD)0);
-  ReleaseDC(nullptr, hdc);
-  if (!hbmp)
+  if (!g_cursor_cache.recreate(sz))
     return false;
 
+  uint32_t* bits = g_cursor_cache.bits();
   bool completelyTransparent = true;
-  for (int y=0; y<h; ++y) {
-    const uint32_t* ptr = (const uint32_t*)surface->getData(0, (h-1-y)/scale);
-    for (int x=0, u=0; x<w; ++x, ++bits) {
+  for (int y=0; y<sz.h; ++y) {
+    const uint32_t* ptr = (const uint32_t*)surface->getData(0, (sz.h-1-y)/scale);
+    for (int x=0, u=0; x<sz.w; ++x, ++bits) {
       uint32_t c = *ptr;
       uint32_t a = ((c & format.alphaMask) >> format.alphaShift);
 
@@ -696,30 +760,18 @@ bool WindowWin::setNativeMouseCursor(const os::Surface* surface,
   // this specific case we put a "no cursor" which has the expected
   // result.
   if (completelyTransparent) {
-    DeleteObject(hbmp);
     setNativeMouseCursor(NativeCursor::Hidden);
     return true;
-  }
-
-  // Create an empty mask bitmap.
-  HBITMAP hmonobmp = CreateBitmap(w, h, 1, 1, nullptr);
-  if (!hmonobmp) {
-    DeleteObject(hbmp);
-    return false;
   }
 
   ICONINFO ii;
   ii.fIcon = FALSE;
   ii.xHotspot = scale*focus.x + scale/2;
   ii.yHotspot = scale*focus.y + scale/2;
-  ii.hbmMask = hmonobmp;
-  ii.hbmColor = hbmp;
+  ii.hbmMask = g_cursor_cache.hmonobmp();
+  ii.hbmColor = g_cursor_cache.hbmp();
 
   HCURSOR hcursor = CreateIconIndirect(&ii);
-
-  DeleteObject(hbmp);
-  DeleteObject(hmonobmp);
-
   return setCursor(hcursor, true);
 }
 
