@@ -1891,6 +1891,13 @@ LRESULT WindowWin::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
       else if (result == HTVSCROLL) {
         result = (area.contains(pt) ? HTCLIENT: HTRIGHT);
       }
+      // Filter the resize grip area of the bottom-right corner, which
+      // has the size of the scrollbars and we don't want to use that
+      // area to resize the window.
+      else if (result == HTBOTTOMRIGHT) {
+        if (area.contains(pt))
+          result = HTCLIENT;
+      }
 
       return result;
     }
