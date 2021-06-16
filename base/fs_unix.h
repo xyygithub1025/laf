@@ -18,9 +18,9 @@
 #include <vector>
 
 #if __APPLE__
-#include <mach-o/dyld.h>
+  #include <mach-o/dyld.h>
 #elif __FreeBSD__
-#include <sys/sysctl.h>
+  #include <sys/sysctl.h>
 #endif
 
 #include "base/paths.h"

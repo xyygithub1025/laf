@@ -18,11 +18,11 @@
 #include "os/skia/skia_window.h"
 #include "os/window_spec.h"
 
-#ifdef _WIN32
+#if LAF_WINDOWS
   #include "os/win/color_space.h"
   #include "os/win/system.h"
   #define SkiaSystemBase SystemWin
-#elif __APPLE__
+#elif LAF_MACOS
   #include "os/osx/color_space.h"
   #include "os/osx/system.h"
   #define SkiaSystemBase SystemOSX
@@ -76,7 +76,7 @@ public:
   }
 
   void setTabletAPI(TabletAPI api) override {
-#if _WIN32
+#if LAF_WINDOWS
     SkiaSystemBase::setTabletAPI(api);
     if (SkiaWindow* window = dynamic_cast<SkiaWindow*>(defaultWindow())) {
       window->onTabletAPIChange();
@@ -134,7 +134,7 @@ public:
     list.push_back(makeColorSpace(gfx::ColorSpace::MakeNone()));
     list.push_back(makeColorSpace(gfx::ColorSpace::MakeSRGB()));
 
-#if defined(_WIN32) || defined(__APPLE__)
+#if LAF_WINDOWS || LAF_MACOS
     list_display_colorspaces(list);
 #endif
   }

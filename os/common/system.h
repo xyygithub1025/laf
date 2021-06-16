@@ -9,13 +9,13 @@
 #define OS_COMMON_SYSTEM_H
 #pragma once
 
-#ifdef _WIN32
+#if LAF_WINDOWS
   #include "os/win/native_dialogs.h"
-#elif defined(__APPLE__)
+#elif LAF_MACOS
   #include "os/osx/app.h"
   #include "os/osx/menus.h"
   #include "os/osx/native_dialogs.h"
-#elif defined(LAF_OS_WITH_GTK)
+#elif LAF_OS_WITH_GTK
   #include "os/gtk/native_dialogs.h"
 #else
   #include "os/native_dialogs.h"
@@ -64,11 +64,11 @@ public:
 
   NativeDialogs* nativeDialogs() override {
     if (!m_nativeDialogs) {
-#ifdef _WIN32
+#if LAF_WINDOWS
       m_nativeDialogs.reset(new NativeDialogsWin);
-#elif defined(__APPLE__)
+#elif LAF_MACOS
       m_nativeDialogs.reset(new NativeDialogsOSX);
-#elif defined(LAF_OS_WITH_GTK)
+#elif LAF_OS_WITH_GTK
       m_nativeDialogs.reset(new NativeDialogsGTK);
 #endif
     }

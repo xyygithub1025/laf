@@ -1,5 +1,5 @@
 # LAF Base Library
-# Copyright (c) 2019-2020 Igara Studio S.A.
+# Copyright (c) 2019-2021 Igara Studio S.A.
 # Copyright (c) 2001-2018 David Capello
 
 include(CheckIncludeFiles)
@@ -80,7 +80,7 @@ target_include_directories(laf-base PUBLIC
   ${LAF_LIST_DIR} ${LAF_BINARY_DIR})
 
 if(WIN32)
-  target_compile_definitions(laf-base PUBLIC
+  target_compile_definitions(laf-base PUBLIC LAF_WINDOWS
     # Windows Vista is the minimum supported platform but we're defining
     # Windows 10 to get the all constant/structure definitions.
     _WIN32_WINNT=0x0A00 WINVER=0x0A00
@@ -90,6 +90,12 @@ if(WIN32)
   target_compile_definitions(laf-base PRIVATE _CRT_SECURE_NO_WARNINGS)
   target_link_libraries(laf-base dbghelp shlwapi version)
 else()
+  if(APPLE)
+    target_compile_definitions(laf-base PUBLIC LAF_MACOS)
+  else()
+    target_compile_definitions(laf-base PUBLIC LAF_LINUX)
+  endif()
+
   find_library(DL_LIBRARY NAMES dl)
   if(DL_LIBRARY)
     target_link_libraries(laf-base ${DL_LIBRARY})

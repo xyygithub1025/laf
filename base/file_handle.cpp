@@ -1,5 +1,5 @@
 // LAF Base Library
-// Copyright (c) 2020 Igara Studio S.A.
+// Copyright (c) 2020-2021 Igara Studio S.A.
 // Copyright (c) 2001-2018 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -15,7 +15,7 @@
 
 #include <stdexcept>
 
-#ifdef _WIN32
+#if LAF_WINDOWS
   #include <windows.h>
   #include <io.h>
 #endif
@@ -48,7 +48,7 @@ static void throw_cannot_open_exception(const string& filename, const string& mo
 
 FILE* open_file_raw(const string& filename, const string& mode)
 {
-#ifdef _WIN32
+#if LAF_WINDOWS
   return _wfopen(from_utf8(filename).c_str(),
                  from_utf8(mode).c_str());
 #else
@@ -85,7 +85,7 @@ int open_file_descriptor_with_exception(const string& filename, const string& mo
   if (mode.find('b') != string::npos) flags |= O_BINARY;
 
   int fd;
-#ifdef _WIN32
+#if LAF_WINDOWS
   fd = _wopen(from_utf8(filename).c_str(), flags, _S_IREAD | _S_IWRITE);
 #else
   fd = open(filename.c_str(), flags, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
@@ -99,7 +99,7 @@ int open_file_descriptor_with_exception(const string& filename, const string& mo
 
 void sync_file_descriptor(int fd)
 {
-#ifdef _WIN32
+#if LAF_WINDOWS
   HANDLE handle = (HANDLE)_get_osfhandle(fd);
   if (handle)
     FlushFileBuffers(handle);
@@ -112,7 +112,7 @@ void close_file_and_sync(FILE* file)
     return;
 
   fflush(file);
-#ifdef _WIN32
+#if LAF_WINDOWS
   int fd = _fileno(file);
   if (fd)
     sync_file_descriptor(fd);
