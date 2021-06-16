@@ -151,7 +151,7 @@ void SkiaDisplay::setTitle(const std::string& title)
 
 void SkiaDisplay::setIcons(const SurfaceList& icons)
 {
-#if !defined(_WIN32) && !defined(__APPLE__)
+#if !LAF_WINDOWS && !LAF_MACOS
   m_window.setIcons(icons);
 #endif
 }
@@ -201,7 +201,7 @@ void SkiaDisplay::setLayout(const std::string& layout)
 
 void SkiaDisplay::setInterpretOneFingerGestureAsMouseMovement(bool state)
 {
-#ifdef _WIN32
+#if LAF_WINDOWS
   m_window.setInterpretOneFingerGestureAsMouseMovement(state);
 #endif
 }
@@ -238,7 +238,7 @@ os::ColorSpacePtr SkiaDisplay::currentMonitorColorSpace() const
 
 void SkiaDisplay::onTabletAPIChange()
 {
-#if _WIN32
+#if LAF_WINDOWS
   m_window.onTabletAPIChange();
 #endif
 }

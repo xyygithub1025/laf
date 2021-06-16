@@ -11,21 +11,20 @@
 
 #include "base/time.h"
 
-#if _WIN32
+#if LAF_WINDOWS
   #include <windows.h>
 #else
   #include <sys/time.h>
-#endif
-
-#if __APPLE__
-  #include <mach/mach_time.h>
+  #if __APPLE__
+    #include <mach/mach_time.h>
+  #endif
 #endif
 
 namespace base {
 
 bool safe_localtime(const std::time_t time, std::tm* result)
 {
-#if _WIN32
+#if LAF_WINDOWS
   // localtime_s returns errno_t == 0 if there is no error
   return (localtime_s(result, &time) != 0);
 #else
@@ -35,7 +34,7 @@ bool safe_localtime(const std::time_t time, std::tm* result)
 
 Time current_time()
 {
-#if _WIN32
+#if LAF_WINDOWS
 
   SYSTEMTIME st;
   GetLocalTime(&st);
@@ -55,10 +54,10 @@ Time current_time()
 
 tick_t current_tick()
 {
-#if _WIN32
+#if LAF_WINDOWS
   // TODO use GetTickCount64 (available from Vista)
   return GetTickCount();
-#elif defined(__APPLE__)
+#elif __APPLE__
   static mach_timebase_info_data_t timebase = { 0, 0 };
   if (timebase.denom == 0)
     (void)mach_timebase_info(&timebase);

@@ -1,5 +1,5 @@
 // LAF Base Library
-// Copyright (c) 2020 Igara Studio S.A.
+// Copyright (c) 2020-2021 Igara Studio S.A.
 // Copyright (c) 2001-2016 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -15,7 +15,7 @@
 #include <cctype>
 #include <vector>
 
-#ifdef _WIN32
+#ifdef LAF_WINDOWS
   #include <windows.h>
 #endif
 
@@ -68,7 +68,7 @@ std::string string_to_upper(const std::string& original)
   return to_utf8(result);
 }
 
-#ifdef _WIN32
+#ifdef LAF_WINDOWS
 
 std::string to_utf8(const wchar_t* src, const int n)
 {

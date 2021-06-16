@@ -8,9 +8,9 @@
 #define OS_SKIA_SKIA_WINDOW_INCLUDED
 #pragma once
 
-#ifdef _WIN32
+#if LAF_WINDOWS
   #include "os/skia/skia_window_win.h"
-#elif __APPLE__
+#elif LAF_MACOS
   #include "os/skia/skia_window_osx.h"
 #else
   #include "os/skia/skia_window_x11.h"

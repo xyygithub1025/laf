@@ -1,4 +1,5 @@
 // LAF Base Library
+// Copyright (c) 2021 Igara Studio S.A.
 // Copyright (c) 2001-2018 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -12,7 +13,7 @@
 #include "base/split_string.h"
 #include "base/string.h"
 
-#ifdef _WIN32
+#if LAF_WINDOWS
   #include "base/fs_win32.h"
 #else
   #include "base/fs_unix.h"
@@ -25,7 +26,7 @@
 
 namespace base {
 
-#ifdef _WIN32
+#if LAF_WINDOWS
   const std::string::value_type path_separator = '\\';
 #else
   const std::string::value_type path_separator = '/';
@@ -57,7 +58,7 @@ std::string get_absolute_path(const std::string& filename)
 {
   std::string fn = filename;
   if (fn.size() > 2 &&
-#ifdef _WIN32
+#if LAF_WINDOWS
       fn[1] != ':'
 #else
       fn[0] != '/'

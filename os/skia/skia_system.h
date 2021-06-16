@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2020  Igara Studio S.A.
+// Copyright (C) 2018-2021  Igara Studio S.A.
 // Copyright (C) 2012-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -17,11 +17,11 @@
 #include "os/skia/skia_font_manager.h"
 #include "os/skia/skia_surface.h"
 
-#ifdef _WIN32
+#if LAF_WINDOWS
   #include "os/win/color_space.h"
   #include "os/win/system.h"
   #define SkiaSystemBase WindowSystem
-#elif __APPLE__
+#elif LAF_MACOS
   #include "os/osx/color_space.h"
   #include "os/osx/system.h"
   #define SkiaSystemBase OSXSystem
@@ -80,7 +80,7 @@ public:
 
   gfx::Size defaultNewDisplaySize() override {
     gfx::Size sz;
-#ifdef _WIN32
+#if LAF_WINDOWS
     sz.w = GetSystemMetrics(SM_CXMAXIMIZED);
     sz.h = GetSystemMetrics(SM_CYMAXIMIZED);
     sz.w -= GetSystemMetrics(SM_CXSIZEFRAME)*4;
@@ -141,7 +141,7 @@ public:
     list.push_back(createColorSpace(gfx::ColorSpace::MakeNone()));
     list.push_back(createColorSpace(gfx::ColorSpace::MakeSRGB()));
 
-#if defined(_WIN32) || defined(__APPLE__)
+#if LAF_WINDOWS || LAF_MACOS
     list_display_colorspaces(list);
 #endif
   }

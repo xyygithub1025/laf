@@ -9,7 +9,7 @@
 #define BASE_WIN_COMPTR_H_INCLUDED
 #pragma once
 
-#if !defined(_WIN32)
+#if !LAF_WINDOWS
   #error This header file can be used only on Windows platform
 #endif
 
