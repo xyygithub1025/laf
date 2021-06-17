@@ -14,6 +14,8 @@
 
 namespace os {
 
+  class Window;
+
   class WindowSpec {
   public:
     // Position of the window by default
