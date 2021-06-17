@@ -26,7 +26,7 @@
   #include "os/osx/color_space.h"
   #include "os/osx/system.h"
   #define SkiaSystemBase SystemOSX
-#else
+#elif LAF_LINUX
   #include "os/x11/system.h"
   #define SkiaSystemBase SystemX11
 #endif

@@ -16,7 +16,7 @@
   #include <windows.h>
 #elif LAF_MACOS
   #include "os/osx/app.h"
-#else
+#elif LAF_LINUX
   #include "os/x11/x11.h"
 #endif
 
@@ -61,7 +61,7 @@ int main(int argc, char* argv[]) {
   os::AppOSX app;
   if (!app.init())
     return 1;
-#elif !LAF_WINDOWS
+#elif LAF_LINUX
   os::X11 x11;
 #endif
   return app_main(argc, argv);

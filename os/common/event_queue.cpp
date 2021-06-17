@@ -13,7 +13,7 @@
   #include "os/win/event_queue.h"
 #elif LAF_MACOS
   #include "os/osx/event_queue.h"
-#else
+#elif LAF_LINUX
   #include "os/x11/event_queue.h"
 #endif
 
