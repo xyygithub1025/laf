@@ -12,7 +12,7 @@
   #include "os/skia/skia_window_win.h"
 #elif LAF_MACOS
   #include "os/skia/skia_window_osx.h"
-#else
+#elif LAF_LINUX
   #include "os/skia/skia_window_x11.h"
 #endif
 
