@@ -19,7 +19,7 @@
   namespace os {
     using SkiaWindowPlatform = os::SkiaWindowOSX;
   }
-#else
+#elif LAF_LINUX
   #include "os/skia/skia_window_x11.h"
   namespace os {
     using SkiaWindowPlatform = os::SkiaWindowX11;
