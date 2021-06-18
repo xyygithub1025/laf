@@ -20,9 +20,6 @@
 
 namespace os {
 
-class Surface;
-class WindowSpec;
-
 class SkiaWindowOSX : public SkiaWindowBase<WindowOSX> {
 public:
   enum class Backend { NONE, GL };
