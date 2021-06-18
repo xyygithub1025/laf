@@ -20,7 +20,6 @@
 
 namespace os {
 
-class SkiaDisplay;
 class Surface;
 class WindowSpec;
 

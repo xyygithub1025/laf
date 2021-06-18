@@ -20,8 +20,6 @@
 
 namespace os {
 
-class SkiaDisplay;
-
 class SkiaWindowX11 : public SkiaWindowBase<WindowX11> {
 public:
   enum class Backend { NONE, GL };
