@@ -104,6 +104,10 @@ static BOOL CALLBACK log_monitor_info(HMONITOR monitor,
   return TRUE;
 }
 
+PointerType WinWindow::m_pointerType = PointerType::Unknown;
+float WinWindow::m_pressure = 0.0f;
+std::vector<PACKET> WinWindow::m_packets;
+
 WinWindow::Touch::Touch()
   : fingers(0)
   , canBeMouse(false)
@@ -137,8 +141,6 @@ WinWindow::WinWindow(int width, int height, int scale)
   , m_pointerDownCount(0)
 #endif
   , m_hpenctx(nullptr)
-  , m_pointerType(PointerType::Unknown)
-  , m_pressure(0.0f)
 {
   auto& winApi = system()->winApi();
   if (
@@ -1393,34 +1395,24 @@ LRESULT WinWindow::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
       ASSERT(m_hpenctx == ctx);
 
       bool entering_ctx = (LOWORD(lparam) ? true: false);
-      if (!entering_ctx)
-        m_pointerType = PointerType::Unknown;
-
-      MOUSE_TRACE("WT_PROXIMITY entering=%d\n", entering_ctx);
-
-      // Flush/empty queue
-      if (ctx) {
+      if (entering_ctx && ctx) {
         auto& api = system()->wintabApi();
-        api.packet(ctx, 0xffff, nullptr);
+
+        // Get the cursor from the proximity packet
+        PACKET packet;
+        if (api.packets(ctx, 1, &packet) == 1) {
+          m_pointerType = wt_packet_pkcursor_to_pointer_type(packet.pkCursor);
+        }
       }
+      else {
+        m_pointerType = PointerType::Unknown;
+      }
+
+      MOUSE_TRACE("WT_PROXIMITY entering=%d pointerType=%d\n",
+                  entering_ctx, (int)m_pointerType);
 
       // Reset last event
       m_lastWintabEvent.setType(Event::None);
-      break;
-    }
-
-    case WT_CSRCHANGE: {    // From Wintab 1.1
-      auto& api = system()->wintabApi();
-      UINT serial = wparam;
-      HCTX ctx = (HCTX)lparam;
-      PACKET packet;
-
-      if (api.packet(ctx, serial, &packet))
-        m_pointerType = wt_packet_pkcursor_to_pointer_type(packet.pkCursor);
-      else
-        m_pointerType = PointerType::Unknown;
-
-      MOUSE_TRACE("WT_CSRCHANGE pointer=%d\n", m_pointerType);
       break;
     }
 
