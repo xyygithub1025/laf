@@ -232,12 +232,17 @@ namespace os {
     int m_pointerDownCount;
 #endif
 
-    // Wintab API data
+    // Wintab API data. The pointer type & pressure, and wintab
+    // packets queue are shared between all windows, because it's
+    // information from the device that doesn't depend on the active
+    // window.
     HCTX m_hpenctx;
-    PointerType m_pointerType;
-    float m_pressure;
-    std::vector<PACKET> m_packets;
+    static PointerType m_pointerType;
+    static float m_pressure;
+    static std::vector<PACKET> m_packets;
     Event m_lastWintabEvent;
+
+    // Flags
     bool m_fullscreen;
     bool m_titled;
     bool m_borderless;

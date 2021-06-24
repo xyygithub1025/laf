@@ -213,9 +213,7 @@ HCTX WintabAPI::open(HWND hwnd, bool moveMouse)
       logctx.lcOutOrgX, logctx.lcOutOrgY, logctx.lcOutExtX, logctx.lcOutExtY,
       logctx.lcSysOrgX, logctx.lcSysOrgY, logctx.lcSysExtX, logctx.lcSysExtY);
 
-  logctx.lcOptions |=
-    CXO_MESSAGES |
-    CXO_CSRMESSAGES;
+  logctx.lcOptions |= CXO_MESSAGES;
   logctx.lcPktData = PACKETDATA;
   logctx.lcPktMode = PACKETMODE;
   logctx.lcMoveMask = PACKETDATA;
