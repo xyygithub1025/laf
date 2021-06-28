@@ -1909,7 +1909,11 @@ LRESULT WindowWin::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
 
     case WT_PROXIMITY: {
       HCTX ctx = (HCTX)wparam;
-      ASSERT(m_hpenctx == ctx);
+
+      // This can happen when we switch from TabletAPI::Wintab to
+      // TabletAPI::WintabPackets mode.
+      if (m_hpenctx != ctx)
+        break;
 
       bool entering_ctx = (LOWORD(lparam) ? true: false);
       if (entering_ctx && ctx) {
