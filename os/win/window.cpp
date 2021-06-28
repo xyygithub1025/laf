@@ -201,6 +201,7 @@ static BOOL CALLBACK log_monitor_info(HMONITOR monitor,
 PointerType WindowWin::m_pointerType = PointerType::Unknown;
 float WindowWin::m_pressure = 0.0f;
 std::vector<PACKET> WindowWin::m_packets;
+Event WindowWin::m_lastWintabEvent;
 
 WindowWin::Touch::Touch()
   : fingers(0)
@@ -2001,6 +2002,10 @@ LRESULT WindowWin::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
 
             // To avoid processing two times the last generated event in WM_MOUSEMOVE/WM_LBUTTONDOWN/UP
             m_lastWintabEvent = ev;
+
+            // Don't store a reference to the window (without this
+            // windows cannot be closed after storing a reference).
+            m_lastWintabEvent.setWindow(nullptr);
           }
         }
       }

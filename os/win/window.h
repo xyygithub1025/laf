@@ -240,7 +240,7 @@ namespace os {
     static PointerType m_pointerType;
     static float m_pressure;
     static std::vector<PACKET> m_packets;
-    Event m_lastWintabEvent;
+    static Event m_lastWintabEvent;
 
     // Flags
     bool m_fullscreen;
