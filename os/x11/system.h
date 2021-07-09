@@ -18,6 +18,8 @@ namespace os {
 
 class SystemX11 : public CommonSystem {
 public:
+  ~SystemX11();
+
   bool isKeyPressed(KeyScancode scancode) override {
     return x11_is_key_pressed(scancode);
   }
@@ -25,6 +27,12 @@ public:
   int getUnicodeFromScancode(KeyScancode scancode) override {
     return x11_get_unicode_from_scancode(scancode);
   }
+
+  CursorRef getNativeCursor(NativeCursor cursor);
+
+  CursorRef makeCursor(const Surface* surface,
+                       const gfx::Point& focus,
+                       const int scale) override;
 
   gfx::Point mousePosition() const override {
     int rootx, rooty, x, y;

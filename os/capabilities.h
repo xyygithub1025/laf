@@ -23,8 +23,8 @@ namespace os {
     WindowScale = 4,
 
     // When we can set the mouse cursor with a custom os::Surface
-    // using os::Window::setNativeMouseCursor(const os::Surface*, ...)
-    CustomNativeMouseCursor = 8,
+    // using os::Window::makeMouseCursor()
+    CustomMouseCursor = 8,
 
     // When GPU acceleration can be turned on.
     // TODO this is being developed

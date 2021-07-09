@@ -178,7 +178,7 @@
   CFRelease(event);
 }
 
-- (BOOL)setNativeMouseCursor:(os::NativeCursor)cursor
+- (BOOL)setNativeCursor:(os::NativeCursor)cursor
 {
   NSCursor* nsCursor = nullptr;
 
@@ -229,69 +229,6 @@
 
   [self.contentView setCursor:nsCursor];
   return (nsCursor ? YES: NO);
-}
-
-- (BOOL)setNativeMouseCursor:(const os::Surface*)surface
-                       focus:(const gfx::Point&)focus
-                       scale:(const int)scale
-{
-  ASSERT(surface);
-  os::SurfaceFormatData format;
-  surface->getFormat(&format);
-  if (format.bitsPerPixel != 32)
-    return NO;
-
-  const int w = scale*surface->width();
-  const int h = scale*surface->height();
-
-  if (4*w*h == 0)
-    return NO;
-
-  @autoreleasepool {
-    NSBitmapImageRep* bmp =
-      [[NSBitmapImageRep alloc]
-        initWithBitmapDataPlanes:nil
-                      pixelsWide:w
-                      pixelsHigh:h
-                   bitsPerSample:8
-                 samplesPerPixel:4
-                        hasAlpha:YES
-                        isPlanar:NO
-                  colorSpaceName:NSDeviceRGBColorSpace
-                    bitmapFormat:NSAlphaNonpremultipliedBitmapFormat
-                     bytesPerRow:w*4
-                    bitsPerPixel:32];
-    if (!bmp)
-      return NO;
-
-    uint32_t* dst = (uint32_t*)[bmp bitmapData];
-    for (int y=0; y<h; ++y) {
-      const uint32_t* src = (const uint32_t*)surface->getData(0, y/scale);
-      for (int x=0, u=0; x<w; ++x, ++dst) {
-        *dst = *src;
-        if (++u == scale) {
-          u = 0;
-          ++src;
-        }
-      }
-    }
-
-    NSImage* img = [[NSImage alloc] initWithSize:NSMakeSize(w, h)];
-    if (!img)
-      return NO;
-
-    [img addRepresentation:bmp];
-
-    NSCursor* nsCursor =
-      [[NSCursor alloc] initWithImage:img
-                              hotSpot:NSMakePoint(scale*focus.x + scale/2,
-                                                  scale*focus.y + scale/2)];
-    if (!nsCursor)
-      return NO;
-
-    [self.contentView setCursor:nsCursor];
-    return YES;
-  }
 }
 
 - (BOOL)canBecomeKeyWindow
@@ -525,18 +462,17 @@ void WindowOSX::setVisible(bool visible)
   }
 }
 
-bool WindowOSX::setNativeMouseCursor(NativeCursor cursor)
+bool WindowOSX::setCursor(NativeCursor cursor)
 {
-  return ([m_nsWindow setNativeMouseCursor:cursor] ? true: false);
+  return ([m_nsWindow setNativeCursor:cursor] ? true: false);
 }
 
-bool WindowOSX::setNativeMouseCursor(const Surface* surface,
-                                     const gfx::Point& focus,
-                                     const int scale)
+bool WindowOSX::setCursor(const CursorRef& cursor)
 {
-  return ([m_nsWindow setNativeMouseCursor:surface
-                                     focus:focus
-                                     scale:scale] ? true: false);
+  [m_nsWindow.contentView
+      setCursor:(cursor ? (__bridge NSCursor*)cursor->nativeHandle():
+                          nullptr)];
+  return true;
 }
 
 void* WindowOSX::nativeHandle() const

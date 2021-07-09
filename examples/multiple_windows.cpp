@@ -63,7 +63,7 @@ static os::WindowRef add_window(const std::string& title,
                                   const os::WindowSpec& spec)
 {
   os::WindowRef newWindow = os::instance()->makeWindow(spec);
-  newWindow->setNativeMouseCursor(os::NativeCursor::Arrow);
+  newWindow->setCursor(os::NativeCursor::Arrow);
   newWindow->setTitle(title);
   windows.emplace_back(newWindow);
 
@@ -166,8 +166,8 @@ int app_main(int argc, char* argv[])
 
           // Switch between Arrow/Move cursor in this specific window
           case os::kKeyA:
-            ev.window()->setNativeMouseCursor(
-              ev.window()->nativeMouseCursor() == os::NativeCursor::Arrow ?
+            ev.window()->setCursor(
+              ev.window()->nativeCursor() == os::NativeCursor::Arrow ?
                 os::NativeCursor::Move:
                 os::NativeCursor::Arrow);
             break;

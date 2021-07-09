@@ -46,6 +46,9 @@ public:
                                const os::ColorSpaceRef& colorSpace) override { return nullptr; }
   Ref<Surface> loadSurface(const char* filename) override { return nullptr; }
   Ref<Surface> loadRgbaSurface(const char* filename) override { return nullptr; }
+  Ref<Cursor> makeCursor(const Surface* surface,
+                         const gfx::Point& focus,
+                         const int scale) override { return nullptr; }
   FontManager* fontManager() override { return nullptr; }
   Ref<Font> loadSpriteSheetFont(const char* filename, int scale) override { return nullptr; }
   Ref<Font> loadTrueTypeFont(const char* filename, int height) override { return nullptr; }

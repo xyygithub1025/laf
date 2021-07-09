@@ -57,10 +57,8 @@ namespace os {
     void captureMouse() override;
     void releaseMouse() override;
     void setMousePosition(const gfx::Point& position) override;
-    bool setNativeMouseCursor(NativeCursor cursor) override;
-    bool setNativeMouseCursor(const os::Surface* surface,
-                              const gfx::Point& focus,
-                              const int scale) override;
+    bool setCursor(NativeCursor cursor) override;
+    bool setCursor(const CursorRef& cursor) override;
     void performWindowAction(const WindowAction action,
                              const Event* event) override;
     void invalidateRegion(const gfx::Region& rgn) override;
@@ -74,7 +72,8 @@ namespace os {
     NativeHandle nativeHandle() const override { return m_hwnd; }
 
   private:
-    bool setCursor(HCURSOR hcursor, bool custom);
+    bool setCursor(HCURSOR hcursor,
+                   const CursorRef& cursor);
     LRESULT wndProc(UINT msg, WPARAM wparam, LPARAM lparam);
     void mouseEvent(LPARAM lparam, Event& ev);
     bool pointerEvent(WPARAM wparam, Event& ev, POINTER_INFO& pi);
@@ -120,8 +119,9 @@ namespace os {
 
     static SystemWin* system();
 
-    mutable HWND m_hwnd;
-    HCURSOR m_hcursor;
+    mutable HWND m_hwnd = nullptr;
+    HCURSOR m_hcursor = nullptr;
+    CursorRef m_cursor;
     gfx::Size m_clientSize;
 
     // Used to store the current window position before toggling on
@@ -144,7 +144,6 @@ namespace os {
     bool m_translateDeadKeys;
     bool m_hasMouse;
     bool m_captureMouse;
-    bool m_customHcursor;
 
     // To change the color profile
     mutable std::string m_lastICCProfile;

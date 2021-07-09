@@ -22,7 +22,6 @@
 #include "os/window.h"
 
 #include <X11/Xatom.h>
-#include <X11/Xcursor/Xcursor.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 
@@ -72,10 +71,8 @@ public:
   void releaseMouse() override;
   void setMousePosition(const gfx::Point& position) override;
   void invalidateRegion(const gfx::Region& rgn) override;
-  bool setNativeMouseCursor(NativeCursor cursor) override;
-  bool setNativeMouseCursor(const os::Surface* surface,
-                            const gfx::Point& focus,
-                            const int scale) override;
+  bool setCursor(NativeCursor cursor) override;
+  bool setCursor(const CursorRef& cursor) override;
 
   void performWindowAction(const WindowAction action,
                            const Event* event) override;
@@ -107,8 +104,6 @@ private:
   ::Display* m_display;
   ::Window m_window;
   ::GC m_gc;
-  ::Cursor m_cursor;
-  ::XcursorImage* m_xcursorImage;
   ::XIC m_xic;
   int m_scale;
   gfx::Point m_lastMousePos;

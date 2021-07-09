@@ -68,6 +68,10 @@ public:
     return osx_get_unicode_from_scancode(scancode);
   }
 
+  CursorRef makeCursor(const Surface* surface,
+                       const gfx::Point& focus,
+                       const int scale) override;
+
   gfx::Point mousePosition() const override;
   void setMousePosition(const gfx::Point& screenPosition) override;
   gfx::Color getColorFromScreen(const gfx::Point& screenPosition) const override;

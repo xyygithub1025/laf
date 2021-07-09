@@ -55,7 +55,7 @@ public:
       int(Capabilities::MultipleWindows) |
       int(Capabilities::CanResizeWindow) |
       int(Capabilities::WindowScale) |
-      int(Capabilities::CustomNativeMouseCursor) |
+      int(Capabilities::CustomMouseCursor) |
       int(Capabilities::ColorSpaces)
 #ifndef __APPLE__
       | int(Capabilities::CanStartWindowResize)

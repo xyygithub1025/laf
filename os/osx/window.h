@@ -50,10 +50,7 @@ namespace os {
 - (void)setScale:(int)scale;
 - (gfx::Size)clientSize;
 - (void)setMousePosition:(const gfx::Point&)position;
-- (BOOL)setNativeMouseCursor:(os::NativeCursor)cursor;
-- (BOOL)setNativeMouseCursor:(const os::Surface*)surface
-                       focus:(const gfx::Point&)focus
-                       scale:(const int)scale;
+- (BOOL)setNativeCursor:(os::NativeCursor)cursor;
 - (BOOL)canBecomeKeyWindow;
 @end
 
@@ -105,10 +102,8 @@ public:
   bool isVisible() const override;
   void setVisible(bool visible) override;
 
-  bool setNativeMouseCursor(NativeCursor cursor) override;
-  bool setNativeMouseCursor(const Surface* surface,
-                            const gfx::Point& focus,
-                            const int scale) override;
+  bool setCursor(NativeCursor cursor) override;
+  bool setCursor(const CursorRef& cursor) override;
 
   void* nativeHandle() const override;
 

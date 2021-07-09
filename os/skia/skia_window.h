@@ -42,8 +42,8 @@ public:
   int width() const override;
   int height() const override;
 
-  NativeCursor nativeMouseCursor() override;
-  bool setNativeMouseCursor(NativeCursor cursor) override;
+  NativeCursor nativeCursor() override;
+  bool setCursor(NativeCursor cursor) override;
 
 private:
   NativeCursor m_nativeCursor;

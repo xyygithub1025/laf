@@ -65,92 +65,6 @@
 
 namespace os {
 
-class HBitmapPtr {
-public:
-  HBitmapPtr() : m_ptr(nullptr) { }
-  ~HBitmapPtr() { reset(); }
-  void reset(HBITMAP p = nullptr) {
-    if (m_ptr)
-      DeleteObject(m_ptr);
-    m_ptr = p;
-  }
-  HBITMAP get() { return m_ptr; }
-  operator bool() { return m_ptr != nullptr; }
-private:
-  HBITMAP m_ptr;
-};
-
-// This class is used to avoid CreateDIBSection() as many times as
-// possible (which is the slowest function if we are going to
-// re-generate the cursor on each mouse movement).
-class WinCursorCache {
-public:
-  WinCursorCache() { }
-  ~WinCursorCache() { }
-
-  bool recreate(const gfx::Size& size) {
-    // Use cached bitmap
-    if (m_hbmp && m_hmonobmp && m_size == size)
-      return true;
-
-    m_hbmp.reset();
-    m_hmonobmp.reset();
-    m_size = size;
-    m_bits = nullptr;
-
-    BITMAPV5HEADER bi;
-    ZeroMemory(&bi, sizeof(BITMAPV5HEADER));
-    bi.bV5Size = sizeof(BITMAPV5HEADER);
-    bi.bV5Width = size.w;
-    bi.bV5Height = size.h;
-    bi.bV5Planes = 1;
-    bi.bV5BitCount = 32;
-    bi.bV5Compression = BI_BITFIELDS;
-    bi.bV5RedMask = 0x00ff0000;
-    bi.bV5GreenMask = 0x0000ff00;
-    bi.bV5BlueMask = 0x000000ff;
-    bi.bV5AlphaMask = 0xff000000;
-
-    HDC hdc = GetDC(nullptr);
-    m_hbmp.reset(
-      CreateDIBSection(
-        hdc, (BITMAPINFO*)&bi, DIB_RGB_COLORS,
-        (void**)&m_bits, NULL, (DWORD)0));
-    ReleaseDC(nullptr, hdc);
-    if (!m_hbmp) {
-      m_bits = nullptr;
-      return false;
-    }
-
-    return true;
-  }
-
-  HBITMAP hbmp() {
-    ASSERT(m_hbmp);
-    return m_hbmp.get();
-  }
-
-  // Create an empty mask bitmap.
-  HBITMAP hmonobmp() {
-    if (!m_hmonobmp)
-      m_hmonobmp.reset(CreateBitmap(m_size.w, m_size.h, 1, 1, nullptr));
-    return m_hmonobmp.get();
-  }
-
-  uint32_t* bits() const {
-    ASSERT(m_bits);
-    return m_bits;
-  }
-
-private:
-  HBitmapPtr m_hbmp;
-  HBitmapPtr m_hmonobmp;
-  uint32_t* m_bits = nullptr;
-  gfx::Size m_size;
-};
-
-static WinCursorCache g_cursor_cache;
-
 static PointerType wt_packet_pkcursor_to_pointer_type(int pkCursor)
 {
   switch (pkCursor % 3) {
@@ -212,16 +126,13 @@ WindowWin::Touch::Touch()
 }
 
 WindowWin::WindowWin(const WindowSpec& spec)
-  : m_hwnd(nullptr)
-  , m_hcursor(nullptr)
-  , m_clientSize(1, 1)
+  : m_clientSize(1, 1)
   , m_scale(spec.scale())
   , m_isCreated(false)
   , m_adjustShadow(true)
   , m_translateDeadKeys(false)
   , m_hasMouse(false)
   , m_captureMouse(false)
-  , m_customHcursor(false)
   , m_usePointerApi(false)
   , m_lastPointerId(0)
   , m_ictx(nullptr)
@@ -382,9 +293,6 @@ WindowWin::~WindowWin()
 
   if (m_hwnd)
     DestroyWindow(m_hwnd);
-
-  if (m_hcursor && m_customHcursor)
-    DestroyIcon(m_hcursor);
 }
 
 os::ScreenRef WindowWin::screen() const
@@ -659,7 +567,7 @@ void WindowWin::setMousePosition(const gfx::Point& position)
   system()->_setInternalMousePosition(gfx::Point(pos.x, pos.y));
 }
 
-bool WindowWin::setNativeMouseCursor(NativeCursor cursor)
+bool WindowWin::setCursor(NativeCursor cursor)
 {
   HCURSOR hcursor = NULL;
 
@@ -711,71 +619,19 @@ bool WindowWin::setNativeMouseCursor(NativeCursor cursor)
       break;
   }
 
-  return setCursor(hcursor, false);
+  return setCursor(hcursor, nullptr);
 }
 
-bool WindowWin::setNativeMouseCursor(const os::Surface* surface,
-                                     const gfx::Point& focus,
-                                     const int scale)
+bool WindowWin::setCursor(const CursorRef& cursor)
 {
-  ASSERT(surface);
-  if (!surface)
+  ASSERT(cursor);
+  if (!cursor)
     return false;
 
-  SurfaceFormatData format;
-  surface->getFormat(&format);
-
-  // Only for 32bpp surfaces
-  if (format.bitsPerPixel != 32)
-    return false;
-
-  gfx::Size sz(scale*surface->width(),
-               scale*surface->height());
-
-  if (!g_cursor_cache.recreate(sz))
-    return false;
-
-  uint32_t* bits = g_cursor_cache.bits();
-  bool completelyTransparent = true;
-  for (int y=0; y<sz.h; ++y) {
-    const uint32_t* ptr = (const uint32_t*)surface->getData(0, (sz.h-1-y)/scale);
-    for (int x=0, u=0; x<sz.w; ++x, ++bits) {
-      uint32_t c = *ptr;
-      uint32_t a = ((c & format.alphaMask) >> format.alphaShift);
-
-      if (a)
-        completelyTransparent = false;
-
-      *bits = (a << 24) |
-        (((c & format.redMask  ) >> format.redShift  ) << 16) |
-        (((c & format.greenMask) >> format.greenShift) << 8) |
-        (((c & format.blueMask ) >> format.blueShift ));
-      if (++u == scale) {
-        u = 0;
-        ++ptr;
-      }
-    }
-  }
-
-  // It looks like if we set a cursor that is completely transparent
-  // (all pixels with alpha=0), Windows will create a black opaque
-  // rectangle cursor. Which is not what we are looking for. So in
-  // this specific case we put a "no cursor" which has the expected
-  // result.
-  if (completelyTransparent) {
-    setNativeMouseCursor(NativeCursor::Hidden);
-    return true;
-  }
-
-  ICONINFO ii;
-  ii.fIcon = FALSE;
-  ii.xHotspot = scale*focus.x + scale/2;
-  ii.yHotspot = scale*focus.y + scale/2;
-  ii.hbmMask = g_cursor_cache.hmonobmp();
-  ii.hbmColor = g_cursor_cache.hbmp();
-
-  HCURSOR hcursor = CreateIconIndirect(&ii);
-  return setCursor(hcursor, true);
+  if (cursor->nativeHandle())
+    return setCursor((HCURSOR)cursor->nativeHandle(), cursor);
+  else
+    return setCursor(nullptr, nullptr); // Like NativeCursor::Hidden
 }
 
 void WindowWin::performWindowAction(const WindowAction action,
@@ -944,13 +800,12 @@ void WindowWin::onTabletAPIChange()
   openWintabCtx();
 }
 
-bool WindowWin::setCursor(HCURSOR hcursor, bool custom)
+bool WindowWin::setCursor(HCURSOR hcursor,
+                          const CursorRef& cursor)
 {
   SetCursor(hcursor);
-  if (m_hcursor && m_customHcursor)
-    DestroyIcon(m_hcursor);
   m_hcursor = hcursor;
-  m_customHcursor = custom;
+  m_cursor = cursor;
   return (hcursor ? true: false);
 }
 

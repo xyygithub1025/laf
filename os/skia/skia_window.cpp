@@ -25,7 +25,7 @@ SkiaWindow::SkiaWindow(const WindowSpec& spec)
   , m_nativeCursor(NativeCursor::Arrow)
 {
   setScale(spec.scale());
-  setNativeMouseCursor(m_nativeCursor);
+  setCursor(m_nativeCursor);
   initializeSurface();
 }
 
@@ -39,15 +39,15 @@ int SkiaWindow::height() const
   return clientSize().h;
 }
 
-NativeCursor SkiaWindow::nativeMouseCursor()
+NativeCursor SkiaWindow::nativeCursor()
 {
   return m_nativeCursor;
 }
 
-bool SkiaWindow::setNativeMouseCursor(NativeCursor cursor)
+bool SkiaWindow::setCursor(NativeCursor cursor)
 {
   m_nativeCursor = cursor;
-  return SkiaWindowPlatform::setNativeMouseCursor(cursor);
+  return SkiaWindowPlatform::setCursor(cursor);
 }
 
 } // namespace os

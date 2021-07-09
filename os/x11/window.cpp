@@ -23,11 +23,13 @@
 #include "os/surface.h"
 #include "os/system.h"
 #include "os/window_spec.h"
+#include "os/x11/cursor.h"
 #include "os/x11/keys.h"
 #include "os/x11/screen.h"
+#include "os/x11/system.h"
 #include "os/x11/x11.h"
 
-#include <X11/cursorfont.h>
+#include <array>
 #include <map>
 
 #define KEY_TRACE(...)
@@ -67,9 +69,6 @@ Atom _NET_WM_STATE = 0;
 Atom _NET_WM_STATE_MAXIMIZED_VERT;
 Atom _NET_WM_STATE_MAXIMIZED_HORZ;
 Atom _NET_WM_ALLOWED_ACTIONS = 0;
-
-// Cursor Without pixels to simulate a hidden X11 cursor
-Cursor empty_xcursor = None;
 
 // See https://bugs.freedesktop.org/show_bug.cgi?id=12871 for more
 // information, it looks like the official way to convert a X Window
@@ -134,8 +133,6 @@ void WindowX11::removeWindow(WindowX11* window)
 WindowX11::WindowX11(::Display* display, const WindowSpec& spec)
   : m_display(display)
   , m_gc(nullptr)
-  , m_cursor(None)
-  , m_xcursorImage(nullptr)
   , m_xic(nullptr)
   , m_scale(spec.scale())
   , m_lastMousePos(-1, -1)
@@ -281,8 +278,6 @@ WindowX11::WindowX11(::Display* display, const WindowSpec& spec)
 
 WindowX11::~WindowX11()
 {
-  if (m_xcursorImage != None)
-    XcursorImageDestroy(m_xcursorImage);
   if (m_xic)
     XDestroyIC(m_xic);
   XFreeGC(m_display, m_gc);
@@ -601,144 +596,25 @@ void WindowX11::invalidateRegion(const gfx::Region& rgn)
                     bounds.h*m_scale));
 }
 
-bool WindowX11::setNativeMouseCursor(NativeCursor cursor)
+bool WindowX11::setCursor(NativeCursor nativeCursor)
 {
-  Cursor xcursor = None;
-
-  switch (cursor) {
-    case NativeCursor::Hidden: {
-      if (empty_xcursor == None) {
-        char data = 0;
-        Pixmap image = XCreateBitmapFromData(
-          m_display, m_window, (char*)&data, 1, 1);
-
-        XColor color;
-        empty_xcursor = XCreatePixmapCursor(
-          m_display, image, image, &color, &color, 0, 0);
-
-        XFreePixmap(m_display, image);
-      }
-      xcursor = empty_xcursor;
-      break;
-    }
-    case NativeCursor::Arrow:
-      xcursor = XCreateFontCursor(m_display, XC_arrow);
-      break;
-    case NativeCursor::Crosshair:
-      xcursor = XCreateFontCursor(m_display, XC_crosshair);
-      break;
-    case NativeCursor::IBeam:
-      xcursor = XCreateFontCursor(m_display, XC_xterm);
-      break;
-    case NativeCursor::Wait:
-      xcursor = XCreateFontCursor(m_display, XC_watch);
-      break;
-    case NativeCursor::Link:
-      xcursor = XCreateFontCursor(m_display, XC_hand1);
-      break;
-    case NativeCursor::Help:
-      xcursor = XCreateFontCursor(m_display, XC_question_arrow);
-      break;
-    case NativeCursor::Forbidden:
-      xcursor = XCreateFontCursor(m_display, XC_X_cursor);
-      break;
-    case NativeCursor::Move:
-      xcursor = XCreateFontCursor(m_display, XC_fleur);
-      break;
-    case NativeCursor::SizeN:
-      xcursor = XCreateFontCursor(m_display, XC_top_side);
-      break;
-    case NativeCursor::SizeNS:
-      xcursor = XCreateFontCursor(m_display, XC_sb_v_double_arrow);
-      break;
-    case NativeCursor::SizeS:
-      xcursor = XCreateFontCursor(m_display, XC_bottom_side);
-      break;
-    case NativeCursor::SizeW:
-      xcursor = XCreateFontCursor(m_display, XC_left_side);
-      break;
-    case NativeCursor::SizeE:
-      xcursor = XCreateFontCursor(m_display, XC_right_side);
-      break;
-    case NativeCursor::SizeWE:
-      xcursor = XCreateFontCursor(m_display, XC_sb_h_double_arrow);
-      break;
-    case NativeCursor::SizeNW:
-      xcursor = XCreateFontCursor(m_display, XC_top_left_corner);
-      break;
-    case NativeCursor::SizeNE:
-      xcursor = XCreateFontCursor(m_display, XC_top_right_corner);
-      break;
-    case NativeCursor::SizeSW:
-      xcursor = XCreateFontCursor(m_display, XC_bottom_left_corner);
-      break;
-    case NativeCursor::SizeSE:
-      xcursor = XCreateFontCursor(m_display, XC_bottom_right_corner);
-      break;
-  }
-
-  return setX11Cursor(xcursor);
+  CursorRef cursor = ((SystemX11*)os::instance())->getNativeCursor(nativeCursor);
+  if (cursor)
+    return setX11Cursor((::Cursor)cursor->nativeHandle());
+  else
+    return false;
 }
 
-bool WindowX11::setNativeMouseCursor(const os::Surface* surface,
-                                     const gfx::Point& focus,
-                                     const int scale)
+bool WindowX11::setCursor(const CursorRef& cursor)
 {
-  ASSERT(surface);
-
-  // This X11 server doesn't support ARGB cursors.
-  if (!XcursorSupportsARGB(m_display))
+  ASSERT(cursor);
+  if (!cursor)
     return false;
 
-  SurfaceFormatData format;
-  surface->getFormat(&format);
-
-  // Only for 32bpp surfaces
-  if (format.bitsPerPixel != 32)
-    return false;
-
-  const int w = scale*surface->width();
-  const int h = scale*surface->height();
-
-  Cursor xcursor = None;
-  if (m_xcursorImage == None ||
-      m_xcursorImage->width != XcursorDim(w) ||
-      m_xcursorImage->height != XcursorDim(h)) {
-    if (m_xcursorImage != None)
-      XcursorImageDestroy(m_xcursorImage);
-    m_xcursorImage = XcursorImageCreate(w, h);
-  }
-  if (m_xcursorImage != None) {
-    XcursorPixel* dst = m_xcursorImage->pixels;
-    for (int y=0; y<h; ++y) {
-      const uint32_t* src = (const uint32_t*)surface->getData(0, y/scale);
-      for (int x=0, u=0; x<w; ++x, ++dst) {
-        uint32_t c = *src;
-        *dst =
-          (((c & format.alphaMask) >> format.alphaShift) << 24) |
-          (((c & format.redMask  ) >> format.redShift  ) << 16) |
-          (((c & format.greenMask) >> format.greenShift) << 8) |
-          (((c & format.blueMask ) >> format.blueShift ));
-        if (++u == scale) {
-          u = 0;
-          ++src;
-        }
-      }
-    }
-
-    // We have to limit the focus position inside the cursor area to
-    // avoid crash from XcursorImageLoadCursor():
-    //
-    //   X Error of failed request:  BadMatch (invalid parameter attributes)
-    //     Major opcode of failed request:  138 (RENDER)
-    //     Minor opcode of failed request:  27 (RenderCreateCursor)
-    m_xcursorImage->xhot = base::clamp(scale*focus.x + scale/2, 0, w-1);
-    m_xcursorImage->yhot = base::clamp(scale*focus.y + scale/2, 0, h-1);
-    xcursor = XcursorImageLoadCursor(m_display,
-                                     m_xcursorImage);
-  }
-
-  return setX11Cursor(xcursor);
+  if (cursor->nativeHandle())
+    return setX11Cursor((::Cursor)cursor->nativeHandle());
+  else
+    return setCursor(NativeCursor::Hidden);
 }
 
 void WindowX11::performWindowAction(const WindowAction action,
@@ -877,13 +753,7 @@ void WindowX11::setAllowedActions()
 
 bool WindowX11::setX11Cursor(::Cursor xcursor)
 {
-  if (m_cursor != None) {
-    if (m_cursor != empty_xcursor) // Don't delete empty_xcursor
-      XFreeCursor(m_display, m_cursor);
-    m_cursor = None;
-  }
   if (xcursor != None) {
-    m_cursor = xcursor;
     XDefineCursor(m_display, m_window, xcursor);
     return true;
   }

@@ -42,6 +42,7 @@ else()
   list(APPEND LAF_OS_SOURCES
     x11/event_queue.cpp
     x11/keys.cpp
+    x11/system.cpp
     x11/window.cpp
     x11/x11.cpp)
   if(LAF_OS_WITH_GTK)

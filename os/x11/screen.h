@@ -11,6 +11,8 @@
 #include "os/screen.h"
 #include "os/x11/x11.h"
 
+#include <X11/Xatom.h>
+
 namespace os {
 
 class ScreenX11 : public Screen {

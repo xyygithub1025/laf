@@ -166,6 +166,15 @@ namespace os {
     virtual Ref<Surface> loadSurface(const char* filename) = 0;
     virtual Ref<Surface> loadRgbaSurface(const char* filename) = 0;
 
+    // Creates a new cursor with the given surface.
+    //
+    // Warning: On Windows there is a limit of 10,000 GDI objects per
+    // process and creating a cursor needs 3 GDI objects (a HCURSOR
+    // and two HBITMAPs).
+    virtual Ref<Cursor> makeCursor(const Surface* surface,
+                                   const gfx::Point& focus,
+                                   const int scale) = 0;
+
     // New font manager
     virtual FontManager* fontManager() = 0;
 

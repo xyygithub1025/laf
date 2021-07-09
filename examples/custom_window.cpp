@@ -220,7 +220,7 @@ void handle_mouse_move(os::Window* window,
     case Hit::BottomRight: cursor = os::NativeCursor::SizeSE; break;
     default: break;
   }
-  window->setNativeMouseCursor(cursor);
+  window->setCursor(cursor);
 }
 
 bool handle_mouse_down(os::Window* window,

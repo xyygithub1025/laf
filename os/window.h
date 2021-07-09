@@ -11,6 +11,7 @@
 
 #include "gfx/point.h"
 #include "os/color_space.h"
+#include "os/cursor.h"
 #include "os/native_cursor.h"
 #include "os/ref.h"
 #include "os/screen.h"
@@ -105,11 +106,9 @@ namespace os {
 
     virtual void setIcons(const SurfaceList& icons) { };
 
-    virtual NativeCursor nativeMouseCursor() = 0;
-    virtual bool setNativeMouseCursor(NativeCursor cursor) = 0;
-    virtual bool setNativeMouseCursor(const os::Surface* cursor,
-                                      const gfx::Point& focus,
-                                      const int scale) = 0;
+    virtual NativeCursor nativeCursor() = 0;
+    virtual bool setCursor(NativeCursor cursor) = 0;
+    virtual bool setCursor(const CursorRef& cursor) = 0;
 
     // Sets the mouse position to the given point in surface coordinates.
     virtual void setMousePosition(const gfx::Point& position) = 0;

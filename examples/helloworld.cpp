@@ -44,7 +44,7 @@ int app_main(int argc, char* argv[])
   // We can change the cursor to use when the mouse is above this
   // window, this line is not required because by default the native
   // cursor to be shown in a window is the arrow.
-  window->setNativeMouseCursor(os::NativeCursor::Arrow);
+  window->setCursor(os::NativeCursor::Arrow);
 
   system->handleWindowResize = draw_window;
 

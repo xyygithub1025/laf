@@ -33,6 +33,8 @@ namespace os {
     SizeSW,
     SizeW,
     SizeNW,
+
+    Cursors
   };
 
 } // namespace os
