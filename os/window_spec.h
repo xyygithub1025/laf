@@ -42,6 +42,7 @@ namespace os {
     bool minimizable() const { return m_minimizable; }
     bool resizable() const { return m_resizable; }
     bool floating() const { return m_floating; }
+    bool transparent() const { return m_transparent; }
 
     // Parent window used for floating windows
     Window* parent() const { return m_parent; }
@@ -54,6 +55,7 @@ namespace os {
     void minimizable(const bool s) { m_minimizable = s; }
     void resizable(const bool s) { m_resizable = s; }
     void floating(const bool s) { m_floating = s; }
+    void transparent(const bool s) { m_transparent = s; }
     void parent(Window* p) { m_parent = p; }
 
     const gfx::Rect& frame() const { return m_frame; }
@@ -75,6 +77,7 @@ namespace os {
     bool m_minimizable = true;
     bool m_resizable = true;
     bool m_floating = false;
+    bool m_transparent = false;
     gfx::Rect m_frame;
     gfx::Rect m_contentRect;
     int m_scale = 1;

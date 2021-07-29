@@ -391,6 +391,11 @@ bool WindowWin::isMinimized() const
   return (GetWindowLong(m_hwnd, GWL_STYLE) & WS_MINIMIZE ? true: false);
 }
 
+bool WindowWin::isTransparent() const
+{
+  return (GetWindowLong(m_hwnd, GWL_EXSTYLE) & WS_EX_LAYERED ? true: false);
+}
+
 bool WindowWin::isFullscreen() const
 {
   return m_fullscreen;
@@ -818,7 +823,9 @@ LRESULT WindowWin::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
           m_hwnd, int(system()->tabletAPI()));
       openWintabCtx();
 
-      if (m_borderless) {
+      if (m_borderless &&
+          // Don't use drop shadow effect for borderless + transparent
+          !isTransparent()) {
         BOOL dwmEnabled = false;
         if ((DwmIsCompositionEnabled(&dwmEnabled) == S_OK) && dwmEnabled) {
           // Without this, we lost the shadow effect when WM_NCCALCSIZE returns 0
@@ -2292,6 +2299,9 @@ HWND WindowWin::createHwnd(WindowWin* self, const WindowSpec& spec)
   }
   if (spec.floating()) {
     exStyle |= WS_EX_TOOLWINDOW;
+  }
+  if (spec.transparent()) {
+    exStyle |= WS_EX_LAYERED;
   }
 
   gfx::Rect rc;

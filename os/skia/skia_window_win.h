@@ -27,6 +27,8 @@ public:
   SkiaWindowWin(const WindowSpec& spec);
   ~SkiaWindowWin();
 
+  void invalidateRegion(const gfx::Region& rgn) override;
+
 private:
   void onPaint(HDC hdc) override;
   void onResize(const gfx::Size& sz) override;

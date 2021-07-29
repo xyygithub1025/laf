@@ -98,6 +98,11 @@ namespace os {
     virtual bool isMaximized() const = 0;
     virtual bool isMinimized() const = 0;
 
+    // Returns true if this native window is
+    // transparent. E.g. WS_EX_LAYERED on Windows,
+    // or [NSWindow isOpaque:NO] on macOS.
+    virtual bool isTransparent() const = 0;
+
     virtual bool isFullscreen() const = 0;
     virtual void setFullscreen(bool state) = 0;
 

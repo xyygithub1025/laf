@@ -83,10 +83,14 @@
 
   // Remove shadow for borderless windows (the shadow is too dark and
   // creates a thick black border arround our windows).
-  //
-  // TODO add a property in WindowSpec
   if (spec->borderless())
-    self.hasShadow = NO;
+    self.hasShadow = false;
+
+  if (spec->transparent()) {
+    self.hasShadow = false;
+    self.opaque = false;
+    self.backgroundColor = NSColor.clearColor;
+  }
 
   // Redraw the entire window content when we resize it.
   // TODO add support to avoid redrawing the entire window
@@ -487,6 +491,11 @@ bool WindowOSX::setCursor(const CursorRef& cursor)
       setCursor:(cursor ? (__bridge NSCursor*)cursor->nativeHandle():
                           nullptr)];
   return true;
+}
+
+bool WindowOSX::isTransparent() const
+{
+  return (m_nsWindow.opaque ? false: true);
 }
 
 void* WindowOSX::nativeHandle() const

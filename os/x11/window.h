@@ -53,6 +53,7 @@ public:
   void minimize() override;
   bool isMaximized() const override;
   bool isMinimized() const override;
+  bool isTransparent() const override;
 
   bool isFullscreen() const override;
   void setFullscreen(bool state) override;
@@ -117,6 +118,7 @@ private:
   bool m_maximizable = false;
   bool m_minimizable = false;
   bool m_resizable = false;
+  bool m_transparent = false;
 
   // Double-click info
   Event::MouseButton m_doubleClickButton;

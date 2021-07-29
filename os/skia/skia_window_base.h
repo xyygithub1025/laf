@@ -69,7 +69,11 @@ public:
 
     if (!m_surface)
       m_surface = make_ref<SkiaSurface>();
-    m_surface->create(newSize.w, newSize.h, m_colorSpace);
+
+    if (T::isTransparent())
+      m_surface->createRgba(newSize.w, newSize.h, m_colorSpace);
+    else
+      m_surface->create(newSize.w, newSize.h, m_colorSpace);
   }
 
 

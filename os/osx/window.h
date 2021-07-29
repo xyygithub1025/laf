@@ -81,6 +81,7 @@ public:
   void minimize() override;
   bool isMaximized() const override;
   bool isMinimized() const override;
+  bool isTransparent() const override;
   bool isFullscreen() const override;
   void setFullscreen(bool state) override;
 

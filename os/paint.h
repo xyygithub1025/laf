@@ -12,6 +12,42 @@
 
 namespace os {
 
+  // Same values as SkBlendMode
+  enum class BlendMode {
+    Clear,
+    Src,
+    Dst,
+    SrcOver,
+    DstOver,
+    SrcIn,
+    DstIn,
+    SrcOut,
+    DstOut,
+    SrcATop,
+    DstATop,
+    Xor,
+    Plus,
+    Modulate,
+    Screen,
+    LastCoeffMode = Screen,
+    Overlay,
+    Darken,
+    Lighten,
+    ColorDodge,
+    ColorBurn,
+    HardLight,
+    SoftLight,
+    Difference,
+    Exclusion,
+    Multiply,
+    LastSeparableMode = Multiply,
+    Hue,
+    Saturation,
+    Color,
+    Luminosity,
+    LastMode = Luminosity,
+  };
+
   class Paint {
   public:
     enum Flags {
@@ -57,11 +93,15 @@ namespace os {
     float strokeWidth() const { return m_strokeWidth; }
     void strokeWidth(const float strokeWidth) { m_strokeWidth = strokeWidth; }
 
+    BlendMode blendMode() const { return m_blendMode; }
+    void blendMode(const BlendMode blendMode) { m_blendMode = blendMode; }
+
   private:
     Flags m_flags = kNone;
     Style m_style = Fill;
     gfx::Color m_color = gfx::ColorNone;
     float m_strokeWidth = 1.0f;
+    BlendMode m_blendMode = BlendMode::SrcOver;
   };
 
 } // namespace os

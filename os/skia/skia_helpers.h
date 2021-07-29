@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2019-2020  Igara Studio S.A.
+// Copyright (C) 2019-2021  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -44,10 +44,45 @@ inline void to_skia(const Paint& paint, SkPaint& skPaint) {
                 (int)SkPaint::kStrokeAndFill_Style == (int)Paint::StrokeAndFill,
                 "Paint styles don't match with Skia");
 
+  static_assert((int)SkBlendMode::kClear == (int)BlendMode::Clear &&
+                (int)SkBlendMode::kSrc == (int)BlendMode::Src &&
+                (int)SkBlendMode::kDst == (int)BlendMode::Dst &&
+                (int)SkBlendMode::kSrcOver == (int)BlendMode::SrcOver &&
+                (int)SkBlendMode::kDstOver == (int)BlendMode::DstOver &&
+                (int)SkBlendMode::kSrcIn == (int)BlendMode::SrcIn &&
+                (int)SkBlendMode::kDstIn == (int)BlendMode::DstIn &&
+                (int)SkBlendMode::kSrcOut == (int)BlendMode::SrcOut &&
+                (int)SkBlendMode::kDstOut == (int)BlendMode::DstOut &&
+                (int)SkBlendMode::kSrcATop == (int)BlendMode::SrcATop &&
+                (int)SkBlendMode::kDstATop == (int)BlendMode::DstATop &&
+                (int)SkBlendMode::kXor == (int)BlendMode::Xor &&
+                (int)SkBlendMode::kPlus == (int)BlendMode::Plus &&
+                (int)SkBlendMode::kModulate == (int)BlendMode::Modulate &&
+                (int)SkBlendMode::kScreen == (int)BlendMode::Screen &&
+                (int)SkBlendMode::kLastCoeffMode == (int)BlendMode::LastCoeffMode &&
+                (int)SkBlendMode::kOverlay == (int)BlendMode::Overlay &&
+                (int)SkBlendMode::kDarken == (int)BlendMode::Darken &&
+                (int)SkBlendMode::kLighten == (int)BlendMode::Lighten &&
+                (int)SkBlendMode::kColorDodge == (int)BlendMode::ColorDodge &&
+                (int)SkBlendMode::kColorBurn == (int)BlendMode::ColorBurn &&
+                (int)SkBlendMode::kHardLight == (int)BlendMode::HardLight &&
+                (int)SkBlendMode::kSoftLight == (int)BlendMode::SoftLight &&
+                (int)SkBlendMode::kDifference == (int)BlendMode::Difference &&
+                (int)SkBlendMode::kExclusion == (int)BlendMode::Exclusion &&
+                (int)SkBlendMode::kMultiply == (int)BlendMode::Multiply &&
+                (int)SkBlendMode::kLastSeparableMode == (int)BlendMode::LastSeparableMode &&
+                (int)SkBlendMode::kHue == (int)BlendMode::Hue &&
+                (int)SkBlendMode::kSaturation == (int)BlendMode::Saturation &&
+                (int)SkBlendMode::kColor == (int)BlendMode::Color &&
+                (int)SkBlendMode::kLuminosity == (int)BlendMode::Luminosity &&
+                (int)SkBlendMode::kLastMode == (int)BlendMode::LastMode,
+                "Blend modes don't match with Skia");
+
   skPaint.setColor(to_skia(paint.color()));
   skPaint.setStyle((SkPaint::Style)paint.style());
   skPaint.setAntiAlias(paint.antialias());
   skPaint.setStrokeWidth(paint.strokeWidth());
+  skPaint.setBlendMode((SkBlendMode)paint.blendMode());
 }
 
 } // namespace os

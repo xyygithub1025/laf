@@ -37,7 +37,7 @@ bool convert_skia_bitmap_to_ximage(const SkBitmap& bitmap, XImage& image)
   image.bitmap_unit = bpp;
   image.bitmap_bit_order = LSBFirst;
   image.bitmap_pad = bpp;
-  image.depth = 24;
+  image.depth = (bitmap.alphaType() == kPremul_SkAlphaType ? 32: 24);
   image.bytes_per_line = bitmap.rowBytes() - 4*bitmap.width();
   image.bits_per_pixel = bpp;
 

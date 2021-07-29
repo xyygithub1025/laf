@@ -432,6 +432,7 @@ void SkiaWindowOSX::paintGC(const gfx::Rect& rect)
   if (!surface->isValid())
     return;
 
+  const bool transparent = isTransparent();
   const SkBitmap& origBitmap = surface->bitmap();
 
   SkBitmap bitmap;
@@ -450,8 +451,11 @@ void SkiaWindowOSX::paintGC(const gfx::Rect& rect)
     // CGContextDrawImage(). This avoid a slow path where the
     // internal macOS argb32_image_mark_RGB32() function is called
     // (which is a performance hit).
-    if (!bitmap.tryAllocN32Pixels(rect.w, rect.h, true))
+    if (!bitmap.tryAllocN32Pixels(rect.w, rect.h, !transparent))
       return;
+
+    if (transparent)
+      bitmap.eraseColor(0);
 
     SkCanvas canvas(bitmap);
     canvas.drawBitmapRect(origBitmap,

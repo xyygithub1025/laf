@@ -143,6 +143,7 @@ WindowX11::WindowX11(::Display* display, const WindowSpec& spec)
   , m_maximizable(spec.maximizable())
   , m_minimizable(spec.minimizable())
   , m_resizable(spec.resizable())
+  , m_transparent(spec.transparent())
 {
   // Cache some atoms (TODO improve this to cache more atoms)
   if (!_NET_FRAME_EXTENTS)
@@ -160,13 +161,36 @@ WindowX11::WindowX11(::Display* display, const WindowSpec& spec)
   if (!WM_DELETE_WINDOW)
     WM_DELETE_WINDOW = XInternAtom(m_display, "WM_DELETE_WINDOW", False);
 
+  // Get a 32 bpp visual information for transparent windows.
+  XVisualInfo vi;
+  if (m_transparent) {
+    Status s =
+      XMatchVisualInfo(m_display,
+                       DefaultScreen(m_display),
+                       32, TrueColor, &vi);
+    if (s == 0) {
+      // This X11 server doesn't support transparent windows/RGBA
+      // images.
+      m_transparent = false;
+    }
+  }
+
   ::Window root = XDefaultRootWindow(m_display);
 
   XSetWindowAttributes swa;
+  int swa_mask = CWEventMask;
   swa.event_mask = (StructureNotifyMask | ExposureMask | PropertyChangeMask |
                     EnterWindowMask | LeaveWindowMask | FocusChangeMask |
                     ButtonPressMask | ButtonReleaseMask | PointerMotionMask |
                     KeyPressMask | KeyReleaseMask);
+  if (m_transparent) {
+    // If one of these attributes is not specified, XCreateWindow()
+    // will crash/fail with a BadMatch error.
+    swa.background_pixmap = None;
+    swa.border_pixel = 0;
+    swa.colormap = XCreateColormap(m_display, root, vi.visual, AllocNone);
+    swa_mask |= CWBackPixmap | CWBorderPixel | CWColormap;
+  }
 
   // We cannot use the override-redirect state because it removes too
   // much behavior of the WM (cannot resize the custom frame as other
@@ -185,10 +209,10 @@ WindowX11::WindowX11(::Display* display, const WindowSpec& spec)
   m_window = XCreateWindow(
     m_display, root,
     rc.x, rc.y, rc.w, rc.h, 0,
-    CopyFromParent,
+    (m_transparent ? vi.depth: CopyFromParent),
     InputOutput,
-    CopyFromParent,
-    CWEventMask, // Do not use CWOverrideRedirect
+    (m_transparent ? vi.visual: CopyFromParent),
+    swa_mask, // Do not use CWOverrideRedirect
     &swa);
 
   if (!m_window)
@@ -403,6 +427,11 @@ bool WindowX11::isMaximized() const
 bool WindowX11::isMinimized() const
 {
   return false;
+}
+
+bool WindowX11::isTransparent() const
+{
+  return m_transparent;
 }
 
 bool WindowX11::isFullscreen() const
