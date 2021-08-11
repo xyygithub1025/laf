@@ -134,7 +134,6 @@ WindowWin::WindowWin(const WindowSpec& spec)
   , m_hasMouse(false)
   , m_captureMouse(false)
   , m_usePointerApi(false)
-  , m_lastPointerId(0)
   , m_ictx(nullptr)
   , m_ignoreRandomMouseEvents(0)
   // True by default, we prefer to interpret one finger as mouse movement
@@ -1965,8 +1964,6 @@ bool WindowWin::pointerEvent(WPARAM wparam, Event& ev, POINTER_INFO& pi)
       break;
     }
   }
-
-  m_lastPointerId = pi.pointerId;
   return true;
 }
 

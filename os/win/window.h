@@ -152,8 +152,6 @@ namespace os {
 
     // Windows 8 pointer API
     bool m_usePointerApi;
-    UINT32 m_lastPointerId;
-    UINT32 m_capturePointerId;
     HINTERACTIONCONTEXT m_ictx;
 
     // This might be the most ugliest hack I've done to fix a Windows
