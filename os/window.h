@@ -20,6 +20,9 @@
 #include <functional>
 #include <string>
 
+#pragma push_macro("None")
+#undef None // Undefine the X11 None macro
+
 namespace os {
 
   class Event;
@@ -197,5 +200,7 @@ namespace os {
   };
 
 } // namespace os
+
+#pragma pop_macro("None")
 
 #endif
