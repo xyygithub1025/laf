@@ -17,6 +17,7 @@
 #include "os/screen.h"
 #include "os/surface_list.h"
 
+#include <functional>
 #include <string>
 
 namespace os {
@@ -37,6 +38,24 @@ namespace os {
     ResizeFromBottomLeft,
     ResizeFromBottom,
     ResizeFromBottomRight,
+  };
+
+  // Possible areas for hit testing. See os::Window::handleHitTest.
+  enum class Hit {
+    None,
+    Content,
+    TitleBar,
+    TopLeft,
+    Top,
+    TopRight,
+    Left,
+    Right,
+    BottomLeft,
+    Bottom,
+    BottomRight,
+    MinimizeButton,
+    MaximizeButton,
+    CloseButton,
   };
 
   // A window to show graphics.
@@ -158,6 +177,11 @@ namespace os {
 
     // Returns the HWND on Windows, X11 Window, or bridged NSWindow pointer.
     virtual NativeHandle nativeHandle() const = 0;
+
+    // For Windows platform, function used to handle WM_NCHITTEST for
+    // borderless windows (mainly). It's required so some input
+    // devices like stylus can be used to move and resize the window.
+    std::function<Hit(os::Window*, const gfx::Point& pos)> handleHitTest = nullptr;
 
     template<typename T>
     T* userData() { return reinterpret_cast<T*>(m_userData); }

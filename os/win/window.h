@@ -78,6 +78,8 @@ namespace os {
     LRESULT wndProc(UINT msg, WPARAM wparam, LPARAM lparam);
     void mouseEvent(LPARAM lparam, Event& ev);
     bool pointerEvent(WPARAM wparam, Event& ev, POINTER_INFO& pi);
+    void handleMouseMove(Event& ev);
+    void handleMouseLeave();
     void handlePointerButtonChange(Event& ev, POINTER_INFO& pi);
     void handleInteractionContextOutput(
       const INTERACTION_CONTEXT_OUTPUT* output);

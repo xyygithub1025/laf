@@ -65,6 +65,26 @@
 
 namespace os {
 
+// Converts an os::Hit to a Win32 hit test value
+static int hit2hittest[] = {
+  HTNOWHERE,                    // os::Hit::None
+  HTCLIENT,                     // os::Hit::Content
+  HTCAPTION,                    // os::Hit::TitleBar
+  HTTOPLEFT,                    // os::Hit::TopLeft
+  HTTOP,                        // os::Hit::Top
+  HTTOPRIGHT,                   // os::Hit::TopRight
+  HTLEFT,                       // os::Hit::Left
+  HTRIGHT,                      // os::Hit::Right
+  HTBOTTOMLEFT,                 // os::Hit::BottomLeft
+  HTBOTTOM,                     // os::Hit::Bottom
+  HTBOTTOMRIGHT,                // os::Hit::BottomRight
+  HTMINBUTTON,                  // os::Hit::MinimizeButton
+  HTMAXBUTTON,                  // os::Hit::MaximizeButton
+  HTCLOSE,                      // os::Hit::CloseButton
+};
+
+static int hit2hittest_entries = sizeof(hit2hittest) / sizeof(hit2hittest[0]);
+
 static PointerType wt_packet_pkcursor_to_pointer_type(int pkCursor)
 {
   switch (pkCursor % 3) {
@@ -665,7 +685,10 @@ void WindowWin::performWindowAction(const WindowAction action,
     else {
       GetCursorPos(&pos);
     }
-    SendMessage(m_hwnd, WM_NCLBUTTONDOWN, ht, MAKELPARAM(pos.x, pos.y));
+    // Cannot use SendMessage() because if m_borderless is true,
+    // WM_NCLBUTTONDOWN will generate a MouseDown but not call the
+    // original DefWindowProc().
+    DefWindowProc(m_hwnd, WM_NCLBUTTONDOWN, ht, MAKELPARAM(pos.x, pos.y));
   }
 }
 
@@ -911,7 +934,10 @@ LRESULT WindowWin::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
       break;
 
     case WM_SETCURSOR:
-      if (LOWORD(lparam) == HTCLIENT) {
+      // We set our custom cursor if we are in the client area, or in
+      // the case of windows with custom frames (borderless), we
+      // always set our own cursor.
+      if (LOWORD(lparam) == HTCLIENT || m_borderless) {
         SetCursor(m_hcursor);
         return TRUE;
       }
@@ -1102,54 +1128,46 @@ LRESULT WindowWin::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
         break;
       }
 
-      if (!m_hasMouse) {
-        m_hasMouse = true;
-
-        ev.setType(Event::MouseEnter);
-        queueEvent(ev);
-
-        MOUSE_TRACE("-> Event::MouseEnter\n");
-
-        // Track mouse to receive WM_MOUSELEAVE message.
-        TRACKMOUSEEVENT tme;
-        tme.cbSize = sizeof(TRACKMOUSEEVENT);
-        tme.dwFlags = TME_LEAVE;
-        tme.hwndTrack = m_hwnd;
-        _TrackMouseEvent(&tme);
-      }
-
-      if (m_pointerType != PointerType::Unknown) {
-        ev.setPointerType(m_pointerType);
-        ev.setPressure(m_pressure);
-      }
-
-      ev.setType(Event::MouseMove);
-
-      auto sys = system();
-      if (sys->tabletAPI() == TabletAPI::WintabPackets &&
-          same_mouse_event(ev, m_lastWintabEvent))
-        MOUSE_TRACE(" - IGNORED (WinTab)\n");
-      else {
-        queueEvent(ev);
-        m_lastWintabEvent.setType(Event::None);
-
-        sys->_setInternalMousePosition(ev);
-      }
+      handleMouseMove(ev);
       break;
     }
 
+    case WM_NCLBUTTONDOWN:
+      if (m_borderless) {
+        // With custom frames, simulate that we always clicked the
+        // client area. So in this way Windows doesn't paint the
+        // default Minimize/Maximize/Close buttons.
+        POINT pos = {
+          GET_X_LPARAM(lparam),
+          GET_Y_LPARAM(lparam) };
+        ScreenToClient(m_hwnd, &pos);
+
+        LPARAM rellparam = MAKELPARAM(pos.x, pos.y);
+        return SendMessage(m_hwnd, WM_LBUTTONDOWN, MK_LBUTTON, rellparam);
+      }
+      break;
+
     case WM_NCMOUSEMOVE:
     case WM_MOUSELEAVE:
-      if (m_hasMouse) {
-        m_hasMouse = false;
+      // For regular windows (with the default system frame), we
+      // generate the MouseLeave message when the mouse leaves the
+      // client area.
+      if (m_hasMouse && !m_borderless) {
+        handleMouseLeave();
+      }
+      break;
 
-        Event ev;
-        ev.setType(Event::MouseLeave);
-        ev.setModifiers(get_modifiers_from_last_win32_message());
-        queueEvent(ev);
-
-        system()->_clearInternalMousePosition();
-        MOUSE_TRACE("-> Event::MouseLeave\n");
+    case WM_NCMOUSELEAVE:
+      // When the window doesn't have borders (m_borderless), we send
+      // the MouseLeave event when the mouse leaves the non-client
+      // area. This is required when handleHitTest() function is
+      // specified, because when the hit test is != HTCLIENT the
+      // WM_MOUSELEAVE is sent by Windows (and we don't want to
+      // generate the MouseLeave in that case, only when the mouse
+      // leaves the custom frame of the window, that is in this
+      // WM_NCMOUSELEAVE message).
+      if (m_hasMouse && m_borderless) {
+        handleMouseLeave();
       }
       break;
 
@@ -1736,14 +1754,34 @@ LRESULT WindowWin::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
     }
 
     case WM_NCHITTEST: {
-      LRESULT result = CallWindowProc(DefWindowProc, m_hwnd, msg, wparam, lparam);
       gfx::Point pt(GET_X_LPARAM(lparam),
                     GET_Y_LPARAM(lparam));
 
+      // Custom handler for WM_NCHITTEST when the mouse is inside the
+      // windows area.
+      if (this->handleHitTest) {
+        POINT pos = { pt.x, pt.y };
+        ScreenToClient(m_hwnd, &pos);
+        gfx::Point relPt(pos.x, pos.y);
+        relPt /= m_scale;
+
+        Event ev;
+        ev.setModifiers(get_modifiers_from_last_win32_message());
+        ev.setPosition(relPt);
+        handleMouseMove(ev);
+
+        // Convert os::Hit values to Win32 HT* values
+        const int i = static_cast<int>(this->handleHitTest(this, relPt));
+        return (i >= 0 &&
+                i < hit2hittest_entries ?
+                    static_cast<LRESULT>(hit2hittest[i]):
+                    HTNOWHERE);
+      }
+
+      LRESULT result = DefWindowProc(m_hwnd, msg, wparam, lparam);
+
       ABS_CLIENT_RC(rc);
       gfx::Rect area(rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
-
-      //LOG("NCHITTEST: %d %d - %d %d %d %d - %s\n", pt.x, pt.y, area.x, area.y, area.w, area.h, area.contains(pt) ? "true": "false");
 
       // We ignore scrollbars so if the mouse is above them, we return
       // as it's in the window client or resize area. (Remember that
@@ -1965,6 +2003,58 @@ bool WindowWin::pointerEvent(WPARAM wparam, Event& ev, POINTER_INFO& pi)
     }
   }
   return true;
+}
+
+void WindowWin::handleMouseMove(Event& ev)
+{
+  if (!m_hasMouse) {
+    m_hasMouse = true;
+
+    ev.setType(Event::MouseEnter);
+    queueEvent(ev);
+
+    MOUSE_TRACE("-> Event::MouseEnter\n");
+
+    // Track mouse to receive WM_MOUSELEAVE and WM_NCMOUSELEAVE message.
+    TRACKMOUSEEVENT tme;
+    tme.cbSize = sizeof(TRACKMOUSEEVENT);
+    tme.dwFlags = TME_LEAVE;
+    tme.hwndTrack = m_hwnd;
+    _TrackMouseEvent(&tme);
+  }
+
+  if (m_pointerType != PointerType::Unknown) {
+    ev.setPointerType(m_pointerType);
+    ev.setPressure(m_pressure);
+  }
+
+  ev.setType(Event::MouseMove);
+
+  auto sys = system();
+  if (sys->tabletAPI() == TabletAPI::WintabPackets &&
+      same_mouse_event(ev, m_lastWintabEvent)) {
+    MOUSE_TRACE(" - IGNORED (WinTab)\n");
+  }
+  else {
+    queueEvent(ev);
+    m_lastWintabEvent.setType(Event::None);
+
+    sys->_setInternalMousePosition(ev);
+  }
+}
+
+void WindowWin::handleMouseLeave()
+{
+  ASSERT(m_hasMouse);
+  m_hasMouse = false;
+
+  Event ev;
+  ev.setType(Event::MouseLeave);
+  ev.setModifiers(get_modifiers_from_last_win32_message());
+  queueEvent(ev);
+
+  system()->_clearInternalMousePosition();
+  MOUSE_TRACE("-> Event::MouseLeave\n");
 }
 
 void WindowWin::handlePointerButtonChange(Event& ev, POINTER_INFO& pi)

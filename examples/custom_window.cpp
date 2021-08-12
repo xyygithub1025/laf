@@ -7,23 +7,7 @@
 #include "gfx/path.h"
 #include "os/os.h"
 
-// Possible areas in our custom window
-enum class Hit {
-  None,
-  Content,
-  TitleBar,
-  TopLeft,
-  Top,
-  TopRight,
-  Left,
-  Right,
-  BottomLeft,
-  Bottom,
-  BottomRight,
-  MinimizeButton,
-  MaximizeButton,
-  CloseButton,
-};
+using Hit = os::Hit;
 
 const int kTitleBarSize = 32;
 const int kButtonSize = 32;
@@ -200,6 +184,8 @@ os::WindowRef create_window()
 
   os::WindowRef window = os::instance()->makeWindow(spec);
   window->setTitle("Custom Window");
+  window->handleHitTest = hit_test;
+
   return window;
 }
 
