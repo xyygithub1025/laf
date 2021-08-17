@@ -23,7 +23,7 @@
 namespace os {
 
   // Wintab API wrapper
-  // Read http://www.wacomeng.com/windows/docs/Wintab_v140.htm for more information.
+  // Read https://developer-docs.wacom.com/intuos-cintiq-business-tablets/docs/wintab-reference for more information.
   class WintabAPI {
   public:
     WintabAPI();
