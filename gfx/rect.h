@@ -344,6 +344,11 @@ public:
                  w*size.w, h*size.h);
   }
 
+  RectT operator/(const T scale) const {
+    return RectT(x/scale, y/scale,
+                 w/scale, h/scale);
+  }
+
   RectT operator/(const SizeT<T>& size) const {
     return RectT(x/size.w, y/size.h,
                  w/size.w, h/size.h);
