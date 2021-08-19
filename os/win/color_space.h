@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2020  Igara Studio S.A.
+// Copyright (C) 2018-2021  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -9,10 +9,6 @@
 #pragma once
 
 #include "os/color_space.h"
-
-#ifdef __OBJC__
-#include <Cocoa/Cocoa.h>
-#endif
 
 #include <vector>
 
