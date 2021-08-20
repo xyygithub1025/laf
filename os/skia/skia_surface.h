@@ -329,6 +329,10 @@ public:
   }
 
   gfx::Color getPixel(int x, int y) const override {
+    // Clip input to avoid crash on SkBitmap::getColor()
+    if (x < 0 || y < 0 || x >= width() || y >= height())
+      return 0;
+
     SkColor c = 0;
 
     if (m_surface) {
