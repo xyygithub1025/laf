@@ -84,7 +84,7 @@ void SkiaWindowWin::onPaint(HDC hdc)
     case Backend::ANGLE:
       // Flush operations to the SkCanvas
       {
-        SkiaSurface* surface = static_cast<SkiaSurface*>(this->getSurface());
+        SkiaSurface* surface = static_cast<SkiaSurface*>(this->surface());
         surface->flush();
       }
 
@@ -316,7 +316,7 @@ bool SkiaWindowWin::attachGL()
 {
   if (!m_glCtx) {
     try {
-      std::unique_ptr<GLContext> ctx(new GLContextWGL(handle()));
+      std::unique_ptr<GLContext> ctx(new GLContextWGL((HWND)nativeHandle()));
       if (!ctx->createGLContext())
         throw std::runtime_error("Cannot create WGL context\n");
 
@@ -328,14 +328,12 @@ bool SkiaWindowWin::attachGL()
       m_sampleCount = ctx->getSampleCount();
 
       m_glCtx.reset(ctx.release());
-      m_grCtx.reset(
-        GrContext::Create(kOpenGL_GrBackend,
-                          (GrBackendContext)m_glInterfaces.get()));
+      m_grCtx = GrContext::MakeGL(m_glInterfaces);
 
       LOG("OS: Using WGL backend\n");
     }
     catch (const std::exception& ex) {
-      LOG(ERROR) << "OS: Error initializing WGL backend: " << ex.what() << "\n";
+      LOG(ERROR, "OS: Error initializing WGL backend: %s\n", ex.what());
       detachGL();
     }
   }
@@ -371,7 +369,6 @@ void SkiaWindowWin::createRenderTarget(const gfx::Size& size)
     target(size.w, size.h,
            m_sampleCount,
            m_stencilBits,
-           kSkia8888_GrPixelConfig,
            info);
 
   SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
@@ -380,7 +377,9 @@ void SkiaWindowWin::createRenderTarget(const gfx::Size& size)
   m_skSurfaceDirect = SkSurface::MakeFromBackendRenderTarget(
     m_grCtx.get(), target,
     kBottomLeft_GrSurfaceOrigin,
-    nullptr, &props);
+    kN32_SkColorType,
+    nullptr,
+    &props);
 
   if (scale == 1) {
     m_skSurface = m_skSurfaceDirect;

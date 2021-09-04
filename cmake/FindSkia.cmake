@@ -87,19 +87,21 @@ target_compile_definitions(skia INTERFACE
   SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1
   SK_SUPPORT_OPENCL=0
   SK_FORCE_DISTANCE_FIELD_TEXT=0
-  GR_GL_FUNCTION_TYPE=__stdcall
-  SK_SUPPORT_GPU=0) # TODO change this to 1
+  GR_GL_FUNCTION_TYPE=__stdcall)
 
 if(WIN32)
   target_compile_definitions(skia INTERFACE
     SK_BUILD_FOR_WIN32
+    SK_SUPPORT_GPU=1
     _CRT_SECURE_NO_WARNINGS)
 elseif(APPLE)
   target_compile_definitions(skia INTERFACE
-    SK_BUILD_FOR_MAC)
+    SK_BUILD_FOR_MAC
+    SK_SUPPORT_GPU=0)
 else()
   target_compile_definitions(skia INTERFACE
-    SK_SAMPLES_FOR_X)
+    SK_SAMPLES_FOR_X
+    SK_SUPPORT_GPU=0)
 endif()
 
 if(APPLE)
