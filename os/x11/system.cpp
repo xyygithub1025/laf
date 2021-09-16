@@ -16,6 +16,8 @@
 #include <X11/Xcursor/Xcursor.h>
 #include <X11/cursorfont.h>
 
+#include <array>
+
 namespace os {
 
 class XCursorImageX11 {
