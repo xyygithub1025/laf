@@ -94,6 +94,7 @@ else()
     target_compile_definitions(laf-base PUBLIC LAF_MACOS)
   else()
     target_compile_definitions(laf-base PUBLIC LAF_LINUX)
+    target_link_libraries(laf-base pthread)
   endif()
 
   find_library(DL_LIBRARY NAMES dl)
