@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2020  Igara Studio S.A.
+// Copyright (C) 2020-2021  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -248,7 +248,7 @@ private:
     int maxPressure = 1000;
   };
 
-  base::dll m_xi;
+  base::dll m_xi = nullptr;
   std::vector<XDevice*> m_openDevices;
   std::map<XID, Info> m_info;
   std::vector<XEventClass> m_eventClasses;
