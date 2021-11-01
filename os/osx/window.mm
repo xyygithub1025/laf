@@ -64,6 +64,12 @@
     contentRect = NSMakeRect(0, 0, 400, 300);
   }
 
+  // Align the content size to the scale, because macOS give us the
+  // chance to create the frame with any size, then the
+  // contentResizeIncrements stablish a delta from this initial size.
+  contentRect.size.width = int(contentRect.size.width / m_scale) * m_scale;
+  contentRect.size.height = int(contentRect.size.height / m_scale) * m_scale;
+
   self = [self initWithContentRect:contentRect
                          styleMask:style
                            backing:NSBackingStoreBuffered
@@ -151,9 +157,28 @@
   self.contentResizeIncrements = NSMakeSize(m_scale, m_scale);
 
   if (m_impl) {
-    NSRect bounds = [[self contentView] bounds];
-    m_impl->onResize(gfx::Size(bounds.size.width,
-                               bounds.size.height));
+    // Check if the content needs a new size because it's not a
+    // multiple of the new scale.
+    gfx::Size content = m_impl->contentRect().size();
+    gfx::Size newContent = content;
+    newContent.w = int(content.w / m_scale) * m_scale;
+    newContent.h = int(content.h / m_scale) * m_scale;
+    if (content != newContent) {
+      // Resize the frame so the new content size is a multiple of the
+      // new given scale.
+      gfx::Rect frame = m_impl->frame();
+      gfx::Rect oldFrame = frame;
+      frame.w += (newContent.w - content.w);
+      frame.h += (newContent.h - content.h);
+      m_impl->setFrame(frame);
+
+      // onResize() will be called from View's setFrameSize()
+    }
+    else {
+      // There is no need for a resize of the frame, but we inform the
+      // new content scale through onResize().
+      m_impl->onResize(content);
+    }
   }
 }
 
