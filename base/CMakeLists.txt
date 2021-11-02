@@ -45,6 +45,7 @@ set(BASE_SOURCES
   memory.cpp
   memory_dump.cpp
   mutex.cpp
+  platform.cpp
   process.cpp
   program_options.cpp
   replace_string.cpp
@@ -61,15 +62,18 @@ set(BASE_SOURCES
   time.cpp
   version.cpp)
 
-if(APPLE)
-  set(BASE_SOURCES ${BASE_SOURCES}
-    fs_osx.mm)
-endif()
-
 if(WIN32)
   set(BASE_SOURCES ${BASE_SOURCES}
+    platform_win.cpp
     win/registry.cpp
     win/win32_exception.cpp)
+elseif(APPLE)
+  set(BASE_SOURCES ${BASE_SOURCES}
+    fs_osx.mm
+    platform_osx.mm)
+else()
+  set(BASE_SOURCES ${BASE_SOURCES}
+    platform_unix.cpp)
 endif()
 
 add_library(laf-base ${BASE_SOURCES})
