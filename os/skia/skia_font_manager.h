@@ -12,9 +12,9 @@
 
 #include "os/font_style.h"
 
-#include "SkFontMgr.h"
-#include "SkString.h"
-#include "SkTypeface.h"
+#include "include/core/SkFontMgr.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypeface.h"
 
 namespace os {
 

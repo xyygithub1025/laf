@@ -12,9 +12,9 @@
 #include "gfx/rect.h"
 #include "os/paint.h"
 
-#include "SkColor.h"
-#include "SkPaint.h"
-#include "SkRect.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
 
 #include <algorithm>
 

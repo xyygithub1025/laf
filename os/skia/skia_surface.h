@@ -17,13 +17,13 @@
 #include "os/skia/skia_color_space.h"
 #include "os/skia/skia_helpers.h"
 
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkColorFilter.h"
-#include "SkColorPriv.h"
-#include "SkImageInfo.h"
-#include "SkRegion.h"
-#include "SkSurface.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkSurface.h"
 
 #include "include/private/SkColorData.h"
 
@@ -129,6 +129,11 @@ public:
     return false;
   }
 
+  void setImmutable() override {
+    if (!m_bitmap.isNull())
+      m_bitmap.setImmutable();
+  }
+
   int getSaveCount() const override {
     return m_canvas->getSaveCount();
   }
@@ -210,7 +215,8 @@ public:
 
           sk_sp<SkShader> shader(
             bitmap.makeShader(SkTileMode::kRepeat,
-                              SkTileMode::kRepeat));
+                              SkTileMode::kRepeat,
+                              SkSamplingOptions()));
           m_paint.setShader(shader);
         }
         break;
@@ -249,8 +255,9 @@ public:
     SkCanvas canvas(result);
     SkRect srcRect = SkRect::Make(SkIRect::MakeXYWH(0, 0, width(), height()));
     SkRect dstRect = SkRect::Make(SkIRect::MakeXYWH(0, 0, result.width(), result.height()));
-    canvas.drawBitmapRect(m_bitmap, srcRect, dstRect, &paint,
-                          SkCanvas::kStrict_SrcRectConstraint);
+    canvas.drawImageRect(SkImage::MakeFromBitmap(m_bitmap),
+                         srcRect, dstRect, SkSamplingOptions(),
+                         &paint, SkCanvas::kStrict_SrcRectConstraint);
 
     swapBitmap(result);
   }
@@ -378,20 +385,24 @@ public:
   void blitTo(Surface* _dst, int srcx, int srcy, int dstx, int dsty, int width, int height) const override {
     auto dst = static_cast<SkiaSurface*>(_dst);
 
-    SkIRect srcRect = SkIRect::MakeXYWH(srcx, srcy, width, height);
+    SkRect srcRect = SkRect::MakeXYWH(srcx, srcy, width, height);
     SkRect dstRect = SkRect::Make(SkIRect::MakeXYWH(dstx, dsty, width, height));
 
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kSrc);
 
     if (!m_bitmap.empty())
-      dst->m_canvas->drawBitmapRect(m_bitmap, srcRect, dstRect, &paint,
-                                    SkCanvas::kStrict_SrcRectConstraint);
+      dst->m_canvas->drawImageRect(SkImage::MakeFromBitmap(m_bitmap),
+                                   srcRect, dstRect,
+                                   SkSamplingOptions(),
+                                   &paint, SkCanvas::kStrict_SrcRectConstraint);
     else {
-      sk_sp<SkImage> snapshot = m_surface->makeImageSnapshot(srcRect);
+      sk_sp<SkImage> snapshot = m_surface->makeImageSnapshot(srcRect.round());
       srcRect.offsetTo(0, 0);
-      dst->m_canvas->drawImageRect(snapshot, srcRect, dstRect, &paint,
-                                   SkCanvas::kStrict_SrcRectConstraint);
+      dst->m_canvas->drawImageRect(
+        snapshot, srcRect, dstRect,
+        SkSamplingOptions(),
+        &paint, SkCanvas::kStrict_SrcRectConstraint);
     }
   }
 
@@ -450,8 +461,11 @@ public:
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kSrc);
 
-    m_canvas->drawBitmapRect(
-      ((SkiaSurface*)src)->m_bitmap, srcRect, dstRect, &paint,
+    m_canvas->drawImageRect(
+      SkImage::MakeFromBitmap(((SkiaSurface*)src)->m_bitmap),
+      srcRect, dstRect,
+      SkSamplingOptions(),
+      &paint,
       SkCanvas::kStrict_SrcRectConstraint);
   }
 
@@ -461,12 +475,16 @@ public:
 
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kSrc);
-    paint.setFilterQuality(srcRect.w < dstRect.w ||
-                           srcRect.h < dstRect.h ? kNone_SkFilterQuality:
-                                                   kHigh_SkFilterQuality);
 
-    m_canvas->drawBitmapRect(
-      ((SkiaSurface*)src)->m_bitmap, srcRect2, dstRect2, &paint,
+    SkSamplingOptions sampling;
+    if (srcRect.w > dstRect.w && srcRect.h > dstRect.h)
+      sampling = SkSamplingOptions(SkFilterMode::kLinear);
+
+    m_canvas->drawImageRect(
+      SkImage::MakeFromBitmap(((SkiaSurface*)src)->m_bitmap),
+      srcRect2, dstRect2,
+      sampling,
+      &paint,
       SkCanvas::kStrict_SrcRectConstraint);
   }
 
@@ -484,8 +502,11 @@ public:
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kSrcOver);
 
-    m_canvas->drawBitmapRect(
-      ((SkiaSurface*)src)->m_bitmap, srcRect, dstRect, &paint,
+    m_canvas->drawImageRect(
+      SkImage::MakeFromBitmap(((SkiaSurface*)src)->m_bitmap),
+      srcRect, dstRect,
+      SkSamplingOptions(),
+      &paint,
       SkCanvas::kStrict_SrcRectConstraint);
   }
 
@@ -500,8 +521,11 @@ public:
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kSrcOver);
 
-    m_canvas->drawBitmapRect(
-      ((SkiaSurface*)src)->m_bitmap, srcRect, dstRect, &paint,
+    m_canvas->drawImageRect(
+      SkImage::MakeFromBitmap(((SkiaSurface*)src)->m_bitmap),
+      srcRect, dstRect,
+      SkSamplingOptions(),
+      &paint,
       SkCanvas::kStrict_SrcRectConstraint);
   }
 
@@ -511,12 +535,16 @@ public:
 
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kSrcOver);
-    paint.setFilterQuality(srcRect.w < dstRect.w ||
-                           srcRect.h < dstRect.h ? kNone_SkFilterQuality:
-                                                   kHigh_SkFilterQuality);
 
-    m_canvas->drawBitmapRect(
-      ((SkiaSurface*)src)->m_bitmap, srcRect2, dstRect2, &paint,
+    SkSamplingOptions sampling;
+    if (srcRect.w > dstRect.w && srcRect.h > dstRect.h)
+      sampling = SkSamplingOptions(SkFilterMode::kLinear);
+
+    m_canvas->drawImageRect(
+      SkImage::MakeFromBitmap(((SkiaSurface*)src)->m_bitmap),
+      srcRect2, dstRect2,
+      SkSamplingOptions(),
+      &paint,
       SkCanvas::kStrict_SrcRectConstraint);
   }
 
@@ -542,9 +570,12 @@ public:
       SkColorFilters::Blend(to_skia(fg), SkBlendMode::kSrcIn));
     paint.setColorFilter(colorFilter);
 
-    m_canvas->drawBitmapRect(
-      ((SkiaSurface*)src)->m_bitmap,
-      srcRect, dstRect, &paint);
+    m_canvas->drawImageRect(
+      SkImage::MakeFromBitmap(((SkiaSurface*)src)->m_bitmap),
+      srcRect, dstRect,
+      SkSamplingOptions(),
+      &paint,
+      SkCanvas::kStrict_SrcRectConstraint);
   }
 
   void drawSurfaceNine(os::Surface* surface,
@@ -625,9 +656,11 @@ public:
     lattice.fBounds = &srcRect;
     lattice.fColors = nullptr;
 
-    m_canvas->drawBitmapLattice(
-      ((SkiaSurface*)surface)->m_bitmap,
-      lattice, dstRect, &skPaint);
+    m_canvas->drawImageLattice(
+      SkImage::MakeFromBitmap(((SkiaSurface*)surface)->m_bitmap).get(),
+      lattice, dstRect,
+      SkFilterMode::kNearest,
+      &skPaint);
   }
 
   bool isValid() const {

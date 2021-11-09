@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2020  Igara Studio S.A.
+// Copyright (C) 2018-2021  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -47,6 +47,10 @@ namespace os {
     gfx::Rect bounds() const { return gfx::Rect(0, 0, width(), height()); }
     virtual const ColorSpaceRef& colorSpace() const = 0;
     virtual bool isDirectToScreen() const = 0;
+
+    // Call if you are not going to modify the pixels of this surface
+    // in the future. E.g. useful for sprite sheets/texture atlases.
+    virtual void setImmutable() = 0;
 
     virtual int getSaveCount() const = 0;
     virtual gfx::Rect getClipBounds() const = 0;

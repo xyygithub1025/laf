@@ -25,14 +25,14 @@
 #include "os/skia/skia_window_osx.h"
 #include "os/system.h"
 
-#include "mac/SkCGUtils.h"
+#include "include/utils/mac/SkCGUtils.h"
 
 #if SK_SUPPORT_GPU
 
-  #include "GrBackendSurface.h"
-  #include "GrContext.h"
-  #include "gl/GrGLDefines.h"
-  #include "gl/GrGLInterface.h"
+  #include "include/gpu/GrBackendSurface.h"
+  #include "include/gpu/GrContext.h"
+  #include "include/gpu/gl/GrGLDefines.h"
+  #include "include/gpu/gl/GrGLInterface.h"
   #include "os/skia/skia_surface.h"
   #include <OpenGL/gl.h>
 
@@ -458,13 +458,15 @@ void SkiaWindowOSX::paintGC(const gfx::Rect& rect)
       bitmap.eraseColor(0);
 
     SkCanvas canvas(bitmap);
-    canvas.drawBitmapRect(origBitmap,
-                          SkIRect::MakeXYWH(rect.x/scale,
-                                            (viewBounds.size.height-(rect.y+rect.h))/scale,
-                                            rect.w/scale,
-                                            rect.h/scale),
-                          SkRect::MakeXYWH(0, 0, rect.w, rect.h),
-                          nullptr);
+    canvas.drawImageRect(SkImage::MakeFromBitmap(origBitmap),
+                         SkRect::MakeXYWH(rect.x/scale,
+                                          (viewBounds.size.height-(rect.y+rect.h))/scale,
+                                          rect.w/scale,
+                                          rect.h/scale),
+                         SkRect::MakeXYWH(0, 0, rect.w, rect.h),
+                         SkSamplingOptions(),
+                         nullptr,
+                         SkCanvas::kStrict_SrcRectConstraint);
   }
 
   @autoreleasepool {

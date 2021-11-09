@@ -12,9 +12,9 @@
 
 #include "base/debug.h"
 
-#include "SkImageInfo.h"
-#include "SkString.h"
-#include "skcms.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkString.h"
+#include "include/third_party/skcms/skcms.h"
 
 #include <algorithm>
 
