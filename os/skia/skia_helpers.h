@@ -24,6 +24,10 @@ inline SkColor to_skia(gfx::Color c) {
   return SkColorSetARGB(gfx::geta(c), gfx::getr(c), gfx::getg(c), gfx::getb(c));
 }
 
+inline SkColor4f to_skia4f(gfx::Color c) {
+  return SkColor4f::FromColor(to_skia(c));
+}
+
 inline SkIRect to_skia(const gfx::Rect& rc) {
   return SkIRect::MakeXYWH(rc.x, rc.y, rc.w, rc.h);
 }

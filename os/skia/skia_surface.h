@@ -255,7 +255,7 @@ public:
     SkCanvas canvas(result);
     SkRect srcRect = SkRect::Make(SkIRect::MakeXYWH(0, 0, width(), height()));
     SkRect dstRect = SkRect::Make(SkIRect::MakeXYWH(0, 0, result.width(), result.height()));
-    canvas.drawImageRect(SkImage::MakeFromBitmap(m_bitmap),
+    canvas.drawImageRect(SkImage::MakeFromRaster(m_bitmap.pixmap(), nullptr, nullptr),
                          srcRect, dstRect, SkSamplingOptions(),
                          &paint, SkCanvas::kStrict_SrcRectConstraint);
 
@@ -364,7 +364,22 @@ public:
       m_canvas->drawPoint(SkIntToScalar(x), SkIntToScalar(y), m_paint);
     }
     else {
-      m_bitmap.erase(to_skia(color), SkIRect::MakeXYWH(x, y, 1, 1));
+      // TODO Find a better way to put a pixel in the same color space
+      //      as the internal SkPixmap (as Skia expects a sRGB color
+      //      in SkBitmap::erase())
+#if 1
+      auto r = SkIRect::MakeXYWH(x, y, 1, 1);
+      const_cast<SkPixmap&>(m_bitmap.pixmap()).erase(
+        to_skia4f(color),
+        skColorSpace().get(),
+        &r);
+#else
+      // Doesn't work as SkBitmap::erase() expects an sRGB color (and
+      // the color is should be in the same color space as this
+      // surface, so there is no conversion).
+      m_bitmap.erase(to_skia(color),
+                     SkIRect::MakeXYWH(x, y, 1, 1));
+#endif
     }
   }
 
@@ -391,11 +406,13 @@ public:
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kSrc);
 
-    if (!m_bitmap.empty())
-      dst->m_canvas->drawImageRect(SkImage::MakeFromBitmap(m_bitmap),
-                                   srcRect, dstRect,
-                                   SkSamplingOptions(),
-                                   &paint, SkCanvas::kStrict_SrcRectConstraint);
+    if (!m_bitmap.empty()) {
+      dst->m_canvas->drawImageRect(
+        SkImage::MakeFromRaster(m_bitmap.pixmap(), nullptr, nullptr),
+        srcRect, dstRect,
+        SkSamplingOptions(),
+        &paint, SkCanvas::kStrict_SrcRectConstraint);
+    }
     else {
       sk_sp<SkImage> snapshot = m_surface->makeImageSnapshot(srcRect.round());
       srcRect.offsetTo(0, 0);
@@ -462,7 +479,7 @@ public:
     paint.setBlendMode(SkBlendMode::kSrc);
 
     m_canvas->drawImageRect(
-      SkImage::MakeFromBitmap(((SkiaSurface*)src)->m_bitmap),
+      SkImage::MakeFromRaster(((SkiaSurface*)src)->m_bitmap.pixmap(), nullptr, nullptr),
       srcRect, dstRect,
       SkSamplingOptions(),
       &paint,
@@ -481,7 +498,7 @@ public:
       sampling = SkSamplingOptions(SkFilterMode::kLinear);
 
     m_canvas->drawImageRect(
-      SkImage::MakeFromBitmap(((SkiaSurface*)src)->m_bitmap),
+      SkImage::MakeFromRaster(((SkiaSurface*)src)->m_bitmap.pixmap(), nullptr, nullptr),
       srcRect2, dstRect2,
       sampling,
       &paint,
@@ -503,7 +520,7 @@ public:
     paint.setBlendMode(SkBlendMode::kSrcOver);
 
     m_canvas->drawImageRect(
-      SkImage::MakeFromBitmap(((SkiaSurface*)src)->m_bitmap),
+      SkImage::MakeFromRaster(((SkiaSurface*)src)->m_bitmap.pixmap(), nullptr, nullptr),
       srcRect, dstRect,
       SkSamplingOptions(),
       &paint,
@@ -522,7 +539,7 @@ public:
     paint.setBlendMode(SkBlendMode::kSrcOver);
 
     m_canvas->drawImageRect(
-      SkImage::MakeFromBitmap(((SkiaSurface*)src)->m_bitmap),
+      SkImage::MakeFromRaster(((SkiaSurface*)src)->m_bitmap.pixmap(), nullptr, nullptr),
       srcRect, dstRect,
       SkSamplingOptions(),
       &paint,
@@ -541,7 +558,7 @@ public:
       sampling = SkSamplingOptions(SkFilterMode::kLinear);
 
     m_canvas->drawImageRect(
-      SkImage::MakeFromBitmap(((SkiaSurface*)src)->m_bitmap),
+      SkImage::MakeFromRaster(((SkiaSurface*)src)->m_bitmap.pixmap(), nullptr, nullptr),
       srcRect2, dstRect2,
       SkSamplingOptions(),
       &paint,
@@ -571,7 +588,7 @@ public:
     paint.setColorFilter(colorFilter);
 
     m_canvas->drawImageRect(
-      SkImage::MakeFromBitmap(((SkiaSurface*)src)->m_bitmap),
+      SkImage::MakeFromRaster(((SkiaSurface*)src)->m_bitmap.pixmap(), nullptr, nullptr),
       srcRect, dstRect,
       SkSamplingOptions(),
       &paint,
@@ -657,7 +674,7 @@ public:
     lattice.fColors = nullptr;
 
     m_canvas->drawImageLattice(
-      SkImage::MakeFromBitmap(((SkiaSurface*)surface)->m_bitmap).get(),
+      SkImage::MakeFromRaster(((SkiaSurface*)surface)->m_bitmap.pixmap(), nullptr, nullptr).get(),
       lattice, dstRect,
       SkFilterMode::kNearest,
       &skPaint);
