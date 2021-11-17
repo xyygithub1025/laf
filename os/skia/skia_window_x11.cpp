@@ -19,7 +19,7 @@
 #include "os/system.h"
 #include "os/x11/x11.h"
 
-#include "SkBitmap.h"
+#include "include/core/SkBitmap.h"
 
 namespace os {
 
@@ -88,8 +88,9 @@ void SkiaWindowX11::onPaint(const gfx::Rect& rc)
       SkCanvas canvas(scaled);
       SkRect srcRect = SkRect::Make(SkIRect::MakeXYWH(rc.x/scale, rc.y/scale, rc.w/scale, rc.h/scale));
       SkRect dstRect = SkRect::Make(SkIRect::MakeXYWH(0, 0, rc.w, rc.h));
-      canvas.drawBitmapRect(bitmap, srcRect, dstRect, &paint,
-                            SkCanvas::kStrict_SrcRectConstraint);
+      canvas.drawImageRect(SkImage::MakeFromRaster(bitmap.pixmap(), nullptr, nullptr),
+                           srcRect, dstRect, SkSamplingOptions(),
+                           &paint, SkCanvas::kStrict_SrcRectConstraint);
 
       XImage image;
       if (convert_skia_bitmap_to_ximage(scaled, image)) {

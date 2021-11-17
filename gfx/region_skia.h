@@ -14,7 +14,7 @@
 #include <vector>
 #include <iterator>
 
-#include "SkRegion.h"
+#include "include/core/SkRegion.h"
 
 namespace gfx {
 

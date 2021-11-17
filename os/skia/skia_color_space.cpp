@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2020  Igara Studio S.A.
+// Copyright (C) 2018-2021  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -12,19 +12,16 @@
 
 #include "base/debug.h"
 
-#include "SkImageInfo.h"
-#include "SkString.h"
-#include "skcms.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkString.h"
+#include "include/third_party/skcms/skcms.h"
+#include "src/core/SkConvertPixels.h"
 
 #include <algorithm>
 
 // Defined in skia/src/core/SkICC.cpp
 const char* get_color_profile_description(const skcms_TransferFunction& fn,
                                           const skcms_Matrix3x3& toXYZD50);
-
-// Defined in skia/src/core/SkConvertPixels.cpp
-extern void SkConvertPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
-                            const SkImageInfo& srcInfo, const void* srcPixels, size_t srcRowBytes);
 
 namespace os {
 
@@ -142,9 +139,7 @@ bool SkiaColorSpaceConversion::convertRgba(uint32_t* dst, const uint32_t* src, i
                                    static_cast<const SkiaColorSpace*>(m_dstCS.get())->skColorSpace());
   auto srcInfo = SkImageInfo::Make(n, 1, kRGBA_8888_SkColorType, kUnpremul_SkAlphaType,
                                    static_cast<const SkiaColorSpace*>(m_srcCS.get())->skColorSpace());
-  SkConvertPixels(dstInfo, dst, 4*n,
-                  srcInfo, src, 4*n);
-  return true;
+  return SkConvertPixels(dstInfo, dst, 4 * n, srcInfo, src, 4 * n);
 }
 
 bool SkiaColorSpaceConversion::convertGray(uint8_t* dst, const uint8_t* src, int n)
@@ -153,9 +148,7 @@ bool SkiaColorSpaceConversion::convertGray(uint8_t* dst, const uint8_t* src, int
                                    static_cast<const SkiaColorSpace*>(m_dstCS.get())->skColorSpace());
   auto srcInfo = SkImageInfo::Make(n, 1, kGray_8_SkColorType, kOpaque_SkAlphaType,
                                    static_cast<const SkiaColorSpace*>(m_srcCS.get())->skColorSpace());
-  SkConvertPixels(dstInfo, dst, n,
-                  srcInfo, src, n);
-  return true;
+  return SkConvertPixels(dstInfo, dst, n, srcInfo, src, n);
 }
 
 } // namespace os

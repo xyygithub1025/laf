@@ -12,9 +12,9 @@
 #include "gfx/rect.h"
 #include "os/paint.h"
 
-#include "SkColor.h"
-#include "SkPaint.h"
-#include "SkRect.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
 
 #include <algorithm>
 
@@ -22,6 +22,10 @@ namespace os {
 
 inline SkColor to_skia(gfx::Color c) {
   return SkColorSetARGB(gfx::geta(c), gfx::getr(c), gfx::getg(c), gfx::getb(c));
+}
+
+inline SkColor4f to_skia4f(gfx::Color c) {
+  return SkColor4f::FromColor(to_skia(c));
 }
 
 inline SkIRect to_skia(const gfx::Rect& rc) {

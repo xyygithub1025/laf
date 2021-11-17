@@ -15,9 +15,9 @@
 #include "gfx/path.h"
 #include "os/skia/skia_helpers.h"
 
-#include "SkCodec.h"
-#include "SkPixelRef.h"
-#include "SkStream.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkPixelRef.h"
+#include "include/core/SkStream.h"
 
 #include <memory>
 

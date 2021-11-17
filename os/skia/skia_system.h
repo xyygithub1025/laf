@@ -31,7 +31,7 @@
   #define SkiaSystemBase SystemX11
 #endif
 
-#include "SkGraphics.h"
+#include "include/core/SkGraphics.h"
 
 #include <algorithm>
 #include <memory>

@@ -11,7 +11,7 @@
 #include "base/disable_copying.h"
 #include "os/color_space.h"
 
-#include "SkColorSpace.h"
+#include "include/core/SkColorSpace.h"
 
 namespace os {
 
