@@ -23,6 +23,7 @@ public:
 
   void getEvent(Event& ev, double timeout) override;
   void queueEvent(const Event& ev) override;
+  void clearEvents() override;
 
 private:
   void wakeUpQueue();

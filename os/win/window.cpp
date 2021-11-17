@@ -300,10 +300,11 @@ WindowWin::~WindowWin()
 {
   auto sys = system();
 
-  // This makes no sense (because the os::System should be created at
-  // this point), but we had a crash where a ~WindowWin() is called
-  // from an atexit() callback when the System is nullptr.
+  // If this assert fails it's highly probable that an os::WindowRef
+  // was kept alive in some kind of memory leak (or just inside an
+  // os::Event in the os::EventQueue).
   ASSERT(sys);
+
   if (sys) {
     auto& winApi = sys->winApi();
     if (m_ictx && winApi.DestroyInteractionContext)

@@ -133,7 +133,7 @@ void EventQueueX11::getEvent(Event& ev, double timeout)
   }
 }
 
-void EventQueueX11::clear()
+void EventQueueX11::clearEvents()
 {
   m_events.clear();
 }

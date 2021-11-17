@@ -128,4 +128,9 @@ void EventQueueOSX::wakeUpQueue()
          atStart:NO];
 }
 
+void EventQueueOSX::clearEvents()
+{
+  m_events.clear();
+}
+
 } // namespace os

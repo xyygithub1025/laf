@@ -91,6 +91,9 @@ public:
   void processX11Event(XEvent& event);
   static WindowX11* getPointerFromHandle(::Window handle);
 
+  // Only used for debugging purposes.
+  static size_t countActiveWindows();
+
 protected:
   virtual void onPaint(const gfx::Rect& rc) = 0;
   virtual void onResize(const gfx::Size& sz) = 0;

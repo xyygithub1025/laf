@@ -13,6 +13,7 @@
 
 #include "base/debug.h"
 #include "os/x11/event_queue.h"
+#include "os/x11/window.h"
 
 namespace os {
 
@@ -46,13 +47,12 @@ X11::~X11()
 {
   ASSERT(m_instance == this);
 
-  // TODO This is bad, really bad. We have to clear the list of events
-  //      to clear all references to displays and delete them here
-  //      (before closing the X11 display connection).
-  //
-  //      The event queue should be inside the System instance (so
-  //      when the system is deleted, the queue is deleted).
-  ((os::EventQueueX11*)os::EventQueue::instance())->clear();
+  // Before closing the X11 display connection, there shouldn't be
+  // more windows opened and the event queue (which store
+  // Event+WindowRef) should be empty. CommonSystem() dtor clears the
+  // queue.
+  ASSERT(WindowX11::countActiveWindows() == 0);
+  ASSERT(((os::EventQueueX11*)os::EventQueue::instance())->isEmpty());
 
   if (m_xim) {
     XCloseIM(m_xim);

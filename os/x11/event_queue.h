@@ -21,8 +21,9 @@ class EventQueueX11 : public EventQueue {
 public:
   void queueEvent(const Event& ev) override;
   void getEvent(Event& ev, double timeout) override;
+  void clearEvents() override;
 
-  void clear();
+  bool isEmpty() const { return m_events.empty(); }
 
 private:
   void processX11Event(XEvent& event);

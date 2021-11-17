@@ -113,6 +113,12 @@ WindowX11* WindowX11::getPointerFromHandle(::Window handle)
 }
 
 // static
+size_t WindowX11::countActiveWindows()
+{
+  return g_activeWindows.size();
+}
+
+// static
 void WindowX11::addWindow(WindowX11* window)
 {
   ASSERT(g_activeWindows.find(window->x11window()) == g_activeWindows.end());

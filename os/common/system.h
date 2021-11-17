@@ -38,7 +38,19 @@ class CommonSystem : public System {
 public:
   CommonSystem() { }
   ~CommonSystem() {
+    // We have to clear the list of all events to clear all possible
+    // living WindowRef (so all window destructors are called at this
+    // point, when the os::System instance is still alive).
+    //
+    // TODO Maybe the event queue should be inside the System instance
+    //      (so when the system is deleted, the queue is
+    //      deleted). Anyway we should still clear all the events
+    //      before set_instance(nullptr), and we're not sure if this
+    //      is possible on macOS, as some events are queued before the
+    //      System instance is even created (see
+    //      EventQueue::instance() comment on laf/os/event_queue.h).
     eventQueue()->clearEvents();
+
     set_instance(nullptr);
   }
 

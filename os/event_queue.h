@@ -22,7 +22,18 @@ namespace os {
     // Wait for a new event. We can specify a timeout in seconds to
     // limit the time of wait for the next event.
     virtual void getEvent(Event& ev, double timeout = kWithoutTimeout) = 0;
+
+    // Adds a new event in the queue to be processed by
+    // getEvent(). It's used by each platform to convert
+    // platform-specific messages into platform-independent events
+    // (os::Event).
     virtual void queueEvent(const Event& ev) = 0;
+
+    // Clears all events in the queue. You shouldn't call this
+    // function, it's used internally to clear all events before the
+    // System instance is destroyed. Anyway you might want to use it
+    // in case that you want to ensure that no more WindowRef is
+    // alive.
     virtual void clearEvents() = 0;
 
     // Deprecated old method. We should remove this line after some
