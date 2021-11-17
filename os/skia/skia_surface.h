@@ -495,7 +495,7 @@ public:
 
     SkSamplingOptions sampling;
     if (srcRect.w > dstRect.w && srcRect.h > dstRect.h)
-      sampling = SkSamplingOptions(SkFilterMode::kLinear);
+      sampling = DefaultSamplingOptions();
 
     m_canvas->drawImageRect(
       SkImage::MakeFromRaster(((SkiaSurface*)src)->m_bitmap.pixmap(), nullptr, nullptr),
@@ -555,12 +555,12 @@ public:
 
     SkSamplingOptions sampling;
     if (srcRect.w > dstRect.w && srcRect.h > dstRect.h)
-      sampling = SkSamplingOptions(SkFilterMode::kLinear);
+      sampling = DefaultSamplingOptions();
 
     m_canvas->drawImageRect(
       SkImage::MakeFromRaster(((SkiaSurface*)src)->m_bitmap.pixmap(), nullptr, nullptr),
       srcRect2, dstRect2,
-      SkSamplingOptions(),
+      sampling,
       &paint,
       SkCanvas::kStrict_SrcRectConstraint);
   }
@@ -700,6 +700,11 @@ public:
   static SurfaceRef loadSurface(const char* filename);
 
 private:
+  // TODO make these options public in the laf API
+  SkSamplingOptions DefaultSamplingOptions() {
+    return SkSamplingOptions(SkCubicResampler::Mitchell());
+  }
+
   sk_sp<SkColorSpace> skColorSpace() const {
     if (m_colorSpace)
       return static_cast<SkiaColorSpace*>(m_colorSpace.get())->skColorSpace();
