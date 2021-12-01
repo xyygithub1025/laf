@@ -31,20 +31,15 @@ endif()
 
 # SkShaper module + freetype + harfbuzz
 find_library(SKSHAPER_LIBRARY skshaper PATH "${SKIA_LIBRARY_DIR}")
-if(NOT FREETYPE_LIBRARIES)
-  set(FREETYPE_FOUND ON)
-  find_library(FREETYPE_LIBRARY freetype2 PATH "${SKIA_LIBRARY_DIR}" NO_DEFAULT_PATH)
-  set(FREETYPE_LIBRARIES ${FREETYPE_LIBRARY})
-  set(FREETYPE_INCLUDE_DIRS "${SKIA_DIR}/third_party/externals/freetype/include")
-endif()
-if(NOT HARFBUZZ_LIBRARIES)
-  find_library(HARFBUZZ_LIBRARY harfbuzz PATH "${SKIA_LIBRARY_DIR}" NO_DEFAULT_PATH)
-  set(HARFBUZZ_LIBRARIES ${HARFBUZZ_LIBRARY})
-  set(HARFBUZZ_INCLUDE_DIRS "${SKIA_DIR}/third_party/externals/harfbuzz/src")
-endif()
 
-# harfbuzz library in skia
-find_library(SKIA_HARFBUZZ_LIBRARY harfbuzz PATH "${SKIA_LIBRARY_DIR}" NO_DEFAULT_PATH)
+set(FREETYPE_FOUND ON)
+find_library(FREETYPE_LIBRARY freetype2 PATH "${SKIA_LIBRARY_DIR}" NO_DEFAULT_PATH)
+set(FREETYPE_LIBRARIES ${FREETYPE_LIBRARY})
+set(FREETYPE_INCLUDE_DIRS "${SKIA_DIR}/third_party/externals/freetype/include")
+
+find_library(HARFBUZZ_LIBRARY harfbuzz PATH "${SKIA_LIBRARY_DIR}" NO_DEFAULT_PATH)
+set(HARFBUZZ_LIBRARIES ${HARFBUZZ_LIBRARY})
+set(HARFBUZZ_INCLUDE_DIRS "${SKIA_DIR}/third_party/externals/harfbuzz/src")
 
 set(SKIA_LIBRARIES
   ${SKIA_LIBRARY}

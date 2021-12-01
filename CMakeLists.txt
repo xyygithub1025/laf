@@ -1,5 +1,5 @@
 # LAF
-# Copyright (C) 2019-2020  Igara Studio S.A.
+# Copyright (C) 2019-2021  Igara Studio S.A.
 # Copyright (C) 2016-2018  David Capello
 
 cmake_minimum_required(VERSION 3.16)
@@ -66,6 +66,9 @@ endif()
 
 if(LAF_BACKEND STREQUAL "skia")
   target_compile_definitions(laf-base PUBLIC LAF_SKIA)
+
+  # Flag for harfbuzz
+  target_compile_definitions(laf-base INTERFACE -DHAVE_CONFIG_OVERRIDE_H=1)
 endif()
 
 # Information
