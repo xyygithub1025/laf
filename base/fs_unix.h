@@ -65,6 +65,11 @@ void move_file(const std::string& src, const std::string& dst)
     throw std::runtime_error("Error moving file");
 }
 
+void copy_file(const std::string& src, const std::string& dst, bool overwrite)
+{
+  throw std::runtime_error("Error copying file: unimplemented");
+}
+
 void delete_file(const std::string& path)
 {
   int result = unlink(path.c_str());
