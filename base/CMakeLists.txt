@@ -24,9 +24,6 @@ endif()
 configure_file(${CMAKE_CURRENT_LIST_DIR}/config.h.cmakein
                ${LAF_BINARY_DIR}/base/config.h @ONLY)
 
-# To include "base/config.h"
-include_directories(${LAF_BINARY_DIR})
-
 set(BASE_SOURCES
   base64.cpp
   cfile.cpp
