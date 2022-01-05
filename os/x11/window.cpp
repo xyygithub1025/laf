@@ -313,6 +313,12 @@ WindowX11::WindowX11(::Display* display, const WindowSpec& spec)
   }
 
   XMapWindow(m_display, m_window);
+
+  // Set the window position and size as the position is not correctly
+  // used from the XCreateWindow() or XSizeHints.
+  XMoveResizeWindow(m_display, m_window,
+                    rc.x, rc.y, rc.w, rc.h);
+
   XSetWMProtocols(m_display, m_window, &WM_DELETE_WINDOW, 1);
 
   if (spec.floating() && spec.parent()) {
