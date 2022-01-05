@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2019-2021  Igara Studio S.A.
+// Copyright (C) 2019-2022  Igara Studio S.A.
 // Copyright (C) 2016-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -101,7 +101,12 @@ void EventQueueX11::getEvent(Event& ev, double timeout)
   int events = XEventsQueued(display, QueuedAlready);
   if (events == 0) {
     if (timeout == kWithoutTimeout) {
-      events = 1;
+      // Wait for a XEvent only if we have an empty queue of os::Event
+      // (so there is no more events to process in our own queue).
+      if (m_events.empty())
+        events = 1;
+      else
+        events = 0;
     }
     else if (timeout > 0.0) {
       // Wait timeout (waiting the X11 connection file description for
