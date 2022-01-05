@@ -1055,13 +1055,6 @@ void WindowX11::processX11Event(XEvent& event)
 
     case PropertyNotify:
       if (event.xproperty.atom == _NET_FRAME_EXTENTS) {
-        if (m_borderless) {
-          std::vector<unsigned long> data(4, 0);
-          XChangeProperty(
-            m_display, m_window, _NET_FRAME_EXTENTS, XA_CARDINAL, 32,
-            PropModeReplace, (const unsigned char*)&data[0], data.size());
-        }
-
         Atom actual_type;
         int actual_format;
         unsigned long nitems;
@@ -1082,6 +1075,13 @@ void WindowX11::processX11Event(XEvent& event)
           m_frameExtents.top(prop[2]);
           m_frameExtents.bottom(prop[3]);
           XFree(prop);
+
+          if (m_borderless && m_frameExtents != gfx::Border(0, 0, 0, 0)) {
+            std::vector<unsigned long> data(4, 0);
+            XChangeProperty(
+              m_display, m_window, _NET_FRAME_EXTENTS, XA_CARDINAL, 32,
+              PropModeReplace, (const unsigned char*)&data[0], data.size());
+          }
         }
       }
       else if (event.xproperty.atom == _NET_WM_ALLOWED_ACTIONS) {
