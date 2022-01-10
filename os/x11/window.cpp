@@ -94,6 +94,9 @@ Atom _NET_WM_ALLOWED_ACTIONS = 0;
 
 // Atoms used for the XDND protocol
 Atom XdndAware = 0;
+Atom XdndPosition = 0;
+Atom XdndStatus = 0;
+Atom XdndActionCopy = 0;
 Atom XdndDrop = 0;
 Atom XdndFinished = 0;
 Atom XdndSelection = 0;
@@ -361,6 +364,9 @@ WindowX11::WindowX11(::Display* display, const WindowSpec& spec)
   // TODO add support for other formats (e.g. dropping images?)
   if (!XdndAware) {
     XdndAware = XInternAtom(m_display, "XdndAware", False);
+    XdndPosition = XInternAtom(m_display, "XdndPosition", False);
+    XdndStatus = XInternAtom(m_display, "XdndStatus", False);
+    XdndActionCopy = XInternAtom(m_display, "XdndActionCopy", False);
     XdndDrop = XInternAtom(m_display, "XdndDrop", False);
     XdndFinished = XInternAtom(m_display, "XdndFinished", False);
     XdndSelection = XInternAtom(m_display, "XdndSelection", False);
@@ -1091,6 +1097,23 @@ void WindowX11::processX11Event(XEvent& event)
         Event ev;
         ev.setType(Event::CloseWindow);
         queueEvent(ev);
+      }
+      else if (event.xclient.message_type == XdndPosition) {
+        auto sourceWindow = (::Window)event.xclient.data.l[0];
+
+        // TODO Ask to the library user if we can drop and the action
+        //      that will take place
+        XEvent event2;
+        memset(&event2, 0, sizeof(event2));
+        event2.xany.type = ClientMessage;
+        event2.xclient.window = sourceWindow;
+        event2.xclient.message_type = XdndStatus;
+        event2.xclient.format = 32;
+        event2.xclient.data.l[0] = m_window;
+        // Bit 0 = this window accept the drop
+        event2.xclient.data.l[1] = 1;
+        event2.xclient.data.l[4] = XdndActionCopy;
+        XSendEvent(m_display, sourceWindow, 0, 0, &event2);
       }
       else if (event.xclient.message_type == XdndDrop) {
         // Save the X11 window from where this XdndDrop message came
