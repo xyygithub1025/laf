@@ -13,6 +13,7 @@
 
 #include "base/clamp.h"
 #include "base/debug.h"
+#include "base/hex.h"
 #include "base/split_string.h"
 #include "base/string.h"
 #include "base/thread.h"
@@ -133,14 +134,6 @@ gfx::Point get_mouse_wheel_delta(int button)
   return delta;
 }
 
-int hex_to_int(const char c)
-{
-  if (c >= '0' && c <= '9') return c - '0';
-  if (c >= 'A' && c <= 'F') return c - 'A' + 10;
-  if (c >= 'a' && c <= 'f') return c - 'a' + 10;
-  return 0;
-}
-
 std::string decode_url(const std::string& in)
 {
   std::string out;
@@ -155,8 +148,8 @@ std::string decode_url(const std::string& in)
   for (; i<in.size(); ++i) {
     auto c = in[i];
     if (c == '%' && i+2 < in.size()) {
-      c = ((hex_to_int(in[i+1]) << 4) |
-           (hex_to_int(in[i+2])));
+      c = ((base::hex_to_int(in[i+1]) << 4) |
+           (base::hex_to_int(in[i+2])));
       i += 2;
     }
     out.push_back(c);
