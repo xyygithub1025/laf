@@ -133,6 +133,39 @@ gfx::Point get_mouse_wheel_delta(int button)
   return delta;
 }
 
+int hex_to_int(const char c)
+{
+  if (c >= '0' && c <= '9') return c - '0';
+  if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+  if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+  return 0;
+}
+
+std::string decode_url(const std::string& in)
+{
+  std::string out;
+  out.reserve(in.size());
+
+  int i;
+  if (std::strncmp(in.c_str(), "file://", 7) == 0)
+    i = 7;
+  else
+    i = 0;
+
+  for (; i<in.size(); ++i) {
+    auto c = in[i];
+    if (c == '%' && i+2 < in.size()) {
+      c = ((hex_to_int(in[i+1]) << 4) |
+           (hex_to_int(in[i+2])));
+      i += 2;
+    }
+    out.push_back(c);
+  }
+
+  base::trim_string(out, out);
+  return out;
+}
+
 } // anonymous namespace
 
 // static
@@ -1151,15 +1184,13 @@ void WindowX11::processX11Event(XEvent& event)
             std::vector<std::string> files;
             base::split_string(std::string(prop), files, "\n");
             for (auto it=files.begin(); it!=files.end(); ) {
-              std::string& f = *it;
-              base::trim_string(f, f);
-              if (std::strncmp(f.c_str(), "file://", 7) == 0)
-                f = f.substr(7);
-
+              std::string f = decode_url(*it);
               if (f.empty())
                 it = files.erase(it);
-              else
+              else {
+                *it = f;
                 ++it;
+              }
             }
 
             if (!files.empty()) {
