@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2021  Igara Studio S.A.
+// Copyright (C) 2018-2022  Igara Studio S.A.
 // Copyright (C) 2016-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -102,6 +102,8 @@ private:
   void setWMClass(const std::string& res_class);
   void setAllowedActions();
   bool setX11Cursor(::Cursor xcursor);
+  bool requestX11FrameExtents();
+  void getX11FrameExtents();
   static void addWindow(WindowX11* window);
   static void removeWindow(WindowX11* window);
 
@@ -113,7 +115,6 @@ private:
   gfx::Point m_lastMousePos;
   gfx::Size m_lastClientSize;
   gfx::Border m_frameExtents;
-  bool m_initializingFromFrame = false;
   bool m_initializingActions = true;
   bool m_fullscreen = false;
   bool m_borderless = false;

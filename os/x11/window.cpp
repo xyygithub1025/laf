@@ -88,6 +88,7 @@ struct MotifHints {
 Atom WM_PROTOCOLS = 0;
 Atom WM_DELETE_WINDOW = 0;
 Atom _NET_FRAME_EXTENTS = 0;
+Atom _NET_REQUEST_FRAME_EXTENTS = 0;
 Atom _NET_WM_STATE = 0;
 Atom _NET_WM_STATE_MAXIMIZED_VERT;
 Atom _NET_WM_STATE_MAXIMIZED_HORZ;
@@ -211,8 +212,10 @@ WindowX11::WindowX11(::Display* display, const WindowSpec& spec)
   , m_transparent(spec.transparent())
 {
   // Cache some atoms (TODO improve this to cache more atoms)
-  if (!_NET_FRAME_EXTENTS)
+  if (!_NET_FRAME_EXTENTS) {
     _NET_FRAME_EXTENTS = XInternAtom(m_display, "_NET_FRAME_EXTENTS", False);
+    _NET_REQUEST_FRAME_EXTENTS = XInternAtom(m_display, "_NET_REQUEST_FRAME_EXTENTS", False);
+  }
   if (!_NET_WM_STATE) {
     _NET_WM_STATE = XInternAtom(m_display, "_NET_WM_STATE", False);
     _NET_WM_STATE_MAXIMIZED_VERT = XInternAtom(m_display, "_NET_WM_STATE_MAXIMIZED_VERT", False);
@@ -266,10 +269,8 @@ WindowX11::WindowX11(::Display* display, const WindowSpec& spec)
 
   gfx::Rect rc;
 
-  if (!spec.frame().isEmpty()) {
+  if (!spec.frame().isEmpty())
     rc = spec.frame();
-    m_initializingFromFrame = true;
-  }
   else
     rc = spec.contentRect();
 
@@ -355,6 +356,19 @@ WindowX11::WindowX11(::Display* display, const WindowSpec& spec)
   }
 
   XMapWindow(m_display, m_window);
+
+  // In case the user wants to set the initial window bounds as the
+  // frame bounds, and as X11 expects the content bounds in
+  // XMoveResizeWindow(), we've to remove the frame extents from the
+  // specified spec.frame() rectangle. Anyway the frame extents is not
+  // yet available here, so we have to send a
+  // _NET_REQUEST_FRAME_EXTENTS event to request the frame extents.
+  if (!spec.borderless() && !spec.frame().isEmpty()) {
+    if (requestX11FrameExtents()) {
+      getX11FrameExtents();
+      rc.shrink(m_frameExtents);
+    }
+  }
 
   // Set the window position and size as the position is not correctly
   // used from the XCreateWindow() or XSizeHints.
@@ -646,8 +660,11 @@ gfx::Rect WindowX11::frame() const
 void WindowX11::setFrame(const gfx::Rect& bounds)
 {
   gfx::Rect rc = bounds;
-  if (!m_borderless)
+  if (!m_borderless) {
     rc.shrink(m_frameExtents);
+    rc.y -= m_frameExtents.top(); // Shrink from top
+  }
+
   XMoveResizeWindow(
     m_display,
     m_window,
@@ -899,6 +916,74 @@ bool WindowX11::setX11Cursor(::Cursor xcursor)
     return false;
 }
 
+bool WindowX11::requestX11FrameExtents()
+{
+  ::Window root = XDefaultRootWindow(m_display);
+
+  // Send a _NET_REQUEST_FRAME_EXTENTS to the root window to ask for
+  // the frame extents of this window.
+  XEvent event;
+  memset(&event, 0, sizeof(event));
+  event.xany.type = ClientMessage;
+  event.xclient.window = m_window;
+  event.xclient.message_type = _NET_REQUEST_FRAME_EXTENTS;
+  event.xclient.format = 32;
+  XSendEvent(m_display, root, 0,
+             SubstructureNotifyMask | SubstructureRedirectMask, &event);
+
+  // Now we have to wait the _NET_FRAME_EXTENTS property modification
+  // event.
+  auto isFrameExtentsEvent =
+    [](Display* d, XEvent* e, XPointer w) -> Bool {
+      return (e->xany.type == PropertyNotify &&
+              e->xproperty.window == (::Window)w &&
+              e->xproperty.atom == _NET_FRAME_EXTENTS);
+    };
+
+  XEvent event2;
+  int wait = 100;        // We're going to wait 100 milliseconds
+  while (wait > 0) {
+    if (XCheckIfEvent(m_display,
+                      &event2,
+                      isFrameExtentsEvent,
+                      (XPointer)m_window)) {
+      // Event in queue (the event is not removed from the queue).
+      return true;
+    }
+    base::this_thread::sleep_for(0.01);
+    wait -= 10;
+  }
+
+  // We're not sure if we're going to receive the _NET_FRAME_EXTENTS
+  // notification in the future
+  return false;
+}
+
+void WindowX11::getX11FrameExtents()
+{
+  Atom actual_type;
+  int actual_format;
+  unsigned long nitems;
+  unsigned long bytes_after;
+  unsigned long* prop = nullptr;
+  int res = XGetWindowProperty(m_display, m_window,
+                               _NET_FRAME_EXTENTS,
+                               0, 4,
+                               False, XA_CARDINAL,
+                               &actual_type, &actual_format,
+                               &nitems, &bytes_after,
+                               (unsigned char**)&prop);
+
+  if (res == Success && nitems == 4) {
+    // Get the dimension of the title bar + borders (WM decorators)
+    m_frameExtents.left(prop[0]);
+    m_frameExtents.right(prop[1]);
+    m_frameExtents.top(prop[2]);
+    m_frameExtents.bottom(prop[3]);
+    XFree(prop);
+  }
+}
+
 void WindowX11::processX11Event(XEvent& event)
 {
   auto xinput = &X11::instance()->xinput();
@@ -917,18 +1002,6 @@ void WindowX11::processX11Event(XEvent& event)
                    event.xconfigure.y,
                    event.xconfigure.width,
                    event.xconfigure.height);
-
-      if (m_initializingFromFrame) {
-        m_initializingFromFrame = false;
-
-        rc.w -= m_frameExtents.width();
-        rc.h -= m_frameExtents.height();
-        if (!m_borderless)
-          rc.h += 4; // TODO it's one unit of PResizeInc, try to get this value in other way
-
-        XResizeWindow(m_display, m_window, rc.w, rc.h);
-        return;
-      }
 
       if (rc.w > 0 && rc.h > 0 && rc.size() != m_lastClientSize) {
         m_lastClientSize = rc.size();
@@ -1217,33 +1290,13 @@ void WindowX11::processX11Event(XEvent& event)
 
     case PropertyNotify:
       if (event.xproperty.atom == _NET_FRAME_EXTENTS) {
-        Atom actual_type;
-        int actual_format;
-        unsigned long nitems;
-        unsigned long bytes_after;
-        unsigned long* prop = nullptr;
-        int res = XGetWindowProperty(m_display, m_window,
-                                     _NET_FRAME_EXTENTS,
-                                     0, 4,
-                                     False, XA_CARDINAL,
-                                     &actual_type, &actual_format,
-                                     &nitems, &bytes_after,
-                                     (unsigned char**)&prop);
+        getX11FrameExtents();
 
-        if (res == Success && nitems == 4) {
-          // Get the dimension of the title bar + borders (WM decorators)
-          m_frameExtents.left(prop[0]);
-          m_frameExtents.right(prop[1]);
-          m_frameExtents.top(prop[2]);
-          m_frameExtents.bottom(prop[3]);
-          XFree(prop);
-
-          if (m_borderless && m_frameExtents != gfx::Border(0, 0, 0, 0)) {
-            std::vector<unsigned long> data(4, 0);
-            XChangeProperty(
-              m_display, m_window, _NET_FRAME_EXTENTS, XA_CARDINAL, 32,
-              PropModeReplace, (const unsigned char*)&data[0], data.size());
-          }
+        if (m_borderless && m_frameExtents != gfx::Border(0, 0, 0, 0)) {
+          std::vector<unsigned long> data(4, 0);
+          XChangeProperty(
+            m_display, m_window, _NET_FRAME_EXTENTS, XA_CARDINAL, 32,
+            PropModeReplace, (const unsigned char*)&data[0], data.size());
         }
       }
       else if (event.xproperty.atom == _NET_WM_ALLOWED_ACTIONS) {
