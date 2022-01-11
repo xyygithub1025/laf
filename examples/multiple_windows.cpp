@@ -224,6 +224,11 @@ int app_main(int argc, char* argv[])
               case os::kKeyDown:  rc.y += rc.h; break;
             }
             ev.window()->setFrame(rc);
+
+            // Redraw window because so we can show the new position
+            // on it
+            redraw_window(ev.window().get());
+            ev.window()->invalidate();
             break;
           }
 
