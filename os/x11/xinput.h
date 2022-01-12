@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2020-2021  Igara Studio S.A.
+// Copyright (C) 2020-2022  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -10,6 +10,7 @@
 
 #include "base/dll.h"
 #include "base/log.h"
+#include "base/string.h"
 #include "os/event.h"
 #include "os/x11/keys.h"
 #include "os/x11/mouse.h"
@@ -91,15 +92,19 @@ public:
     if (!devices)
       return;
 
+    std::string devName;
     for (int i=0; i<ndevices; ++i) {
       XDeviceInfo* devInfo = devices+i;
       if (!devInfo->name)
         continue;
 
+      // Some devices has "stylus" and others "STYLUS".
+      devName = base::string_to_lower(devInfo->name);
+
       PointerType pointerType;
-      if (std::strstr(devInfo->name, "stylus"))
+      if (std::strstr(devName.c_str(), "stylus"))
         pointerType = PointerType::Pen;
-      else if (std::strstr(devInfo->name, "eraser"))
+      else if (std::strstr(devName.c_str(), "eraser"))
         pointerType = PointerType::Eraser;
       else
         continue;
