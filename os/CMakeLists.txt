@@ -44,7 +44,8 @@ else()
     x11/keys.cpp
     x11/system.cpp
     x11/window.cpp
-    x11/x11.cpp)
+    x11/x11.cpp
+    x11/xinput.cpp)
   if(LAF_OS_WITH_GTK)
     list(APPEND LAF_OS_SOURCES
       gtk/native_dialogs.cpp)
