@@ -105,7 +105,9 @@ public:
       if (std::strstr(devName.c_str(), "stylus") ||
           // Some devices has "Tablet Pen", others "PenTablet Pen",
           // this case cover both:
-          std::strstr(devName.c_str(), "tablet pen")) {
+          std::strstr(devName.c_str(), "tablet pen") ||
+          // Generic driver for stylus with external monitors?
+          std::strstr(devName.c_str(), "tablet monitor pen")) {
         pointerType = PointerType::Pen;
       }
       // It can be "eraser", or "Tablet Eraser", or "PenTablet
