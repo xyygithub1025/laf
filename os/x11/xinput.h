@@ -102,10 +102,17 @@ public:
       devName = base::string_to_lower(devInfo->name);
 
       PointerType pointerType;
-      if (std::strstr(devName.c_str(), "stylus"))
+      if (std::strstr(devName.c_str(), "stylus") ||
+          // Some devices has "Tablet Pen", others "PenTablet Pen",
+          // this case cover both:
+          std::strstr(devName.c_str(), "tablet pen")) {
         pointerType = PointerType::Pen;
-      else if (std::strstr(devName.c_str(), "eraser"))
+      }
+      // It can be "eraser", or "Tablet Eraser", or "PenTablet
+      // Eraser", etc. Anything with "eraser" word should work.
+      else if (std::strstr(devName.c_str(), "eraser")) {
         pointerType = PointerType::Eraser;
+      }
       else
         continue;
 
