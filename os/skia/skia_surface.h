@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (c) 2018-2021  Igara Studio S.A.
+// Copyright (c) 2018-2022  Igara Studio S.A.
 // Copyright (c) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -14,6 +14,7 @@
 #include "gfx/matrix.h"
 #include "os/common/generic_surface.h"
 #include "os/common/sprite_sheet_font.h"
+#include "os/sampling.h"
 #include "os/skia/skia_color_space.h"
 #include "os/skia/skia_helpers.h"
 
@@ -502,6 +503,31 @@ public:
       srcRect2, dstRect2,
       sampling,
       &paint,
+      SkCanvas::kStrict_SrcRectConstraint);
+  }
+
+  void drawSurface(const Surface* src,
+                   const gfx::Rect& srcRect,
+                   const gfx::Rect& dstRect,
+                   const Sampling& sampling,
+                   const os::Paint* paint) override {
+    SkRect srcRect2 = SkRect::Make(SkIRect::MakeXYWH(srcRect.x, srcRect.y, srcRect.w, srcRect.h));
+    SkRect dstRect2 = SkRect::Make(SkIRect::MakeXYWH(dstRect.x, dstRect.y, dstRect.w, dstRect.h));
+
+    SkPaint skPaint;
+    if (paint)
+      to_skia(*paint, skPaint);
+    else
+      skPaint.setBlendMode(SkBlendMode::kSrc);
+
+    SkSamplingOptions skSampling;
+    to_skia(sampling, skSampling);
+
+    m_canvas->drawImageRect(
+      SkImage::MakeFromRaster(((SkiaSurface*)src)->m_bitmap.pixmap(), nullptr, nullptr),
+      srcRect2, dstRect2,
+      skSampling,
+      &skPaint,
       SkCanvas::kStrict_SrcRectConstraint);
   }
 

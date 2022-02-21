@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2019-2021  Igara Studio S.A.
+// Copyright (C) 2019-2022  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -11,10 +11,12 @@
 #include "gfx/color.h"
 #include "gfx/rect.h"
 #include "os/paint.h"
+#include "os/sampling.h"
 
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkSamplingOptions.h"
 
 #include <algorithm>
 
@@ -87,6 +89,26 @@ inline void to_skia(const Paint& paint, SkPaint& skPaint) {
   skPaint.setAntiAlias(paint.antialias());
   skPaint.setStrokeWidth(paint.strokeWidth());
   skPaint.setBlendMode((SkBlendMode)paint.blendMode());
+}
+
+inline void to_skia(const Sampling& sampling, SkSamplingOptions& skSampling) {
+  static_assert((int)SkFilterMode::kNearest == (int)Sampling::Filter::Nearest &&
+                (int)SkFilterMode::kLinear == (int)Sampling::Filter::Linear,
+                "Sampling filter modes don't match with Skia");
+
+  static_assert((int)SkMipmapMode::kNone == (int)Sampling::Mipmap::None &&
+                (int)SkMipmapMode::kNearest == (int)Sampling::Mipmap::Nearest &&
+                (int)SkMipmapMode::kLinear == (int)Sampling::Mipmap::Linear,
+                "Sampling mipmap modes don't match with Skia");
+
+  if (sampling.useCubic) {
+    skSampling = SkSamplingOptions({ sampling.cubic.B,
+                                     sampling.cubic.C });
+  }
+  else {
+    skSampling = SkSamplingOptions((SkFilterMode)sampling.filter,
+                                   (SkMipmapMode)sampling.mipmap);
+  }
 }
 
 } // namespace os

@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2021  Igara Studio S.A.
+// Copyright (C) 2018-2022  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -29,6 +29,7 @@ namespace gfx {
 namespace os {
 
   class ColorSpace;
+  class Sampling;
   class Surface;
   class SurfaceLock;
   using SurfaceRef = Ref<Surface>;
@@ -137,6 +138,11 @@ namespace os {
     // TODO merge all these functions expoing a SkPaint-like structure
     virtual void drawSurface(const Surface* src, int dstx, int dsty) = 0;
     virtual void drawSurface(const Surface* surface, const gfx::Rect& srcRect, const gfx::Rect& dstRect) = 0;
+    virtual void drawSurface(const Surface* src,
+                             const gfx::Rect& srcRect,
+                             const gfx::Rect& dstRect,
+                             const os::Sampling& sampling,
+                             const os::Paint* paint) = 0;
     virtual void drawRgbaSurface(const Surface* src, int dstx, int dsty) = 0;
     virtual void drawRgbaSurface(const Surface* src, int srcx, int srcy, int dstx, int dsty, int width, int height) = 0;
     virtual void drawRgbaSurface(const Surface* surface, const gfx::Rect& srcRect, const gfx::Rect& dstRect) = 0;
