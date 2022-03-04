@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2021  Igara Studio S.A.
+// Copyright (C) 2018-2022  Igara Studio S.A.
 // Copyright (C) 2012-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -195,6 +195,9 @@ namespace os {
     // Indicates if you want to use dead keys or not. By default it's
     // false, which behaves as regular shortcuts. You should set this
     // to true when you're inside a text field in your app.
+    //
+    // TODO Improve this API using different input modes,
+    //      e.g. GameLike, TextInput, TextInputWithDeadKeys
     virtual void setTranslateDeadKeys(bool state) = 0;
 
     // Returns the mouse position in the screen. Try to avoid using

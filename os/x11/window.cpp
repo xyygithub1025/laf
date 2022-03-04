@@ -163,6 +163,9 @@ std::string decode_url(const std::string& in)
 } // anonymous namespace
 
 // static
+bool WindowX11::g_translateDeadKeys = false;
+
+// static
 WindowX11* WindowX11::getPointerFromHandle(::Window handle)
 {
   auto it = g_activeWindows.find(handle);

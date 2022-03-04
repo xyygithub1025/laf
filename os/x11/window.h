@@ -85,7 +85,11 @@ public:
   NativeHandle nativeHandle() const override { return (NativeHandle)x11window(); }
 
   void setTranslateDeadKeys(bool state) {
-    // TODO
+    g_translateDeadKeys = state;
+  }
+
+  static bool translateDeadKeys() {
+    return g_translateDeadKeys;
   }
 
   void processX11Event(XEvent& event);
@@ -127,6 +131,8 @@ private:
   // Double-click info
   Event::MouseButton m_doubleClickButton;
   base::tick_t m_doubleClickTick;
+
+  static bool g_translateDeadKeys;
 };
 
 } // namespace os

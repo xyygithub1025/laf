@@ -11,6 +11,7 @@
 
 #include "os/x11/event_queue.h"
 
+#include "base/thread.h"
 #include "os/x11/window.h"
 
 #include <X11/Xlib.h>
@@ -125,9 +126,42 @@ void EventQueueX11::getEvent(Event& ev, double timeout)
     }
   }
 
+  // If the user is not converting dead keys it means that we are not
+  // in a text-input field, and we are expecting a game-like input
+  // (shortcuts) so we can remove the repeats of a key
+  // (KeyRelease/KeyPress pair events) that are sent when we keep a
+  // key pressed.
+  const bool removeRepeats = (!WindowX11::translateDeadKeys());
+
   for (int i=0; i<events; ++i) {
     XNextEvent(display, &event);
-    processX11Event(event);
+
+    // Here we try to "remove" KeyRelease/KeyPress pairs from
+    // autorepeat key events (remove = not delivering/converting
+    // XEvent to os::Event)
+    if ((event.type == KeyRelease) &&
+        (removeRepeats) &&
+        (i+1 < events || XEventsQueued(display, QueuedAfterFlush) > 0)) {
+      if (i+1 < events)
+        ++i;
+      XEvent event2;
+      XNextEvent(display, &event2);
+      // If a KeyPress is just after a KeyRelease with the same time,
+      // this is an autorepeat.
+      if (event2.type == KeyPress &&
+          event.xkey.time == event2.xkey.time) {
+        // The KeyRelease/KeyPress are an autorepeat, we can just
+        // ignore both XEvents.
+      }
+      else {
+        // This wasn't an autorepeat event
+        processX11Event(event);
+        processX11Event(event2);
+      }
+    }
+    else {
+      processX11Event(event);
+    }
   }
 
   if (!m_events.try_pop(ev)) {
