@@ -29,7 +29,7 @@ namespace gfx {
 namespace os {
 
   class ColorSpace;
-  class Sampling;
+  struct Sampling;
   class Surface;
   class SurfaceLock;
   using SurfaceRef = Ref<Surface>;
