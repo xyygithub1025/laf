@@ -44,7 +44,7 @@ struct Platform {
      ;
 
   static constexpr Arch arch =
-#if __arm64__
+#if defined(__arm64__) || defined(__aarch64__)
     Arch::arm64
 #elif defined(__x86_64__) || defined(_WIN64)
     Arch::x64
