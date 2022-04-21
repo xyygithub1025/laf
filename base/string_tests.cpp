@@ -8,6 +8,7 @@
 #include <gtest/gtest.h>
 
 #include "base/string.h"
+#include "base/utf8_decode.h"
 
 #include <algorithm>
 #include <clocale>

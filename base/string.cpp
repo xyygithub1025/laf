@@ -11,6 +11,7 @@
 
 #include "base/debug.h"
 #include "base/string.h"
+#include "base/utf8_decode.h"
 
 #include <cctype>
 #include <vector>
