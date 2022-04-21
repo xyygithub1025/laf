@@ -1,4 +1,5 @@
 // LAF Base Library
+// Copyright (c) 2022 Igara Studio S.A.
 // Copyright (c) 2001-2016 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -138,6 +139,42 @@ TEST(String, StringToLowerByUnicodeCharIssue1065)
   int i = 0;
   for (; it != end; ++it) {
     ASSERT_EQ(b[i++], *it);
+  }
+}
+
+// Decoding invalid utf-8 strings shouldn't crash (just mark the
+// decoding state as invalid).
+TEST(String, Utf8DecodeDontCrash)
+{
+  auto decodeAllChars =
+    [](const std::string& str, bool shouldBeValid) -> int {
+      utf8_decode decode(str);
+      int chrs = 0;
+      while (int chr = decode.next()) {
+        ++chrs;
+      }
+      if (shouldBeValid)
+        EXPECT_TRUE(decode.is_valid());
+      else
+        EXPECT_FALSE(decode.is_valid());
+      return chrs;
+    };
+
+  std::string str = "\xE6\x97\xA5\xE6\x9C\xAC\xE8\xAA\x9E"; // 日本語
+  ASSERT_EQ(9, str.size());
+  bool valid_decoding[10] = { true, // Empty string is decoded correctly
+                              false, false, true,
+                              false, false, true,
+                              false, false, true };
+  int decoded_chars[10] = { 0,
+                            0, 0, 1,
+                            1, 1, 2,
+                            2, 2, 3 };
+
+  for (int n=0; n<=str.size(); ++n) {
+    int chrs = decodeAllChars(str.substr(0, n).c_str(),
+                              valid_decoding[n]);
+    EXPECT_EQ(decoded_chars[n], chrs);
   }
 }
 
