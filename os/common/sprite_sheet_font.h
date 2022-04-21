@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2019-2020  Igara Studio S.A.
+// Copyright (C) 2019-2022  Igara Studio S.A.
 // Copyright (C) 2012-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -11,6 +11,7 @@
 
 #include "base/debug.h"
 #include "base/string.h"
+#include "base/utf8_decode.h"
 #include "gfx/rect.h"
 #include "os/font.h"
 #include "os/ref.h"
@@ -34,12 +35,10 @@ public:
   }
 
   int textLength(const std::string& str) const override {
-    base::utf8_const_iterator it(str.begin()), end(str.end());
+    base::utf8_decode decode(str);
     int x = 0;
-    while (it != end) {
-      x += getCharBounds(*it).w;
-      ++it;
-    }
+    while (int chr = decode.next())
+      x += getCharBounds(chr).w;
     return x;
   }
 
