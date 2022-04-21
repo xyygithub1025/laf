@@ -212,7 +212,10 @@ namespace base {
 
       // UTF-8 escape bit 0x80 to encode larger code points
       if (c & 0b1000'0000) {
-        // Get the number of bytes following the first one 0b1xxx'xxxx.
+        // Get the number of bits following the first one 0b1xxx'xxxx,
+        // which indicates the number of extra bytes in the input
+        // string following this one, and that will be part of the
+        // final Unicode code point.
         //
         // This is like "number of leading ones", similar to a
         // __builtin_clz(~x)-24 (for 8 bits), anyway doing some tests,
@@ -249,6 +252,8 @@ namespace base {
             m_valid = false;
             return 0;
           }
+          // Each extra byte in the encoded string adds 6 bits of
+          // information for the final Unicode code point.
           c = (c << 6) | (chr & 0b0011'1111);
         }
       }
