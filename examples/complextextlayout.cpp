@@ -1,5 +1,5 @@
 // LAF Library
-// Copyright (c) 2019-2021  Igara Studio S.A.
+// Copyright (c) 2019-2022  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -59,10 +59,8 @@ void draw_window(os::Window* window,
   gfx::Point pos(0, 0);
   for (auto line : lines) {
     std::string s = base::to_utf8(line);
-    base::utf8_const utf8(s);
     os::draw_text(
-      backSurface.get(), font.get(),
-      utf8.begin(), utf8.end(),
+      backSurface.get(), font.get(), s,
       gfx::rgba(255, 255, 255), gfx::ColorNone,
       pos.x, pos.y,
       &delegate);

@@ -27,6 +27,10 @@ namespace base {
       , m_end(str.end()) {
     }
 
+    iterator pos() const {
+      return m_it;
+    }
+
     bool is_end() const {
       return m_it == m_end;
     }
