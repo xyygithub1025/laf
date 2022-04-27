@@ -151,13 +151,14 @@ void EventQueueX11::getEvent(Event& ev, double timeout)
       if (event2.type == KeyPress &&
           event.xkey.time == event2.xkey.time) {
         // The KeyRelease/KeyPress are an autorepeat, we can just
-        // ignore both XEvents.
+        // ignore the KeyRelease XEvent (and process the event2, which
+        // is a KeyPress to send a os::Event::KeyDown).
       }
       else {
         // This wasn't an autorepeat event
         processX11Event(event);
-        processX11Event(event2);
       }
+      processX11Event(event2);
     }
     else {
       processX11Event(event);

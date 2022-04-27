@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2019-2021  Igara Studio S.A.
+// Copyright (C) 2019-2022  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -35,8 +35,14 @@ namespace os {
       // When the X is pressed in the current window.
       CloseWindow,
 
+      // When the window is resized/maximized/restored (any time the
+      // client area size of the window changes)
       ResizeWindow,
+
+      // Some files are dropped in the window
       DropFiles,
+
+      // Common mouse events
       MouseEnter,
       MouseLeave,
       MouseMove,
@@ -44,8 +50,14 @@ namespace os {
       MouseUp,
       MouseWheel,
       MouseDoubleClick,
+
+      // A key is pressed (or is autorepeated if the key is kept pressed)
       KeyDown,
+
+      // A key is released
       KeyUp,
+
+      // Pinch gesture with fingers to zoom in/out
       TouchMagnify,
       Callback,
     };
