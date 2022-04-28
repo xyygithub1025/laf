@@ -49,6 +49,10 @@ public:
                              int scale,
                              Time& time);
 
+  void setUserDefinedTablet(const std::string& str) {
+    m_userDefinedTablet = str;
+  }
+
 private:
   void addEvent(int type, XEventClass eventClass, Event::Type ourEventype);
 
@@ -63,6 +67,7 @@ private:
   std::map<XID, Info> m_info;
   std::vector<XEventClass> m_eventClasses;
   std::vector<Event::Type> m_eventTypes;
+  std::string m_userDefinedTablet;
 };
 
 } // namespace os

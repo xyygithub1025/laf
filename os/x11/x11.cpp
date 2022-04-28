@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2021  Igara Studio S.A.
+// Copyright (C) 2021-2022  Igara Studio S.A.
 // Copyright (C) 2016  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -62,6 +62,12 @@ X11::~X11()
     XCloseDisplay(m_display);
   }
   m_instance = nullptr;
+}
+
+void x11_set_user_defined_string_to_detect_stylus(const std::string& str)
+{
+  if (auto x11 = X11::instance())
+    x11->xinput().setUserDefinedTablet(str);
 }
 
 } // namespace os

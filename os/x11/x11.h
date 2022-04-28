@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2020-2021  Igara Studio S.A.
+// Copyright (C) 2020-2022  Igara Studio S.A.
 // Copyright (C) 2016-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -35,6 +35,10 @@ private:
   ::XIM m_xim;
   XInput m_xinput;
 };
+
+// User-defined string to detect a stylys/pen because it looks like
+// Linux doesn't offer a flag/device type to detect them (?)
+void x11_set_user_defined_string_to_detect_stylus(const std::string& str);
 
 } // namespace os
 
