@@ -86,7 +86,9 @@ void XInput::load(::Display* display)
         // this case cover both:
         std::strstr(devName.c_str(), "tablet pen") ||
         // Generic driver for stylus with external monitors?
-        std::strstr(devName.c_str(), "tablet monitor pen")) {
+        std::strstr(devName.c_str(), "tablet monitor pen") ||
+        // Detect old Wacom Bamboo devices
+        std::strstr(devName.c_str(), "wacom bamboo connect pen pen")) {
       pointerType = PointerType::Pen;
     }
     // It can be "eraser", or "Tablet Eraser", or "PenTablet
