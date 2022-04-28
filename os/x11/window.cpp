@@ -31,6 +31,7 @@
 #include "os/x11/screen.h"
 #include "os/x11/system.h"
 #include "os/x11/x11.h"
+#include "os/x11/xinput.h"
 
 #include <array>
 #include <map>
@@ -339,7 +340,7 @@ WindowX11::WindowX11(::Display* display, const WindowSpec& spec)
   }
 
   // Receive stylus/eraser events
-  X11::instance()->xinput().selectExtensionEvents(m_display, m_window);
+  X11::instance()->xinput()->selectExtensionEvents(m_display, m_window);
 
   // Change preferred origin/size for the window (this should be used by the WM)
   {
@@ -989,7 +990,7 @@ void WindowX11::getX11FrameExtents()
 
 void WindowX11::processX11Event(XEvent& event)
 {
-  auto xinput = &X11::instance()->xinput();
+  auto xinput = X11::instance()->xinput();
   if (xinput->handleExtensionEvent(event)) {
     Event ev;
     xinput->convertExtensionEvent(event, ev, m_scale,

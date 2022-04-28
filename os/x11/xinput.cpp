@@ -12,6 +12,7 @@
 
 #include "base/log.h"
 #include "base/string.h"
+#include "os/x11/x11.h"
 
 #include <cstring>
 
@@ -71,6 +72,8 @@ void XInput::load(::Display* display)
   if (!devices)
     return;
 
+  std::string userDefinedTablet = X11::instance()->userDefinedTablet();
+
   std::string devName;
   for (int i=0; i<ndevices; ++i) {
     XDeviceInfo* devInfo = devices+i;
@@ -90,8 +93,8 @@ void XInput::load(::Display* display)
         // Detect old Wacom Bamboo devices
         std::strstr(devName.c_str(), "wacom bamboo connect pen pen") ||
         // Detect user-defined strings
-        (!m_userDefinedTablet.empty() &&
-         std::strstr(devName.c_str(), m_userDefinedTablet.c_str()))) {
+        (!userDefinedTablet.empty() &&
+         std::strstr(devName.c_str(), userDefinedTablet.c_str()))) {
       pointerType = PointerType::Pen;
     }
     // It can be "eraser", or "Tablet Eraser", or "PenTablet

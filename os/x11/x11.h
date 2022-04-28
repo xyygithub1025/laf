@@ -12,11 +12,14 @@
 #include "base/debug.h"
 #include "gfx/color_space.h"    // Include here avoid error with None
 #include "os/event_queue.h"
-#include "os/x11/xinput.h"
 
 #include <X11/Xlib.h>
 
+#include <memory>
+
 namespace os {
+
+class XInput;
 
 class X11 {
   static X11* m_instance;
@@ -28,12 +31,18 @@ public:
 
   ::Display* display() const { return m_display; }
   ::XIM xim() const { return m_xim; }
-  XInput& xinput() { return m_xinput; }
+  XInput* xinput();
+
+  std::string userDefinedTablet() { return m_userDefinedTablet; }
+  void setUserDefinedTablet(const std::string& str) {
+    m_userDefinedTablet = str;
+  }
 
 private:
   ::Display* m_display;
   ::XIM m_xim;
-  XInput m_xinput;
+  std::unique_ptr<XInput> m_xinput;
+  std::string m_userDefinedTablet;
 };
 
 // User-defined string to detect a stylys/pen because it looks like

@@ -14,6 +14,7 @@
 #include "base/debug.h"
 #include "os/x11/event_queue.h"
 #include "os/x11/window.h"
+#include "os/x11/xinput.h"
 
 namespace os {
 
@@ -39,8 +40,6 @@ X11::X11()
 
   m_display = XOpenDisplay(nullptr);
   m_xim = XOpenIM(m_display, nullptr, nullptr, nullptr);
-  if (m_display)
-    m_xinput.load(m_display);
 }
 
 X11::~X11()
@@ -58,16 +57,26 @@ X11::~X11()
     XCloseIM(m_xim);
   }
   if (m_display) {
-    m_xinput.unload(m_display);
+    if (m_xinput)
+      m_xinput->unload(m_display);
     XCloseDisplay(m_display);
   }
   m_instance = nullptr;
 }
 
+XInput* X11::xinput()
+{
+  if (!m_xinput) {
+    m_xinput = std::make_unique<XInput>();
+    m_xinput->load(m_display);
+  }
+  return m_xinput.get();
+}
+
 void x11_set_user_defined_string_to_detect_stylus(const std::string& str)
 {
   if (auto x11 = X11::instance())
-    x11->xinput().setUserDefinedTablet(str);
+    x11->setUserDefinedTablet(str);
 }
 
 } // namespace os
