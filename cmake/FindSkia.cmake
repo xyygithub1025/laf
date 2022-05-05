@@ -72,7 +72,7 @@ elseif(APPLE)
     SK_BUILD_FOR_MAC)
 else()
   target_compile_definitions(skia INTERFACE
-    SK_SAMPLES_FOR_X)
+    SK_BUILD_FOR_UNIX)
 endif()
 
 if(APPLE)
