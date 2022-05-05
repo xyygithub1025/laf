@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (c) 2020-2021  Igara Studio S.A.
+// Copyright (c) 2020-2022  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -27,6 +27,7 @@ namespace os {
 
   inline int get_x_mouse_button_from_event(Event::MouseButton button) {
     switch (button) {
+      case Event::NoneButton:   return 0;
       case Event::LeftButton:   return Button1;
       case Event::MiddleButton: return Button2;
       case Event::RightButton:  return Button3;
