@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2021  Igara Studio S.A.
+# Copyright (C) 2019-2022  Igara Studio S.A.
 #
 # This file is released under the terms of the MIT license.
 # Read LICENSE.txt for more information.
@@ -65,7 +65,7 @@ target_compile_definitions(skia INTERFACE
 
 if(WIN32)
   target_compile_definitions(skia INTERFACE
-    SK_BUILD_FOR_WIN32
+    SK_BUILD_FOR_WIN
     _CRT_SECURE_NO_WARNINGS)
 elseif(APPLE)
   target_compile_definitions(skia INTERFACE
