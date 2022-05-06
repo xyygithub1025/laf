@@ -47,7 +47,7 @@ public:
   }
 
   ~SkiaSystem() {
-    SkGraphics::Term();
+    // Do nothing
   }
 
   Capabilities capabilities() const override {
