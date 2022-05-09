@@ -29,7 +29,7 @@ else()
   find_library(SKIA_OPENGL_LIBRARY opengl NAMES GL)
 endif()
 
-# SkShaper module + freetype + harfbuzz
+# SkShaper module + freetype + harfbuzz + zlib
 find_library(SKSHAPER_LIBRARY skshaper PATH "${SKIA_LIBRARY_DIR}")
 
 set(FREETYPE_FOUND ON)

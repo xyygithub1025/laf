@@ -1,5 +1,5 @@
 # LAF FreeType Wrapper
-# Copyright (C) 2019  Igara Studio S.A.
+# Copyright (C) 2019-2022  Igara Studio S.A.
 # Copyright (C) 2017  David Capello
 
 add_library(laf-ft
@@ -9,7 +9,8 @@ add_library(laf-ft
 target_link_libraries(laf-ft
   laf-base
   ${FREETYPE_LIBRARIES}
-  ${HARFBUZZ_LIBRARIES})
+  ${HARFBUZZ_LIBRARIES}
+  ${ZLIB_LIBRARY})
 
 target_include_directories(laf-ft
   PUBLIC

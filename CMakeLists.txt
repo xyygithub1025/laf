@@ -51,6 +51,12 @@ else()
   if(NOT HARFBUZZ_LIBRARIES)
     find_package(HarfBuzz)
   endif()
+
+  # We aren't using zlib directly, but freetype needs zlib if it's
+  # compiled with FT_CONFIG_OPTION_SYSTEM_ZLIB
+  if(NOT ZLIB_LIBRARY)
+    find_package(ZLIB)
+  endif()
 endif()
 
 add_subdirectory(third_party)
