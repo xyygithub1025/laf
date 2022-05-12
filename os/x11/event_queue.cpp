@@ -116,7 +116,7 @@ void EventQueueX11::getEvent(Event& ev, double timeout)
       // XNextEvent() with a timeout.
       base::tick_t timeoutMsecs = base::tick_t(timeout * 1000.0);
       base::tick_t elapsedMsecs = base::current_tick() - startTime;
-      if (timeoutMsecs - elapsedMsecs > 0) {
+      if (int(timeoutMsecs - elapsedMsecs) > 0) {
         int connFileDesc = ConnectionNumber(display);
         wait_file_descriptor_for_reading(connFileDesc,
                                          timeoutMsecs - elapsedMsecs);
