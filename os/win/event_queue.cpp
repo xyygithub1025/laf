@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2019-2021  Igara Studio S.A.
+// Copyright (C) 2019-2022  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -31,7 +31,7 @@ void EventQueueWin::clearEvents()
 
 void EventQueueWin::getEvent(Event& ev, double timeout)
 {
-  base::tick_t untilTick = base::current_tick() + timeout*1000;
+  const base::tick_t untilTick = base::current_tick() + timeout*1000.0;
   MSG msg;
 
   ev.setWindow(nullptr);
@@ -43,8 +43,9 @@ void EventQueueWin::getEvent(Event& ev, double timeout)
       res = GetMessage(&msg, nullptr, 0, 0);
     }
     else {
-      int msecs = (untilTick - base::current_tick());
-      if (msecs > 0) {
+      const base::tick_t now = base::current_tick();
+      if (untilTick > now) {
+        const base::tick_t msecs = (untilTick - now);
         MsgWaitForMultipleObjects(0, nullptr, FALSE,
                                   (DWORD)msecs, // Milliseconds to wait
                                   QS_ALLINPUT | QS_ALLPOSTMESSAGE);

@@ -1,5 +1,5 @@
 // LAF Base Library
-// Copyright (c) 2021 Igara Studio S.A.
+// Copyright (c) 2021-2022 Igara Studio S.A.
 // Copyright (c) 2001-2018 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -55,8 +55,17 @@ Time current_time()
 tick_t current_tick()
 {
 #if LAF_WINDOWS
-  // TODO use GetTickCount64 (available from Vista)
-  return GetTickCount();
+  // GetTickCount() is limited to the system timer resolution (from 10
+  // to 16 milliseconds), we prefer QueryPerformanceCounter().
+  LARGE_INTEGER counter, freq;
+  if (QueryPerformanceCounter(&counter) &&
+      // TODO Call QueryPerformanceFrequency() just one time
+      QueryPerformanceFrequency(&freq)) {
+    // TODO Some precision is lost, we could return float or double
+    return counter.QuadPart * 1000 / freq.QuadPart;
+  }
+  else
+    return GetTickCount();
 #elif __APPLE__
   static mach_timebase_info_data_t timebase = { 0, 0 };
   if (timebase.denom == 0)
