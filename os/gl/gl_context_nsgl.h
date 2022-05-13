@@ -30,8 +30,8 @@ public:
   }
 
 private:
-  id m_nsgl = nil; // NSOpenGLContext
-  id m_view = nil; // NSView
+  id m_nsgl = nullptr; // NSOpenGLContext
+  id m_view = nullptr; // NSView
 };
 
 } // namespace os
