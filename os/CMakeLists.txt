@@ -1,5 +1,5 @@
 # LAF OS
-# Copyright (C) 2018-2021  Igara Studio S.A.
+# Copyright (C) 2018-2022  Igara Studio S.A.
 # Copyright (C) 2012-2018  David Capello
 
 ######################################################################
@@ -36,7 +36,8 @@ elseif(APPLE)
       osx/native_dialogs.mm
       osx/system.mm
       osx/view.mm
-      osx/window.mm)
+      osx/window.mm
+      gl/gl_context_nsgl.mm)
   endif()
 else()
   list(APPEND LAF_OS_SOURCES
@@ -64,6 +65,7 @@ if(LAF_BACKEND STREQUAL "skia")
     skia/skia_color_space.cpp
     skia/skia_draw_text.cpp
     skia/skia_draw_text_with_shaper.cpp
+    skia/skia_gl.cpp
     skia/skia_surface.cpp
     skia/skia_window.cpp)
   if(WIN32)

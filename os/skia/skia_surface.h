@@ -101,6 +101,11 @@ public:
     swapBitmap(bmp);
   }
 
+  void flushAndSubmit() {
+    if (m_surface)
+      m_surface->flushAndSubmit();
+  }
+
   void flush() const {
     if (m_canvas)
       m_canvas->flush();

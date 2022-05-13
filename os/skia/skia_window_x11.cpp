@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2020-2021  Igara Studio S.A.
+// Copyright (C) 2020-2022  Igara Studio S.A.
 // Copyright (C) 2016-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -14,6 +14,7 @@
 #include "gfx/size.h"
 #include "os/event.h"
 #include "os/event_queue.h"
+#include "os/gl/gl_context_glx.h"
 #include "os/skia/skia_surface.h"
 #include "os/skia/skia_window.h"
 #include "os/system.h"
@@ -47,13 +48,21 @@ bool convert_skia_bitmap_to_ximage(const SkBitmap& bitmap, XImage& image)
 } // anonymous namespace
 
 SkiaWindowX11::SkiaWindowX11(const WindowSpec& spec)
-  : SkiaWindowBase<WindowX11>(X11::instance()->display(), spec)
+  : Base(X11::instance()->display(), spec)
 {
+#if SK_SUPPORT_GPU
+  m_glCtx = std::make_unique<GLContextGLX>(x11display(), x11window());
+#endif
   initColorSpace();
 }
 
 void SkiaWindowX11::onPaint(const gfx::Rect& rc)
 {
+#if SK_SUPPORT_GPU
+  if (backend() == Backend::GL)
+    return;
+#endif
+
   auto surface = static_cast<SkiaSurface*>(this->surface());
   const SkBitmap& bitmap = surface->bitmap();
 
@@ -101,24 +110,6 @@ void SkiaWindowX11::onPaint(const gfx::Rect& rc)
           rc.w, rc.h);
       }
     }
-  }
-}
-
-void SkiaWindowX11::onResize(const gfx::Size& sz)
-{
-  resizeSkiaSurface(sz);
-  if (os::instance()->handleWindowResize &&
-      // Check that the surface is created to avoid a call to
-      // handleWindowResize() with an empty surface (or null
-      // SkiaSurface::m_canvas) when the window is being created.
-      isInitialized()) {
-    os::instance()->handleWindowResize(this);
-  }
-  else {
-    Event ev;
-    ev.setType(Event::ResizeWindow);
-    ev.setWindow(AddRef(this));
-    queue_event(ev);
   }
 }
 

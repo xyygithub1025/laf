@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (c) 2018-2021  Igara Studio S.A.
+// Copyright (c) 2018-2022  Igara Studio S.A.
 // Copyright (c) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -112,6 +112,10 @@ namespace os {
     // coordinates.
     virtual void invalidateRegion(const gfx::Region& rgn) = 0;
     void invalidate();
+
+    // GPU-related functions
+    virtual bool isGpuAccelerated() const = 0;
+    virtual void swapBuffers() = 0;
 
     // Focus the window to receive the keyboard input by default.
     virtual void activate() = 0;

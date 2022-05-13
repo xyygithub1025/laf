@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2021  Igara Studio S.A.
+// Copyright (C) 2018-2022  Igara Studio S.A.
 // Copyright (C) 2012-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -60,8 +60,7 @@ public:
 #ifndef __APPLE__
       | int(Capabilities::CanStartWindowResize)
 #endif
-    // TODO enable this when the GPU support is ready
-#if 0 // SK_SUPPORT_GPU
+#if SK_SUPPORT_GPU
       | int(Capabilities::GpuAccelerationSwitch)
 #endif
       );

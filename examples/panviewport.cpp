@@ -1,5 +1,5 @@
 // LAF Library
-// Copyright (C) 2020-2021  Igara Studio S.A.
+// Copyright (C) 2020-2022  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -114,7 +114,6 @@ public:
     return true;
   }
 
-private:
   void repaint() {
     os::Surface* surface = m_window->surface();
     os::SurfaceLock lock(surface);
@@ -154,8 +153,10 @@ private:
     }
 
     m_window->invalidate();
+    m_window->swapBuffers();
   }
 
+private:
   void setZoom(const gfx::PointF& mousePos, double newZoom) {
     double oldZoom = m_zoom;
     m_zoom = base::clamp(newZoom, 0.01, 10.0);
@@ -195,8 +196,13 @@ int app_main(int argc, char* argv[])
 {
   os::SystemRef system = os::make_system();
   system->setAppMode(os::AppMode::GUI);
+  system->setGpuAcceleration(true);
 
   PanWindow window(system.get());
+
+  system->handleWindowResize = [&window](os::Window* win){
+    window.repaint();
+  };
 
   system->finishLaunching();
   system->activateApp();

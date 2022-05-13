@@ -1,5 +1,5 @@
 // LAF Gfx Library
-// Copyright (c) 2018-2020  Igara Studio S.A.
+// Copyright (c) 2018-2022  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -14,6 +14,9 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+
+#pragma push_macro("None")
+#undef None // Undefine the X11 None macro
 
 namespace gfx {
 
@@ -128,5 +131,7 @@ namespace gfx {
   };
 
 } // namespace gfx
+
+#pragma pop_macro("None")
 
 #endif

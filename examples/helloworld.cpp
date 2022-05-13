@@ -1,5 +1,5 @@
 // LAF Library
-// Copyright (c) 2019-2021  Igara Studio S.A.
+// Copyright (c) 2019-2022  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -24,17 +24,24 @@ void draw_window(os::Window* window)
   os::draw_text(surface, nullptr, "Hello World", rc.center(),
                 &p, os::TextAlign::Center);
 
+  if (window->isGpuAccelerated())
+    os::draw_text(surface, nullptr, "(GPU)", rc.center()+gfx::Point(0, 24),
+                  &p, os::TextAlign::Center);
+
   // Invalidates the whole window to show it on the screen.
   if (window->isVisible())
     window->invalidateRegion(gfx::Region(rc));
   else
     window->setVisible(true);
+
+  window->swapBuffers();
 }
 
 int app_main(int argc, char* argv[])
 {
   os::SystemRef system = os::make_system();
   system->setAppMode(os::AppMode::GUI);
+  system->setGpuAcceleration(true);
 
   os::WindowRef window = system->makeWindow(400, 300);
 
@@ -88,6 +95,13 @@ int app_main(int argc, char* argv[])
           case os::kKeyEsc:
             running = false;
             break;
+
+          case os::kKeyG:
+            system->setGpuAcceleration(!system->gpuAcceleration());
+            // TODO change window backend immediately
+            redraw = true;
+            break;
+
           case os::kKey1:
           case os::kKey2:
           case os::kKey3:

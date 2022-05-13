@@ -1,5 +1,5 @@
 # LAF OS
-# Copyright (C) 2019-2021  Igara Studio S.A.
+# Copyright (C) 2019-2022  Igara Studio S.A.
 
 if(LAF_BACKEND STREQUAL "skia")
   function(laf_add_example name console="")
@@ -21,4 +21,5 @@ if(LAF_BACKEND STREQUAL "skia")
   laf_add_example(listscreens CONSOLE)
   laf_add_example(multiple_windows GUI)
   laf_add_example(panviewport GUI)
+  laf_add_example(shader GUI)
 endif()

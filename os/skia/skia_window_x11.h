@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2021  Igara Studio S.A.
+// Copyright (C) 2021-2022  Igara Studio S.A.
 // Copyright (C) 2016-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -11,6 +11,7 @@
 
 #include "base/disable_copying.h"
 #include "gfx/size.h"
+#include "os/gl/gl_context_glx.h"
 #include "os/native_cursor.h"
 #include "os/skia/skia_window_base.h"
 #include "os/x11/window.h"
@@ -22,8 +23,6 @@ namespace os {
 
 class SkiaWindowX11 : public SkiaWindowBase<WindowX11> {
 public:
-  enum class Backend { NONE, GL };
-
   SkiaWindowX11(const WindowSpec& spec);
 
   std::string getLayout() override { return ""; }
@@ -31,7 +30,6 @@ public:
 
 private:
   void onPaint(const gfx::Rect& rc) override;
-  void onResize(const gfx::Size& sz) override;
 
   std::vector<uint8_t> m_buffer;
 
