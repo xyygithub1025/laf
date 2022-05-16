@@ -16,6 +16,8 @@
 #include "os/system.h"
 #include "os/window.h"
 
+#include "include/core/SkCanvas.h"
+
 #if SK_SUPPORT_GPU
   #if LAF_WINDOWS
     #include <windows.h>
