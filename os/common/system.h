@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2019-2021  Igara Studio S.A.
+// Copyright (C) 2019-2022  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -99,6 +99,7 @@ public:
     FontRef font = nullptr;
     if (sheet) {
       sheet->applyScale(scale);
+      sheet->setImmutable();
       font = SpriteSheetFont::fromSurface(sheet);
     }
     return font;
