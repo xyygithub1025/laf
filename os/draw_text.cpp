@@ -159,6 +159,11 @@ retry:;
             uint32_t* dst_address =
               (uint32_t*)surface->getData(dst_x, dst_y);
 
+            // TODO maybe if we are trying to draw in a SkiaSurface with a nullptr m_bitmap
+            //      (when GPU-acceleration is enabled)
+            if (!dst_address)
+              break;
+
             // Skip first clipped pixels
             for (int u=0; u<dstBounds.x-origDstBounds.x; ++u) {
               if (glyph->bitmap->pixel_mode == FT_PIXEL_MODE_GRAY) {
