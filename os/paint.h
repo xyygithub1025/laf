@@ -99,7 +99,8 @@ namespace os {
   private:
     Flags m_flags = kNone;
     Style m_style = Fill;
-    gfx::Color m_color = gfx::ColorNone;
+    // Opaque black must be the default (to match SkPaint default)
+    gfx::Color m_color = gfx::rgba(0, 0, 0, 255);
     float m_strokeWidth = 1.0f;
     BlendMode m_blendMode = BlendMode::SrcOver;
   };
