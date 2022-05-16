@@ -17,6 +17,7 @@
 #include "base/time.h"
 #include "os/skia/skia_surface.h"
 
+#include "include/core/SkCanvas.h"
 #include "include/effects/SkRuntimeEffect.h"
 
 #include <cstdio>
