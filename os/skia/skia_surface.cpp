@@ -520,32 +520,21 @@ void SkiaSurface::scrollTo(const gfx::Rect& rc, int dx, int dy)
 
 void SkiaSurface::drawSurface(const Surface* src, int dstx, int dsty)
 {
-  gfx::Clip clip(dstx, dsty, 0, 0,
-                 ((SkiaSurface*)src)->width(),
-                 ((SkiaSurface*)src)->height());
-
+  gfx::Clip clip(dstx, dsty, 0, 0, src->width(), src->height());
   if (!clip.clip(width(), height(), clip.size.w, clip.size.h))
     return;
 
-  SkRect srcRect = SkRect::Make(SkIRect::MakeXYWH(clip.src.x, clip.src.y, clip.size.w, clip.size.h));
-  SkRect dstRect = SkRect::Make(SkIRect::MakeXYWH(clip.dst.x, clip.dst.y, clip.size.w, clip.size.h));
-
   SkPaint paint;
   paint.setBlendMode(SkBlendMode::kSrc);
-
-  m_canvas->drawImageRect(
-    SkImage::MakeFromRaster(((SkiaSurface*)src)->m_bitmap.pixmap(), nullptr, nullptr),
-    srcRect, dstRect,
+  skDrawSurface(
+    src,
+    clip,
     SkSamplingOptions(),
-    &paint,
-    SkCanvas::kStrict_SrcRectConstraint);
+    paint);
 }
 
 void SkiaSurface::drawSurface(const Surface* src, const gfx::Rect& srcRect, const gfx::Rect& dstRect)
 {
-  SkRect srcRect2 = SkRect::Make(SkIRect::MakeXYWH(srcRect.x, srcRect.y, srcRect.w, srcRect.h));
-  SkRect dstRect2 = SkRect::Make(SkIRect::MakeXYWH(dstRect.x, dstRect.y, dstRect.w, dstRect.h));
-
   SkPaint paint;
   paint.setBlendMode(SkBlendMode::kSrc);
 
@@ -553,12 +542,12 @@ void SkiaSurface::drawSurface(const Surface* src, const gfx::Rect& srcRect, cons
   if (srcRect.w > dstRect.w && srcRect.h > dstRect.h)
     sampling = DefaultSamplingOptions();
 
-  m_canvas->drawImageRect(
-    SkImage::MakeFromRaster(((SkiaSurface*)src)->m_bitmap.pixmap(), nullptr, nullptr),
-    srcRect2, dstRect2,
+  skDrawSurface(
+    src,
+    srcRect,
+    dstRect,
     sampling,
-    &paint,
-    SkCanvas::kStrict_SrcRectConstraint);
+    paint);
 }
 
 void SkiaSurface::drawSurface(const Surface* src,
@@ -567,9 +556,6 @@ void SkiaSurface::drawSurface(const Surface* src,
                               const Sampling& sampling,
                               const os::Paint* paint)
 {
-  SkRect srcRect2 = SkRect::Make(SkIRect::MakeXYWH(srcRect.x, srcRect.y, srcRect.w, srcRect.h));
-  SkRect dstRect2 = SkRect::Make(SkIRect::MakeXYWH(dstRect.x, dstRect.y, dstRect.w, dstRect.h));
-
   SkPaint skPaint;
   if (paint)
     to_skia(*paint, skPaint);
@@ -579,35 +565,27 @@ void SkiaSurface::drawSurface(const Surface* src,
   SkSamplingOptions skSampling;
   to_skia(sampling, skSampling);
 
-  m_canvas->drawImageRect(
-    SkImage::MakeFromRaster(((SkiaSurface*)src)->m_bitmap.pixmap(), nullptr, nullptr),
-    srcRect2, dstRect2,
+  skDrawSurface(
+    src,
+    srcRect,
+    dstRect,
     skSampling,
-    &skPaint,
-    SkCanvas::kStrict_SrcRectConstraint);
+    skPaint);
 }
 
 void SkiaSurface::drawRgbaSurface(const Surface* src, int dstx, int dsty)
 {
-  gfx::Clip clip(dstx, dsty, 0, 0,
-                 ((SkiaSurface*)src)->width(),
-                 ((SkiaSurface*)src)->height());
-
+  gfx::Clip clip(dstx, dsty, 0, 0, src->width(), src->height());
   if (!clip.clip(width(), height(), clip.size.w, clip.size.h))
     return;
 
-  SkRect srcRect = SkRect::Make(SkIRect::MakeXYWH(clip.src.x, clip.src.y, clip.size.w, clip.size.h));
-  SkRect dstRect = SkRect::Make(SkIRect::MakeXYWH(clip.dst.x, clip.dst.y, clip.size.w, clip.size.h));
-
   SkPaint paint;
   paint.setBlendMode(SkBlendMode::kSrcOver);
-
-  m_canvas->drawImageRect(
-    SkImage::MakeFromRaster(((SkiaSurface*)src)->m_bitmap.pixmap(), nullptr, nullptr),
-    srcRect, dstRect,
+  skDrawSurface(
+    src,
+    clip,
     SkSamplingOptions(),
-    &paint,
-    SkCanvas::kStrict_SrcRectConstraint);
+    paint);
 }
 
 void SkiaSurface::drawRgbaSurface(const Surface* src, int srcx, int srcy, int dstx, int dsty, int w, int h)
@@ -616,25 +594,17 @@ void SkiaSurface::drawRgbaSurface(const Surface* src, int srcx, int srcy, int ds
   if (!clip.clip(width(), height(), src->width(), src->height()))
     return;
 
-  SkRect srcRect = SkRect::Make(SkIRect::MakeXYWH(clip.src.x, clip.src.y, clip.size.w, clip.size.h));
-  SkRect dstRect = SkRect::Make(SkIRect::MakeXYWH(clip.dst.x, clip.dst.y, clip.size.w, clip.size.h));
-
   SkPaint paint;
   paint.setBlendMode(SkBlendMode::kSrcOver);
-
-  m_canvas->drawImageRect(
-    SkImage::MakeFromRaster(((SkiaSurface*)src)->m_bitmap.pixmap(), nullptr, nullptr),
-    srcRect, dstRect,
+  skDrawSurface(
+    src,
+    clip,
     SkSamplingOptions(),
-    &paint,
-    SkCanvas::kStrict_SrcRectConstraint);
+    paint);
 }
 
 void SkiaSurface::drawRgbaSurface(const Surface* src, const gfx::Rect& srcRect, const gfx::Rect& dstRect)
 {
-  SkRect srcRect2 = SkRect::Make(SkIRect::MakeXYWH(srcRect.x, srcRect.y, srcRect.w, srcRect.h));
-  SkRect dstRect2 = SkRect::Make(SkIRect::MakeXYWH(dstRect.x, dstRect.y, dstRect.w, dstRect.h));
-
   SkPaint paint;
   paint.setBlendMode(SkBlendMode::kSrcOver);
 
@@ -642,12 +612,12 @@ void SkiaSurface::drawRgbaSurface(const Surface* src, const gfx::Rect& srcRect, 
   if (srcRect.w > dstRect.w && srcRect.h > dstRect.h)
     sampling = DefaultSamplingOptions();
 
-  m_canvas->drawImageRect(
-    SkImage::MakeFromRaster(((SkiaSurface*)src)->m_bitmap.pixmap(), nullptr, nullptr),
-    srcRect2, dstRect2,
+  skDrawSurface(
+    src,
+    srcRect,
+    dstRect,
     sampling,
-    &paint,
-    SkCanvas::kStrict_SrcRectConstraint);
+    paint);
 }
 
 void SkiaSurface::drawColoredRgbaSurface(const Surface* src, gfx::Color fg, gfx::Color bg, const gfx::Clip& clipbase)
@@ -673,12 +643,12 @@ void SkiaSurface::drawColoredRgbaSurface(const Surface* src, gfx::Color fg, gfx:
     SkColorFilters::Blend(to_skia(fg), SkBlendMode::kSrcIn));
   paint.setColorFilter(colorFilter);
 
-  m_canvas->drawImageRect(
-    SkImage::MakeFromRaster(((SkiaSurface*)src)->m_bitmap.pixmap(), nullptr, nullptr),
-    srcRect, dstRect,
+  skDrawSurface(
+    (SkiaSurface*)src,
+    srcRect,
+    dstRect,
     SkSamplingOptions(),
-    &paint,
-    SkCanvas::kStrict_SrcRectConstraint);
+    paint);
 }
 
 void SkiaSurface::drawSurfaceNine(os::Surface* surface,
@@ -802,6 +772,49 @@ Ref<Surface> SkiaSurface::loadSurface(const char* filename)
   auto sur = make_ref<SkiaSurface>();
   sur->swapBitmap(bm);
   return sur;
+}
+
+void SkiaSurface::skDrawSurface(
+  const Surface* src,
+  const gfx::Clip& clip,
+  const SkSamplingOptions& sampling,
+  const SkPaint& paint)
+{
+  skDrawSurface(static_cast<const SkiaSurface*>(src),
+                SkRect::MakeXYWH(clip.src.x, clip.src.y, clip.size.w, clip.size.h),
+                SkRect::MakeXYWH(clip.dst.x, clip.dst.y, clip.size.w, clip.size.h),
+                sampling,
+                paint);
+}
+
+void SkiaSurface::skDrawSurface(
+  const Surface* src,
+  const gfx::Rect& srcRect,
+  const gfx::Rect& dstRect,
+  const SkSamplingOptions& sampling,
+  const SkPaint& paint)
+{
+  skDrawSurface(static_cast<const SkiaSurface*>(src),
+                SkRect::MakeXYWH(srcRect.x, srcRect.y, srcRect.w, srcRect.h),
+                SkRect::MakeXYWH(dstRect.x, dstRect.y, dstRect.w, dstRect.h),
+                sampling,
+                paint);
+}
+
+void SkiaSurface::skDrawSurface(
+  const SkiaSurface* src,
+  const SkRect& srcRect,
+  const SkRect& dstRect,
+  const SkSamplingOptions& sampling,
+  const SkPaint& paint)
+{
+  m_canvas->drawImageRect(
+    SkImage::MakeFromRaster(src->m_bitmap.pixmap(), nullptr, nullptr),
+    srcRect,
+    dstRect,
+    sampling,
+    &paint,
+    SkCanvas::kStrict_SrcRectConstraint);
 }
 
 } // namespace os

@@ -119,6 +119,24 @@ public:
   static SurfaceRef loadSurface(const char* filename);
 
 private:
+  void skDrawSurface(
+    const Surface* src,
+    const gfx::Clip& clip,
+    const SkSamplingOptions& sampling,
+    const SkPaint& paint);
+  void skDrawSurface(
+    const Surface* src,
+    const gfx::Rect& srcRect,
+    const gfx::Rect& dstRect,
+    const SkSamplingOptions& sampling,
+    const SkPaint& paint);
+  void skDrawSurface(
+    const SkiaSurface* src,
+    const SkRect& srcRect,
+    const SkRect& dstRect,
+    const SkSamplingOptions& sampling,
+    const SkPaint& paint);
+
   // TODO make these options public in the laf API
   SkSamplingOptions DefaultSamplingOptions() {
     return SkSamplingOptions(SkCubicResampler::Mitchell());
