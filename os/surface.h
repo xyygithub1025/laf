@@ -17,6 +17,7 @@
 #include "os/color_space.h"
 #include "os/paint.h"
 #include "os/ref.h"
+#include "os/sampling.h"
 #include "os/surface_format.h"
 
 #include <string>
@@ -137,15 +138,13 @@ namespace os {
     virtual void scrollTo(const gfx::Rect& rc, int dx, int dy) = 0;
     // TODO merge all these functions expoing a SkPaint-like structure
     virtual void drawSurface(const Surface* src, int dstx, int dsty) = 0;
-    virtual void drawSurface(const Surface* surface, const gfx::Rect& srcRect, const gfx::Rect& dstRect) = 0;
     virtual void drawSurface(const Surface* src,
                              const gfx::Rect& srcRect,
                              const gfx::Rect& dstRect,
-                             const os::Sampling& sampling,
-                             const os::Paint* paint) = 0;
+                             const os::Sampling& sampling = os::Sampling(),
+                             const os::Paint* paint = nullptr) = 0;
     virtual void drawRgbaSurface(const Surface* src, int dstx, int dsty) = 0;
     virtual void drawRgbaSurface(const Surface* src, int srcx, int srcy, int dstx, int dsty, int width, int height) = 0;
-    virtual void drawRgbaSurface(const Surface* surface, const gfx::Rect& srcRect, const gfx::Rect& dstRect) = 0;
     virtual void drawColoredRgbaSurface(const Surface* src, gfx::Color fg, gfx::Color bg, const gfx::Clip& clip) = 0;
     virtual void drawSurfaceNine(os::Surface* surface,
                                  const gfx::Rect& src,

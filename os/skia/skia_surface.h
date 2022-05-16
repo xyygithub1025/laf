@@ -14,7 +14,6 @@
 #include "gfx/matrix.h"
 #include "os/common/generic_surface.h"
 #include "os/common/sprite_sheet_font.h"
-#include "os/sampling.h"
 #include "os/skia/skia_color_space.h"
 
 #include "include/core/SkBitmap.h"
@@ -88,7 +87,6 @@ public:
   void blitTo(Surface* _dst, int srcx, int srcy, int dstx, int dsty, int width, int height) const override;
   void scrollTo(const gfx::Rect& rc, int dx, int dy) override;
   void drawSurface(const Surface* src, int dstx, int dsty) override;
-  void drawSurface(const Surface* src, const gfx::Rect& srcRect, const gfx::Rect& dstRect) override;
   void drawSurface(const Surface* src,
                    const gfx::Rect& srcRect,
                    const gfx::Rect& dstRect,
@@ -96,7 +94,6 @@ public:
                    const os::Paint* paint) override;
   void drawRgbaSurface(const Surface* src, int dstx, int dsty) override;
   void drawRgbaSurface(const Surface* src, int srcx, int srcy, int dstx, int dsty, int w, int h) override;
-  void drawRgbaSurface(const Surface* src, const gfx::Rect& srcRect, const gfx::Rect& dstRect) override;
   void drawColoredRgbaSurface(const Surface* src, gfx::Color fg, gfx::Color bg, const gfx::Clip& clipbase) override;
   void drawSurfaceNine(os::Surface* surface,
                        const gfx::Rect& src,
@@ -136,11 +133,6 @@ private:
     const SkRect& dstRect,
     const SkSamplingOptions& sampling,
     const SkPaint& paint);
-
-  // TODO make these options public in the laf API
-  SkSamplingOptions DefaultSamplingOptions() {
-    return SkSamplingOptions(SkCubicResampler::Mitchell());
-  }
 
   sk_sp<SkColorSpace> skColorSpace() const {
     if (m_colorSpace)

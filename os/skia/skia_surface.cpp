@@ -533,23 +533,6 @@ void SkiaSurface::drawSurface(const Surface* src, int dstx, int dsty)
     paint);
 }
 
-void SkiaSurface::drawSurface(const Surface* src, const gfx::Rect& srcRect, const gfx::Rect& dstRect)
-{
-  SkPaint paint;
-  paint.setBlendMode(SkBlendMode::kSrc);
-
-  SkSamplingOptions sampling;
-  if (srcRect.w > dstRect.w && srcRect.h > dstRect.h)
-    sampling = DefaultSamplingOptions();
-
-  skDrawSurface(
-    src,
-    srcRect,
-    dstRect,
-    sampling,
-    paint);
-}
-
 void SkiaSurface::drawSurface(const Surface* src,
                               const gfx::Rect& srcRect,
                               const gfx::Rect& dstRect,
@@ -600,23 +583,6 @@ void SkiaSurface::drawRgbaSurface(const Surface* src, int srcx, int srcy, int ds
     src,
     clip,
     SkSamplingOptions(),
-    paint);
-}
-
-void SkiaSurface::drawRgbaSurface(const Surface* src, const gfx::Rect& srcRect, const gfx::Rect& dstRect)
-{
-  SkPaint paint;
-  paint.setBlendMode(SkBlendMode::kSrcOver);
-
-  SkSamplingOptions sampling;
-  if (srcRect.w > dstRect.w && srcRect.h > dstRect.h)
-    sampling = DefaultSamplingOptions();
-
-  skDrawSurface(
-    src,
-    srcRect,
-    dstRect,
-    sampling,
     paint);
 }
 
