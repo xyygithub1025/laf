@@ -164,7 +164,8 @@ public:
 
       SkCanvas* dstCanvas = m_gl.backbufferSurface()->getCanvas();
       dstCanvas->save();
-      dstCanvas->scale(this->scale(), this->scale());
+      dstCanvas->scale(SkScalar(this->scale()),
+                       SkScalar(this->scale()));
       m_gl.surface()->draw(
         dstCanvas,
         0.0, 0.0, sampling, &paint);
