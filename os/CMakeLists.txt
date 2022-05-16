@@ -155,7 +155,9 @@ else()
     target_compile_definitions(laf-os PRIVATE LAF_OS_WITH_GTK)
   endif()
 
-  target_compile_options(laf-os PRIVATE -Werror=suggest-override)
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(laf-os PRIVATE -Werror=suggest-override)
+  endif()
 endif()
 
 target_link_libraries(laf-os ${LAF_OS_PLATFORM_LIBS})
