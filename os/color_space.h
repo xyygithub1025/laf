@@ -22,6 +22,7 @@ namespace os {
   public:
     virtual ~ColorSpace() { }
     virtual const gfx::ColorSpaceRef& gfxColorSpace() const = 0;
+    virtual const bool isSRGB() const = 0;
   };
 
   class ColorSpaceConversion : public RefCount {
