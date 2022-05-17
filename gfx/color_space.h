@@ -25,11 +25,11 @@ namespace gfx {
 
   // Gamut white point and primaries as in Skia's SkColorSpacePrimaries.
   struct ColorSpacePrimaries {
-    float wx, wy;                 // White point XY
     float rx, ry, gx, gy, bx, by; // Red/Green/Blue XY
+    float wx, wy;                 // White point XY
   };
 
-  // Transfer coefficients as in Skia's SkColorSpaceTransferFn, to
+  // Transfer coefficients as in Skia's skcms_TransferFunction, to
   // transform from a curved space to linear:
   //
   //   LinearVal = C*InputVal + F        , for 0.0f <= InputVal <  D
