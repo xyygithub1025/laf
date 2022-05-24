@@ -28,24 +28,21 @@ jobs:
         fi
     - uses: ilammy/msvc-dev-cmd@v1
       if: runner.os == 'Windows'
+    - uses: seanmiddleditch/gha-setup-ninja@master
     - name: Generating Makefiles
       shell: bash
       run: |
         if [[ "${{ runner.os }}" == "Windows" ]] ; then
-          cmake . -G "NMake Makefiles" \
+          cmake . -G Ninja \
             -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake \
             -DVCPKG_TARGET_TRIPLET=x64-windows-static
         else
-          cmake . -G "Unix Makefiles"
+          cmake . -G Ninja
         fi
     - name: Compiling
       shell: bash
       run: |
-        if [[ "${{ runner.os }}" == "Windows" ]] ; then
-          nmake
-        else
-          make
-        fi
+        ninja
     - name: Running Tests
       shell: bash
       run: |
