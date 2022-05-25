@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2021  Igara Studio S.A.
+// Copyright (C) 2021-2022  Igara Studio S.A.
 // Copyright (C) 2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -56,28 +56,28 @@ namespace os {
     ~WinAPI();
 
     // These functions are availble only since Windows 8
-    EnableMouseInPointer_Func EnableMouseInPointer;
-    IsMouseInPointerEnabled_Func IsMouseInPointerEnabled;
-    GetPointerInfo_Func GetPointerInfo;
-    GetPointerPenInfo_Func GetPointerPenInfo;
+    EnableMouseInPointer_Func EnableMouseInPointer = nullptr;
+    IsMouseInPointerEnabled_Func IsMouseInPointerEnabled = nullptr;
+    GetPointerInfo_Func GetPointerInfo = nullptr;
+    GetPointerPenInfo_Func GetPointerPenInfo = nullptr;
 
     // InteractionContext introduced on Windows 8
-    CreateInteractionContext_Func CreateInteractionContext;
-    DestroyInteractionContext_Func DestroyInteractionContext;
-    StopInteractionContext_Func StopInteractionContext;
-    RegisterOutputCallbackInteractionContext_Func RegisterOutputCallbackInteractionContext;
-    AddPointerInteractionContext_Func AddPointerInteractionContext;
-    RemovePointerInteractionContext_Func RemovePointerInteractionContext;
-    SetInteractionConfigurationInteractionContext_Func SetInteractionConfigurationInteractionContext;
-    SetPropertyInteractionContext_Func SetPropertyInteractionContext;
-    ProcessPointerFramesInteractionContext_Func ProcessPointerFramesInteractionContext;
+    CreateInteractionContext_Func CreateInteractionContext = nullptr;
+    DestroyInteractionContext_Func DestroyInteractionContext = nullptr;
+    StopInteractionContext_Func StopInteractionContext = nullptr;
+    RegisterOutputCallbackInteractionContext_Func RegisterOutputCallbackInteractionContext = nullptr;
+    AddPointerInteractionContext_Func AddPointerInteractionContext = nullptr;
+    RemovePointerInteractionContext_Func RemovePointerInteractionContext = nullptr;
+    SetInteractionConfigurationInteractionContext_Func SetInteractionConfigurationInteractionContext = nullptr;
+    SetPropertyInteractionContext_Func SetPropertyInteractionContext = nullptr;
+    ProcessPointerFramesInteractionContext_Func ProcessPointerFramesInteractionContext = nullptr;
 
     // Functions introduced on Windows 10 version 1703
-    SetProcessDpiAwarenessContext_Func SetProcessDpiAwarenessContext;
+    SetProcessDpiAwarenessContext_Func SetProcessDpiAwarenessContext = nullptr;
 
   private:
-    base::dll m_user32;
-    base::dll m_ninput;
+    base::dll m_user32 = nullptr;
+    base::dll m_ninput = nullptr;
   };
 
 } // namespace os

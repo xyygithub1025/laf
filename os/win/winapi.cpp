@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2021  Igara Studio S.A.
+// Copyright (C) 2021-2022  Igara Studio S.A.
 // Copyright (C) 2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -17,20 +17,6 @@ namespace os {
   name = base::get_dll_proc<name##_Func>(dll, #name)
 
 WinAPI::WinAPI()
-  : EnableMouseInPointer(nullptr)
-  , IsMouseInPointerEnabled(nullptr)
-  , GetPointerInfo(nullptr)
-  , GetPointerPenInfo(nullptr)
-  , CreateInteractionContext(nullptr)
-  , DestroyInteractionContext(nullptr)
-  , StopInteractionContext(nullptr)
-  , RegisterOutputCallbackInteractionContext(nullptr)
-  , AddPointerInteractionContext(nullptr)
-  , RemovePointerInteractionContext(nullptr)
-  , SetInteractionConfigurationInteractionContext(nullptr)
-  , ProcessPointerFramesInteractionContext(nullptr)
-  , m_user32(nullptr)
-  , m_ninput(nullptr)
 {
   m_user32 = base::load_dll("user32.dll");
   m_ninput = base::load_dll("ninput.dll");
