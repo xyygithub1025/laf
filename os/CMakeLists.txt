@@ -164,6 +164,11 @@ target_link_libraries(laf-os ${LAF_OS_PLATFORM_LIBS})
 
 if(LAF_BACKEND STREQUAL "skia")
   target_link_libraries(laf-os skia skshaper)
+
+  # We aren't using zlib directly, but freetype needs zlib
+  if(ZLIB_LIBRARIES)
+    target_link_libraries(skia INTERFACE ${ZLIB_LIBRARIES})
+  endif()
 endif()
 
 set(_LAF_BACKEND_INITIAL_LINK_FLAGS "")

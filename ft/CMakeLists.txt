@@ -9,8 +9,7 @@ add_library(laf-ft
 target_link_libraries(laf-ft
   laf-base
   ${FREETYPE_LIBRARIES}
-  ${HARFBUZZ_LIBRARIES}
-  ${ZLIB_LIBRARY})
+  ${HARFBUZZ_LIBRARIES})
 
 target_include_directories(laf-ft
   PUBLIC

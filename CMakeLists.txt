@@ -51,12 +51,6 @@ else()
   if(NOT HARFBUZZ_LIBRARIES)
     find_package(HarfBuzz)
   endif()
-
-  # We aren't using zlib directly, but freetype needs zlib if it's
-  # compiled with FT_CONFIG_OPTION_SYSTEM_ZLIB
-  if(NOT ZLIB_LIBRARY)
-    find_package(ZLIB)
-  endif()
 endif()
 
 add_subdirectory(third_party)
@@ -80,6 +74,7 @@ endif()
 # Information
 
 message(STATUS "laf backend: ${LAF_BACKEND}")
+message(STATUS "laf zlib: ${ZLIB_LIBRARIES}")
 message(STATUS "laf pixman: ${PIXMAN_LIBRARY}")
 message(STATUS "laf freetype: ${FREETYPE_LIBRARIES}")
 message(STATUS "laf harfbuzz: ${HARFBUZZ_LIBRARIES}")

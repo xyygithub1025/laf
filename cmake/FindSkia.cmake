@@ -78,9 +78,46 @@ if(UNIX AND NOT APPLE AND EXISTS "${SKIA_LIBRARY_DIR}/args.gn")
   endif ()
 endif()
 
+# We require zlib because freetype expects to be linked with zlib
+if(NOT ZLIB_LIBRARIES)
+  if(UNIX)
+    set(ZLIB_LIB_FILE "${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib/lib/${CMAKE_STATIC_LIBRARY_PREFIX}z${CMAKE_STATIC_LIBRARY_SUFFIX}")
+  else()
+    set(ZLIB_LIB_FILE "${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib/lib/zlib${CMAKE_STATIC_LIBRARY_SUFFIX}")
+  endif()
+
+  include(ExternalProject)
+  ExternalProject_Add(zlib-project
+    URL https://github.com/aseprite/zlib/archive/refs/tags/v1.2.12.zip
+    DOWNLOAD_NAME zlib-1.2.12.zip
+    URL_HASH SHA1=35c02072f6e3d673f01df54735d5b6af786e0e84
+    PREFIX "${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib"
+    INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib"
+    BUILD_BYPRODUCTS "${ZLIB_LIB_FILE}"
+    CMAKE_CACHE_ARGS
+      -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+      -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+      -DCMAKE_INSTALL_LIBDIR:PATH=<INSTALL_DIR>)
+
+  ExternalProject_Get_Property(zlib-project install_dir)
+  set(ZLIB_INCLUDE_DIRS ${install_dir})
+
+  # Create the directory so changing INTERFACE_INCLUDE_DIRECTORIES doesn't fail
+  file(MAKE_DIRECTORY ${ZLIB_INCLUDE_DIRS})
+
+  add_library(zlib STATIC IMPORTED)
+  set_target_properties(zlib PROPERTIES
+    IMPORTED_LOCATION "${ZLIB_LIB_FILE}"
+    INTERFACE_INCLUDE_DIRECTORIES ${ZLIB_INCLUDE_DIRS})
+  add_dependencies(zlib zlib-project)
+
+  set(ZLIB_LIBRARY zlib)
+  set(ZLIB_LIBRARIES ${ZLIB_LIBRARY})
+endif()
+
 set(FREETYPE_FOUND ON)
 find_library(FREETYPE_LIBRARY freetype2 PATH "${SKIA_LIBRARY_DIR}" NO_DEFAULT_PATH)
-set(FREETYPE_LIBRARIES ${FREETYPE_LIBRARY})
+set(FREETYPE_LIBRARIES ${FREETYPE_LIBRARY} ${ZLIB_LIBRARIES})
 set(FREETYPE_INCLUDE_DIRS "${SKIA_DIR}/third_party/externals/freetype/include")
 
 find_library(HARFBUZZ_LIBRARY harfbuzz PATH "${SKIA_LIBRARY_DIR}" NO_DEFAULT_PATH)
