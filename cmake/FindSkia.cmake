@@ -32,6 +32,52 @@ endif()
 # SkShaper module + freetype + harfbuzz + zlib
 find_library(SKSHAPER_LIBRARY skshaper PATH "${SKIA_LIBRARY_DIR}")
 
+# Check that if Skia is compiled with libc++, we use -stdlib=libc++
+if(UNIX AND NOT APPLE AND EXISTS "${SKIA_LIBRARY_DIR}/args.gn")
+  file(READ "${SKIA_LIBRARY_DIR}/args.gn" SKIA_ARGS_GN)
+  string(FIND "${SKIA_ARGS_GN}" "-stdlib=libc++" matchres)
+  if(${matchres} GREATER_EQUAL 0)
+    set(not_using_libcxx_error "")
+    set(not_using_clang_error "")
+
+    if(NOT CMAKE_C_COMPILER_ID STREQUAL "Clang" OR
+       NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+      set(not_using_clang_error " You must use Clang compiler: \n\
+ \n\
+   rm CMakeCache.txt \n\
+   export CC=clang \n\
+   export CXX=clang++ \n\
+   cmake ...\n")
+    endif()
+
+    string(FIND "${CMAKE_CXX_FLAGS}" "-stdlib=libc++" matchres2)
+    string(FIND "${CMAKE_EXE_LINKER_FLAGS}" "-stdlib=libc++" matchres3)
+    if(${matchres2} EQUAL -1 OR ${matchres3} EQUAL -1)
+      if(not_using_clang_error)
+        set(not_using_libcxx_error " \n")
+      endif()
+      set(not_using_libcxx_error
+        "${not_using_libcxx_error} Skia was compiled with -stdlib=libc++ so you must use: \n\
+ \n\
+   -DCMAKE_CXX_FLAGS=-stdlib=libc++ \n\
+   -DCMAKE_EXE_LINKER_FLAGS=-stdlib=libc++ \n")
+    endif()
+
+    if(not_using_libcxx_error OR not_using_clang_error)
+      message(FATAL_ERROR
+        "----------------------------------------------------------------------"
+        "                        INCOMPATIBILITY ERROR "
+        "----------------------------------------------------------------------\n"
+        "${not_using_clang_error}"
+        "${not_using_libcxx_error}"
+        " \n"
+        " When calling cmake (or modify these variables in your CMakeCache.txt)\n"
+        "----------------------------------------------------------------------")
+    endif()
+
+  endif ()
+endif()
+
 set(FREETYPE_FOUND ON)
 find_library(FREETYPE_LIBRARY freetype2 PATH "${SKIA_LIBRARY_DIR}" NO_DEFAULT_PATH)
 set(FREETYPE_LIBRARIES ${FREETYPE_LIBRARY})
