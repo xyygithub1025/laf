@@ -23,6 +23,8 @@
   #include "gfx/region_skia.h"
 #elif LAF_PIXMAN
   #include "gfx/region_pixman.h"
+#elif LAF_WINDOWS
+  #include "gfx/region_win.h"
 #endif
 
 #endif
