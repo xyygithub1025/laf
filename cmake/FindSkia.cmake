@@ -117,7 +117,7 @@ endif()
 
 set(FREETYPE_FOUND ON)
 find_library(FREETYPE_LIBRARY freetype2 PATH "${SKIA_LIBRARY_DIR}" NO_DEFAULT_PATH)
-set(FREETYPE_LIBRARIES ${FREETYPE_LIBRARY} ${ZLIB_LIBRARIES})
+set(FREETYPE_LIBRARIES ${FREETYPE_LIBRARY})
 set(FREETYPE_INCLUDE_DIRS "${SKIA_DIR}/third_party/externals/freetype/include")
 
 find_library(HARFBUZZ_LIBRARY harfbuzz PATH "${SKIA_LIBRARY_DIR}" NO_DEFAULT_PATH)
@@ -144,6 +144,9 @@ target_compile_definitions(skia INTERFACE
   SK_SUPPORT_GPU=1
   SK_ENABLE_SKSL=1
   SK_GL=1)
+
+# Freetype is used by skia, and it needs zlib
+target_link_libraries(skia INTERFACE ${ZLIB_LIBRARIES})
 
 if(WIN32)
   target_compile_definitions(skia INTERFACE
