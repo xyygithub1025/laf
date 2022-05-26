@@ -1,5 +1,5 @@
 # LAF Base Library
-# Copyright (c) 2019-2021 Igara Studio S.A.
+# Copyright (c) 2019-2022 Igara Studio S.A.
 # Copyright (c) 2001-2018 David Capello
 
 include(CheckIncludeFiles)
@@ -63,6 +63,7 @@ if(WIN32)
   set(BASE_SOURCES ${BASE_SOURCES}
     platform_win.cpp
     win/registry.cpp
+    win/ver_query_values.cpp
     win/win32_exception.cpp)
 elseif(APPLE)
   set(BASE_SOURCES ${BASE_SOURCES}

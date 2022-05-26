@@ -238,6 +238,16 @@ namespace os {
     // TODO I think we should have a SystemDelegate or something
     //      similar instead of a public property.
     std::function<void(os::Window*)> handleWindowResize = nullptr;
+
+#if LAF_WINDOWS
+    // Only useful on Windows, the delegate must be a pointer to a
+    // WintabAPI::Delegate, and it must be deleted by the user
+    // manually (it's not owned by the os::System impl).
+    //
+    // This can be used to get information about the wintab32.dll
+    // vendor (company name, etc.)
+    virtual void setWintabDelegate(void* delegate) { }
+#endif
   };
 
   SystemRef make_system();

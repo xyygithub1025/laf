@@ -43,6 +43,10 @@ public:
   ScreenRef mainScreen() override;
   void listScreens(ScreenList& list) override;
 
+  void setWintabDelegate(void* delegate) override {
+    m_wintabApi.setDelegate((WintabAPI::Delegate*)delegate);
+  }
+
   // Required because GetMousePos() doesn't return the current mouse
   // position when we're using a pen/stylus.
   void _clearInternalMousePosition();
