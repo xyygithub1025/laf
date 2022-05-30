@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2021  Igara Studio S.A.
+// Copyright (C) 2018-2022  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -2171,6 +2171,10 @@ void WindowWin::handleInteractionContextOutput(
                    int((output->y - rc.top) / m_scale));
 
     Event ev;
+    // This is PT_PEN or PT_TOUCH
+    ev.setPointerType(output->inputType == PT_PEN ?
+                      PointerType::Pen:
+                      PointerType::Touch);
     ev.setModifiers(get_modifiers_from_last_win32_message());
     ev.setPosition(pos);
 
