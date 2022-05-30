@@ -9,6 +9,13 @@ if(NOT SKIA_DIR)
 else()
   if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(SKIA_ARCH "x64")
+    if(APPLE)
+      if(CMAKE_OSX_ARCHITECTURES STREQUAL "arm64" OR
+         (CMAKE_OSX_ARCHITECTURES STREQUAL "" AND
+          CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64"))
+        set(SKIA_ARCH "arm64")
+      endif()
+    endif()
   elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
     set(SKIA_ARCH "x86")
   endif()
