@@ -1003,10 +1003,12 @@ LRESULT WindowWin::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
       }
 
       if (m_hpenctx) {
-        // Handle z-order of Wintab context
-        auto& api = system()->wintabApi();
-        api.overlap(m_hpenctx, (wparam == WA_ACTIVE ||
-                                wparam == WA_CLICKACTIVE) ? TRUE: FALSE);
+        if (auto sys = system()) {
+          // Handle z-order of Wintab context
+          auto& api = sys->wintabApi();
+          api.overlap(m_hpenctx, (wparam == WA_ACTIVE ||
+                                  wparam == WA_CLICKACTIVE) ? TRUE: FALSE);
+        }
       }
       break;
 
