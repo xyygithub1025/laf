@@ -2318,11 +2318,14 @@ void WindowWin::openWintabCtx()
 
 void WindowWin::closeWintabCtx()
 {
-  if (m_hpenctx) {
-    auto& api = system()->wintabApi();
+  if (!m_hpenctx)
+    return;
+
+  if (auto sys = system()) {
+    auto& api = sys->wintabApi();
     api.close(m_hpenctx);
-    m_hpenctx = nullptr;
   }
+  m_hpenctx = nullptr;
 }
 
 void WindowWin::notifyFullScreenStateToShell()
