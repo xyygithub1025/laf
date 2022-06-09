@@ -21,7 +21,6 @@
 #include <sstream>
 
 #include "base/base.h"
-#include "base/clamp.h"
 #include "base/debug.h"
 #include "base/file_content.h"
 #include "base/fs.h"
@@ -2000,7 +1999,7 @@ bool WindowWin::pointerEvent(WPARAM wparam, Event& ev, POINTER_INFO& pi)
 
         // Add pressure information
         ev.setPressure(
-          base::clamp(float(ppi.pressure) / 1024.0f, 0.0f, 1.0f));
+          std::clamp(float(ppi.pressure) / 1024.0f, 0.0f, 1.0f));
       }
       break;
     }
