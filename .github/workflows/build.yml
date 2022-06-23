@@ -7,7 +7,13 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
+        build_type: [RelWithDebInfo, Debug]
         backend: [none, skia]
+        exclude:
+          - build_type: Debug
+            backend: skia
+          - build_type: RelWithDebInfo
+            backend: none
     steps:
     - uses: actions/checkout@v2
       with:
@@ -47,13 +53,13 @@ jobs:
         if [[ "${{ runner.os }}" == "Windows" ]] ; then
           if [[ "${{ matrix.backend }}" == "skia" ]] ; then
             cmake . -G Ninja \
-              -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+              -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
               -DLAF_BACKEND=${{ matrix.backend }} \
               -DSKIA_DIR=skia \
               -DSKIA_LIBRARY_DIR=skia/out/Release-x64
           else
             cmake . -G Ninja \
-              -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+              -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
               -DLAF_BACKEND=${{ matrix.backend }}
           fi
         elif [[ "${{ runner.os }}" == "Linux" ]] && \
@@ -61,12 +67,14 @@ jobs:
           export CC=clang-12
           export CXX=clang++-12
           cmake . -G Ninja \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DCMAKE_CXX_FLAGS=-stdlib=libc++ \
             -DCMAKE_EXE_LINKER_FLAGS=-stdlib=libc++ \
             -DLAF_BACKEND=${{ matrix.backend }} \
             -DSKIA_DIR=skia
         else
           cmake . -G Ninja \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DLAF_BACKEND=${{ matrix.backend }} \
             -DSKIA_DIR=skia
         fi
