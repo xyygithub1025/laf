@@ -2383,11 +2383,7 @@ HWND WindowWin::createHwnd(WindowWin* self, const WindowSpec& spec)
   if (spec.minimizable()) {
     style |= WS_SYSMENU | WS_MINIMIZEBOX;
   }
-  if (spec.resizable() ||
-      // Without WS_THICKFRAME we get a white canvas for borderless
-      // windows because we don't receive a WM_SIZE as we intercept
-      // WM_NCCALCSIZE in this case.
-      spec.borderless()) {
+  if (spec.resizable()) {
     style |= WS_THICKFRAME;
   }
   if (spec.maximizable()) {
