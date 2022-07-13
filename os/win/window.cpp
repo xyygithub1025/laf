@@ -853,6 +853,24 @@ LRESULT WindowWin::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
           // Without this, we lost the shadow effect when WM_NCCALCSIZE returns 0
           MARGINS margins = { 0, 0, 0, 1 };
           DwmExtendFrameIntoClientArea(m_hwnd, &margins);
+
+#if 1
+          // Don't render anything related to the non-client area in
+          // borderless windows (with this option the Windows 11
+          // rounded borders disappear)
+          DWMNCRENDERINGPOLICY ncrp = DWMNCRP_DISABLED;
+          DwmSetWindowAttribute(m_hwnd, DWMWA_NCRENDERING_POLICY, &ncrp, sizeof(ncrp));
+
+#else // The DWMWCP_DONOTROUND option doesn't fully work on Windows 11,
+      // we still need to set DWMNCRP_DISABLED for DWMWA_NCRENDERING_POLICY
+      // to disable a 1-pixel border in the non-client area.
+
+          // TODO Use the Windows 11 SDK types/constants
+          uint32_t cornerPref = 1; // DWMWCP_DONOTROUND;
+          DwmSetWindowAttribute(
+            m_hwnd, 33, // DWMWA_WINDOW_CORNER_PREFERENCE,
+            &cornerPref, sizeof(cornerPref));
+#endif
         }
       }
 
@@ -2383,7 +2401,11 @@ HWND WindowWin::createHwnd(WindowWin* self, const WindowSpec& spec)
   if (spec.minimizable()) {
     style |= WS_SYSMENU | WS_MINIMIZEBOX;
   }
-  if (spec.resizable()) {
+  if (spec.resizable() ||
+      // Without WS_THICKFRAME we get a white canvas for borderless
+      // windows because we don't receive a WM_SIZE as we intercept
+      // WM_NCCALCSIZE in this case.
+      spec.borderless()) {
     style |= WS_THICKFRAME;
   }
   if (spec.maximizable()) {
