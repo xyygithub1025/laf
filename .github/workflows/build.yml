@@ -41,7 +41,7 @@ jobs:
             libx11-dev libxcursor-dev libxi-dev libgl1-mesa-dev
           if [[ "${{ matrix.backend }}" == "skia" ]] ; then
             wget https://github.com/aseprite/skia/releases/download/m102-861e4743af/Skia-Linux-Release-x64-libc++.zip
-            unzip Skia-Linux-Release-x64.zip -d skia
+            unzip Skia-Linux-Release-x64-libc++.zip -d skia
           fi
         fi
     - uses: ilammy/msvc-dev-cmd@v1
