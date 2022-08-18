@@ -220,7 +220,7 @@ void SkiaSurface::setDrawMode(DrawMode mode, int param,
       m_paint.setBlendMode(SkBlendMode::kXor);
       m_paint.setShader(nullptr);
       break;
-    case DrawMode::Checked: {
+    case DrawMode::Checkered: {
       m_paint.setBlendMode(SkBlendMode::kSrcOver);
       {
         SkBitmap bitmap;
