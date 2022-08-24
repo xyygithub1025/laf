@@ -60,18 +60,21 @@ void encode_base64(const char* input, size_t n, std::string& output)
   auto outEnd = output.end();
   uint8_t next = 0;
   size_t i = 0;
+  size_t j = 0;
   for (; i<n; ++i, ++input) {
     auto inputValue = *input;
-    switch (i%3) {
+    switch (j) {
       case 0:
         *outIt = base64Char((inputValue & 0b11111100) >> 2);
         ++outIt;
         next |= (inputValue & 0b00000011) << 4;
+        ++j;
         break;
       case 1:
         *outIt = base64Char(((inputValue & 0b11110000) >> 4) | next);
         ++outIt;
         next = (inputValue & 0b00001111) << 2;
+        ++j;
         break;
       case 2:
         *outIt = base64Char(((inputValue & 0b11000000) >> 6) | next);
@@ -79,6 +82,7 @@ void encode_base64(const char* input, size_t n, std::string& output)
         *outIt = base64Char(inputValue & 0b00111111);
         ++outIt;
         next = 0;
+        j = 0;
         break;
     }
   }
