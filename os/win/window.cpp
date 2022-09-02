@@ -1139,6 +1139,27 @@ LRESULT WindowWin::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
       Event ev;
       mouseEvent(lparam, ev);
 
+      // Filter spurious mouse move messages out. Sometimes we receive
+      // periodic (e.g. each 2 seconds) WM_MOUSEMOVE messages in the
+      // same mouse position even when the mouse is not moved. This is
+      // specially problematic when a mouse and a stylus are plugged
+      // in, because there are random jumps between the pen position
+      // and the mouse position (receiving a random WM_MOUSEMOVE from
+      // the mouse position in the middle of a flow of
+      // WM_POINTERUPDATE messages from the pen).
+      {
+        static HWND lastHwnd = nullptr;
+        static gfx::Point lastPoint;
+        if (lastHwnd == m_hwnd &&
+            lastPoint == ev.position()) {
+          MOUSE_TRACE("SAME MOUSEMOVE xy=%d,%d\n",
+                      ev.position().x, ev.position().y);
+          break;
+        }
+        lastHwnd = m_hwnd;
+        lastPoint = ev.position();
+      }
+
       MOUSE_TRACE("MOUSEMOVE xy=%d,%d\n",
                   ev.position().x, ev.position().y);
 
@@ -2085,6 +2106,11 @@ void WindowWin::handlePointerButtonChange(Event& ev, POINTER_INFO& pi)
     if (m_emulateDoubleClick)
       m_pointerDownCount = 0;
 #endif
+
+    // Update the internal last mouse position because if a pointer
+    // button wasn't change, the position might have changed anyway
+    // (i.e. we're in a WM_POINTERUPDATE event).
+    system()->_setInternalMousePosition(ev);
     return;
   }
 
