@@ -15,7 +15,7 @@ class GLContext {
 public:
   virtual ~GLContext() { }
   virtual bool isValid() { return false; }
-  virtual bool createGLContext() { }
+  virtual bool createGLContext() { return false; }
   virtual void destroyGLContext() { }
   virtual void makeCurrent() { }
   virtual void swapBuffers() { }
