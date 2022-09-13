@@ -37,6 +37,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     argv[0] = base_strdup("");
     argc = 1;
   }
+  // Output strings to console with UTF-8 encoding
+  SetConsoleOutputCP(CP_UTF8);
   return app_main(argc, argv);
 }
 
@@ -52,6 +54,7 @@ int wmain(int argc, wchar_t* wargv[], wchar_t* envp[]) {
     argv[0] = base_strdup("");
     argc = 1;
   }
+  SetConsoleOutputCP(CP_UTF8);
   return app_main(argc, argv);
 }
 #endif
