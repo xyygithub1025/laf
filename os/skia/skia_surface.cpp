@@ -538,8 +538,9 @@ void SkiaSurface::scrollTo(const gfx::Rect& rc, int dx, int dy)
 void SkiaSurface::drawSurface(const Surface* src, int dstx, int dsty)
 {
   gfx::Clip clip(dstx, dsty, 0, 0, src->width(), src->height());
-  if (!clip.clip(width(), height(), clip.size.w, clip.size.h))
-    return;
+  // Don't call clip.clip() and left the clipping to the Skia library
+  // (mainly because Skia knows how to handle clipping even when a
+  // matrix is set).
 
   SkPaint paint;
   paint.setBlendMode(SkBlendMode::kSrc);
@@ -576,8 +577,6 @@ void SkiaSurface::drawSurface(const Surface* src,
 void SkiaSurface::drawRgbaSurface(const Surface* src, int dstx, int dsty)
 {
   gfx::Clip clip(dstx, dsty, 0, 0, src->width(), src->height());
-  if (!clip.clip(width(), height(), clip.size.w, clip.size.h))
-    return;
 
   SkPaint paint;
   paint.setBlendMode(SkBlendMode::kSrcOver);
@@ -591,8 +590,6 @@ void SkiaSurface::drawRgbaSurface(const Surface* src, int dstx, int dsty)
 void SkiaSurface::drawRgbaSurface(const Surface* src, int srcx, int srcy, int dstx, int dsty, int w, int h)
 {
   gfx::Clip clip(dstx, dsty, srcx, srcy, w, h);
-  if (!clip.clip(width(), height(), src->width(), src->height()))
-    return;
 
   SkPaint paint;
   paint.setBlendMode(SkBlendMode::kSrcOver);
@@ -606,8 +603,6 @@ void SkiaSurface::drawRgbaSurface(const Surface* src, int srcx, int srcy, int ds
 void SkiaSurface::drawColoredRgbaSurface(const Surface* src, gfx::Color fg, gfx::Color bg, const gfx::Clip& clipbase)
 {
   gfx::Clip clip(clipbase);
-  if (!clip.clip(width(), height(), src->width(), src->height()))
-    return;
 
   SkRect srcRect = SkRect::Make(SkIRect::MakeXYWH(clip.src.x, clip.src.y, clip.size.w, clip.size.h));
   SkRect dstRect = SkRect::Make(SkIRect::MakeXYWH(clip.dst.x, clip.dst.y, clip.size.w, clip.size.h));
