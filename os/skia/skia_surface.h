@@ -54,9 +54,6 @@ public:
   void resetMatrix() override;
   void restore() override;
   gfx::Matrix matrix() const override;
-  void setDrawMode(DrawMode mode, int param,
-                   const gfx::Color a,
-                   const gfx::Color b) override;
   void lock() override;
   void unlock() override;
   void applyScale(int scaleFactor) override;
@@ -99,6 +96,7 @@ public:
                        const gfx::Rect& src,
                        const gfx::Rect& _center,
                        const gfx::Rect& dst,
+                       const bool drawCenter,
                        const os::Paint* paint) override;
 
   bool isValid() const {

@@ -35,12 +35,6 @@ namespace os {
   class SurfaceLock;
   using SurfaceRef = Ref<Surface>;
 
-  enum class DrawMode {
-    Solid,
-    Checkered,
-    Xor
-  };
-
   class Surface : public RefCount {
   public:
     virtual ~Surface() { }
@@ -66,10 +60,6 @@ namespace os {
     virtual void resetMatrix() = 0;
     virtual void restore() = 0;
     virtual gfx::Matrix matrix() const = 0;
-
-    virtual void setDrawMode(DrawMode mode, int param = 0,
-                             const gfx::Color a = gfx::ColorNone,
-                             const gfx::Color b = gfx::ColorNone) = 0;
 
     virtual void lock() = 0;
     virtual void unlock() = 0;
@@ -150,6 +140,7 @@ namespace os {
                                  const gfx::Rect& src,
                                  const gfx::Rect& center,
                                  const gfx::Rect& dst,
+                                 const bool drawCenter,
                                  const os::Paint* paint) = 0;
 
     virtual void applyScale(int scaleFactor) = 0;
