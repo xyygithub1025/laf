@@ -51,7 +51,7 @@ namespace os {
 
     BlendMode blendMode() const {
       auto bm = m_skPaint.asBlendMode();
-      if (bm) { return static_cast<BlendMode>(bm.value()); }
+      if (bm.has_value()) { return static_cast<BlendMode>(*bm); }
       else return BlendMode::Src;
     }
     void blendMode(const BlendMode blendMode) {
