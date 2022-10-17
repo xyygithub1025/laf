@@ -93,5 +93,6 @@ include these license notices when you distribute your software):
   and several other [third-party libraries/licenses](https://github.com/aseprite/skia/tree/master/third_party).
 * `gfx::Region` uses the pixman library if you are not compiling with
   the Skia backend (e.g. a if you want to create only Command Line
-  utilities that uses the `gfx::Region` class). Pixman is distributed
-  under the [MIT License](https://cgit.freedesktop.org/pixman/tree/COPYING).
+  utilities that uses the `gfx::Region` class) on Linux or macOS. On
+  Windows we use an alternative implementation with [HRGN](https://learn.microsoft.com/en-us/windows/win32/gdi/regions).
+  Pixman is distributed under the [MIT License](https://cgit.freedesktop.org/pixman/tree/COPYING).
