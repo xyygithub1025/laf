@@ -8,12 +8,7 @@ A library to create Windows, macOS, and Linux applications.
 This library is under active development so we don't provide API or
 ABI compatibility at this moment.
 
-## Modules
-
-* [base](base): Base functions for any kind of application.
-* [gfx](gfx): Generic graphics classes (rectangle, point, region, etc.)
-* [ft](ft): FreeType wrapper used by the `os` module (requires `freetype` library as dependency)
-* [os](os): Functions to create windows in your Operating System.
+* [Documentation](https://aseprite.github.io/laf/)
 
 ## Dependencies
 
@@ -69,13 +64,6 @@ cd build
 ninja
 ctest
 ```
-
-## Defined Macros
-
-* `LAF_WINDOWS`: Compiling on Windows platform
-* `LAF_MACOS`: Compiling on macOS platform
-* `LAF_LINUX`: Compiling on Linux platform
-* `LAF_SKIA`: When we compile with `LAF_BACKEND=skia` (Skia library is available)
 
 ## License
 

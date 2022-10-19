@@ -15,3 +15,34 @@ libraries](https://julienjorge.medium.com/testing-c-signal-slot-libraries-1994eb
 or the clipboard management with [dacap/clip](https://github.com/dacap/clip),
 etc. Even more, parts of *laf* might be separated to other libraries
 in the future if they are highly valuable on their own.
+
+## Modules
+
+*laf* is a set of libraries:
+
+* [base](base): Base functions for any kind of application (CLI and
+  GUI), generally one function doesn't depend on others, so it has a
+  minimal set of dependencies
+* [gfx](gfx): Abstract graphics classes (rectangle, point, region,
+  etc.)
+* [ft](ft): FreeType wrapper used by the `os` module (requires
+  `freetype` library as dependency). Might be deleted in the future
+  (replaced with Skia text rendering)
+* [os](os): Functions to create windows in your Operating System
+
+## Platform-specific Definitions
+
+Compiling in a specific operating system/platforms:
+
+* `LAF_WINDOWS`
+* `LAF_MACOS`
+* `LAF_LINUX`
+
+[*laf* backend](backend.md):
+
+* `LAF_SKIA`: When we compile with `LAF_BACKEND=skia`, Skia library is available
+
+CPU [endianness](https://en.wikipedia.org/wiki/Endianness) (defined in [base/config.h](https://github.com/aseprite/laf/blob/main/base/config.h.cmakein)):
+
+* `LAF_LITTLE_ENDIAN`
+* `LAF_BIG_ENDIAN`
