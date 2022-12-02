@@ -127,7 +127,7 @@
 
 - (BOOL)validateMenuItem:(NSMenuItem*)menuItem
 {
-  if ([menuItem respondsToSelector:@selector(validateMenuItem)]) {
+  if (menuItem && [menuItem respondsToSelector:@selector(validateMenuItem)]) {
     [((id<ValidateMenuItemProtocolOSX>)menuItem) validateMenuItem];
     return menuItem.enabled;
   }
