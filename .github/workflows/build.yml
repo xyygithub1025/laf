@@ -36,7 +36,7 @@ jobs:
         else
           sudo apt-get update -qq
           sudo apt-get install -y \
-            libc++-12-dev libc++abi-12-dev \
+            libc++-dev libc++abi-dev \
             libpixman-1-dev libfreetype6-dev libharfbuzz-dev zlib1g-dev \
             libx11-dev libxcursor-dev libxi-dev libgl1-mesa-dev
           if [[ "${{ matrix.backend }}" == "skia" ]] ; then
@@ -64,8 +64,8 @@ jobs:
           fi
         elif [[ "${{ runner.os }}" == "Linux" ]] && \
              [[ "${{ matrix.backend }}" == "skia" ]] ; then
-          export CC=clang-12
-          export CXX=clang++-12
+          export CC=clang
+          export CXX=clang++
           cmake . -G Ninja \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DCMAKE_CXX_FLAGS=-stdlib=libc++ \
