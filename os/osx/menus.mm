@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2019-2021  Igara Studio S.A.
+// Copyright (C) 2019-2022  Igara Studio S.A.
 // Copyright (C) 2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -28,7 +28,7 @@ namespace os {
 }
 + (NSMenuItemOSX*)alloc:(const os::Ref<os::MenuItemOSX>&)original;
 - (void)executeMenuItem:(id)sender;
-- (void)validateMenuItem;
+- (void)validateLafMenuItem;
 @end
 
 namespace os {
@@ -106,7 +106,7 @@ private:
   ev.setCallback([self]{ original->execute(); });
   os::queue_event(ev);
 }
-- (void)validateMenuItem
+- (void)validateLafMenuItem
 {
   original->validate();
 }
