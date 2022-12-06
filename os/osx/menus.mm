@@ -27,6 +27,7 @@ namespace os {
   os::Ref<os::MenuItemOSX> original;
 }
 + (NSMenuItemOSX*)alloc:(const os::Ref<os::MenuItemOSX>&)original;
+- (void)dealloc;
 - (void)executeMenuItem:(id)sender;
 - (void)validateLafMenuItem;
 @end
@@ -90,6 +91,10 @@ private:
   item->original = original;
   return item;
 }
+- (void)dealloc
+{
+  original = nullptr;
+}
 - (void)executeMenuItem:(id)sender
 {
   // Execute menu item option in a synchronized way from the events
@@ -108,7 +113,8 @@ private:
 }
 - (void)validateLafMenuItem
 {
-  original->validate();
+  if (original)
+    original->validate();
 }
 @end
 
