@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2020-2021  Igara Studio S.A.
+// Copyright (C) 2020-2022  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -14,6 +14,116 @@
 #include "os/native_cursor.h"
 #include "os/osx/native_dialogs.h"
 #include "os/window.h"
+
+#include <map>
+
+namespace {
+
+// macOS does a super strange thing to handle the keyboard shortcuts
+// when a NSSavePanel is open: it sends all the Command+key
+// combinations to the main menu to handle the most basic shortcuts
+// like Command+C (to run the copy: selector), or Command+V (paste:),
+// etc.
+//
+// So what we have to do if the main menu doesn't provide the standard
+// Edit selectors? (which is our case with our MenuItemOSX and MenuOSX
+// implementations):
+//
+// 1. Before we open the NSSavePanel, find the Edit menu that was
+//    specified by the user with os::MenuItem::setAsStandardEditMenuItem()
+// 2. Replace the Edit menu with a custom made one with the
+//    standard Edit menu prepared especially with selectors
+//    (undo:, redo:, cut:, etc.)
+// 3. Each menu item that contains a standard keyboard shortcut
+//    (Command+C, Command+V, etc.) must be modified, because those
+//    shortcuts are now used by this new Edit menu. So we remove the
+//    keyEquivalent of each one. This is necessary only when one of
+//    those items are outside the replaced Edit menu (e.g. if we have
+//    Command+A to select all in other menu like Select > All, instead
+//    of Edit > Select All)
+// 4. After the NSSavePanel is closed, we restore all keyEquivalent
+//    shortcuts and the old Edit menu.
+//
+class OSXEditMenuHack {
+public:
+  OSXEditMenuHack(NSMenuItem* currentEditMenuItem)
+    : m_editMenuItem(currentEditMenuItem) {
+    if (!m_editMenuItem)
+      return;
+
+    auto editMenu = [NSMenu new];
+
+    // Check MenuItemOSX::syncTitle(), but basically on macOS the
+    // NSMenu title is the one displayed for NSMenuItem with submenus.
+    editMenu.title = currentEditMenuItem.title;
+
+    [editMenu addItem:newItem(@"Undo", @selector(undo:), @"z", NSEventModifierFlagCommand)];
+    [editMenu addItem:newItem(@"Redo", @selector(redo:), @"Z", NSEventModifierFlagCommand)];
+    [editMenu addItem:[NSMenuItem separatorItem]];
+    [editMenu addItem:newItem(@"Cut", @selector(cut:), @"x", NSEventModifierFlagCommand)];
+    [editMenu addItem:newItem(@"Copy", @selector(copy:), @"c", NSEventModifierFlagCommand)];
+    [editMenu addItem:newItem(@"Paste", @selector(paste:), @"v", NSEventModifierFlagCommand)];
+    [editMenu addItem:newItem(@"Delete", @selector(delete:), @"", 0)];
+    [editMenu addItem:newItem(@"Select All", @selector(selectAll:), @"a", NSEventModifierFlagCommand)];
+
+    m_submenu = m_editMenuItem.submenu;
+    m_editMenuItem.submenu = editMenu;
+  }
+
+  ~OSXEditMenuHack() {
+    if (!m_editMenuItem)
+      return;
+
+    // Restore all key equivalents
+    for (auto& kv : m_restoreKeys)
+      kv.first.keyEquivalent = kv.second;
+
+    m_editMenuItem.submenu = m_submenu;
+  }
+
+private:
+  NSMenuItem* newItem(NSString* title, SEL sel,
+                      NSString* key,
+                      NSEventModifierFlags flags) {
+    auto item = [[NSMenuItem alloc] initWithTitle:title
+                 action:sel
+                 keyEquivalent:key];
+    if (flags)
+      item.keyEquivalentModifierMask = flags;
+
+    // Search for menu items in the main menu that already contain the
+    // same keyEquivalent, and disable them temporarily.
+    disableMenuItemsWithKeyEquivalent(
+      [[NSApplication sharedApplication] mainMenu],
+      key, flags);
+
+    return item;
+  }
+
+  void disableMenuItemsWithKeyEquivalent(NSMenu* menu,
+                                         NSString* key,
+                                         NSEventModifierFlags flags) {
+    for (NSMenuItem* item in menu.itemArray) {
+      if ([item.keyEquivalent isEqualToString:key] &&
+          item.keyEquivalentModifierMask == flags) {
+        m_restoreKeys[item] = item.keyEquivalent;
+        item.keyEquivalent = @"";
+      }
+      if (item.submenu)
+        disableMenuItemsWithKeyEquivalent(item.submenu, key, flags);
+    }
+  }
+
+  NSMenuItem* m_editMenuItem = nullptr;
+  NSMenu* m_submenu = nullptr;
+  std::map<NSMenuItem*, NSString*> m_restoreKeys;
+};
+
+} // anonymous namespace
+
+namespace os {
+extern NSMenuItem* g_standardEditMenuItem;
+}
 
 @interface OpenSaveHelper : NSObject {
 @private
@@ -51,9 +161,11 @@
 // This is executed in the main thread.
 - (void)runModal
 {
-  [[[NSApplication sharedApplication] mainMenu] setAutoenablesItems:NO];
   os::NativeCursor oldCursor = window->nativeCursor();
   window->setCursor(os::NativeCursor::Arrow);
+
+  OSXEditMenuHack hack(os::g_standardEditMenuItem);
+  [[[NSApplication sharedApplication] mainMenu] setAutoenablesItems:NO];
 
 #ifndef __MAC_10_6              // runModalForTypes is deprecated in 10.6
   if ([panel isKindOfClass:[NSOpenPanel class]]) {

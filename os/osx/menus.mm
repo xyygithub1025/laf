@@ -35,6 +35,7 @@ namespace os {
 namespace os {
 
 extern bool g_keyEquivalentUsed;
+NSMenuItem* g_standardEditMenuItem = nullptr;
 
 class MenuItemOSX : public MenuItem {
 public:
@@ -45,6 +46,7 @@ public:
   void setEnabled(bool state) override;
   void setChecked(bool state) override;
   void setShortcut(const Shortcut& shortcut) override;
+  void setAsStandardEditMenuItem() override;
   NSMenuItem* handle() { return m_handle; }
 
   // Called by NSMenuItemOSX.executeMenuItem
@@ -195,8 +197,13 @@ MenuItemOSX::~MenuItemOSX()
   if (m_submenu)
     m_submenu.reset();
 
-  if (m_handle.parentItem)
-    [m_handle.parentItem.submenu removeItem:m_handle];
+  if (m_handle) {
+    if (m_handle == g_standardEditMenuItem)
+      g_standardEditMenuItem = nullptr;
+
+    if (m_handle.parentItem)
+      [m_handle.parentItem.submenu removeItem:m_handle];
+  }
 }
 
 void MenuItemOSX::setText(const std::string& text)
@@ -253,6 +260,11 @@ void MenuItemOSX::setShortcut(const Shortcut& shortcut)
 
   m_handle.keyEquivalent = keyStr;
   m_handle.keyEquivalentModifierMask = nsFlags;
+}
+
+void MenuItemOSX::setAsStandardEditMenuItem()
+{
+  g_standardEditMenuItem = m_handle;
 }
 
 void MenuItemOSX::execute()
