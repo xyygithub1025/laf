@@ -130,12 +130,15 @@ extern NSMenuItem* g_standardEditMenuItem;
   NSSavePanel* panel;
   os::Window* window;
   int result;
+  std::function<void()> fileTypeChangeObserver;
 }
 - (id)init;
 - (void)setPanel:(NSSavePanel*)panel;
 - (void)setWindow:(os::Window*)window;
 - (void)runModal;
 - (int)result;
+- (void)fileTypeChange;
+- (void)setFileTypeChangeObserver:(std::function<void()>)observer;
 @end
 
 @implementation OpenSaveHelper
@@ -192,6 +195,17 @@ extern NSMenuItem* g_standardEditMenuItem;
   return result;
 }
 
+- (void)fileTypeChange
+{
+  if (fileTypeChangeObserver)
+    fileTypeChangeObserver();
+}
+
+- (void)setFileTypeChangeObserver:(std::function<void()>)observer
+{
+  fileTypeChangeObserver = observer;
+}
+
 @end
 
 namespace os {
@@ -233,14 +247,27 @@ public:
 
       if (m_type != Type::OpenFolder && !m_filters.empty()) {
         NSMutableArray* types = [[NSMutableArray alloc] init];
-        // The first extension in the array is used as the default one.
-        if (!m_defExtension.empty())
-          [types addObject:[NSString stringWithUTF8String:m_defExtension.c_str()]];
+
+        if (m_type == Type::OpenFile ||
+            m_type == Type::OpenFiles) {
+          // Empty item so we can show all the allowed file types again
+          [types addObject:@""];
+        }
+        else if (m_type == Type::SaveFile) {
+          // The first extension in the array is used as the default one.
+          if (!m_defExtension.empty())
+            [types addObject:[NSString stringWithUTF8String:m_defExtension.c_str()]];
+        }
+
         for (const auto& filter : m_filters)
           [types addObject:[NSString stringWithUTF8String:filter.first.c_str()]];
+
         [panel setAllowedFileTypes:types];
         if (m_type == Type::SaveFile)
           [panel setAllowsOtherFileTypes:NO];
+
+        // Create accessory view to select file type
+        [panel setAccessoryView:createAccessoryView(panel)];
       }
 
       // Always show the extension
@@ -256,6 +283,46 @@ public:
       OpenSaveHelper* helper = [OpenSaveHelper new];
       [helper setPanel:panel];
       [helper setWindow:window];
+
+      // Configure the file type popup/combobox.
+      if (m_popup) {
+        [m_popup setTarget:helper];
+        [m_popup setAction:@selector(fileTypeChange)];
+
+        // Select the file type item depending on the extension of
+        // m_filename.
+        if (!m_filename.empty()) {
+          auto ext = base::get_file_extension(m_filename);
+          if (ext.empty())
+            ext = m_defExtension;
+          int i = 0;
+          for (NSMenuItem* item in m_popup.itemArray) {
+            if (ext == item.title.UTF8String) {
+              [m_popup selectItemAtIndex:i];
+              break;
+            }
+            ++i;
+          }
+        }
+
+        // Function to be called when user selects another file type
+        // from the combobox.
+        [helper setFileTypeChangeObserver:[this, panel](){
+          NSString* extension = m_popup.selectedItem.title;
+          if (extension.length == 0) {
+            NSMutableArray* allTypes = [[NSMutableArray alloc] init];
+            for (NSMenuItem* item in m_popup.itemArray) {
+              if (item.title.length != 0)
+                [allTypes addObject:item.title];
+            }
+            [panel setAllowedFileTypes:allTypes];
+          }
+          else {
+            [panel setAllowedFileTypes:@[extension]];
+          }
+        }];
+      }
+
       [helper performSelectorOnMainThread:@selector(runModal) withObject:nil waitUntilDone:YES];
 
       if ([helper result] == NSFileHandlingPanelOKButton) {
@@ -272,14 +339,52 @@ public:
         }
         retValue = true;
       }
+
+      m_popup = nullptr;
     }
     return retValue;
   }
 
 private:
 
+  // The accessory view is any extra NSView that we want to show in
+  // the NSSavePanel/NSOpenPanel, in our case, we want to show a
+  // combobox (NSPopUpButton) with the available file formats.
+  NSView* createAccessoryView(NSSavePanel* panel) {
+    auto label = [NSTextField labelWithString:@"File Format:"];
+
+    if ([NSFont respondsToSelector:@selector(smallSystemFontSize)])
+      label.font = [NSFont systemFontOfSize:[NSFont smallSystemFontSize]];
+    if ([NSColor respondsToSelector:@selector(secondaryLabelColor)])
+      label.textColor = [NSColor secondaryLabelColor];
+
+    // Combobox with file formats
+    auto popup = [[NSPopUpButton alloc] initWithFrame:NSZeroRect
+                                            pullsDown:false];
+    popup.autoenablesItems = false; // All items enabled
+    for (NSString* item in panel.allowedFileTypes) {
+      [popup addItemWithTitle:item];
+    }
+    m_popup = popup;
+
+    auto hbox = [[NSStackView alloc] initWithFrame:NSZeroRect];
+    [hbox addView:label inGravity:NSStackViewGravityCenter];
+    [hbox addView:popup inGravity:NSStackViewGravityCenter];
+
+    auto accessoryView = [[NSStackView alloc] initWithFrame:NSZeroRect];
+    [accessoryView addView:hbox inGravity:NSStackViewGravityCenter];
+    accessoryView.edgeInsets = NSEdgeInsetsMake(10, 0, 10, 0);
+
+    return accessoryView;
+  }
+
   std::string m_filename;
   base::paths m_filenames;
+
+  // Keeps a pointer to the list/combobox of file types so we use it
+  // easily (configuring its target/action properties + accessing its
+  // selected item).
+  NSPopUpButton* m_popup = nullptr;
 };
 
 NativeDialogsOSX::NativeDialogsOSX()
