@@ -1,5 +1,5 @@
 // LAF Gfx Library
-// Copyright (c) 2020  Igara Studio S.A.
+// Copyright (c) 2020-2022  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -53,6 +53,11 @@ namespace gfx {
 
     Path& lineTo(const Point& p) {
       m_skPath.lineTo(p.x, p.y);
+      return *this;
+    }
+
+    Path& cubicTo(float dx1, float dy1, float dx2, float dy2, float dx3, float dy3) {
+      m_skPath.cubicTo(dx1, dy1, dx2, dy2, dx3, dy3);
       return *this;
     }
 
