@@ -61,6 +61,16 @@ namespace gfx {
       return *this;
     }
 
+    Path& rect(const Rect& rc) {
+      m_skPath.addRect(SkRect::MakeXYWH(rc.x, rc.y, rc.w, rc.h));
+      return *this;
+    }
+
+    Path& roundedRect(const Rect& rc, float rx, float ry) {
+      m_skPath.addRoundRect(SkRect::MakeXYWH(rc.x, rc.y, rc.w, rc.h), rx, ry);
+      return *this;
+    }
+
     Path& close() {
       m_skPath.close();
       return *this;
