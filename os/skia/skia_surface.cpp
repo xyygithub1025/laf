@@ -177,6 +177,11 @@ bool SkiaSurface::clipRect(const gfx::Rect& rc)
   return !m_canvas->isClipEmpty();
 }
 
+void SkiaSurface::clipPath(const gfx::Path& path)
+{
+  m_canvas->clipPath(path.skPath());
+}
+
 void SkiaSurface::save()
 {
   m_canvas->save();

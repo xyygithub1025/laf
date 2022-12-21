@@ -48,6 +48,7 @@ public:
   void saveClip() override;
   void restoreClip() override;
   bool clipRect(const gfx::Rect& rc) override;
+  void clipPath(const gfx::Path& path) override;
   void save() override;
   void concat(const gfx::Matrix& matrix) override;
   void setMatrix(const gfx::Matrix& matrix) override;

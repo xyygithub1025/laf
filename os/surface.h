@@ -53,6 +53,7 @@ namespace os {
     virtual void saveClip() = 0;
     virtual void restoreClip() = 0;
     virtual bool clipRect(const gfx::Rect& rc) = 0;
+    virtual void clipPath(const gfx::Path& path) = 0;
 
     virtual void save() = 0;
     virtual void concat(const gfx::Matrix& matrix) = 0;
