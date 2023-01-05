@@ -57,8 +57,7 @@ long fgetl(FILE* file)
 // Reads a QWORD (64 bits) using little-endian byte ordering.
 long long fgetq(FILE* file)
 {
-  int b1, b2, b3, b4;
-  long long b5, b6, b7, b8;
+  int b1, b2, b3, b4, b5, b6, b7, b8;
 
   if ((b1 = fgetc(file)) == EOF)
     return EOF;
@@ -85,7 +84,14 @@ long long fgetq(FILE* file)
     return EOF;
 
   // Little endian.
-  return ((b8 << 56) | (b7 << 48) | (b6 << 40) | (b5 << 32) | (b4 << 24) | (b3 << 16) | (b2 << 8) | b1);
+  return (((long long)b8 << 56) |
+          ((long long)b7 << 48) |
+          ((long long)b6 << 40) |
+          ((long long)b5 << 32) |
+          ((long long)b4 << 24) |
+          ((long long)b3 << 16) |
+          ((long long)b2 << 8) |
+          (long long)b1);
 }
 
 // Reads a 32-bit single-precision floating point number using
@@ -115,8 +121,7 @@ float fgetf(FILE* file)
 // little-endian byte ordering.
 double fgetd(FILE* file)
 {
-  int b1, b2, b3, b4;
-  long long b5, b6, b7, b8;
+  int b1, b2, b3, b4, b5, b6, b7, b8;
 
   if ((b1 = fgetc(file)) == EOF)
     return EOF;
@@ -143,7 +148,14 @@ double fgetd(FILE* file)
     return EOF;
 
   // Little endian.
-  long long v = ((b8 << 56) | (b7 << 48) | (b6 << 40) | (b5 << 32) | (b4 << 24) | (b3 << 16) | (b2 << 8) | b1);
+  long long v = (((long long)b8 << 56) |
+                 ((long long)b7 << 48) |
+                 ((long long)b6 << 40) |
+                 ((long long)b5 << 32) |
+                 ((long long)b4 << 24) |
+                 ((long long)b3 << 16) |
+                 ((long long)b2 << 8) |
+                 (long long)b1);
   return *reinterpret_cast<double*>(&v);
 }
 
@@ -205,10 +217,10 @@ int fputq(long long l, FILE* file)
     if (fputc(b2, file) == b2)
       if (fputc(b3, file) == b3)
         if (fputc(b4, file) == b4)
-          if (fputc(b4, file) == b5)
-            if (fputc(b4, file) == b6)
-              if (fputc(b4, file) == b7)
-                if (fputc(b4, file) == b8)
+          if (fputc(b5, file) == b5)
+            if (fputc(b6, file) == b6)
+              if (fputc(b7, file) == b7)
+                if (fputc(b8, file) == b8)
                   return 0;
 
   return -1;
