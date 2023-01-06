@@ -21,8 +21,10 @@ namespace serialization {
 
     std::ostream& write16(std::ostream& os, uint16_t word);
     std::ostream& write32(std::ostream& os, uint32_t dword);
+    std::ostream& write64(std::ostream& os, uint64_t qword);
     uint16_t read16(std::istream& is);
     uint32_t read32(std::istream& is);
+    uint64_t read64(std::istream& is);
 
   } // little_endian namespace
 
@@ -30,8 +32,10 @@ namespace serialization {
 
     std::ostream& write16(std::ostream& os, uint16_t word);
     std::ostream& write32(std::ostream& os, uint32_t dword);
+    std::ostream& write64(std::ostream& os, uint64_t qword);
     uint16_t read16(std::istream& is);
     uint32_t read32(std::istream& is);
+    uint64_t read64(std::istream& is);
 
   } // big_endian namespace
 
