@@ -1,4 +1,5 @@
 // LAF Base Library
+// Copyright (c) 2023 Igara Studio S.A.
 // Copyright (c) 2001-2016 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -9,7 +10,10 @@
 #endif
 
 #include "base/convert_to.h"
+#include "base/hex.h"
 #include "base/sha1.h"
+#include "base/uuid.h"
+
 #include <cstdio>
 #include <cstdlib>
 
@@ -77,6 +81,39 @@ template<> std::string convert_to(const Sha1& from)
   }
 
   return res;
+}
+
+template<> Uuid convert_to(const std::string& from)
+{
+  Uuid uuid;
+  int i = 0;
+  for (int j=0; j<int(from.size()) && i<16; ) {
+    int a = hex_to_int(from[j++]);
+    int b = hex_to_int(from[j++]);
+    (uuid.bytes())[i++] = ((a << 4) | b);
+
+    // Skip
+    if (i == 4 || i == 6 || i == 8 || i == 10) {
+      if (from[j] == '-')
+        ++j;
+      else
+        return Uuid();
+    }
+  }
+  return uuid;
+}
+
+template<> std::string convert_to(const Uuid& from)
+{
+  int i = 0;
+  char buf[Uuid::HashSize+1];
+  for (; i<4; ++i) sprintf(buf+2*i, "%02x", int(from[i]));
+  for (; i<6; ++i) sprintf(buf+2*i+1, "%02x", int(from[i]));
+  for (; i<8; ++i) sprintf(buf+2*i+2, "%02x", int(from[i]));
+  for (; i<10; ++i) sprintf(buf+2*i+3, "%02x", int(from[i]));
+  for (; i<16; ++i) sprintf(buf+2*i+4, "%02x", int(from[i]));
+  buf[8] = buf[13] = buf[18] = buf[23] = '-';
+  return std::string(buf);
 }
 
 } // namespace base
