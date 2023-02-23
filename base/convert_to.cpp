@@ -27,7 +27,7 @@ template<> int convert_to(const std::string& from)
 template<> std::string convert_to(const int& from)
 {
   char buf[32];
-  std::sprintf(buf, "%d", from);
+  std::snprintf(buf, sizeof(buf), "%d", from);
   return buf;
 }
 
@@ -39,7 +39,7 @@ template<> uint32_t convert_to(const std::string& from)
 template<> std::string convert_to(const uint32_t& from)
 {
   char buf[32];
-  std::sprintf(buf, "%u", from);
+  std::snprintf(buf, sizeof(buf), "%u", from);
   return buf;
 }
 
@@ -51,7 +51,7 @@ template<> double convert_to(const std::string& from)
 template<> std::string convert_to(const double& from)
 {
   char buf[32];
-  std::sprintf(buf, "%g", from);
+  std::snprintf(buf, sizeof(buf), "%g", from);
   return buf;
 }
 
@@ -76,7 +76,7 @@ template<> std::string convert_to(const Sha1& from)
   res.reserve(2*Sha1::HashSize);
 
   for(int c=0; c<Sha1::HashSize; ++c) {
-    sprintf(buf, "%02x", from[c]);
+    snprintf(buf, sizeof(buf), "%02x", from[c]);
     res += buf;
   }
 
@@ -107,11 +107,11 @@ template<> std::string convert_to(const Uuid& from)
 {
   int i = 0;
   char buf[Uuid::HashSize+1];
-  for (; i<4; ++i) sprintf(buf+2*i, "%02x", int(from[i]));
-  for (; i<6; ++i) sprintf(buf+2*i+1, "%02x", int(from[i]));
-  for (; i<8; ++i) sprintf(buf+2*i+2, "%02x", int(from[i]));
-  for (; i<10; ++i) sprintf(buf+2*i+3, "%02x", int(from[i]));
-  for (; i<16; ++i) sprintf(buf+2*i+4, "%02x", int(from[i]));
+  for (; i<4; ++i) snprintf(buf+2*i, 3, "%02x", int(from[i]));
+  for (; i<6; ++i) snprintf(buf+2*i+1, 3, "%02x", int(from[i]));
+  for (; i<8; ++i) snprintf(buf+2*i+2, 3, "%02x", int(from[i]));
+  for (; i<10; ++i) snprintf(buf+2*i+3, 3, "%02x", int(from[i]));
+  for (; i<16; ++i) snprintf(buf+2*i+4, 3, "%02x", int(from[i]));
   buf[8] = buf[13] = buf[18] = buf[23] = '-';
   return std::string(buf);
 }
