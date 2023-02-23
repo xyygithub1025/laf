@@ -125,26 +125,31 @@ using namespace os;
 
 - (id)initWithFrame:(NSRect)frameRect
 {
-  // We start without the system mouse cursor
-  m_nsCursor = nil;
-  m_visibleMouse = true;
-  m_pointerType = os::PointerType::Unknown;
-  m_impl = nullptr;
+  // This autoreleasepool with the removeImpl code is needed to
+  // release CALayers from memory. Without this we will keep growing
+  // the memory with CALayers.
+  @autoreleasepool {
+    // We start without the system mouse cursor
+    m_nsCursor = nil;
+    m_visibleMouse = true;
+    m_pointerType = os::PointerType::Unknown;
+    m_impl = nullptr;
 
-  self = [super initWithFrame:frameRect];
-  if (self != nil) {
-    [self createMouseTrackingArea];
-    [self registerForDraggedTypes:
-      [NSArray arrayWithObjects:
-        NSFilenamesPboardType,
-        nil]];
+    self = [super initWithFrame:frameRect];
+    if (self != nil) {
+      [self createMouseTrackingArea];
+      [self registerForDraggedTypes:
+              [NSArray arrayWithObjects:
+                         NSFilenamesPboardType,
+                       nil]];
 
-    // Create a CALayer for backing content with async drawing. This
-    // fixes performance issues on Retina displays with wide color
-    // spaces (like Display P3).
-    if (os::g_async_view) {
-      self.wantsLayer = true;
-      self.layer.drawsAsynchronously = true;
+      // Create a CALayer for backing content with async drawing. This
+      // fixes performance issues on Retina displays with wide color
+      // spaces (like Display P3).
+      if (os::g_async_view) {
+        self.wantsLayer = true;
+        self.layer.drawsAsynchronously = true;
+      }
     }
   }
   return self;
@@ -157,7 +162,14 @@ using namespace os;
 
 - (void)removeImpl
 {
-  m_impl = nullptr;
+  @autoreleasepool {
+    // Reconfigure the view to release the CALayer object. This along
+    // with the autoreleasepool in initWithFrame: are needed.
+    self.layer.drawsAsynchronously = false;
+    self.wantsLayer = false;
+
+    m_impl = nullptr;
+  }
 }
 
 - (BOOL)acceptsFirstResponder
