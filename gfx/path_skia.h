@@ -1,5 +1,5 @@
 // LAF Gfx Library
-// Copyright (c) 2020-2022  Igara Studio S.A.
+// Copyright (c) 2020-2023  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -58,6 +58,11 @@ namespace gfx {
 
     Path& cubicTo(float dx1, float dy1, float dx2, float dy2, float dx3, float dy3) {
       m_skPath.cubicTo(dx1, dy1, dx2, dy2, dx3, dy3);
+      return *this;
+    }
+
+    Path& oval(const Rect& rc) {
+      m_skPath.addOval(SkRect::MakeXYWH(rc.x, rc.y, rc.w, rc.h));
       return *this;
     }
 
