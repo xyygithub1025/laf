@@ -15,8 +15,8 @@
   #include "os/osx/app.h"
   #include "os/osx/menus.h"
   #include "os/osx/native_dialogs.h"
-#elif LAF_OS_WITH_GTK
-  #include "os/gtk/native_dialogs.h"
+#elif LAF_LINUX
+  #include "os/x11/native_dialogs.h"
 #else
   #include "os/native_dialogs.h"
 #endif
@@ -73,8 +73,8 @@ public:
       m_nativeDialogs.reset(new NativeDialogsWin);
 #elif LAF_MACOS
       m_nativeDialogs.reset(new NativeDialogsOSX);
-#elif LAF_OS_WITH_GTK
-      m_nativeDialogs.reset(new NativeDialogsGTK);
+#elif LAF_LINUX
+      m_nativeDialogs.reset(new NativeDialogsX11);
 #endif
     }
     return m_nativeDialogs.get();
