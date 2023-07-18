@@ -70,11 +70,11 @@ public:
   NativeDialogs* nativeDialogs() override {
     if (!m_nativeDialogs) {
 #if LAF_WINDOWS
-      m_nativeDialogs.reset(new NativeDialogsWin);
+      m_nativeDialogs = Ref<NativeDialogs>(new NativeDialogsWin);
 #elif LAF_MACOS
-      m_nativeDialogs.reset(new NativeDialogsOSX);
+      m_nativeDialogs = Ref<NativeDialogs>(new NativeDialogsOSX);
 #elif LAF_LINUX
-      m_nativeDialogs.reset(new NativeDialogsX11);
+      m_nativeDialogs = Ref<NativeDialogs>(new NativeDialogsX11);
 #endif
     }
     return m_nativeDialogs.get();
