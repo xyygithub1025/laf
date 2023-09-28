@@ -1042,7 +1042,19 @@ void WindowX11::processX11Event(XEvent& event)
         KEY_TRACE("Xutf8LookupString %s\n", &buf[0]);
       }
 
-      // Key event used by the input method (e.g. when the user
+      // Check if the key has been pressed, 
+      // and if yes - check if it's the same one key
+      // as in the previous event.  If it's the same one
+      // - it means key is being held, so set repeat to 1.
+      if (event.type == KeyPress) {
+        if (keysym == m_pressedKeySym)
+          ev.setRepeat(1);
+        m_pressedKeySym = keysym;
+      }
+      else
+        m_pressedKeySym = 0;
+
+      // Key event used by the input method (e.g. when the users
       // presses a dead key).
       if (XFilterEvent(&event, m_window))
         break;
