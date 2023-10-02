@@ -1679,7 +1679,7 @@ LRESULT WindowWin::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
       ev.setModifiers(get_modifiers_from_last_win32_message());
       ev.setScancode(ourScancode);
       ev.setUnicodeChar(0);
-      ev.setRepeat(std::max(0, int((lparam & 0xffff)-1)));
+      ev.setRepeat(lparam & (1 << 30) ? 1: 0);
 
       KEY_TRACE("KEYDOWN vk=%d scancode=%d->%d modifiers=%d\n",
                 vk, scancode, ev.scancode(), ev.modifiers());
@@ -1725,7 +1725,7 @@ LRESULT WindowWin::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
       ev.setModifiers(get_modifiers_from_last_win32_message());
       ev.setScancode(win32vk_to_scancode(wparam));
       ev.setUnicodeChar(0);
-      ev.setRepeat(std::max(0, int((lparam & 0xffff)-1)));
+      ev.setRepeat(lparam & (1 << 30) ? 0: 1);
       queueEvent(ev);
 
       // TODO If we use native menus, this message should be given
