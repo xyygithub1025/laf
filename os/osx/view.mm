@@ -223,12 +223,19 @@ using namespace os;
 
 - (void)drawRect:(NSRect)dirtyRect
 {
-  [super drawRect:dirtyRect];
-  if (m_impl)
+  if (m_impl) {
+    // dirtyRect includes the title bar in its own height, so here we
+    // have to intersect the view area (self.bounds) to remove the
+    // title bar area (remember that rectangles are from bottom to
+    // top, so here we are like removing the top title bar area from
+    // the dirtyRect).
+    dirtyRect = NSIntersectionRect(dirtyRect, self.bounds);
+
     m_impl->onDrawRect(gfx::Rect(dirtyRect.origin.x,
                                  dirtyRect.origin.y,
                                  dirtyRect.size.width,
                                  dirtyRect.size.height));
+  }
 }
 
 - (void)keyDown:(NSEvent*)event
