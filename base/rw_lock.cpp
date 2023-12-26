@@ -1,5 +1,5 @@
 // LAF Base Library
-// Copyright (C) 2020-2022  Igara Studio S.A.
+// Copyright (C) 2020-2023  Igara Studio S.A.
 // Copyright (C) 2001-2016  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -23,15 +23,13 @@
 namespace base {
 
 RWLock::RWLock()
-  : m_write_lock(false)
-  , m_read_locks(0)
-  , m_weak_lock(nullptr)
 {
 }
 
 RWLock::~RWLock()
 {
   ASSERT(!m_write_lock);
+  ASSERT(m_write_thread == std::thread::id());
   ASSERT(m_read_locks == 0);
   ASSERT(m_weak_lock == nullptr);
 }
@@ -40,13 +38,24 @@ bool RWLock::canWriteLockFromRead() const
 {
   std::lock_guard lock(m_mutex);
 
-  // If only we are reading (one lock) and nobody is writting, we can
-  // lock for writting..
+  // If only we are reading (one lock) and nobody is writing, we can
+  // lock for writing..
   return (m_read_locks == 1 && !m_write_lock);
 }
 
-bool RWLock::lock(LockType lockType, int timeout)
+RWLock::LockResult RWLock::lock(LockType lockType, int timeout)
 {
+  // Check for re-entrant write locks (multiple write-lock in the same
+  // thread are allowed).
+  // if (lockType == WriteLock) {
+  {
+    std::lock_guard lock(m_mutex);
+    if (m_write_lock &&
+        m_write_thread == std::this_thread::get_id()) {
+      return LockResult::Reentrant;
+    }
+  }
+
   while (timeout >= 0) {
     {
       std::lock_guard lock(m_mutex);
@@ -54,11 +63,11 @@ bool RWLock::lock(LockType lockType, int timeout)
       switch (lockType) {
 
         case ReadLock:
-          // If no body is writting the object...
+          // If no body is writing the object...
           if (!m_write_lock) {
             // We can read it
             ++m_read_locks;
-            return true;
+            return LockResult::OK;
           }
           break;
 
@@ -74,15 +83,16 @@ bool RWLock::lock(LockType lockType, int timeout)
             ASSERT(*m_weak_lock == WeakUnlocked);
           }
 
-          // If no body is reading and writting...
+          // If no body is reading and writing...
           if (m_read_locks == 0 && !m_write_lock) {
-            // We can start writting the object...
+            // We can start writing the object...
             m_write_lock = true;
+            m_write_thread = std::this_thread::get_id();
 
 #ifdef DEBUG_OBJECT_LOCKS
             TRACE("LCK: lock: Locked <%p> to write\n", this);
 #endif
-            return true;
+            return LockResult::OK;
           }
           break;
 
@@ -110,26 +120,34 @@ bool RWLock::lock(LockType lockType, int timeout)
     this, (lockType == ReadLock ? "read": "write"), m_read_locks, m_write_lock);
 #endif
 
-  return false;
+  return LockResult::Fail;
 }
 
-void RWLock::downgradeToRead()
+void RWLock::downgradeToRead(LockResult lockResult)
 {
+  if (lockResult != LockResult::OK)
+    return; // Do nothing for failed or reentrant locks
+
   std::lock_guard lock(m_mutex);
 
   ASSERT(m_read_locks == 0);
   ASSERT(m_write_lock);
 
   m_write_lock = false;
+  m_write_thread = std::thread::id();
   m_read_locks = 1;
 }
 
-void RWLock::unlock()
+void RWLock::unlock(LockResult lockResult)
 {
+  if (lockResult != LockResult::OK)
+    return; // Do nothing for failed or reentrant locks
+
   std::lock_guard lock(m_mutex);
 
   if (m_write_lock) {
     m_write_lock = false;
+    m_write_thread = std::thread::id();
   }
   else if (m_read_locks > 0) {
     --m_read_locks;
@@ -166,8 +184,18 @@ void RWLock::weakUnlock()
   }
 }
 
-bool RWLock::upgradeToWrite(int timeout)
+RWLock::LockResult RWLock::upgradeToWrite(int timeout)
 {
+  // Check for re-entrant upgrade to write (multiple write-lock in the
+  // same thread are allowed).
+  {
+    std::lock_guard lock(m_mutex);
+    if (m_write_lock &&
+        m_write_thread == std::this_thread::get_id()) {
+      return LockResult::Reentrant;
+    }
+  }
+
   while (timeout >= 0) {
     {
       std::lock_guard lock(m_mutex);
@@ -189,12 +217,13 @@ bool RWLock::upgradeToWrite(int timeout)
         ASSERT(!m_write_lock);
         m_read_locks = 0;
         m_write_lock = true;
+        m_write_thread = std::this_thread::get_id();
 
 #ifdef DEBUG_OBJECT_LOCKS
         TRACE("LCK: upgradeToWrite: Locked <%p> to write\n", this);
 #endif
 
-        return true;
+        return LockResult::OK;
       }
 
     go_wait:;
@@ -219,7 +248,7 @@ bool RWLock::upgradeToWrite(int timeout)
     this, m_read_locks, m_write_lock);
 #endif
 
-  return false;
+  return LockResult::Fail;
 }
 
 } // namespace base
