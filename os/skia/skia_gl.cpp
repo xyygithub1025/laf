@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2022  Igara Studio S.A.
+// Copyright (C) 2022-2024  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -14,8 +14,11 @@
 #if SK_SUPPORT_GPU
 
 #include "include/core/SkSurface.h"
-#include "include/core/SkSurfaceCharacterization.h"
-#include "src/gpu/gl/GrGLDefines.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
+#include "include/gpu/ganesh/gl/GrGLDirectContext.h"
+#include "src/gpu/ganesh/gl/GrGLDefines.h"
 
 namespace os {
 
@@ -36,7 +39,7 @@ bool SkiaGL::attachGL()
       return false;
     }
 
-    m_grCtx = GrDirectContext::MakeGL(m_glInterfaces);
+    m_grCtx = GrDirectContexts::MakeGL(m_glInterfaces);
     if (!m_grCtx) {
       LOG(ERROR, "OS: Cannot create GrContext\n");
       detachGL();
@@ -75,15 +78,18 @@ bool SkiaGL::createRenderTarget(const gfx::Size& size,
   GrGLFramebufferInfo info;
   info.fFBOID = (GrGLuint)buffer;
   info.fFormat = GR_GL_RGBA8;
+  //SK_API bool GrBackendRenderTargets::GetGLFramebufferInfo(const GrBackendRenderTarget&, GrGLFramebufferInfo*);
 
   GrGLint stencil = 0;
   m_glInterfaces->fFunctions.fGetIntegerv(GR_GL_STENCIL_BITS, &stencil);
 
-  GrBackendRenderTarget target(size.w, size.h, 0, stencil, info);
+  // GrBackendRenderTarget target(size.w, size.h, 0, stencil, info);
+  GrBackendRenderTarget target =
+    GrBackendRenderTargets::MakeGL(size.w, size.h, 0, stencil, info);
 
   m_surface.reset(nullptr);
   m_backbufferSurface =
-    SkSurface::MakeFromBackendRenderTarget(
+    SkSurfaces::WrapBackendRenderTarget(
       m_grCtx.get(), target,
       kBottomLeft_GrSurfaceOrigin,
       kRGBA_8888_SkColorType,
@@ -104,13 +110,10 @@ bool SkiaGL::createRenderTarget(const gfx::Size& size,
       kOpaque_SkAlphaType,
       colorSpace);
 
-    SkSurfaceCharacterization ch;
-    m_backbufferSurface->characterize(&ch);
-
     m_surface =
-      SkSurface::MakeRenderTarget(
-        m_grCtx.get(), SkBudgeted::kNo,
-        info, ch.sampleCount(), nullptr);
+      SkSurfaces::RenderTarget(
+        m_grCtx.get(), skgpu::Budgeted::kNo,
+        info, 0, nullptr);
   }
 
   return true;

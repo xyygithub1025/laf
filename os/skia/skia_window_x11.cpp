@@ -97,7 +97,7 @@ void SkiaWindowX11::onPaint(const gfx::Rect& rc)
       SkCanvas canvas(scaled);
       SkRect srcRect = SkRect::Make(SkIRect::MakeXYWH(rc.x/scale, rc.y/scale, rc.w/scale, rc.h/scale));
       SkRect dstRect = SkRect::Make(SkIRect::MakeXYWH(0, 0, rc.w, rc.h));
-      canvas.drawImageRect(SkImage::MakeFromRaster(bitmap.pixmap(), nullptr, nullptr),
+      canvas.drawImageRect(SkImages::RasterFromPixmap(bitmap.pixmap(), nullptr, nullptr),
                            srcRect, dstRect, SkSamplingOptions(),
                            &paint, SkCanvas::kStrict_SrcRectConstraint);
 

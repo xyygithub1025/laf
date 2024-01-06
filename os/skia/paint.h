@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (c) 2022  Igara Studio S.A.
+// Copyright (c) 2022-2024  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -10,6 +10,7 @@
 
 #include "gfx/color.h"
 
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkPaint.h"
 
 namespace os {
