@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (c) 2019-2020  Igara Studio S.A.
+// Copyright (c) 2019-2024  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -20,7 +20,7 @@ namespace os {
 
 class SkiaTypeface : public Typeface {
 public:
-  SkiaTypeface(SkTypeface* skTypeface)
+  SkiaTypeface(sk_sp<SkTypeface> skTypeface)
     : m_skTypeface(skTypeface) {
   }
 
@@ -37,7 +37,7 @@ private:
 
 class SkiaFontStyleSet : public FontStyleSet {
 public:
-  SkiaFontStyleSet(SkFontStyleSet* set)
+  SkiaFontStyleSet(sk_sp<SkFontStyleSet> set)
     : m_skSet(set) {
   }
 
@@ -75,7 +75,7 @@ private:
 class SkiaFontManager : public FontManager {
 public:
   SkiaFontManager()
-    : m_skFontMgr(SkFontMgr::RefDefault()) {
+    : m_skFontMgr(SkFontMgr::RefEmpty()) {
   }
 
   ~SkiaFontManager() {

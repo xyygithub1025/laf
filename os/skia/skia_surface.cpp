@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (c) 2018-2022  Igara Studio S.A.
+// Copyright (c) 2018-2024  Igara Studio S.A.
 // Copyright (c) 2016-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -24,8 +24,10 @@
 #include "include/private/SkColorData.h"
 
 #if SK_SUPPORT_GPU
-  #include "include/gpu/GrDirectContext.h"
   #include "include/gpu/GrBackendSurface.h"
+  #include "include/gpu/GrDirectContext.h"
+  #include "include/gpu/ganesh/SkImageGanesh.h"
+  #include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
 #endif
 
 #include <memory>
@@ -105,14 +107,16 @@ void SkiaSurface::destroy()
 
 void SkiaSurface::flush() const
 {
-  if (m_canvas)
-    m_canvas->flush();
+  // TODO replace with GrDirectContext::flush()
+  // if (m_canvas)
+  //   m_canvas->flush();
 }
 
 void SkiaSurface::flushAndSubmit() const
 {
-  if (m_surface)
-    m_surface->flushAndSubmit();
+  // TODO replace with GrDirectContext::flushAndSubmit()
+  // if (m_surface)
+  //   m_surface->flushAndSubmit();
 }
 
 int SkiaSurface::width() const
@@ -246,7 +250,7 @@ void SkiaSurface::applyScale(int scaleFactor)
   SkCanvas canvas(result);
   SkRect srcRect = SkRect::Make(SkIRect::MakeXYWH(0, 0, width(), height()));
   SkRect dstRect = SkRect::Make(SkIRect::MakeXYWH(0, 0, result.width(), result.height()));
-  canvas.drawImageRect(SkImage::MakeFromRaster(m_bitmap.pixmap(), nullptr, nullptr),
+  canvas.drawImageRect(SkImages::RasterFromPixmap(m_bitmap.pixmap(), nullptr, nullptr),
                        srcRect, dstRect, SkSamplingOptions(),
                        &paint, SkCanvas::kStrict_SrcRectConstraint);
 
@@ -368,7 +372,6 @@ void SkiaSurface::putPixel(gfx::Color color, int x, int y)
     auto r = SkIRect::MakeXYWH(x, y, 1, 1);
     const_cast<SkPixmap&>(m_bitmap.pixmap()).erase(
       to_skia4f(color),
-      skColorSpace().get(),
       &r);
 #else
     // Doesn't work as SkBitmap::erase() expects an sRGB color (and
@@ -435,7 +438,7 @@ void SkiaSurface::blitTo(Surface* _dst, int srcx, int srcy, int dstx, int dsty, 
 
   if (!m_bitmap.empty()) {
     dst->m_canvas->drawImageRect(
-      SkImage::MakeFromRaster(m_bitmap.pixmap(), nullptr, nullptr),
+      SkImages::RasterFromPixmap(m_bitmap.pixmap(), nullptr, nullptr),
       srcRect, dstRect,
       SkSamplingOptions(),
       &paint, SkCanvas::kStrict_SrcRectConstraint);
@@ -671,8 +674,9 @@ void SkiaSurface::drawSurfaceNine(os::Surface* surface,
   }
 #endif
 
+  auto image = SkImages::RasterFromPixmap(((SkiaSurface*)surface)->m_bitmap.pixmap(), nullptr, nullptr);
   m_canvas->drawImageLattice(
-    SkImage::MakeFromRaster(((SkiaSurface*)surface)->m_bitmap.pixmap(), nullptr, nullptr).get(),
+    image.get(),
     lattice, dstRect,
     SkFilterMode::kNearest,
     &skPaint);
@@ -764,7 +768,7 @@ void SkiaSurface::skDrawSurface(
 #endif
 
   m_canvas->drawImageRect(
-    SkImage::MakeFromRaster(src->m_bitmap.pixmap(), nullptr, nullptr),
+    SkImages::RasterFromPixmap(src->m_bitmap.pixmap(), nullptr, nullptr),
     srcRect,
     dstRect,
     sampling,
@@ -798,14 +802,14 @@ bool SkiaSurface::uploadBitmapAsTexture() const
   Window* win = os::instance()->defaultWindow();
 
   GrBackendTexture texture;
-  SkImage::BackendTextureReleaseProc proc;
-  SkImage::MakeBackendTextureFromSkImage(
+  SkImages::BackendTextureReleaseProc proc;
+  SkImages::GetBackendTextureFromImage(
     win->sk_grCtx(),
     image,
     &texture,
     &proc);
 
-  m_image = SkImage::MakeFromTexture(
+  m_image = SkImages::BorrowTextureFrom(
     win->sk_grCtx(),
     texture,
     kTopLeft_GrSurfaceOrigin,

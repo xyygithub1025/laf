@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2021  Igara Studio S.A.
+// Copyright (C) 2018-2024  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -14,14 +14,10 @@
 
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkString.h"
-#include "include/third_party/skcms/skcms.h"
+#include "modules/skcms/src/skcms_public.h"
 #include "src/core/SkConvertPixels.h"
 
 #include <algorithm>
-
-// Defined in skia/src/core/SkICC.cpp
-const char* get_color_profile_description(const skcms_TransferFunction& fn,
-                                          const skcms_Matrix3x3& toXYZD50);
 
 namespace os {
 
@@ -113,9 +109,11 @@ SkiaColorSpace::SkiaColorSpace(const gfx::ColorSpaceRef& gfxcs)
     skcms_Matrix3x3 toXYZD50;
     if (m_skcs->isNumericalTransferFn(&fn) &&
         m_skcs->toXYZD50(&toXYZD50)) {
+#if 0                     // TODO create a description for the color profile
       const char* desc = get_color_profile_description(fn, toXYZD50);
       if (desc)
         m_gfxcs->setName(desc);
+#endif
     }
   }
 

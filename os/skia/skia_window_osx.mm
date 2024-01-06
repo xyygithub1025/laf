@@ -237,7 +237,7 @@ void SkiaWindowOSX::paintGC(const gfx::Rect& rect)
       bitmap.eraseColor(0);
 
     SkCanvas canvas(bitmap);
-    canvas.drawImageRect(SkImage::MakeFromRaster(origBitmap.pixmap(), nullptr, nullptr),
+    canvas.drawImageRect(SkImages::RasterFromPixmap(origBitmap.pixmap(), nullptr, nullptr),
                          SkRect::MakeXYWH(rect.x/scale,
                                           (viewBounds.size.height-(rect.y+rect.h))/scale,
                                           rect.w/scale,
