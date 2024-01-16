@@ -26,6 +26,12 @@
   #include <libproc.h>
 #endif
 
+#if LAF_LINUX
+  #include "base/fs.h"
+  #include <cstdlib>
+  #include <cstring>
+#endif
+
 namespace base {
 
 #if LAF_WINDOWS
@@ -95,8 +101,17 @@ std::string get_process_name(pid pid)
 
 std::string get_process_name(pid pid)
 {
-  // TODO implement for Linux
-  return std::string();
+  char path[128];
+  std::memset(path, 0, 128);
+  std::sprintf(path, "/proc/%d/exe", pid);
+  char* exepath = realpath(path, nullptr);
+  if (!exepath)
+    return std::string();
+
+  const std::string exename = base::get_file_name(exepath);
+  free(exepath);
+
+  return exename;
 }
 
 #endif
