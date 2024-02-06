@@ -11,11 +11,11 @@
 
 #include "base/process.h"
 
+#include "base/fs.h"
 #include "base/string.h"
 
 #if LAF_WINDOWS
   #include <windows.h>
-  #include <tlhelp32.h>
 #else
   #include <signal.h>
   #include <sys/types.h>
@@ -27,7 +27,6 @@
 #endif
 
 #if LAF_LINUX
-  #include "base/fs.h"
   #include <cstdlib>
   #include <cstring>
 #endif
@@ -59,20 +58,17 @@ bool is_process_running(pid pid)
 
 std::string get_process_name(pid pid)
 {
-  bool running = false;
-  HANDLE handle = CreateToolhelp32Snapshot(TH32CS_SNAPALL, 0);
+  std::string name;
+  HANDLE handle = OpenProcess(PROCESS_ALL_ACCESS, TRUE, pid);
   if (handle) {
-    PROCESSENTRY32 pe;
-    pe.dwSize = sizeof(PROCESSENTRY32);
-    if (Process32First(handle, &pe)) {
-      do {
-        if (pe.th32ProcessID == pid)
-          return base::to_utf8(pe.szExeFile);
-      } while (Process32Next(handle, &pe));
+    WCHAR exeName[MAX_PATH];
+    DWORD len = MAX_PATH-1;
+    if (QueryFullProcessImageNameW(handle, 0, exeName, &len)) {
+      name = base::get_file_name(base::to_utf8(exeName));
     }
     CloseHandle(handle);
   }
-  return std::string();
+  return name;
 }
 
 #else
