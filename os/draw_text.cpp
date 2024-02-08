@@ -170,7 +170,7 @@ retry:;
                 ++p;
               }
               else if (glyph->bitmap->pixel_mode == FT_PIXEL_MODE_MONO) {
-                if (bit == 8) {
+                if (++bit == 8) {
                   bit = 0;
                   ++p;
                 }
