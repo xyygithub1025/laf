@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (c) 2022  Igara Studio S.A.
+// Copyright (c) 2022-2024  Igara Studio S.A.
 // Copyright (C) 2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -12,6 +12,7 @@
 #include "base/string.h"
 #include "gfx/color.h"
 #include "gfx/fwd.h"
+#include "os/ref.h"
 
 namespace os {
 
@@ -49,16 +50,18 @@ namespace os {
   // it). It uses FreeType2 library and harfbuzz. Doesn't support RTL
   // (right-to-left) languages.
   gfx::Rect draw_text(
-    Surface* surface, Font* font,
+    Surface* surface,
+    Font* font,
     const std::string& text,
     gfx::Color fg, gfx::Color bg,
     int x, int y,
     DrawTextDelegate* delegate);
 
-  // Uses SkTextUtils::Draw() to draw text (doesn't depend on harfbuzz
-  // or big dependencies, useful to print English text only).
+  // Uses Skia's SkTextUtils::Draw() to draw text (doesn't depend on
+  // harfbuzz or big dependencies, useful to print English text only).
   void draw_text(
-    Surface* surface, Font* font,
+    Surface* surface,
+    Ref<Font> font,
     const std::string& text,
     const gfx::Point& pos,
     const Paint* paint = nullptr,
@@ -70,7 +73,8 @@ namespace os {
   // you are not going to translate your app to non-English languages
   // (prefer os::draw_text() when possible).
   void draw_text_with_shaper(
-    Surface* surface, Font* font,
+    Surface* surface,
+    Ref<Font> font,
     const std::string& text,
     const gfx::Point& pos,
     const Paint* paint = nullptr,

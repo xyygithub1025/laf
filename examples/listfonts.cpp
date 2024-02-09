@@ -81,7 +81,7 @@ int app_main(int argc, char* argv[])
   if (argc > 1) {
     for (int i=1; i<argc; ++i) {
       std::string name = argv[i];
-      std::printf("%s\n", name.c_str());
+      std::printf("Font %s:\n", name.c_str());
       auto set = fm->matchFamily(name);
       if (!set) {
         std::printf("Font family '%s' not found\n", argv[i]);
@@ -92,6 +92,7 @@ int app_main(int argc, char* argv[])
   }
   // Print all font families
   else {
+    std::printf("Font families (%d):\n", fm->countFamilies());
     const int n = fm->countFamilies();
     for (int i=0; i<n; ++i) {
       std::string name = fm->familyName(i);

@@ -1,5 +1,5 @@
 # LAF OS
-# Copyright (C) 2018-2023  Igara Studio S.A.
+# Copyright (C) 2018-2024  Igara Studio S.A.
 # Copyright (C) 2012-2018  David Capello
 
 ######################################################################
@@ -62,6 +62,8 @@ if(LAF_BACKEND STREQUAL "skia")
     skia/skia_color_space.cpp
     skia/skia_draw_text.cpp
     skia/skia_draw_text_with_shaper.cpp
+    skia/skia_font.cpp
+    skia/skia_font_manager.cpp
     skia/skia_gl.cpp
     skia/skia_surface.cpp
     skia/skia_window.cpp)
@@ -149,7 +151,7 @@ endif()
 target_link_libraries(laf-os ${LAF_OS_PLATFORM_LIBS})
 
 if(LAF_BACKEND STREQUAL "skia")
-  target_link_libraries(laf-os skia skshaper)
+  target_link_libraries(laf-os skia skunicode skshaper)
 endif()
 
 set(_LAF_BACKEND_INITIAL_LINK_FLAGS "")
