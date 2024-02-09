@@ -24,13 +24,13 @@ jobs:
         if [[ "${{ runner.os }}" == "Windows" ]] ; then
           if [[ "${{ matrix.backend }}" == "skia" ]] ; then
             choco install wget
-            wget https://github.com/aseprite/skia/releases/download/m102-861e4743af/Skia-Windows-Release-x64.zip
+            wget https://github.com/aseprite/skia/releases/download/m122-c8178a62fa/Skia-Windows-Release-x64.zip
             unzip Skia-Windows-Release-x64.zip -d skia
           fi
         elif [[ "${{ runner.os }}" == "macOS" ]] ; then
           brew install pixman freetype harfbuzz zlib
           if [[ "${{ matrix.backend }}" == "skia" ]] ; then
-            wget https://github.com/aseprite/skia/releases/download/m102-861e4743af/Skia-macOS-Release-x64.zip
+            wget https://github.com/aseprite/skia/releases/download/m122-c8178a62fa/Skia-macOS-Release-x64.zip
             unzip Skia-macOS-Release-x64.zip -d skia
           fi
         else
@@ -40,8 +40,8 @@ jobs:
             libpixman-1-dev libfreetype6-dev libharfbuzz-dev zlib1g-dev \
             libx11-dev libxcursor-dev libxi-dev libgl1-mesa-dev
           if [[ "${{ matrix.backend }}" == "skia" ]] ; then
-            wget https://github.com/aseprite/skia/releases/download/m102-861e4743af/Skia-Linux-Release-x64-libc++.zip
-            unzip Skia-Linux-Release-x64-libc++.zip -d skia
+            wget https://github.com/aseprite/skia/releases/download/m122-c8178a62fa/Skia-Linux-Release-x64.zip
+            unzip Skia-Linux-Release-x64.zip -d skia
           fi
         fi
     - uses: ilammy/msvc-dev-cmd@v1
@@ -68,8 +68,6 @@ jobs:
           export CXX=clang++
           cmake . -G Ninja \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-            -DCMAKE_CXX_FLAGS=-stdlib=libc++ \
-            -DCMAKE_EXE_LINKER_FLAGS=-stdlib=libc++ \
             -DLAF_BACKEND=${{ matrix.backend }} \
             -DSKIA_DIR=skia
         else
