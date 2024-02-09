@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2022  Igara Studio S.A.
+# Copyright (C) 2019-2024  Igara Studio S.A.
 #
 # This file is released under the terms of the MIT license.
 # Read LICENSE.txt for more information.
@@ -36,7 +36,8 @@ else()
   find_library(SKIA_OPENGL_LIBRARY opengl NAMES GL)
 endif()
 
-# SkShaper module + freetype + harfbuzz + zlib
+# Skia modules
+find_library(SKUNICODE_LIBRARY skunicode PATH "${SKIA_LIBRARY_DIR}")
 find_library(SKSHAPER_LIBRARY skshaper PATH "${SKIA_LIBRARY_DIR}")
 
 # Check that Skia is compiled for the same CPU architecture
@@ -223,5 +224,10 @@ if(UNIX AND NOT APPLE)
     ${FONTCONFIG_LIBRARY})
 endif()
 
+add_library(skunicode INTERFACE)
+target_link_libraries(skunicode INTERFACE ${SKUNICODE_LIBRARY})
+
 add_library(skshaper INTERFACE)
 target_link_libraries(skshaper INTERFACE ${SKSHAPER_LIBRARY})
+target_compile_definitions(skshaper INTERFACE
+  SK_SHAPER_HARFBUZZ_AVAILABLE)

@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (c) 2019-2020  Igara Studio S.A.
+// Copyright (c) 2019-2024  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -8,6 +8,7 @@
 #define OS_FONT_MANAGER_H_INCLUDED
 #pragma once
 
+#include "os/font.h"
 #include "os/font_style_set.h"
 #include "os/ref.h"
 
@@ -19,6 +20,7 @@ namespace os {
   protected:
     virtual ~FontManager() { }
   public:
+    virtual Ref<Font> defaultFont(float size = 12) const = 0;
     virtual int countFamilies() const = 0;
     virtual std::string familyName(int index) const = 0;
     virtual Ref<FontStyleSet> familyStyleSet(int index) const = 0;

@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2020-2022  Igara Studio S.A.
+// Copyright (C) 2020-2024  Igara Studio S.A.
 // Copyright (C) 2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -20,7 +20,8 @@
 
 namespace os {
 
-gfx::Rect draw_text(Surface* surface, Font* font,
+gfx::Rect draw_text(Surface* surface,
+                    Font* font,
                     const std::string& text,
                     gfx::Color fg, gfx::Color bg,
                     int x, int y,

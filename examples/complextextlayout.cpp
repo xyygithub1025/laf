@@ -1,5 +1,5 @@
 // LAF Library
-// Copyright (c) 2019-2022  Igara Studio S.A.
+// Copyright (c) 2019-2024  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -48,22 +48,22 @@ void draw_window(os::Window* window,
 
   p.color(gfx::rgba(255, 255, 255));
 
-  const wchar_t* lines[] = { L"English",
-                             L"Русский язык", // Russian
-                             L"汉语",         // Simplified Chinese
-                             L"日本語",       // Japanese
-                             L"한국어",       // Korean
-                             L"العَرَبِيَّة‎" };     // Arabic
+  const char* lines[] = { "English",
+                          "Español",
+                          "Русский язык",   // Russian
+                          "汉语",            // Simplified Chinese
+                          "日本語",          // Japanese
+                          "한국어",          // Korean
+                          "العَرَبِيَّة‎",        // Arabic
+                          "👍❤️😂☺️😯😢😡" }; // Emojis
 
   MyDrawTextDelegate delegate(mousePos);
   gfx::Point pos(0, 0);
   for (auto line : lines) {
-    std::string s = base::to_utf8(line);
-    os::draw_text(
-      backSurface.get(), font.get(), s,
-      gfx::rgba(255, 255, 255), gfx::ColorNone,
-      pos.x, pos.y,
-      &delegate);
+    std::string s = line;
+    os::draw_text_with_shaper(
+      backSurface.get(), font, s,
+      pos, &p, os::TextAlign::Left, &delegate);
 
     pos.y += font->height() + 4;
   }
@@ -85,8 +85,7 @@ int app_main(int argc, char* argv[])
 
   os::WindowRef window = system->makeWindow(400, 300);
 
-  // TODO use new fonts (SkFont wrappers with system->fontManager())
-  font = os::instance()->loadTrueTypeFont("/Library/Fonts/Arial Unicode.ttf", 32);
+  font = system->fontManager()->defaultFont(32);
   if (!font) {
     std::printf("Font not found\n");
     return 1;

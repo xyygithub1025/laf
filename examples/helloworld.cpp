@@ -17,15 +17,18 @@ void draw_window(os::Window* window)
   p.style(os::Paint::Fill);
   surface->drawRect(rc, p);
 
+  os::FontRef font = os::instance()->fontManager()->defaultFont(32);
+
   p.color(gfx::rgba(255, 0, 0)); surface->drawLine(0     , 0,   rc.w, rc.h, p);
   p.color(gfx::rgba(0, 128, 0)); surface->drawLine(rc.w/2, 0, rc.w/2, rc.h, p);
   p.color(gfx::rgba(0, 0, 255)); surface->drawLine(rc.w  , 0,      0, rc.h, p);
   p.color(gfx::rgba(255, 255, 255));
-  os::draw_text(surface, nullptr, "Hello World", rc.center(),
-                &p, os::TextAlign::Center);
+  os::draw_text(surface, font, "Hello World",
+                rc.center(), &p, os::TextAlign::Center);
 
   if (window->isGpuAccelerated())
-    os::draw_text(surface, nullptr, "(GPU)", rc.center()+gfx::Point(0, 24),
+    os::draw_text(surface, font, "(GPU)",
+                  rc.center()+gfx::Point(0, 40),
                   &p, os::TextAlign::Center);
 
   // Invalidates the whole window to show it on the screen.
