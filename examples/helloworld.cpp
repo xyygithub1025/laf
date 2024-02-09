@@ -41,7 +41,6 @@ int app_main(int argc, char* argv[])
 {
   os::SystemRef system = os::make_system();
   system->setAppMode(os::AppMode::GUI);
-  system->setGpuAcceleration(true);
 
   os::WindowRef window = system->makeWindow(400, 300);
 
