@@ -151,7 +151,8 @@ endif()
 target_link_libraries(laf-os ${LAF_OS_PLATFORM_LIBS})
 
 if(LAF_BACKEND STREQUAL "skia")
-  target_link_libraries(laf-os skia skunicode skshaper)
+  target_link_libraries(laf-os skshaper skunicode)
+  target_link_libraries(laf-os skia skshaper)
 endif()
 
 set(_LAF_BACKEND_INITIAL_LINK_FLAGS "")
