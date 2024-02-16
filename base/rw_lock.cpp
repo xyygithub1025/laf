@@ -1,5 +1,5 @@
 // LAF Base Library
-// Copyright (C) 2020-2023  Igara Studio S.A.
+// Copyright (C) 2020-2024  Igara Studio S.A.
 // Copyright (C) 2001-2016  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -38,9 +38,17 @@ bool RWLock::canWriteLockFromRead() const
 {
   std::lock_guard lock(m_mutex);
 
+  // If this thread already have a writer lock, we can upgrade any
+  // reader lock to writer in the same thread (re-entrant locks).
+  if (m_write_lock &&
+      m_write_thread == std::this_thread::get_id()) {
+    return true;
+  }
   // If only we are reading (one lock) and nobody is writing, we can
   // lock for writing..
-  return (m_read_locks == 1 && !m_write_lock);
+  else {
+    return (m_read_locks == 1 && !m_write_lock);
+  }
 }
 
 RWLock::LockResult RWLock::lock(LockType lockType, int timeout)
