@@ -12,7 +12,6 @@
 #include "base/memory.h"
 #include "base/string.h"
 #include "gfx/size.h"
-#include "os/font.h"
 #include "os/system.h"
 #include "os/window.h"
 
