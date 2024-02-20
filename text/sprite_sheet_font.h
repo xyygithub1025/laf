@@ -1,25 +1,25 @@
-// LAF OS Library
-// Copyright (C) 2019-2023  Igara Studio S.A.
+// LAF Text Library
+// Copyright (C) 2019-2024  Igara Studio S.A.
 // Copyright (C) 2012-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
 
-#ifndef OS_SPRITE_SHEET_FONT_H
-#define OS_SPRITE_SHEET_FONT_H
+#ifndef LAF_TEXT_SPRITE_SHEET_FONT_H_INCLUDED
+#define LAF_TEXT_SPRITE_SHEET_FONT_H_INCLUDED
 #pragma once
 
 #include "base/debug.h"
+#include "base/ref.h"
 #include "base/string.h"
 #include "base/utf8_decode.h"
 #include "gfx/rect.h"
-#include "os/font.h"
-#include "os/ref.h"
+#include "text/font.h"
 #include "os/surface.h"
 
 #include <vector>
 
-namespace os {
+namespace text {
 
 class SpriteSheetFont : public Font {
   static constexpr auto kRedColor = gfx::rgba(255, 0, 0);
@@ -63,7 +63,7 @@ public:
             !m_chars[codepoint].isEmpty());
   }
 
-  Surface* sheetSurface() const {
+  os::Surface* sheetSurface() const {
     return m_sheet.get();
   }
 
@@ -77,11 +77,11 @@ public:
       return gfx::Rect();
   }
 
-  static FontRef fromSurface(const SurfaceRef& sur) {
-    auto font = make_ref<SpriteSheetFont>();
+  static FontRef FromSurface(const os::SurfaceRef& sur) {
+    auto font = base::make_ref<SpriteSheetFont>();
     font->m_sheet = sur;
 
-    SurfaceLock lock(sur.get());
+    os::SurfaceLock lock(sur.get());
     gfx::Rect bounds(0, 0, 1, 1);
     gfx::Rect charBounds;
 
@@ -95,7 +95,7 @@ public:
 
 private:
 
-  bool findChar(const Surface* sur, int width, int height,
+  bool findChar(const os::Surface* sur, int width, int height,
                 gfx::Rect& bounds, gfx::Rect& charBounds) {
     gfx::Color keyColor = sur->getPixel(0, 0);
 
@@ -135,10 +135,10 @@ private:
   }
 
 private:
-  Ref<Surface> m_sheet;
+  os::SurfaceRef m_sheet;
   std::vector<gfx::Rect> m_chars;
 };
 
-} // namespace os
+} // namespace text
 
 #endif

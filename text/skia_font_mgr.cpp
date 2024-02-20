@@ -1,12 +1,12 @@
-// LAF OS Library
+// LAF Text Library
 // Copyright (c) 2019-2024  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
 
-#include "os/skia/skia_font_manager.h"
+#include "text/skia_font_mgr.h"
 
-#include "os/skia/skia_font.h"
+#include "text/skia_font.h"
 
 #include "include/core/SkFont.h"
 #include "include/core/SkString.h"
@@ -19,7 +19,7 @@
   #include "include/ports/SkFontMgr_fontconfig.h"
 #endif
 
-namespace os {
+namespace text {
 
 //////////////////////////////////////////////////////////////////////
 // SkiaTypeface
@@ -65,7 +65,7 @@ void SkiaFontStyleSet::getStyle(int index,
 
 TypefaceRef SkiaFontStyleSet::typeface(int index)
 {
-  return make_ref<SkiaTypeface>(m_skSet->createTypeface(index));
+  return base::make_ref<SkiaTypeface>(m_skSet->createTypeface(index));
 }
 
 TypefaceRef SkiaFontStyleSet::matchStyle(const FontStyle& style)
@@ -73,13 +73,19 @@ TypefaceRef SkiaFontStyleSet::matchStyle(const FontStyle& style)
   SkFontStyle skStyle((SkFontStyle::Weight)style.weight(),
                       (SkFontStyle::Width)style.width(),
                       (SkFontStyle::Slant)style.slant());
-  return make_ref<SkiaTypeface>(m_skSet->matchStyle(skStyle));
+  return base::make_ref<SkiaTypeface>(m_skSet->matchStyle(skStyle));
 }
 
 //////////////////////////////////////////////////////////////////////
-// SkiaFontManager
+// SkiaFontMgr
 
-SkiaFontManager::SkiaFontManager()
+// static
+base::Ref<FontMgr> FontMgr::Make()
+{
+  return base::make_ref<SkiaFontMgr>();
+}
+
+SkiaFontMgr::SkiaFontMgr()
 {
 #if LAF_WINDOWS
   m_skFontMgr = SkFontMgr_New_DirectWrite();
@@ -87,44 +93,44 @@ SkiaFontManager::SkiaFontManager()
   m_skFontMgr = SkFontMgr_New_CoreText(nullptr);
 #elif LAF_LINUX
   m_skFontMgr = SkFontMgr_New_FontConfig(nullptr);
-#else
-  m_skFontMgr = SkFontMgr::RefEmpty();
 #endif
+  if (!m_skFontMgr)
+    m_skFontMgr = SkFontMgr::RefEmpty();
 }
 
-SkiaFontManager::~SkiaFontManager()
+SkiaFontMgr::~SkiaFontMgr()
 {
 }
 
-Ref<Font> SkiaFontManager::defaultFont(float size) const
+FontRef SkiaFontMgr::defaultFont(float size) const
 {
   sk_sp<SkTypeface> face =
     m_skFontMgr->legacyMakeTypeface(nullptr, SkFontStyle());
   ASSERT(face);
   SkFont skFont(face, size);
-  return make_ref<SkiaFont>(skFont);
+  return base::make_ref<SkiaFont>(skFont);
 }
 
-int SkiaFontManager::countFamilies() const
+int SkiaFontMgr::countFamilies() const
 {
   return m_skFontMgr->countFamilies();
 }
 
-std::string SkiaFontManager::familyName(int i) const
+std::string SkiaFontMgr::familyName(int i) const
 {
   SkString name;
   m_skFontMgr->getFamilyName(i, &name);
   return std::string(name.c_str());
 }
 
-Ref<FontStyleSet> SkiaFontManager::familyStyleSet(int i) const
+base::Ref<FontStyleSet> SkiaFontMgr::familyStyleSet(int i) const
 {
-  return make_ref<SkiaFontStyleSet>(m_skFontMgr->createStyleSet(i));
+  return base::make_ref<SkiaFontStyleSet>(m_skFontMgr->createStyleSet(i));
 }
 
-Ref<FontStyleSet> SkiaFontManager::matchFamily(const std::string& familyName) const
+base::Ref<FontStyleSet> SkiaFontMgr::matchFamily(const std::string& familyName) const
 {
-  return make_ref<SkiaFontStyleSet>(m_skFontMgr->matchFamily(familyName.c_str()));
+  return base::make_ref<SkiaFontStyleSet>(m_skFontMgr->matchFamily(familyName.c_str()));
 }
 
-} // namespace os
+} // namespace text

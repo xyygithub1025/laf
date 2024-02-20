@@ -21,16 +21,9 @@
   #include "os/native_dialogs.h"
 #endif
 
-#ifdef LAF_FREETYPE
-#include "ft/lib.h"
-#include "os/common/freetype_font.h"
-#endif
-#include "os/common/sprite_sheet_font.h"
 #include "os/event_queue.h"
 #include "os/menus.h"
 #include "os/system.h"
-
-#include <memory>
 
 namespace os {
 
@@ -84,27 +77,6 @@ public:
     return EventQueue::instance();
   }
 
-  FontRef loadSpriteSheetFont(const char* filename, int scale) override {
-    SurfaceRef sheet = loadRgbaSurface(filename);
-    FontRef font = nullptr;
-    if (sheet) {
-      sheet->applyScale(scale);
-      sheet->setImmutable();
-      font = SpriteSheetFont::fromSurface(sheet);
-    }
-    return font;
-  }
-
-  FontRef loadTrueTypeFont(const char* filename, int height) override {
-#ifdef LAF_FREETYPE
-    if (!m_ft)
-      m_ft.reset(new ft::Lib());
-    return FontRef(load_free_type_font(*m_ft.get(), filename, height));
-#else
-    return nullptr;
-#endif
-  }
-
   KeyModifiers keyModifiers() override {
     return
       (KeyModifiers)
@@ -151,9 +123,6 @@ protected:
 
 private:
   Ref<NativeDialogs> m_nativeDialogs;
-#ifdef LAF_FREETYPE
-  std::unique_ptr<ft::Lib> m_ft;
-#endif
 };
 
 } // namespace os

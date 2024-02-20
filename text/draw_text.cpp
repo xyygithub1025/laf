@@ -1,4 +1,4 @@
-// LAF OS Library
+// LAF Text Library
 // Copyright (C) 2020-2024  Igara Studio S.A.
 // Copyright (C) 2017  David Capello
 //
@@ -9,24 +9,26 @@
 #include "config.h"
 #endif
 
-#include "os/draw_text.h"
+#include "text/draw_text.h"
 
 #include "ft/algorithm.h"
 #include "ft/hb_shaper.h"
 #include "gfx/clip.h"
-#include "os/common/freetype_font.h"
 #include "os/common/generic_surface.h"
-#include "os/common/sprite_sheet_font.h"
+#include "text/freetype_font.h"
+#include "text/sprite_sheet_font.h"
 
-namespace os {
+namespace text {
 
-gfx::Rect draw_text(Surface* surface,
-                    Font* font,
+gfx::Rect draw_text(os::Surface* surface,
+                    const FontRef& fontRef,
                     const std::string& text,
                     gfx::Color fg, gfx::Color bg,
                     int x, int y,
                     DrawTextDelegate* delegate)
 {
+  Font* font = fontRef.get();
+
   base::utf8_decode decode(text);
   gfx::Rect textBounds;
 
@@ -62,7 +64,7 @@ retry:;
 
     case FontType::SpriteSheet: {
       SpriteSheetFont* ssFont = static_cast<SpriteSheetFont*>(font);
-      Surface* sheet = ssFont->sheetSurface();
+      os::Surface* sheet = ssFont->sheetSurface();
 
       if (surface) {
         sheet->lock();
@@ -206,9 +208,9 @@ retry:;
                                             gfx::getb(fg),
                                             MUL_UN8(fg_alpha, alpha, t));
               if (gfx::geta(bg) > 0)
-                output = blend(blend(backdropColor, bg), output);
+                output = os::blend(os::blend(backdropColor, bg), output);
               else
-                output = blend(backdropColor, output);
+                output = os::blend(backdropColor, output);
 
               *dst_address =
                 ((gfx::getr(output) << fd.redShift  ) & fd.redMask  ) |
@@ -238,4 +240,4 @@ retry:;
   return textBounds;
 }
 
-} // namespace os
+} // namespace text

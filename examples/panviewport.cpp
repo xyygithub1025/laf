@@ -1,5 +1,5 @@
 // LAF Library
-// Copyright (C) 2020-2022  Igara Studio S.A.
+// Copyright (C) 2020-2024  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -7,6 +7,7 @@
 #include "gfx/hsv.h"
 #include "gfx/rgb.h"
 #include "os/os.h"
+#include "text/text.h"
 
 #include <algorithm>
 #include <cstdarg>
@@ -14,10 +15,14 @@
 #include <string>
 #include <vector>
 
+using namespace os;
+using namespace text;
+
 class PanWindow {
 public:
   PanWindow(os::System* system)
     : m_window(system->makeWindow(800, 600))
+    , m_font(FontMgr::Make()->defaultFont(12))
     , m_scroll(0.0, 0.0)
     , m_zoom(1.0)
     , m_hasCapture(false) {
@@ -149,7 +154,7 @@ public:
       std::vector<char> buf(256);
       std::sprintf(&buf[0], "Scroll=%.2f %.2f  Zoom=%.2f", m_scroll.x, m_scroll.y, m_zoom);
       p.style(os::Paint::Fill);
-      os::draw_text(surface, nullptr, &buf[0], gfx::Point(12, 12), &p);
+      draw_text(surface, m_font, &buf[0], gfx::Point(12, 12), &p);
     }
 
     m_window->invalidate();
@@ -183,6 +188,7 @@ private:
   }
 
   os::WindowRef m_window;
+  FontRef m_font;
   gfx::PointF m_scroll;
   double m_zoom;
 

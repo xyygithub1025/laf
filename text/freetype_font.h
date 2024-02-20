@@ -1,19 +1,19 @@
-// LAF OS Library
-// Copyright (C) 2020  Igara Studio S.A.
+// LAF Text Library
+// Copyright (C) 2020-2024  Igara Studio S.A.
 // Copyright (C) 2016-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
 
-#ifndef OS_COMMON_FREETYPE_FONT_H_INCLUDED
-#define OS_COMMON_FREETYPE_FONT_H_INCLUDED
+#ifndef LAF_TEXT_FREETYPE_FONT_H_INCLUDED
+#define LAF_TEXT_FREETYPE_FONT_H_INCLUDED
 #pragma once
 
 #include "ft/hb_face.h"
 #include "ft/lib.h"
-#include "os/font.h"
+#include "text/font.h"
 
-namespace os {
+namespace text {
   class Font;
 
   class FreeTypeFont : public Font {
@@ -36,14 +36,15 @@ namespace os {
 
     Face& face() { return m_face; }
 
+    static base::Ref<FreeTypeFont> LoadFont(
+      ft::Lib& lib,
+      const char* filename,
+      const int height);
+
   private:
     mutable Face m_face;
   };
 
-  Ref<FreeTypeFont> load_free_type_font(ft::Lib& lib,
-                                        const char* filename,
-                                        const int height);
-
-} // namespace os
+} // namespace text
 
 #endif

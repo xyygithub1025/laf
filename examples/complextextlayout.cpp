@@ -5,10 +5,14 @@
 // Read LICENSE.txt for more information.
 
 #include "os/os.h"
+#include "text/text.h"
 
 #include <cstdio>
 
-class MyDrawTextDelegate : public os::DrawTextDelegate {
+using namespace os;
+using namespace text;
+
+class MyDrawTextDelegate : public DrawTextDelegate {
   gfx::Point m_mousePos;
 public:
   MyDrawTextDelegate(const gfx::Point& mousePos) : m_mousePos(mousePos) { }
@@ -29,21 +33,21 @@ public:
   }
 };
 
-os::FontRef font = nullptr;
-
-void draw_window(os::Window* window,
-                  const gfx::Point& mousePos)
+void draw_window(Window* window,
+                 const FontMgrRef& fontMgr,
+                 const FontRef& font,
+                 const gfx::Point& mousePos)
 {
-  os::Surface* surface = window->surface();
-  os::SurfaceLock lock(surface);
+  Surface* surface = window->surface();
+  SurfaceLock lock(surface);
   const gfx::Rect rc = surface->bounds();
 
-  os::SurfaceRef backSurface = os::instance()->makeSurface(rc.w, rc.h);
-  os::SurfaceLock lock2(backSurface.get());
+  SurfaceRef backSurface = instance()->makeSurface(rc.w, rc.h);
+  SurfaceLock lock2(backSurface.get());
 
-  os::Paint p;
+  Paint p;
   p.color(gfx::rgba(0, 0, 0));
-  p.style(os::Paint::Fill);
+  p.style(Paint::Fill);
   backSurface->drawRect(rc, p);
 
   p.color(gfx::rgba(255, 255, 255));
@@ -61,9 +65,9 @@ void draw_window(os::Window* window,
   gfx::Point pos(0, 0);
   for (auto line : lines) {
     std::string s = line;
-    os::draw_text_with_shaper(
-      backSurface.get(), font, s,
-      pos, &p, os::TextAlign::Left, &delegate);
+    draw_text_with_shaper(
+      backSurface.get(), fontMgr, font, s,
+      pos, &p, TextAlign::Left, &delegate);
 
     pos.y += font->height() + 4;
   }
@@ -80,61 +84,61 @@ void draw_window(os::Window* window,
 
 int app_main(int argc, char* argv[])
 {
-  os::SystemRef system = os::make_system();
-  system->setAppMode(os::AppMode::GUI);
+  SystemRef system = make_system();
+  system->setAppMode(AppMode::GUI);
 
-  os::WindowRef window = system->makeWindow(400, 300);
-
-  font = system->fontManager()->defaultFont(32);
+  FontMgrRef fontMgr = FontMgr::Make();
+  FontRef font = fontMgr->defaultFont(32);
   if (!font) {
     std::printf("Font not found\n");
     return 1;
   }
 
+  WindowRef window = system->makeWindow(400, 300);
   window->setTitle("CTL");
 
   system->finishLaunching();
   system->activateApp();
 
   // Wait until a key is pressed or the window is closed
-  os::EventQueue* queue = system->eventQueue();
+  EventQueue* queue = system->eventQueue();
   gfx::Point mousePos;
   bool running = true;
   bool redraw = true;
   while (running) {
     if (redraw) {
       redraw = false;
-      draw_window(window.get(), mousePos);
+      draw_window(window.get(), fontMgr, font, mousePos);
     }
     // Wait for an event in the queue, the "true" parameter indicates
     // that we'll wait for a new event, and the next line will not be
     // processed until we receive a new event. If we use "false" and
     // there is no events in the queue, we receive an "ev.type() == Event::None
-    os::Event ev;
+    Event ev;
     queue->getEvent(ev);
 
     switch (ev.type()) {
 
-      case os::Event::CloseWindow:
+      case Event::CloseWindow:
         running = false;
         break;
 
-      case os::Event::KeyDown:
+      case Event::KeyDown:
         switch (ev.scancode()) {
-          case os::kKeyEsc:
+          case kKeyEsc:
             running = false;
             break;
-          case os::kKey1:
-          case os::kKey2:
-          case os::kKey3:
-          case os::kKey4:
-          case os::kKey5:
-          case os::kKey6:
-          case os::kKey7:
-          case os::kKey8:
-          case os::kKey9:
+          case kKey1:
+          case kKey2:
+          case kKey3:
+          case kKey4:
+          case kKey5:
+          case kKey6:
+          case kKey7:
+          case kKey8:
+          case kKey9:
             // Set scale
-            window->setScale(1 + (int)(ev.scancode() - os::kKey1));
+            window->setScale(1 + (int)(ev.scancode() - kKey1));
             redraw = true;
             break;
           default:
@@ -143,17 +147,17 @@ int app_main(int argc, char* argv[])
         }
         break;
 
-      case os::Event::ResizeWindow:
+      case Event::ResizeWindow:
         redraw = true;
         break;
 
-      case os::Event::MouseEnter:
-      case os::Event::MouseMove:
+      case Event::MouseEnter:
+      case Event::MouseMove:
         mousePos = ev.position();
         redraw = true;
         break;
 
-      case os::Event::MouseLeave:
+      case Event::MouseLeave:
         mousePos = gfx::Point(-1, -1);
         redraw = true;
         break;

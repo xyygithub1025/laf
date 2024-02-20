@@ -60,10 +60,6 @@ if(LAF_BACKEND STREQUAL "skia")
   list(APPEND LAF_OS_SOURCES
     skia/os.cpp
     skia/skia_color_space.cpp
-    skia/skia_draw_text.cpp
-    skia/skia_draw_text_with_shaper.cpp
-    skia/skia_font.cpp
-    skia/skia_font_manager.cpp
     skia/skia_gl.cpp
     skia/skia_surface.cpp
     skia/skia_window.cpp)
@@ -91,14 +87,6 @@ endif()
 
 add_library(laf-os ${LAF_OS_SOURCES})
 target_link_libraries(laf-os laf-gfx laf-base)
-if(FREETYPE_LIBRARIES AND HARFBUZZ_LIBRARIES)
-  target_link_libraries(laf-os laf-ft)
-  target_compile_definitions(laf-os PRIVATE
-    LAF_FREETYPE)
-  target_sources(laf-os PRIVATE
-    common/freetype_font.cpp
-    draw_text.cpp)
-endif()
 
 set(LAF_OS_PLATFORM_LIBS)
 if(WIN32)
@@ -151,8 +139,7 @@ endif()
 target_link_libraries(laf-os ${LAF_OS_PLATFORM_LIBS})
 
 if(LAF_BACKEND STREQUAL "skia")
-  target_link_libraries(laf-os skshaper skunicode)
-  target_link_libraries(laf-os skia skshaper)
+  target_link_libraries(laf-os skia)
 endif()
 
 set(_LAF_BACKEND_INITIAL_LINK_FLAGS "")

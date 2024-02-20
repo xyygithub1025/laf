@@ -1,18 +1,18 @@
-// LAF OS Library
+// LAF Text Library
 // Copyright (c) 2024  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
 
-#ifndef OS_SKIA_SKIA_FONT_H_INCLUDED
-#define OS_SKIA_SKIA_FONT_H_INCLUDED
+#ifndef LAF_TEXT_SKIA_FONT_H_INCLUDED
+#define LAF_TEXT_SKIA_FONT_H_INCLUDED
 #pragma once
 
-#include "os/font.h"
+#include "text/font.h"
 
 #include "include/core/SkFont.h"
 
-namespace os {
+namespace text {
 
   class SkiaFont : public Font {
   public:
@@ -34,6 +34,6 @@ namespace os {
     SkFont m_skFont;
   };
 
-} // namespace os
+} // namespace text
 
 #endif

@@ -1,24 +1,27 @@
-// LAF OS Library
+// LAF Text Library
 // Copyright (c) 2022-2024  Igara Studio S.A.
 // Copyright (C) 2017  David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
 
-#ifndef OS_DRAW_TEXT_H_INCLUDED
-#define OS_DRAW_TEXT_H_INCLUDED
+#ifndef LAF_TEXT_DRAW_TEXT_H_INCLUDED
+#define LAF_TEXT_DRAW_TEXT_H_INCLUDED
 #pragma once
 
+#include "base/ref.h"
 #include "base/string.h"
 #include "gfx/color.h"
 #include "gfx/fwd.h"
-#include "os/ref.h"
+#include "text/font.h"
+#include "text/font_mgr.h"
 
 namespace os {
-
-  class Font;
   class Surface;
   class Paint;
+}
+
+namespace text {
 
   enum class TextAlign { Left, Center, Right };
 
@@ -50,8 +53,8 @@ namespace os {
   // it). It uses FreeType2 library and harfbuzz. Doesn't support RTL
   // (right-to-left) languages.
   gfx::Rect draw_text(
-    Surface* surface,
-    Font* font,
+    os::Surface* surface,
+    const FontRef& font,
     const std::string& text,
     gfx::Color fg, gfx::Color bg,
     int x, int y,
@@ -60,11 +63,11 @@ namespace os {
   // Uses Skia's SkTextUtils::Draw() to draw text (doesn't depend on
   // harfbuzz or big dependencies, useful to print English text only).
   void draw_text(
-    Surface* surface,
-    Ref<Font> font,
+    os::Surface* surface,
+    const FontRef& font,
     const std::string& text,
     const gfx::Point& pos,
-    const Paint* paint = nullptr,
+    const os::Paint* paint = nullptr,
     const TextAlign textAlign = TextAlign::Left,
     DrawTextDelegate* delegate = nullptr);
 
@@ -73,14 +76,15 @@ namespace os {
   // you are not going to translate your app to non-English languages
   // (prefer os::draw_text() when possible).
   void draw_text_with_shaper(
-    Surface* surface,
-    Ref<Font> font,
+    os::Surface* surface,
+    const FontMgrRef& fontMgr,
+    const FontRef& font,
     const std::string& text,
     const gfx::Point& pos,
-    const Paint* paint = nullptr,
+    const os::Paint* paint = nullptr,
     const TextAlign textAlign = TextAlign::Left,
     DrawTextDelegate* delegate = nullptr);
 
-} // namespace os
+} // namespace text
 
 #endif

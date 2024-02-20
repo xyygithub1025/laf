@@ -12,9 +12,8 @@
 #include "base/exception.h"
 #include "gfx/clip.h"
 #include "gfx/matrix.h"
-#include "os/common/generic_surface.h"
-#include "os/common/sprite_sheet_font.h"
 #include "os/skia/skia_color_space.h"
+#include "os/surface.h"
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkPaint.h"

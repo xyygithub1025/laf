@@ -1,25 +1,21 @@
-// LAF OS Library
-// Copyright (c) 2019-2020  Igara Studio S.A.
+// LAF Text Library
+// Copyright (c) 2019-2024  Igara Studio S.A.
 // Copyright (c) 2012-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
 
-#ifndef OS_FONT_H_INCLUDED
-#define OS_FONT_H_INCLUDED
+#ifndef LAF_TEXT_FONT_H_INCLUDED
+#define LAF_TEXT_FONT_H_INCLUDED
 #pragma once
 
 #include "base/ints.h"
-#include "os/ref.h"
+#include "base/ref.h"
+#include "text/fwd.h"
 
 #include <string>
 
-namespace os {
-
-  class Font;
-  class FontStyle;
-  class Typeface;
-  using FontRef = Ref<Font>;
+namespace text {
 
   enum class FontType {
     Unknown,
@@ -28,7 +24,7 @@ namespace os {
     Native,                     // Skia
   };
 
-  class Font : public RefCount {
+  class Font : public base::RefCount {
   public:
     Font() : m_fallback(nullptr) { }
     virtual ~Font() { }
@@ -51,6 +47,6 @@ namespace os {
     Font* m_fallback;
   };
 
-} // namespace os
+} // namespace text
 
 #endif

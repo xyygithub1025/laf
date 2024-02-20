@@ -28,8 +28,6 @@ namespace os {
 
   class ColorSpaceConversion;
   class EventQueue;
-  class Font;
-  class FontManager;
   class Logger;
   class Menus;
   class NativeDialogs;
@@ -174,13 +172,6 @@ namespace os {
     virtual Ref<Cursor> makeCursor(const Surface* surface,
                                    const gfx::Point& focus,
                                    const int scale) = 0;
-
-    // New font manager
-    virtual FontManager* fontManager() = 0;
-
-    // Old font functions (to be removed)
-    virtual Ref<Font> loadSpriteSheetFont(const char* filename, int scale = 1) = 0;
-    virtual Ref<Font> loadTrueTypeFont(const char* filename, int height) = 0;
 
     // Returns true if the the given scancode key is pressed/actived.
     virtual bool isKeyPressed(KeyScancode scancode) = 0;

@@ -1,35 +1,27 @@
 // LAF Library
-// Copyright (c) 2019-2022  Igara Studio S.A.
+// Copyright (c) 2019-2024  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
 
 #include "os/os.h"
 
-void draw_window(os::Window* window)
+using namespace os;
+
+void draw_window(Window* window)
 {
-  os::Surface* surface = window->surface();
-  os::SurfaceLock lock(surface);
+  Surface* surface = window->surface();
+  SurfaceLock lock(surface);
   const gfx::Rect rc = surface->bounds();
 
-  os::Paint p;
+  Paint p;
   p.color(gfx::rgba(0, 0, 0));
-  p.style(os::Paint::Fill);
+  p.style(Paint::Fill);
   surface->drawRect(rc, p);
-
-  os::FontRef font = os::instance()->fontManager()->defaultFont(32);
 
   p.color(gfx::rgba(255, 0, 0)); surface->drawLine(0     , 0,   rc.w, rc.h, p);
   p.color(gfx::rgba(0, 128, 0)); surface->drawLine(rc.w/2, 0, rc.w/2, rc.h, p);
   p.color(gfx::rgba(0, 0, 255)); surface->drawLine(rc.w  , 0,      0, rc.h, p);
-  p.color(gfx::rgba(255, 255, 255));
-  os::draw_text(surface, font, "Hello World",
-                rc.center(), &p, os::TextAlign::Center);
-
-  if (window->isGpuAccelerated())
-    os::draw_text(surface, font, "(GPU)",
-                  rc.center()+gfx::Point(0, 40),
-                  &p, os::TextAlign::Center);
 
   // Invalidates the whole window to show it on the screen.
   if (window->isVisible())
@@ -42,10 +34,10 @@ void draw_window(os::Window* window)
 
 int app_main(int argc, char* argv[])
 {
-  os::SystemRef system = os::make_system();
-  system->setAppMode(os::AppMode::GUI);
+  SystemRef system = make_system();
+  system->setAppMode(AppMode::GUI);
 
-  os::WindowRef window = system->makeWindow(400, 300);
+  WindowRef window = system->makeWindow(400, 300);
 
   // Set the title bar caption of the native window.
   window->setTitle("Hello World");
@@ -53,13 +45,13 @@ int app_main(int argc, char* argv[])
   // We can change the cursor to use when the mouse is above this
   // window, this line is not required because by default the native
   // cursor to be shown in a window is the arrow.
-  window->setCursor(os::NativeCursor::Arrow);
+  window->setCursor(NativeCursor::Arrow);
 
   system->handleWindowResize = draw_window;
 
   // On macOS: With finishLaunching() we start processing
   // NSApplicationDelegate events. After calling this we'll start
-  // receiving os::Event::DropFiles events. It's a way to say "ok
+  // receiving Event::DropFiles events. It's a way to say "ok
   // we're ready to process messages"
   system->finishLaunching();
 
@@ -70,7 +62,7 @@ int app_main(int argc, char* argv[])
   system->activateApp();
 
   // Wait until a key is pressed or the window is closed
-  os::EventQueue* queue = system->eventQueue();
+  EventQueue* queue = system->eventQueue();
   bool running = true;
   bool redraw = true;
   while (running) {
@@ -82,44 +74,44 @@ int app_main(int argc, char* argv[])
     // that we'll wait for a new event, and the next line will not be
     // processed until we receive a new event. If we use "false" and
     // there is no events in the queue, we receive an "ev.type() == Event::None
-    os::Event ev;
+    Event ev;
     queue->getEvent(ev);
 
     switch (ev.type()) {
 
-      case os::Event::CloseApp:
-      case os::Event::CloseWindow:
+      case Event::CloseApp:
+      case Event::CloseWindow:
         running = false;
         break;
 
-      case os::Event::KeyDown:
+      case Event::KeyDown:
         switch (ev.scancode()) {
-          case os::kKeyEsc:
+          case kKeyEsc:
             running = false;
             break;
 
-          case os::kKeyG:
+          case kKeyG:
             system->setGpuAcceleration(!system->gpuAcceleration());
             // TODO change window backend immediately
             redraw = true;
             break;
 
-          case os::kKey1:
-          case os::kKey2:
-          case os::kKey3:
-          case os::kKey4:
-          case os::kKey5:
-          case os::kKey6:
-          case os::kKey7:
-          case os::kKey8:
-          case os::kKey9:
+          case kKey1:
+          case kKey2:
+          case kKey3:
+          case kKey4:
+          case kKey5:
+          case kKey6:
+          case kKey7:
+          case kKey8:
+          case kKey9:
             // Set scale
-            window->setScale(1 + (int)(ev.scancode() - os::kKey1));
+            window->setScale(1 + (int)(ev.scancode() - kKey1));
             redraw = true;
             break;
 
-          case os::kKeyF:
-          case os::kKeyF11:
+          case kKeyF:
+          case kKeyF11:
             window->setFullscreen(!window->isFullscreen());
             break;
 
@@ -129,7 +121,7 @@ int app_main(int argc, char* argv[])
         }
         break;
 
-      case os::Event::ResizeWindow:
+      case Event::ResizeWindow:
         redraw = true;
         break;
 

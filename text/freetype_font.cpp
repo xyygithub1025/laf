@@ -1,5 +1,5 @@
-// LAF OS Library
-// Copyright (C) 2020  Igara Studio S.A.
+// LAF Text Library
+// Copyright (C) 2020-2024  Igara Studio S.A.
 // Copyright (C) 2016-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -9,14 +9,14 @@
 #include "config.h"
 #endif
 
-#include "os/common/freetype_font.h"
+#include "text/freetype_font.h"
 
 #include "base/string.h"
 #include "ft/algorithm.h"
 #include "gfx/point.h"
 #include "gfx/size.h"
 
-namespace os {
+namespace text {
 
 FreeTypeFont::FreeTypeFont(ft::Lib& lib,
                            const char* filename,
@@ -71,14 +71,15 @@ bool FreeTypeFont::hasCodePoint(int codepoint) const
   return m_face.hasCodePoint(codepoint);
 }
 
-Ref<FreeTypeFont> load_free_type_font(ft::Lib& lib,
-                                      const char* filename,
-                                      const int height)
+base::Ref<FreeTypeFont> FreeTypeFont::LoadFont(
+  ft::Lib& lib,
+  const char* filename,
+  const int height)
 {
-  Ref<FreeTypeFont> font = base::make_ref<FreeTypeFont>(lib, filename, height);
+  auto font = base::make_ref<FreeTypeFont>(lib, filename, height);
   if (!font->isValid())
     font.reset();             // delete font
   return font;
 }
 
-} // namespace os
+} // namespace text

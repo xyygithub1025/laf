@@ -1,5 +1,5 @@
 # LAF
-# Copyright (C) 2019-2022  Igara Studio S.A.
+# Copyright (C) 2019-2024  Igara Studio S.A.
 # Copyright (C) 2016-2018  David Capello
 
 cmake_minimum_required(VERSION 3.16)
@@ -58,6 +58,7 @@ if(FREETYPE_LIBRARIES AND HARFBUZZ_LIBRARIES)
   add_subdirectory(ft)
 endif()
 add_subdirectory(os)
+add_subdirectory(text)
 if(LAF_WITH_EXAMPLES)
   add_subdirectory(examples)
 endif()

@@ -1,16 +1,16 @@
-// LAF OS Library
-// Copyright (C) 2019  Igara Studio S.A.
+// LAF Text Library
+// Copyright (C) 2019-2024  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
 
-#ifndef OS_FONT_STYLE_H_INCLUDED
-#define OS_FONT_STYLE_H_INCLUDED
+#ifndef LAF_TEXT_FONT_STYLE_H_INCLUDED
+#define LAF_TEXT_FONT_STYLE_H_INCLUDED
 #pragma once
 
 #include "base/ints.h"
 
-namespace os {
+namespace text {
 
   class FontStyle {
   public:
@@ -85,6 +85,6 @@ namespace os {
     uint32_t m_value;
   };
 
-} // namespace os
+} // namespace text
 
 #endif

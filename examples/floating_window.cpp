@@ -1,10 +1,14 @@
 // LAF Library
-// Copyright (c) 2021  Igara Studio S.A.
+// Copyright (c) 2021-2024  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
 
 #include "os/os.h"
+#include "text/text.h"
+
+using namespace os;
+using namespace text;
 
 class CustomWindow {
 public:
@@ -118,7 +122,8 @@ private:
 
 class MainWindow : public CustomWindow {
 public:
-  MainWindow() {
+  MainWindow()
+    : m_font(FontMgr::Make()->defaultFont(12)) {
     create("Main", 500, 400);
     createFloating();
   }
@@ -132,12 +137,12 @@ private:
     p.color(gfx::rgba(50, 50, 100));
 
     gfx::Point pos = rc.center();
-    os::draw_text(surface, nullptr, "Press ENTER key to hide/show the floating window",
-                  pos, &p, os::TextAlign::Center);
+    draw_text(surface, m_font, "Press ENTER key to hide/show the floating window",
+              pos, &p, TextAlign::Center);
 
     pos.y += 24;
-    os::draw_text(surface, nullptr, "Press ESC to quit",
-                  pos, &p, os::TextAlign::Center);
+    draw_text(surface, m_font, "Press ESC to quit",
+              pos, &p, TextAlign::Center);
   }
 
   void onEnterKey() override {
@@ -157,6 +162,7 @@ private:
   }
 
   FloatingWindow m_floating;
+  FontRef m_font;
 };
 
 int app_main(int argc, char* argv[])

@@ -1,14 +1,14 @@
-// LAF OS Library
+// LAF Text Library
 // Copyright (c) 2024  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
 
-#include "os/skia/skia_font.h"
+#include "text/skia_font.h"
 
 #include "include/core/SkFontTypes.h"
 
-namespace os {
+namespace text {
 
 SkiaFont::SkiaFont(const SkFont& skFont)
   : m_skFont(skFont)
@@ -66,4 +66,4 @@ bool SkiaFont::hasCodePoint(int codepoint) const
   return (m_skFont.unicharToGlyph(codepoint) != 0);
 }
 
-} // namespace os
+} // namespace text

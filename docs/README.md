@@ -29,6 +29,7 @@ in the future if they are highly valuable on their own.
   `freetype` library as dependency). Might be deleted in the future
   (replaced with Skia text rendering)
 * [os](os): Functions to create windows in your Operating System
+* [text](text): Functions to draw text
 
 ## Platform-specific Definitions
 

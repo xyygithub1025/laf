@@ -1,4 +1,4 @@
-// LAF OS Library
+// LAF Text Library
 // Copyright (C) 2019-2024  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
@@ -8,37 +8,34 @@
 #include "config.h"
 #endif
 
-#include "os/draw_text.h"
-#include "os/font_manager.h"
 #include "os/paint.h"
-#include "os/skia/skia_font.h"
 #include "os/skia/skia_helpers.h"
 #include "os/skia/skia_surface.h"
 #include "os/system.h"
+#include "text/draw_text.h"
+#include "text/font_mgr.h"
+#include "text/skia_font.h"
 
 #include "include/core/SkTextBlob.h"
 #include "include/utils/SkTextUtils.h"
 #include "modules/skshaper/include/SkShaper.h"
 
-namespace os {
+namespace text {
 
 void draw_text(
-  Surface* surface,
-  Ref<Font> font,
+  os::Surface* surface,
+  const FontRef& font,
   const std::string& text,
   const gfx::Point& pos,
-  const Paint* paint,
+  const os::Paint* paint,
   const TextAlign textAlign,
   DrawTextDelegate* delegate)
 {
-  if (!font)
-    font = os::instance()->fontManager()->defaultFont();
-
-  if (font->type() != FontType::Native)
+  if (!font || font->type() != FontType::Native)
     return;
 
   SkTextUtils::Draw(
-    &static_cast<SkiaSurface*>(surface)->canvas(),
+    &static_cast<os::SkiaSurface*>(surface)->canvas(),
     text.c_str(), text.size(),
     SkTextEncoding::kUTF8,
     SkIntToScalar(pos.x),
@@ -48,4 +45,4 @@ void draw_text(
     (SkTextUtils::Align)textAlign);
 }
 
-} // namespace os
+} // namespace text

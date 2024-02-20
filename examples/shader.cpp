@@ -1,5 +1,5 @@
 // LAF Library
-// Copyright (C) 2022  Igara Studio S.A.
+// Copyright (C) 2022-2024  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -21,6 +21,8 @@
 #include "include/effects/SkRuntimeEffect.h"
 
 #include <cstdio>
+
+using namespace os;
 
 base::tick_t startTick;
 
@@ -50,31 +52,36 @@ half4 main(vec2 fragcoord) {
 
 class ShaderWindow {
 public:
-  ShaderWindow(os::System* system)
+  ShaderWindow(System* system)
     : m_builder(SkRuntimeEffect::MakeForShader(SkString(shaderCode)).effect) {
     m_window = system->makeWindow(256, 256);
-    m_window->setCursor(os::NativeCursor::Arrow);
+    m_window->setCursor(NativeCursor::Arrow);
     m_window->setTitle("Shader");
     repaint();
     m_window->setVisible(true);
   }
 
-  bool processEvent(const os::Event& ev) {
+  bool processEvent(const Event& ev) {
     switch (ev.type()) {
 
-      case os::Event::CloseWindow:
+      case Event::CloseWindow:
         return false;
 
-      case os::Event::ResizeWindow:
+      case Event::ResizeWindow:
         repaint();
         break;
 
-      case os::Event::KeyDown:
-        if (ev.scancode() == os::kKeyEsc)
+      case Event::KeyDown:
+        if (ev.scancode() == kKeyEsc)
           return false;
-        else if (ev.scancode() == os::kKeyG) {
-          os::instance()->setGpuAcceleration(
-            !os::instance()->gpuAcceleration());
+        else if (ev.scancode() == kKeyG) {
+          instance()->setGpuAcceleration(
+            !instance()->gpuAcceleration());
+
+          m_window->setTitle(
+            m_window->isGpuAccelerated() ?
+            "Shader - GPU":
+            "Shader");
         }
         break;
 
@@ -86,18 +93,11 @@ public:
   }
 
   void repaint() {
-    os::Surface* surface = m_window->surface();
-    os::SurfaceLock lock(surface);
+    Surface* surface = m_window->surface();
+    SurfaceLock lock(surface);
 
-    SkCanvas* canvas = &static_cast<os::SkiaSurface*>(surface)->canvas();
+    SkCanvas* canvas = &static_cast<SkiaSurface*>(surface)->canvas();
     skiaPaint(canvas);
-
-    if (m_window->isGpuAccelerated()) {
-      os::Paint p;
-      p.color(gfx::rgba(0, 0, 0));
-      os::draw_text(surface, nullptr, "GPU", gfx::Point(12, 12),
-                    &p, os::TextAlign::Center);
-    }
 
     m_window->invalidate();
     m_window->swapBuffers();
@@ -117,18 +117,18 @@ private:
     canvas->drawPaint(p);
   }
 
-  os::WindowRef m_window;
+  WindowRef m_window;
   SkRuntimeShaderBuilder m_builder;
 };
 
 int app_main(int argc, char* argv[])
 {
-  os::SystemRef system = os::make_system();
-  system->setAppMode(os::AppMode::GUI);
+  SystemRef system = make_system();
+  system->setAppMode(AppMode::GUI);
 
   ShaderWindow window(system.get());
 
-  system->handleWindowResize = [&window](os::Window* win){
+  system->handleWindowResize = [&window](Window* win){
     window.repaint();
   };
 
@@ -137,12 +137,12 @@ int app_main(int argc, char* argv[])
 
   startTick = base::current_tick();
 
-  os::EventQueue* queue = system->eventQueue();
+  EventQueue* queue = system->eventQueue();
   auto t = startTick;
   double paintDelay = 0.0;
 
   while (true) {
-    os::Event ev;
+    Event ev;
 
     ASSERT(paintDelay >= 0.0);
     const double waitSecs =

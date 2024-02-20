@@ -49,9 +49,6 @@ public:
   Ref<Cursor> makeCursor(const Surface* surface,
                          const gfx::Point& focus,
                          const int scale) override { return nullptr; }
-  FontManager* fontManager() override { return nullptr; }
-  Ref<Font> loadSpriteSheetFont(const char* filename, int scale) override { return nullptr; }
-  Ref<Font> loadTrueTypeFont(const char* filename, int height) override { return nullptr; }
   bool isKeyPressed(KeyScancode scancode) override { return false; }
   KeyModifiers keyModifiers() override { return kKeyNoneModifier; }
   int getUnicodeFromScancode(KeyScancode scancode) override { return 0; }

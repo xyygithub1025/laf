@@ -1,5 +1,5 @@
 // LAF Library
-// Copyright (c) 2019-2022  Igara Studio S.A.
+// Copyright (c) 2019-2024  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -7,6 +7,7 @@
 #include "gfx/hsv.h"
 #include "gfx/rgb.h"
 #include "os/os.h"
+#include "text/text.h"
 
 #include <algorithm>
 #include <cstdarg>
@@ -14,10 +15,14 @@
 #include <string>
 #include <vector>
 
+using namespace os;
+using namespace text;
+
 class LogWindow {
 public:
-  LogWindow(os::System* system)
-    : m_window(system->makeWindow(800, 600)) {
+  LogWindow(System* system)
+    : m_window(system->makeWindow(800, 600))
+    , m_font(FontMgr::Make()->defaultFont(12)) {
     m_window->setTitle("All Events");
 
     recalcMaxLines();
@@ -25,21 +30,21 @@ public:
     logLine("-- Events Log --");
   }
 
-  bool processEvent(const os::Event& ev) {
+  bool processEvent(const Event& ev) {
     switch (ev.type()) {
 
-      case os::Event::CloseApp:
-      case os::Event::CloseWindow:
+      case Event::CloseApp:
+      case Event::CloseWindow:
         return false;
 
-      case os::Event::ResizeWindow:
+      case Event::ResizeWindow:
         logLine("ResizeWindow size=%d,%d",
                 m_window->width(),
                 m_window->height());
         recalcMaxLines();
         break;
 
-      case os::Event::DropFiles:
+      case Event::DropFiles:
         logLine("DropFiles files={");
         for (const auto& file : ev.files()) {
           logLine("  \"%s\"", file.c_str());
@@ -47,14 +52,14 @@ public:
         logLine("}");
         break;
 
-      case os::Event::MouseEnter: logMouseEvent(ev, "MouseEnter"); break;
-      case os::Event::MouseLeave: logMouseEvent(ev, "MouseLeave"); break;
-      case os::Event::MouseMove: logMouseEvent(ev, "MouseMove"); break;
-      case os::Event::MouseDown: logMouseEvent(ev, "MouseDown"); break;
-      case os::Event::MouseUp: logMouseEvent(ev, "MouseUp"); break;
-      case os::Event::MouseDoubleClick: logMouseEvent(ev, "MouseDoubleClick"); break;
+      case Event::MouseEnter: logMouseEvent(ev, "MouseEnter"); break;
+      case Event::MouseLeave: logMouseEvent(ev, "MouseLeave"); break;
+      case Event::MouseMove: logMouseEvent(ev, "MouseMove"); break;
+      case Event::MouseDown: logMouseEvent(ev, "MouseDown"); break;
+      case Event::MouseUp: logMouseEvent(ev, "MouseUp"); break;
+      case Event::MouseDoubleClick: logMouseEvent(ev, "MouseDoubleClick"); break;
 
-      case os::Event::MouseWheel:
+      case Event::MouseWheel:
         m_mousePos = ev.position();
         logLine("MouseWheel pos=%d,%d %s=%d,%d%s",
                 ev.position().x,
@@ -66,8 +71,8 @@ public:
         m_hue += double(ev.wheelDelta().x + ev.wheelDelta().y);
         break;
 
-      case os::Event::KeyDown:
-        if (ev.scancode() == os::kKeyEsc) {
+      case Event::KeyDown:
+        if (ev.scancode() == kKeyEsc) {
           if (m_nextEscCloses)
             return false;
           else
@@ -78,10 +83,10 @@ public:
           m_nextEscCloses = false;
         }
         //[[fallthrough]];
-      case os::Event::KeyUp: {
+      case Event::KeyUp: {
         wchar_t wideUnicode[2] = { ev.unicodeChar(), 0 };
         logLine("%s repeat=%d scancode=%d unicode=%d (%s)%s",
-                (ev.type() == os::Event::KeyDown ? "KeyDown": "KeyUp"),
+                (ev.type() == Event::KeyDown ? "KeyDown": "KeyUp"),
                 ev.repeat(),
                 ev.scancode(),
                 ev.unicodeChar(),
@@ -90,7 +95,7 @@ public:
         break;
       }
 
-      case os::Event::TouchMagnify:
+      case Event::TouchMagnify:
         logLine("TouchMagnify %.4g",
                 ev.magnification());
         m_brushSize += 32*ev.magnification();
@@ -122,12 +127,12 @@ private:
   }
 
   void scrollAndDrawLog(const int newlines) {
-    os::Surface* surface = m_window->surface();
-    os::SurfaceLock lock(surface);
+    Surface* surface = m_window->surface();
+    SurfaceLock lock(surface);
     const gfx::Rect rc = surface->bounds();
 
-    os::Paint p;
-    p.style(os::Paint::Fill);
+    Paint p;
+    p.style(Paint::Fill);
     p.color(gfx::rgba(0, 0, 0, 8));
 
     // Scroll old lines
@@ -148,11 +153,11 @@ private:
       surface->drawRect(gfx::Rect(rc.x, rc.y, rc.w, i*m_lineHeight), p);
     }
 
-    os::Paint paint;
+    Paint paint;
     paint.color(gfx::rgba(255, 255, 255));
     for (; i<m_textLog.size(); ++i)
-      os::draw_text(surface, nullptr, m_textLog[i],
-                    gfx::Point(0, (1+i)*m_lineHeight), &paint);
+      draw_text(surface, m_font, m_textLog[i],
+                gfx::Point(0, (1+i)*m_lineHeight), &paint);
 
     gfx::Rgb rgb(gfx::Hsv(m_hue, 1.0, 1.0));
     paint.color(gfx::rgba(rgb.red(), rgb.green(), rgb.blue()));
@@ -166,26 +171,26 @@ private:
       m_window->setVisible(true);
   }
 
-  void logMouseEvent(const os::Event& ev, const char* eventName) {
-    const os::Event::MouseButton mb = ev.button();
-    const os::PointerType pt = ev.pointerType();
+  void logMouseEvent(const Event& ev, const char* eventName) {
+    const Event::MouseButton mb = ev.button();
+    const PointerType pt = ev.pointerType();
 
     m_mousePos = ev.position();
     logLine("%s pos=%d,%d%s%s%s",
             eventName,
             ev.position().x,
             ev.position().y,
-            (mb == os::Event::LeftButton ? " LeftButton":
-             mb == os::Event::RightButton ? " RightButton":
-             mb == os::Event::MiddleButton ? " MiddleButton":
-             mb == os::Event::X1Button ? " X1Button":
-             mb == os::Event::X2Button ? " X2Button": ""),
-            (pt == os::PointerType::Mouse ? " Mouse":
-             pt == os::PointerType::Touchpad ? " Touchpad":
-             pt == os::PointerType::Touch ? " Touch":
-             pt == os::PointerType::Pen ? " Pen":
-             pt == os::PointerType::Cursor ? " Cursor":
-             pt == os::PointerType::Eraser ? " Eraser": ""),
+            (mb == Event::LeftButton ? " LeftButton":
+             mb == Event::RightButton ? " RightButton":
+             mb == Event::MiddleButton ? " MiddleButton":
+             mb == Event::X1Button ? " X1Button":
+             mb == Event::X2Button ? " X2Button": ""),
+            (pt == PointerType::Mouse ? " Mouse":
+             pt == PointerType::Touchpad ? " Touchpad":
+             pt == PointerType::Touch ? " Touch":
+             pt == PointerType::Pen ? " Pen":
+             pt == PointerType::Cursor ? " Cursor":
+             pt == PointerType::Eraser ? " Eraser": ""),
             modifiersToString(ev.modifiers()).c_str());
   }
 
@@ -199,18 +204,19 @@ private:
     m_textLog.push_back(buf);
   }
 
-  static std::string modifiersToString(os::KeyModifiers mods) {
+  static std::string modifiersToString(KeyModifiers mods) {
     std::string s;
-    if (mods & os::kKeyShiftModifier) s += " Shift";
-    if (mods & os::kKeyCtrlModifier ) s += " Ctrl";
-    if (mods & os::kKeyAltModifier  ) s += " Alt";
-    if (mods & os::kKeyCmdModifier  ) s += " Command";
-    if (mods & os::kKeySpaceModifier) s += " Space";
-    if (mods & os::kKeyWinModifier  ) s += " Win";
+    if (mods & kKeyShiftModifier) s += " Shift";
+    if (mods & kKeyCtrlModifier ) s += " Ctrl";
+    if (mods & kKeyAltModifier  ) s += " Alt";
+    if (mods & kKeyCmdModifier  ) s += " Command";
+    if (mods & kKeySpaceModifier) s += " Space";
+    if (mods & kKeyWinModifier  ) s += " Win";
     return s;
   }
 
-  os::WindowRef m_window;
+  WindowRef m_window;
+  FontRef m_font;
   std::vector<std::string> m_textLog;
   size_t m_oldLogSize = 0;
   int m_lineHeight = 12;
@@ -223,19 +229,19 @@ private:
 
 int app_main(int argc, char* argv[])
 {
-  auto system = os::make_system();
-  system->setAppMode(os::AppMode::GUI);
+  auto system = make_system();
+  system->setAppMode(AppMode::GUI);
 
   LogWindow window(system.get());
 
   system->finishLaunching();
   system->activateApp();
 
-  os::EventQueue* queue = system->eventQueue();
+  EventQueue* queue = system->eventQueue();
   while (true) {
     window.flush();
 
-    os::Event ev;
+    Event ev;
     queue->getEvent(ev);
     if (!window.processEvent(ev))
       break;

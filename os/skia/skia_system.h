@@ -13,7 +13,6 @@
 #include "gfx/size.h"
 #include "os/common/system.h"
 #include "os/skia/skia_color_space.h"
-#include "os/skia/skia_font_manager.h"
 #include "os/skia/skia_surface.h"
 #include "os/skia/skia_window.h"
 #include "os/window_spec.h"
@@ -118,12 +117,6 @@ public:
     return loadSurface(filename);
   }
 
-  FontManager* fontManager() override {
-    if (!m_fontManager)
-      m_fontManager.reset(new SkiaFontManager);
-    return m_fontManager.get();
-  }
-
   void setTranslateDeadKeys(bool state) override {
     if (m_defaultWindow)
       m_defaultWindow->setTranslateDeadKeys(state);
@@ -163,7 +156,6 @@ public:
 
 private:
   SkiaWindow* m_defaultWindow;
-  Ref<FontManager> m_fontManager;
   bool m_gpuAcceleration;
   ColorSpaceRef m_windowCS;
 };
