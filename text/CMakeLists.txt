@@ -25,6 +25,9 @@ if(LAF_BACKEND STREQUAL "skia")
     skia_font_mgr.cpp)
   target_link_libraries(laf-text
     skia skshaper skunicode)
+else()
+  target_sources(laf-text PRIVATE
+    empty_font_mgr.cpp)
 endif()
 
 if(LAF_WITH_TESTS)

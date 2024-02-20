@@ -52,8 +52,8 @@ public:
 
   int countFamilies() const override;
   std::string familyName(int i) const override;
-  base::Ref<FontStyleSet> familyStyleSet(int i) const override;
-  base::Ref<FontStyleSet> matchFamily(const std::string& familyName) const override;
+  FontStyleSetRef familyStyleSet(int i) const override;
+  FontStyleSetRef matchFamily(const std::string& familyName) const override;
 
   sk_sp<SkFontMgr> skFontMgr() const { return m_skFontMgr; }
 

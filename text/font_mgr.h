@@ -20,7 +20,7 @@ namespace text {
 
   class FontMgr : public base::RefCount {
   public:
-    static base::Ref<FontMgr> Make();
+    static FontMgrRef Make();
 
     FontRef loadSpriteSheetFont(const char* filename, int scale);
     FontRef loadTrueTypeFont(const char* filename, int height);
@@ -28,8 +28,8 @@ namespace text {
     virtual FontRef defaultFont(float size = 12) const = 0;
     virtual int countFamilies() const = 0;
     virtual std::string familyName(int index) const = 0;
-    virtual base::Ref<FontStyleSet> familyStyleSet(int index) const = 0;
-    virtual base::Ref<FontStyleSet> matchFamily(const std::string& familyName) const = 0;
+    virtual FontStyleSetRef familyStyleSet(int index) const = 0;
+    virtual FontStyleSetRef matchFamily(const std::string& familyName) const = 0;
 
   protected:
     FontMgr();

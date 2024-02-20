@@ -8,12 +8,9 @@
 #define LAF_TEXT_FONT_STYLE_SET_H_INCLUDED
 #pragma once
 
-#include "base/ref.h"
-#include "text/typeface.h"
+#include "text/fwd.h"
 
 namespace text {
-
-  class FontStyle;
 
   class FontStyleSet : public base::RefCount {
   protected:
@@ -23,8 +20,8 @@ namespace text {
     virtual void getStyle(int index,
                           FontStyle& style,
                           std::string& name) = 0;
-    virtual base::Ref<Typeface> typeface(int index) = 0;
-    virtual base::Ref<Typeface> matchStyle(const FontStyle& style) = 0;
+    virtual TypefaceRef typeface(int index) = 0;
+    virtual TypefaceRef matchStyle(const FontStyle& style) = 0;
   };
 
 } // namespace text

@@ -80,7 +80,7 @@ TypefaceRef SkiaFontStyleSet::matchStyle(const FontStyle& style)
 // SkiaFontMgr
 
 // static
-base::Ref<FontMgr> FontMgr::Make()
+FontMgrRef FontMgr::Make()
 {
   return base::make_ref<SkiaFontMgr>();
 }
@@ -123,12 +123,12 @@ std::string SkiaFontMgr::familyName(int i) const
   return std::string(name.c_str());
 }
 
-base::Ref<FontStyleSet> SkiaFontMgr::familyStyleSet(int i) const
+FontStyleSetRef SkiaFontMgr::familyStyleSet(int i) const
 {
   return base::make_ref<SkiaFontStyleSet>(m_skFontMgr->createStyleSet(i));
 }
 
-base::Ref<FontStyleSet> SkiaFontMgr::matchFamily(const std::string& familyName) const
+FontStyleSetRef SkiaFontMgr::matchFamily(const std::string& familyName) const
 {
   return base::make_ref<SkiaFontStyleSet>(m_skFontMgr->matchFamily(familyName.c_str()));
 }
