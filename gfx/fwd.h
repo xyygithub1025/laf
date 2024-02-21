@@ -1,4 +1,5 @@
 // LAF Gfx Library
+// Copyright (C) 2024  Igara Studio S.A.
 // Copyright (C) 2001-2016 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -16,11 +17,16 @@ template<typename T> class PointT;
 template<typename T> class RectT;
 template<typename T> class SizeT;
 
-typedef BorderT<int> Border;
-typedef ClipT<int> Clip;
-typedef PointT<int> Point;
-typedef RectT<int> Rect;
-typedef SizeT<int> Size;
+using Border = BorderT<int>;
+using BorderF = BorderT<float>;
+using Clip = ClipT<int>;
+using ClipF = ClipT<float>;
+using Point = PointT<int>;
+using PointF = PointT<float>;
+using Rect = RectT<int>;
+using RectF = RectT<float>;
+using Size = SizeT<int>;
+using SizeF = SizeT<float>;
 
 class Region;
 

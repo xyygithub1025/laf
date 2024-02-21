@@ -1,5 +1,5 @@
 // LAF Gfx Library
-// Copyright (C) 2019-2022  Igara Studio S.A.
+// Copyright (C) 2019-2024  Igara Studio S.A.
 // Copyright (C) 2001-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -413,8 +413,8 @@ public:
 
 };
 
-typedef RectT<int> Rect;
-typedef RectT<double> RectF;
+using Rect = RectT<int>;
+using RectF = RectT<float>;
 
 } // namespace gfx
 

@@ -40,8 +40,8 @@ inline SkRect to_skia(const gfx::RectF& rc) {
 
 inline SkRect to_skia_fix(const gfx::RectF& rc) {
   return SkRect::MakeXYWH(SkScalar(rc.x), SkScalar(rc.y),
-                          SkScalar(std::max(0.0, rc.w-1)),
-                          SkScalar(std::max(0.0, rc.h-1)));
+                          SkScalar(std::max(0.0f, rc.w-1)),
+                          SkScalar(std::max(0.0f, rc.h-1)));
 }
 
 inline void to_skia(const Sampling& sampling, SkSamplingOptions& skSampling) {
