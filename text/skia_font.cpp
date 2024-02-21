@@ -6,6 +6,9 @@
 
 #include "text/skia_font.h"
 
+#include "text/font_metrics.h"
+
+#include "include/core/SkFontMetrics.h"
 #include "include/core/SkFontTypes.h"
 
 namespace text {
@@ -27,6 +30,30 @@ bool SkiaFont::isValid() const
 FontType SkiaFont::type()
 {
   return FontType::Native;
+}
+
+float SkiaFont::metrics(FontMetrics* metrics) const
+{
+  SkFontMetrics skMetrics;
+  float lineSpacing = m_skFont.getMetrics(&skMetrics);
+  if (metrics) {
+    metrics->top = skMetrics.fTop;
+    metrics->ascent = skMetrics.fAscent;
+    metrics->descent = skMetrics.fDescent;
+    metrics->bottom = skMetrics.fBottom;
+    metrics->leading = skMetrics.fLeading;
+    metrics->avgCharWidth = skMetrics.fAvgCharWidth;
+    metrics->maxCharWidth = skMetrics.fMaxCharWidth;
+    metrics->xMin = skMetrics.fXMin;
+    metrics->xMax = skMetrics.fXMax;
+    metrics->xHeight = skMetrics.fXHeight;
+    metrics->capHeight = skMetrics.fCapHeight;
+    metrics->underlineThickness = skMetrics.fUnderlineThickness;
+    metrics->underlinePosition = skMetrics.fUnderlinePosition;
+    metrics->strikeoutThickness = skMetrics.fStrikeoutThickness;
+    metrics->strikeoutPosition = skMetrics.fStrikeoutPosition;
+  }
+  return lineSpacing;
 }
 
 int SkiaFont::height() const

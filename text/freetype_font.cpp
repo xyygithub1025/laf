@@ -41,6 +41,12 @@ FontType FreeTypeFont::type()
   return FontType::FreeType;
 }
 
+float FreeTypeFont::metrics(FontMetrics* metrics) const
+{
+  // TODO impl
+  return float(height());
+}
+
 int FreeTypeFont::height() const
 {
   return int(m_face.height());

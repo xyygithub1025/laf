@@ -29,6 +29,7 @@ namespace text {
     Font() : m_fallback(nullptr) { }
     virtual ~Font() { }
     virtual FontType type() = 0;
+    virtual float metrics(FontMetrics* metrics) const = 0;
     virtual int height() const = 0;
     virtual int textLength(const std::string& str) const = 0;
     virtual bool isScalable() const = 0;

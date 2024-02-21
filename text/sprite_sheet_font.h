@@ -32,6 +32,11 @@ public:
     return FontType::SpriteSheet;
   }
 
+  float metrics(FontMetrics* metrics) const {
+    // TODO impl
+    return height();
+  }
+
   int height() const override {
     return getCharBounds(' ').h;
   }

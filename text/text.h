@@ -10,6 +10,7 @@
 
 #include "text/draw_text.h"
 #include "text/font.h"
+#include "text/font_metrics.h"
 #include "text/font_mgr.h"
 #include "text/font_style.h"
 #include "text/font_style_set.h"

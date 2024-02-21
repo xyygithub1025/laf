@@ -15,6 +15,8 @@ namespace text {
   class Font;
   using FontRef = base::Ref<Font>;
 
+  class FontMetrics;
+
   class FontMgr;
   using FontMgrRef = base::Ref<FontMgr>;
 
