@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2019-2022  Igara Studio S.A.
+// Copyright (C) 2019-2024  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -36,6 +36,10 @@ inline SkIRect to_skia(const gfx::Rect& rc) {
 
 inline SkRect to_skia(const gfx::RectF& rc) {
   return SkRect::MakeXYWH(SkScalar(rc.x), SkScalar(rc.y), SkScalar(rc.w), SkScalar(rc.h));
+}
+
+inline gfx::RectF from_skia(const SkRect& rc) {
+  return gfx::RectF(rc.x(), rc.y(), rc.width(), rc.height());
 }
 
 inline SkRect to_skia_fix(const gfx::RectF& rc) {

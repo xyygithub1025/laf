@@ -20,11 +20,12 @@ endif()
 if(LAF_BACKEND STREQUAL "skia")
   target_sources(laf-text PRIVATE
     skia_draw_text.cpp
-    skia_draw_text_with_shaper.cpp
     skia_font.cpp
-    skia_font_mgr.cpp)
+    skia_font_mgr.cpp
+    skia_text_blob.cpp
+    skia_with_shaper.cpp)
   target_link_libraries(laf-text
-    skia skshaper skunicode)
+    skia skunicode skshaper)
 else()
   target_sources(laf-text PRIVATE
     empty_font_mgr.cpp)

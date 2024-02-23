@@ -6,6 +6,7 @@
 
 #include "text/skia_font.h"
 
+#include "os/skia/skia_helpers.h"
 #include "text/font_metrics.h"
 
 #include "include/core/SkFontMetrics.h"
@@ -91,6 +92,14 @@ void SkiaFont::setAntialias(bool antialias)
 bool SkiaFont::hasCodePoint(int codepoint) const
 {
   return (m_skFont.unicharToGlyph(codepoint) != 0);
+}
+
+gfx::RectF SkiaFont::getGlyphBounds(GlyphID glyph) const
+{
+  float widths;
+  SkRect bounds;
+  m_skFont.getWidthsBounds(&glyph, 1, &widths, &bounds, nullptr);
+  return os::from_skia(bounds);
 }
 
 } // namespace text

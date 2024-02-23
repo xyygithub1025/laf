@@ -11,6 +11,7 @@
 
 #include "base/ints.h"
 #include "base/ref.h"
+#include "gfx/fwd.h"
 #include "text/fwd.h"
 
 #include <string>
@@ -36,6 +37,7 @@ namespace text {
     virtual void setSize(int size) = 0;
     virtual void setAntialias(bool antialias) = 0;
     virtual bool hasCodePoint(int codepoint) const = 0;
+    virtual gfx::RectF getGlyphBounds(GlyphID glyph) const = 0;
 
     Font* fallback() const {
       return m_fallback;

@@ -26,9 +26,13 @@ namespace text {
   class FontStyleSet;
   using FontStyleSetRef = base::Ref<FontStyleSet>;
 
+  class TextBlob;
+  using TextBlobRef = base::Ref<TextBlob>;
+
   class Typeface;
   using TypefaceRef = base::Ref<Typeface>;
 
+  using GlyphID = uint16_t;
 
 } // namespace text
 

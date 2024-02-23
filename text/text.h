@@ -14,6 +14,7 @@
 #include "text/font_mgr.h"
 #include "text/font_style.h"
 #include "text/font_style_set.h"
+#include "text/text_blob.h"
 #include "text/typeface.h"
 
 #endif

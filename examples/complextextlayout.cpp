@@ -62,7 +62,7 @@ void draw_window(Window* window,
                           "👍❤️😂☺️😯😢😡" }; // Emojis
 
   MyDrawTextDelegate delegate(mousePos);
-  gfx::Point pos(0, 0);
+  gfx::PointF pos(0, 0);
   for (auto line : lines) {
     std::string s = line;
     draw_text_with_shaper(
@@ -110,13 +110,9 @@ int app_main(int argc, char* argv[])
       redraw = false;
       draw_window(window.get(), fontMgr, font, mousePos);
     }
-    // Wait for an event in the queue, the "true" parameter indicates
-    // that we'll wait for a new event, and the next line will not be
-    // processed until we receive a new event. If we use "false" and
-    // there is no events in the queue, we receive an "ev.type() == Event::None
+
     Event ev;
     queue->getEvent(ev);
-
     switch (ev.type()) {
 
       case Event::CloseWindow:

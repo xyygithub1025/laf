@@ -127,7 +127,7 @@ void draw_window(Window* window,
 
     p.color(kTitleBarText);
     draw_text(surface, nullptr, "Custom Window",
-                  rc2.center(), &p, TextAlign::Center);
+              rc2.center(), &p, TextAlign::Center);
 
     // Draw buttons
     draw_button(surface, rc.x2()-kButtonSize, Hit::CloseButton, hit);
@@ -151,13 +151,13 @@ void draw_window(Window* window,
   p.style(Paint::Style::Fill);
   p.color(kContentText);
   draw_text(surface, font, "Content Rect",
-                rc2.center(), &p, TextAlign::Center);
+            rc2.center(), &p, TextAlign::Center);
 
   if (window->isFullscreen()) {
     auto pos = rc2.center();
     pos.y += 24;
     draw_text(surface, font, "(F key or F11 to exit full screen)",
-                  pos, &p, TextAlign::Center);
+              pos, &p, TextAlign::Center);
   }
 
   if (window->isVisible())

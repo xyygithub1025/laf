@@ -228,6 +228,6 @@ add_library(skunicode INTERFACE)
 target_link_libraries(skunicode INTERFACE ${SKUNICODE_LIBRARY})
 
 add_library(skshaper INTERFACE)
-target_link_libraries(skshaper INTERFACE ${SKSHAPER_LIBRARY})
+target_link_libraries(skshaper INTERFACE ${SKSHAPER_LIBRARY} skunicode)
 target_compile_definitions(skshaper INTERFACE
   SK_SHAPER_HARFBUZZ_AVAILABLE)

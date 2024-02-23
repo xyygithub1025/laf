@@ -77,6 +77,11 @@ bool FreeTypeFont::hasCodePoint(int codepoint) const
   return m_face.hasCodePoint(codepoint);
 }
 
+gfx::RectF FreeTypeFont::getGlyphBounds(GlyphID glyph) const
+{
+  return gfx::RectF();        // TODO impl
+}
+
 base::Ref<FreeTypeFont> FreeTypeFont::LoadFont(
   ft::Lib& lib,
   const char* filename,

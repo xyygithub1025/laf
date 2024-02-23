@@ -13,6 +13,7 @@
 #include "base/string.h"
 #include "gfx/color.h"
 #include "gfx/fwd.h"
+#include "gfx/point.h"
 #include "text/font.h"
 #include "text/font_mgr.h"
 
@@ -60,16 +61,36 @@ namespace text {
     int x, int y,
     DrawTextDelegate* delegate);
 
+  void draw_text(
+    os::Surface* surface,
+    const TextBlobRef& blob,
+    const gfx::PointF& pos,
+    const os::Paint* paint = nullptr);
+
   // Uses Skia's SkTextUtils::Draw() to draw text (doesn't depend on
   // harfbuzz or big dependencies, useful to print English text only).
   void draw_text(
     os::Surface* surface,
     const FontRef& font,
     const std::string& text,
-    const gfx::Point& pos,
+    const gfx::PointF& pos,
     const os::Paint* paint = nullptr,
     const TextAlign textAlign = TextAlign::Left,
     DrawTextDelegate* delegate = nullptr);
+
+  // Uses Skia's SkTextUtils::Draw() to draw text (doesn't depend on
+  // harfbuzz or big dependencies, useful to print English text only).
+  inline void draw_text(
+    os::Surface* surface,
+    const FontRef& font,
+    const std::string& text,
+    const gfx::Point& pos,
+    const os::Paint* paint = nullptr,
+    const TextAlign textAlign = TextAlign::Left,
+    DrawTextDelegate* delegate = nullptr) {
+    draw_text(surface, font, text, gfx::PointF(pos),
+              paint, textAlign, delegate);
+  }
 
   // Uses SkShaper::Make() to draw text (harfbuzz if available),
   // useful for RTL (right-to-left) languages. Avoid this function if
@@ -80,7 +101,7 @@ namespace text {
     const FontMgrRef& fontMgr,
     const FontRef& font,
     const std::string& text,
-    const gfx::Point& pos,
+    const gfx::PointF& pos,
     const os::Paint* paint = nullptr,
     const TextAlign textAlign = TextAlign::Left,
     DrawTextDelegate* delegate = nullptr);

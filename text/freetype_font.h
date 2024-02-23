@@ -34,6 +34,7 @@ namespace text {
     void setSize(int size) override;
     void setAntialias(bool antialias) override;
     bool hasCodePoint(int codepoint) const override;
+    gfx::RectF getGlyphBounds(GlyphID glyph) const override;
 
     Face& face() { return m_face; }
 

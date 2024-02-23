@@ -6,6 +6,7 @@
 
 #include "text/font_mgr.h"
 
+#include "gfx/rect.h"
 #include "text/font.h"
 #include "text/font_style.h"
 #include "text/font_style_set.h"
@@ -23,12 +24,14 @@ class EmptyFont : public Font {
 public:
   EmptyFont() { }
   FontType type() override { return FontType::Unknown; }
+  float metrics(FontMetrics* metrics) const { return 0.0f; }
   int height() const override { return 0; }
   int textLength(const std::string& str) const override { return 0; };
   bool isScalable() const override { return false; }
   void setSize(int size) override { }
   void setAntialias(bool antialias) override { }
   bool hasCodePoint(int codepoint) const override { return false; }
+  gfx::RectF getGlyphBounds(GlyphID glyph) const override { return gfx::RectF(); }
 };
 
 class EmptyFontStyleSet : public FontStyleSet {

@@ -68,6 +68,10 @@ public:
             !m_chars[codepoint].isEmpty());
   }
 
+  gfx::RectF getGlyphBounds(GlyphID glyph) const override {
+    return gfx::RectF(getCharBounds(' ' + glyph));
+  }
+
   os::Surface* sheetSurface() const {
     return m_sheet.get();
   }
