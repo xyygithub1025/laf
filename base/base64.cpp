@@ -103,7 +103,6 @@ void decode_base64(const char* input, size_t n, buffer& output)
   output.resize(size);
 
   auto outIt = output.begin();
-  auto outEnd = output.end();
   size_t i = 0;
   for (; i+3<n; i+=4, input+=4) {
     *outIt = (((base64Inv(input[0])           ) << 2) |
