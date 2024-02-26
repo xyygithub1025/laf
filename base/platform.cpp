@@ -114,8 +114,8 @@ Platform get_platform()
           // Last resource, use uname() function
           struct utsname utsn;
           uname(&utsn);
-          if (utsn.sysname) p.distroName = utsn.sysname;
-          if (utsn.release) p.distroVer = utsn.release;
+          p.distroName = utsn.sysname;
+          p.distroVer = utsn.release;
         }
       }
     }
