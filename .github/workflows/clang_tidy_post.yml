@@ -13,6 +13,6 @@ jobs:
   post-comments:
     runs-on: ubuntu-latest
     steps:
-    - uses: ZedThree/clang-tidy-review/post@9a32adc734e10e4d84baa60f2b7d7c021568c527
+    - uses: ZedThree/clang-tidy-review/post@v0.14.0
       with:
         token: ${{ secrets.CLANG_TIDY_TOKEN }}
