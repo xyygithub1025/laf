@@ -176,8 +176,7 @@ WindowX11* WindowX11::getPointerFromHandle(::Window handle)
   auto it = g_activeWindows.find(handle);
   if (it != g_activeWindows.end())
     return it->second;
-  else
-    return nullptr;
+  return nullptr;
 }
 
 // static
@@ -312,7 +311,7 @@ WindowX11::WindowX11(::Display* display, const WindowSpec& spec)
       XChangeProperty(
         m_display, m_window, _NET_WM_WINDOW_TYPE,
         XA_ATOM, 32, PropModeReplace,
-        (const unsigned char*)&data[0], data.size());
+        (const unsigned char*)data.data(), data.size());
     }
   }
 
@@ -651,7 +650,7 @@ void WindowX11::setIcons(const SurfaceList& icons)
       m_display, m_window, _NET_WM_ICON, XA_CARDINAL, 32,
       first ? PropModeReplace:
               PropModeAppend,
-      (const unsigned char*)&data[0], data.size());
+      (const unsigned char*)data.data(), data.size());
 
     first = false;
   }
@@ -765,8 +764,7 @@ bool WindowX11::setCursor(NativeCursor nativeCursor)
   CursorRef cursor = ((SystemX11*)os::instance())->getNativeCursor(nativeCursor);
   if (cursor)
     return setX11Cursor((::Cursor)cursor->nativeHandle());
-  else
-    return false;
+  return false;
 }
 
 bool WindowX11::setCursor(const CursorRef& cursor)
@@ -777,8 +775,7 @@ bool WindowX11::setCursor(const CursorRef& cursor)
 
   if (cursor->nativeHandle())
     return setX11Cursor((::Cursor)cursor->nativeHandle());
-  else
-    return setCursor(NativeCursor::Hidden);
+  return setCursor(NativeCursor::Hidden);
 }
 
 void WindowX11::performWindowAction(const WindowAction action,
@@ -912,7 +909,7 @@ void WindowX11::setAllowedActions()
     m_display, m_window, _NET_WM_ALLOWED_ACTIONS,
     XA_ATOM, 32, (nitems == 0 ? PropModeAppend:
                                 PropModeReplace),
-    (const unsigned char*)&allowed[0], allowed.size());
+    (const unsigned char*)allowed.data(), allowed.size());
 }
 
 bool WindowX11::setX11Cursor(::Cursor xcursor)
@@ -921,8 +918,7 @@ bool WindowX11::setX11Cursor(::Cursor xcursor)
     XDefineCursor(m_display, m_window, xcursor);
     return true;
   }
-  else
-    return false;
+  return false;
 }
 
 bool WindowX11::requestX11FrameExtents()
@@ -1037,11 +1033,11 @@ void WindowX11::processX11Event(XEvent& event)
       if (m_xic) {
         std::vector<char> buf(16);
         size_t len = Xutf8LookupString(m_xic, &event.xkey,
-                                       &buf[0], buf.size(),
+                                       buf.data(), buf.size(),
                                        nullptr, nullptr);
         if (len < buf.size())
           buf[len] = 0;
-        std::wstring wideChars = base::from_utf8(std::string(&buf[0]));
+        std::wstring wideChars = base::from_utf8(std::string(buf.data()));
         if (!wideChars.empty())
           ev.setUnicodeChar(wideChars[0]);
         KEY_TRACE("Xutf8LookupString %s\n", &buf[0]);
@@ -1319,7 +1315,7 @@ void WindowX11::processX11Event(XEvent& event)
           std::vector<unsigned long> data(4, 0);
           XChangeProperty(
             m_display, m_window, _NET_FRAME_EXTENTS, XA_CARDINAL, 32,
-            PropModeReplace, (const unsigned char*)&data[0], data.size());
+            PropModeReplace, (const unsigned char*)data.data(), data.size());
         }
       }
       else if (event.xproperty.atom == _NET_WM_ALLOWED_ACTIONS) {

@@ -119,16 +119,14 @@ int Rgb::maxComponent() const
 {
   if (m_red > m_green)
     return (m_red > m_blue) ? m_red: m_blue;
-  else
-    return (m_green > m_blue) ? m_green: m_blue;
+  return (m_green > m_blue) ? m_green: m_blue;
 }
 
 int Rgb::minComponent() const
 {
   if (m_red < m_green)
     return (m_red < m_blue) ? m_red: m_blue;
-  else
-    return (m_green < m_blue) ? m_green: m_blue;
+  return (m_green < m_blue) ? m_green: m_blue;
 }
 
 } // namespace gfx

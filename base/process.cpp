@@ -104,7 +104,7 @@ std::string get_process_name(pid pid)
   if (!exepath)
     return std::string();
 
-  const std::string exename = base::get_file_name(exepath);
+  std::string exename = base::get_file_name(exepath);
   free(exepath);
 
   return exename;

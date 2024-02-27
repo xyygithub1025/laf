@@ -58,7 +58,7 @@ CursorRef SystemX11::getNativeCursor(NativeCursor cursor)
   int i = int(cursor);
   if (i < 0 || i >= int(NativeCursor::Cursors))
     return nullptr;
-  else if (g_nativeCursors[i].get())
+  if (g_nativeCursors[i].get())
     return g_nativeCursors[i];
 
   ::Display* display = X11::instance()->display();

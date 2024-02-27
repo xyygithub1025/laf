@@ -47,8 +47,7 @@ static inline int base64Inv(int asciiChar)
   asciiChar -= 32;
   if (asciiChar >= 0 && asciiChar < sizeof(invBase64Table))
     return invBase64Table[asciiChar];
-  else
-    return 0;
+  return 0;
 }
 
 void encode_base64(const char* input, size_t n, std::string& output)
@@ -136,7 +135,7 @@ void decode_base64(const char* input, size_t n, std::string& output)
 {
   buffer tmp;
   decode_base64(input, n, tmp);
-  output = std::string((const char*)&tmp[0], tmp.size());
+  output = std::string((const char*)tmp.data(), tmp.size());
 }
 
 } // namespace base

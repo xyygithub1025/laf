@@ -46,9 +46,7 @@ bool RWLock::canWriteLockFromRead() const
   }
   // If only we are reading (one lock) and nobody is writing, we can
   // lock for writing..
-  else {
-    return (m_read_locks == 1 && !m_write_lock);
-  }
+  return (m_read_locks == 1 && !m_write_lock);
 }
 
 RWLock::LockResult RWLock::lock(LockType lockType, int timeout)

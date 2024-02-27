@@ -49,7 +49,7 @@ Sha1 Sha1::calculateFromFile(const std::string& fileName)
   }
 
   vector<uint8_t> digest(HashSize);
-  SHA1Result(&sha, &digest[0]);
+  SHA1Result(&sha, digest.data());
 
   return Sha1(digest);
 }
@@ -62,7 +62,7 @@ Sha1 Sha1::calculateFromString(const std::string& text)
   SHA1Input(&sha, (uint8_t*)text.c_str(), (unsigned int)text.size());
 
   std::vector<uint8_t> digest(HashSize);
-  SHA1Result(&sha, &digest[0]);
+  SHA1Result(&sha, digest.data());
 
   return Sha1(digest);
 }

@@ -158,7 +158,7 @@ public:
         while (fgets(buf, sizeof(buf), f)) {
           if (buf[0] == '\n' && !buf[1])
             continue;
-          else if (buf[0]) {
+          if (buf[0]) {
             int n = std::strlen(buf);
             while (buf[0] && std::isspace(buf[n-1])) {
               buf[n-1] = 0;
@@ -239,8 +239,7 @@ FileDialogRef NativeDialogsX11::makeFileDialog()
 {
   if (FileDialogX11::AreCLIToolsAvailable())
     return make_ref<FileDialogX11>();
-  else
-    return nullptr;
+  return nullptr;
 }
 
 } // namespace os
