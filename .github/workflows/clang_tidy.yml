@@ -4,9 +4,9 @@ on:
     paths:
     - '**.cpp'
     - '**.h'
-    - '.github/workflows/clang-tidy.yml'
+    - '.github/workflows/clang_tidy.yml'
 jobs:
-  build:
+  review:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
