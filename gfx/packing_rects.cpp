@@ -96,7 +96,7 @@ bool PackingRects::pack(const Size& size,
 
   gfx::Region rgn(m_bounds);
   i = 0;
-  for (auto rcPtr : rectPtrs) {
+  for (auto* rcPtr : rectPtrs) {
     if (token.canceled())
       return false;
     token.set_progress(float(i) / int(rectPtrs.size()));

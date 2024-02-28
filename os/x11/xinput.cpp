@@ -68,7 +68,7 @@ void XInput::load(::Display* display)
   }
 
   int ndevices = 0;
-  auto devices = XListInputDevices(display, &ndevices);
+  auto* devices = XListInputDevices(display, &ndevices);
   if (!devices)
     return;
 
@@ -107,12 +107,12 @@ void XInput::load(::Display* display)
     else
       continue;
 
-    auto p = (uint8_t*)devInfo->inputclassinfo;
+    auto* p = (uint8_t*)devInfo->inputclassinfo;
     for (int j=0; j<devInfo->num_classes; ++j, p+=((XAnyClassPtr)p)->length) {
       if (((XAnyClassPtr)p)->c_class != ValuatorClass)
         continue;
 
-      auto valuator = (XValuatorInfoPtr)p;
+      auto* valuator = (XValuatorInfoPtr)p;
       // Only for devices with 3 or more axes (axis 0 is X, 1 is Y,
       // and 2 is the pressure).
       if (valuator->num_axes < 3)

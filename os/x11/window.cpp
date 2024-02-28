@@ -994,7 +994,7 @@ void WindowX11::getX11FrameExtents()
 
 void WindowX11::processX11Event(XEvent& event)
 {
-  auto xinput = X11::instance()->xinput();
+  auto* xinput = X11::instance()->xinput();
   if (xinput->handleExtensionEvent(event)) {
     Event ev;
     xinput->convertExtensionEvent(event, ev, m_scale,
