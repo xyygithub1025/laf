@@ -117,7 +117,7 @@ namespace base {
       return *this;
     }
 
-    Ref<T>& operator=(Ref<T>&& ref) {
+    Ref<T>& operator=(Ref<T>&& ref) noexcept {
       if (m_ptr) m_ptr->unref();
       m_ptr = ref.release();
       return *this;
