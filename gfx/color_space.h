@@ -83,33 +83,28 @@ namespace gfx {
     size_t iccSize() const {
       if (has(HasICC))
         return m_data.size();
-      else
-        return 0;
+      return 0;
     }
 
     const void* iccData() const {
       if (has(HasICC))
         return &m_data[0];
-      else
-        return nullptr;
+      return nullptr;
     }
 
     const ColorSpaceTransferFn* transferFn() const {
       if (has(HasTransferFn))
         return (const ColorSpaceTransferFn*)&m_data[0];
-      else
-        return nullptr;
+      return nullptr;
     }
 
     const ColorSpacePrimaries* primaries() const {
       if (has(HasPrimaries)) {
         if (has(HasTransferFn))
           return (const ColorSpacePrimaries*)&m_data[sizeof(ColorSpaceTransferFn)];
-        else
-          return (const ColorSpacePrimaries*)&m_data[0];
+        return (const ColorSpacePrimaries*)&m_data[0];
       }
-      else
-        return nullptr;
+      return nullptr;
     }
 
     bool operator==(const ColorSpace& that) const = delete;

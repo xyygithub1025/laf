@@ -184,7 +184,7 @@ int app_main(int argc, char* argv[])
       break;
     }
     // Each window handle the event
-    else if (ev.window()) {
+    if (ev.window()) {
       CustomWindow* win = ev.window()->userData<CustomWindow>();
       if (!win->handleEvent(ev))
         break;

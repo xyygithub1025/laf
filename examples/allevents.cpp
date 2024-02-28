@@ -70,8 +70,7 @@ public:
         if (ev.scancode() == os::kKeyEsc) {
           if (m_nextEscCloses)
             return false;
-          else
-            m_nextEscCloses = true;
+          m_nextEscCloses = true;
           logLine("-- Next KeyDown with kKeyEsc will close the window --");
         }
         else {
