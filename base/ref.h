@@ -124,6 +124,8 @@ namespace base {
     }
 
     Ref<T>& operator=(const Ref<T>& ref) {
+      if (this == &ref)
+        return *this;
       if (m_ptr) {
         if (m_ptr == ref.m_ptr)
           return *this;
