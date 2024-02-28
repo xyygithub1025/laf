@@ -67,7 +67,7 @@ static void LOGva(const char* format, va_list ap)
 {
   va_list apTmp;
   va_copy(apTmp, ap);
-  int size = std::vsnprintf(nullptr, 0, format, apTmp);
+  const int size = std::vsnprintf(nullptr, 0, format, apTmp);
   va_end(apTmp);
   if (size < 1)
     return;                     // Nothing to log

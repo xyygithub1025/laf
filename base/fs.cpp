@@ -277,7 +277,7 @@ int compare_filenames(const std::string& a, const std::string& b)
       auto b_dec2 = b_dec;
 
       int a_num = (a_chr - '0');
-      while (int c = a_dec2.next()) {
+      while (const int c = a_dec2.next()) {
         if ((c >= '0') && (c <= '9'))
           a_num = (a_num*10 + (c - '0'));
         else
@@ -285,7 +285,7 @@ int compare_filenames(const std::string& a, const std::string& b)
       }
 
       int b_num = (b_chr - '0');
-      while (int c = b_dec2.next()) {
+      while (const int c = b_dec2.next()) {
         if ((c >= '0') && (c <= '9'))
           b_num = (b_num*10 + (c - '0'));
         else

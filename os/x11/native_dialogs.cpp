@@ -168,7 +168,7 @@ public:
           }
         }
 
-        int ret = pclose(f);
+        const int ret = pclose(f);
         switch (ret) {
           case 0:
             m_filenames.clear();

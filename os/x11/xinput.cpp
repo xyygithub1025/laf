@@ -184,7 +184,7 @@ void XInput::convertExtensionEvent(const XEvent& xevent,
 
   gfx::Point pos;
   KeyModifiers modifiers = kKeyNoneModifier;
-  Event::MouseButton button = Event::NoneButton;
+  const Event::MouseButton button = Event::NoneButton;
   XID deviceid;
   int pressure;
 
@@ -192,7 +192,7 @@ void XInput::convertExtensionEvent(const XEvent& xevent,
 
     case Event::MouseDown:
     case Event::MouseUp: {
-      auto button = (const XDeviceButtonEvent*)&xevent;
+      const auto* button = (const XDeviceButtonEvent*)&xevent;
       time = button->time;
       deviceid = button->deviceid;
       pos.x = button->x / scale;
@@ -204,7 +204,7 @@ void XInput::convertExtensionEvent(const XEvent& xevent,
     }
 
     case Event::MouseMove: {
-      auto motion = (const XDeviceMotionEvent*)&xevent;
+      const auto* motion = (const XDeviceMotionEvent*)&xevent;
       time = motion->time;
       deviceid = motion->deviceid;
       pos.x = motion->x / scale;

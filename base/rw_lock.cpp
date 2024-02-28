@@ -108,7 +108,7 @@ RWLock::LockResult RWLock::lock(LockType lockType, int timeout)
     }
 
     if (timeout > 0) {
-      int delay = std::min(100, timeout);
+      const int delay = std::min(100, timeout);
       timeout -= delay;
 
 #ifdef DEBUG_OBJECT_LOCKS
@@ -236,7 +236,7 @@ RWLock::LockResult RWLock::upgradeToWrite(int timeout)
     }
 
     if (timeout > 0) {
-      int delay = std::min(100, timeout);
+      const int delay = std::min(100, timeout);
       timeout -= delay;
 
 #ifdef DEBUG_OBJECT_LOCKS

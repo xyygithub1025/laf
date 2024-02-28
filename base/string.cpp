@@ -36,7 +36,7 @@ std::string string_vprintf(const char* format, va_list ap)
   std::vector<char> buf(1, 0);
   std::va_list ap2;
   va_copy(ap2, ap);
-  size_t required_size = std::vsnprintf(nullptr, 0, format, ap);
+  const size_t required_size = std::vsnprintf(nullptr, 0, format, ap);
   if (required_size > 0) {
     buf.resize(required_size+1);
     std::vsnprintf(buf.data(), buf.size(), format, ap2);
@@ -181,7 +181,7 @@ std::wstring from_utf8(const std::string& src)
 #endif
   utf8_decode decode(src);
 
-  while (int chr = decode.next()) {
+  while (const int chr = decode.next()) {
     ASSERT(buf_it != buf_end);
     *buf_it = chr;
     ++buf_it;

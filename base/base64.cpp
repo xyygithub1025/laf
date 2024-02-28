@@ -52,7 +52,7 @@ static inline int base64Inv(int asciiChar)
 
 void encode_base64(const char* input, size_t n, std::string& output)
 {
-  size_t size = 4*int(std::ceil(n/3.0)); // Estimate encoded string size
+  const size_t size = 4*int(std::ceil(n/3.0)); // Estimate encoded string size
   output.resize(size);
 
   auto outIt = output.begin();

@@ -52,9 +52,9 @@ namespace gfx {
                 HasPrimaries = 4,
                 HasICC = 8 };
 
-    ColorSpace(const Type type,
-               const Flag flags = NoFlags,
-               const float gamma = 1.0,
+    ColorSpace(Type type,
+               Flag flags = NoFlags,
+               float gamma = 1.0,
                std::vector<uint8_t>&& rawData = std::vector<uint8_t>());
 
     static ColorSpaceRef MakeNone();   // Use display color space

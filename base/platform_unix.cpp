@@ -20,7 +20,7 @@ std::map<std::string, std::string> get_linux_release_info(const std::string& fn)
 {
   std::map<std::string, std::string> values;
 
-  FileHandle f(open_file(fn, "r"));
+  const FileHandle f(open_file(fn, "r"));
   if (!f)
     return values;
 
@@ -43,7 +43,7 @@ std::map<std::string, std::string> get_linux_release_info(const std::string& fn)
           ++j;
         }
 
-        std::string key(i, j);
+        const std::string key(i, j);
 
         // Ignore white space between "KEY ... ="
         while (j != end && *j == ' ')
@@ -57,7 +57,7 @@ std::map<std::string, std::string> get_linux_release_info(const std::string& fn)
           value.clear();
 
           if (j != end) {
-            char quote = *j;
+            const char quote = *j;
             if (quote == '\'' || quote == '\"') {
               ++j;
               while (j != end && *j != quote) {

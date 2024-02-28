@@ -43,7 +43,7 @@ Sha1 Sha1::calculateFromFile(const std::string& fileName)
   unsigned char buf[1024];
   while (file.good()) {
     file.read((char*)buf, 1024);
-    unsigned int len = (unsigned int)file.gcount();
+    const unsigned int len = (unsigned int)file.gcount();
     if (len > 0)
       SHA1Input(&sha, buf, len);
   }
