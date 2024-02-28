@@ -76,7 +76,7 @@ static void LOGva(const char* format, va_list ap)
   std::vsnprintf(buf.data(), buf.size(), format, ap);
 
   {
-    std::lock_guard lock(log_mutex);
+    const std::lock_guard lock(log_mutex);
     ASSERT(log_ostream);
     log_ostream->write(buf.data(), size);
     log_ostream->flush();

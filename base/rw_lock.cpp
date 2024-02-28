@@ -36,7 +36,7 @@ RWLock::~RWLock()
 
 bool RWLock::canWriteLockFromRead() const
 {
-  std::lock_guard lock(m_mutex);
+  const std::lock_guard lock(m_mutex);
 
   // If this thread already have a writer lock, we can upgrade any
   // reader lock to writer in the same thread (re-entrant locks).
@@ -55,7 +55,7 @@ RWLock::LockResult RWLock::lock(LockType lockType, int timeout)
   // thread are allowed).
   // if (lockType == WriteLock) {
   {
-    std::lock_guard lock(m_mutex);
+    const std::lock_guard lock(m_mutex);
     if (m_write_lock &&
         m_write_thread == std::this_thread::get_id()) {
       return LockResult::Reentrant;
@@ -64,7 +64,7 @@ RWLock::LockResult RWLock::lock(LockType lockType, int timeout)
 
   while (timeout >= 0) {
     {
-      std::lock_guard lock(m_mutex);
+      const std::lock_guard lock(m_mutex);
 
       switch (lockType) {
 
@@ -134,7 +134,7 @@ void RWLock::downgradeToRead(LockResult lockResult)
   if (lockResult != LockResult::OK)
     return; // Do nothing for failed or reentrant locks
 
-  std::lock_guard lock(m_mutex);
+  const std::lock_guard lock(m_mutex);
 
   ASSERT(m_read_locks == 0);
   ASSERT(m_write_lock);
@@ -149,7 +149,7 @@ void RWLock::unlock(LockResult lockResult)
   if (lockResult != LockResult::OK)
     return; // Do nothing for failed or reentrant locks
 
-  std::lock_guard lock(m_mutex);
+  const std::lock_guard lock(m_mutex);
 
   if (m_write_lock) {
     m_write_lock = false;
@@ -165,7 +165,7 @@ void RWLock::unlock(LockResult lockResult)
 
 bool RWLock::weakLock(std::atomic<WeakLock>* weak_lock_flag)
 {
-  std::lock_guard lock(m_mutex);
+  const std::lock_guard lock(m_mutex);
 
   if (m_weak_lock ||
       m_write_lock)
@@ -178,7 +178,7 @@ bool RWLock::weakLock(std::atomic<WeakLock>* weak_lock_flag)
 
 void RWLock::weakUnlock()
 {
-  std::lock_guard lock(m_mutex);
+  const std::lock_guard lock(m_mutex);
 
   ASSERT(m_weak_lock);
   ASSERT(*m_weak_lock != WeakLock::WeakUnlocked);
@@ -195,7 +195,7 @@ RWLock::LockResult RWLock::upgradeToWrite(int timeout)
   // Check for re-entrant upgrade to write (multiple write-lock in the
   // same thread are allowed).
   {
-    std::lock_guard lock(m_mutex);
+    const std::lock_guard lock(m_mutex);
     if (m_write_lock &&
         m_write_thread == std::this_thread::get_id()) {
       return LockResult::Reentrant;
@@ -204,7 +204,7 @@ RWLock::LockResult RWLock::upgradeToWrite(int timeout)
 
   while (timeout >= 0) {
     {
-      std::lock_guard lock(m_mutex);
+      const std::lock_guard lock(m_mutex);
 
       // Check that there is no weak lock
       if (m_weak_lock) {

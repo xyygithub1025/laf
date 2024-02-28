@@ -180,7 +180,7 @@ static void addslot(void* ptr, size_t size)
   p->ptr = ptr;
   p->size = size;
 
-  std::lock_guard lock(g_mutex);
+  const std::lock_guard lock(g_mutex);
   p->next = headslot;
   headslot = p;
 }
@@ -194,7 +194,7 @@ static void delslot(void* ptr)
 
   assert(ptr);
 
-  std::lock_guard lock(g_mutex);
+  const std::lock_guard lock(g_mutex);
 
   for (it=headslot; it!=nullptr; prev=it, it=it->next) {
     if (it->ptr == ptr) {
