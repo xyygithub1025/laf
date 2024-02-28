@@ -4,7 +4,6 @@
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
 
-#include "gfx/path.h"
 #include "os/os.h"
 
 using Hit = os::Hit;
