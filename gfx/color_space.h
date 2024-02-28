@@ -88,13 +88,13 @@ namespace gfx {
 
     const void* iccData() const {
       if (has(HasICC))
-        return &m_data[0];
+        return m_data.data();
       return nullptr;
     }
 
     const ColorSpaceTransferFn* transferFn() const {
       if (has(HasTransferFn))
-        return (const ColorSpaceTransferFn*)&m_data[0];
+        return (const ColorSpaceTransferFn*)m_data.data();
       return nullptr;
     }
 
@@ -102,7 +102,7 @@ namespace gfx {
       if (has(HasPrimaries)) {
         if (has(HasTransferFn))
           return (const ColorSpacePrimaries*)&m_data[sizeof(ColorSpaceTransferFn)];
-        return (const ColorSpacePrimaries*)&m_data[0];
+        return (const ColorSpacePrimaries*)m_data.data();
       }
       return nullptr;
     }
