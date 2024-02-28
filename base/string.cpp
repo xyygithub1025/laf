@@ -1,5 +1,5 @@
 // LAF Base Library
-// Copyright (c) 2020-2022 Igara Studio S.A.
+// Copyright (c) 2020-2024 Igara Studio S.A.
 // Copyright (c) 2001-2016 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -71,7 +71,7 @@ std::string string_to_upper(const std::string& original)
 
 #ifdef LAF_WINDOWS
 
-std::string to_utf8(const wchar_t* src, const int n)
+std::string to_utf8(const wchar_t* src, const size_t n)
 {
   int required_size =
     ::WideCharToMultiByte(CP_UTF8, 0,
@@ -152,13 +152,13 @@ static std::size_t insert_utf8_char(std::string* result, wchar_t chr)
   return size;
 }
 
-std::string to_utf8(const wchar_t* src, const int n)
+std::string to_utf8(const wchar_t* src, const size_t n)
 {
   // Get required size to reserve a string so string::push_back()
   // doesn't need to reallocate its data.
   std::size_t required_size = 0;
   const auto* p = src;
-  for (int i=0; i<n; ++i, ++p)
+  for (size_t i=0; i<n; ++i, ++p)
     required_size += insert_utf8_char(nullptr, *p);
   if (!required_size)
     return "";
