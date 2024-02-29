@@ -1,5 +1,5 @@
 // LAF Base Library
-// Copyright (c) 2022 Igara Studio S.A.
+// Copyright (c) 2022-2024 Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -9,6 +9,8 @@
 #pragma once
 
 #include <string>
+
+#include "base/codepoint.h"
 
 namespace base {
 
@@ -39,11 +41,11 @@ namespace base {
       return m_valid;
     }
 
-    int next() {
+    codepoint_t next() {
       if (m_it == m_end)
         return 0;
 
-      int c = *m_it;
+      codepoint_t c = *m_it;
       ++m_it;
 
       // UTF-8 escape bit 0x80 to encode larger code points

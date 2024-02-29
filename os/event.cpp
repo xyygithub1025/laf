@@ -10,25 +10,13 @@
 
 #include "os/event.h"
 
-#include <cuchar>
-#include <vector>
+#include "base/string.h"
 
 namespace os {
 
 std::string Event::unicodeCharAsUtf8() const
 {
-  std::vector<char> buf;
-  if (m_unicodeChar) {
-    std::mbstate_t state;
-    buf.resize(8);
-    std::size_t size = std::c32rtomb(buf.data(),
-                                     m_unicodeChar, &state);
-    if (size < 0 || size >= buf.size())
-      size = 0;
-    buf[size] = 0;
-  }
-  buf.push_back(0);
-  return std::string(buf.data());
+  return base::codepoint_to_utf8(m_unicodeChar);
 }
 
 } // namespace os

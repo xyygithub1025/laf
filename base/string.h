@@ -1,5 +1,5 @@
 // LAF Base Library
-// Copyright (c) 2020-2022 Igara Studio S.A.
+// Copyright (c) 2020-2024 Igara Studio S.A.
 // Copyright (c) 2001-2017 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -13,6 +13,8 @@
 #include <iterator>
 #include <string>
 
+#include "base/codepoint.h"
+
 namespace base {
 
   std::string string_printf(const char* format, ...);
@@ -20,6 +22,8 @@ namespace base {
 
   std::string string_to_lower(const std::string& original);
   std::string string_to_upper(const std::string& original);
+
+  std::string codepoint_to_utf8(codepoint_t codepoint);
 
   std::string to_utf8(const wchar_t* src, const int n);
 

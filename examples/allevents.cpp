@@ -22,7 +22,9 @@ class LogWindow {
 public:
   LogWindow(System* system)
     : m_window(system->makeWindow(800, 600))
-    , m_font(FontMgr::Make()->defaultFont(12)) {
+    , m_fontMgr(FontMgr::Make())
+    , m_font(m_fontMgr->defaultFont(18))
+    , m_lineHeight(m_font->metrics(nullptr)) {
     m_window->setTitle("All Events");
 
     recalcMaxLines();
@@ -82,15 +84,14 @@ public:
         else {
           m_nextEscCloses = false;
         }
-        //[[fallthrough]];
+        [[fallthrough]];
       case Event::KeyUp: {
-        wchar_t wideUnicode[2] = { ev.unicodeChar(), 0 };
-        logLine("%s repeat=%d scancode=%d unicode=%d (%s)%s",
+        logLine("%s repeat=%d scancode=%d unicode=0x%x (%s)%s",
                 (ev.type() == Event::KeyDown ? "KeyDown": "KeyUp"),
                 ev.repeat(),
                 ev.scancode(),
                 ev.unicodeChar(),
-                base::to_utf8(wideUnicode).c_str(),
+                ev.unicodeCharAsUtf8().c_str(),
                 modifiersToString(ev.modifiers()).c_str());
         break;
       }
@@ -155,9 +156,11 @@ private:
 
     Paint paint;
     paint.color(gfx::rgba(255, 255, 255));
-    for (; i<m_textLog.size(); ++i)
-      draw_text(surface, m_font, m_textLog[i],
-                gfx::Point(0, (1+i)*m_lineHeight), &paint);
+    for (; i<m_textLog.size(); ++i) {
+      // Use shaper so we can paint emojis in the log
+      draw_text_with_shaper(surface, m_fontMgr, m_font, m_textLog[i],
+                            gfx::PointF(0, i*m_lineHeight), &paint);
+    }
 
     gfx::Rgb rgb(gfx::Hsv(m_hue, 1.0, 1.0));
     paint.color(gfx::rgba(rgb.red(), rgb.green(), rgb.blue()));
@@ -216,10 +219,11 @@ private:
   }
 
   WindowRef m_window;
+  FontMgrRef m_fontMgr;
   FontRef m_font;
   std::vector<std::string> m_textLog;
   size_t m_oldLogSize = 0;
-  int m_lineHeight = 12;
+  int m_lineHeight;
   int m_maxlines = 0;
   gfx::Point m_mousePos;
   double m_brushSize = 4;

@@ -9,6 +9,7 @@
 #define OS_EVENT_H_INCLUDED
 #pragma once
 
+#include "base/codepoint.h"
 #include "base/paths.h"
 #include "gfx/point.h"
 #include "gfx/size.h"
@@ -96,7 +97,7 @@ namespace os {
     // layouts).
     KeyScancode scancode() const { return m_scancode; }
     KeyModifiers modifiers() const { return m_modifiers; }
-    int unicodeChar() const { return m_unicodeChar; }
+    base::codepoint_t unicodeChar() const { return m_unicodeChar; }
     std::string unicodeCharAsUtf8() const;
     bool isDeadKey() const { return m_isDead; }
     int repeat() const { return m_repeat; }
@@ -120,9 +121,9 @@ namespace os {
 
     void setScancode(KeyScancode scancode) { m_scancode = scancode; }
     void setModifiers(KeyModifiers modifiers) { m_modifiers = modifiers; }
-    void setUnicodeChar(int unicodeChar) { m_unicodeChar = unicodeChar; }
-    void setDeadKey(bool state) { m_isDead = state; }
-    void setRepeat(int repeat) { m_repeat = repeat; }
+    void setUnicodeChar(const base::codepoint_t unicodeChar) { m_unicodeChar = unicodeChar; }
+    void setDeadKey(const bool state) { m_isDead = state; }
+    void setRepeat(const int repeat) { m_repeat = repeat; }
     void setPosition(const gfx::Point& pos) { m_position = pos; }
     void setWheelDelta(const gfx::Point& delta) { m_wheelDelta = delta; }
     void setPreciseWheel(bool precise) { m_preciseWheel = precise; }
@@ -140,7 +141,7 @@ namespace os {
     std::function<void()> m_callback;
     KeyScancode m_scancode;
     KeyModifiers m_modifiers;
-    int m_unicodeChar;
+    base::codepoint_t m_unicodeChar;
     bool m_isDead;
     int m_repeat; // repeat=0 means the first time the key is pressed
     gfx::Point m_position;
