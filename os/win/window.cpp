@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2023  Igara Studio S.A.
+// Copyright (C) 2018-2024  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -1715,6 +1715,35 @@ LRESULT WindowWin::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
                   ev.unicodeChar() ? ev.unicodeChar(): ' ');
       }
 
+      return 0;
+    }
+
+    case WM_IME_CHAR: {
+      static int high_surrogate = 0;
+      int unicode = wparam;
+
+      // We receive two WM_IME_CHAR events for emojis, one with high
+      // surrogate and other with the low one.
+      if (IS_HIGH_SURROGATE(unicode)) {
+        high_surrogate = unicode;
+        return 0;
+      }
+
+      // Check if this is a combination of two surrogates to create
+      // the final unicode code point.
+      if (IS_SURROGATE_PAIR(high_surrogate, unicode)) {
+        unicode = (0x10000 |
+                   ((high_surrogate-0xd800)<<10) |
+                   (wparam-0xdc00));
+      }
+      high_surrogate = 0;
+
+      Event ev;
+      ev.setType(Event::KeyDown);
+      ev.setModifiers(get_modifiers_from_last_win32_message());
+      ev.setUnicodeChar(unicode);
+      ev.setRepeat(0);
+      queueEvent(ev);
       return 0;
     }
 

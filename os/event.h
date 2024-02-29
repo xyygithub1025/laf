@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2019-2022  Igara Studio S.A.
+// Copyright (C) 2019-2024  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -17,6 +17,7 @@
 #include "os/window.h"
 
 #include <functional>
+#include <string>
 
 #pragma push_macro("None")
 #undef None // Undefine the X11 None macro
@@ -96,6 +97,7 @@ namespace os {
     KeyScancode scancode() const { return m_scancode; }
     KeyModifiers modifiers() const { return m_modifiers; }
     int unicodeChar() const { return m_unicodeChar; }
+    std::string unicodeCharAsUtf8() const;
     bool isDeadKey() const { return m_isDead; }
     int repeat() const { return m_repeat; }
     gfx::Point position() const { return m_position; }
