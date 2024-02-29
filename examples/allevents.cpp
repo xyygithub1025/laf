@@ -158,8 +158,8 @@ private:
     paint.color(gfx::rgba(255, 255, 255));
     for (; i<m_textLog.size(); ++i) {
       // Use shaper so we can paint emojis in the log
-      draw_text_with_shaper(surface, m_fontMgr, m_font, m_textLog[i],
-                            gfx::PointF(0, i*m_lineHeight), &paint);
+      draw_text(surface, m_textLog[i],
+                gfx::PointF(0, i*m_lineHeight), &paint);
     }
 
     gfx::Rgb rgb(gfx::Hsv(m_hue, 1.0, 1.0));
@@ -204,7 +204,9 @@ private:
     vsprintf(buf, str, ap);
     va_end(ap);
 
-    m_textLog.push_back(buf);
+    TextBlobRef blob = TextBlob::MakeWithShaper(m_fontMgr, m_font, buf);
+    if (blob)
+      m_textLog.push_back(blob);
   }
 
   static std::string modifiersToString(KeyModifiers mods) {
@@ -221,7 +223,7 @@ private:
   WindowRef m_window;
   FontMgrRef m_fontMgr;
   FontRef m_font;
-  std::vector<std::string> m_textLog;
+  std::vector<TextBlobRef> m_textLog;
   size_t m_oldLogSize = 0;
   int m_lineHeight;
   int m_maxlines = 0;
