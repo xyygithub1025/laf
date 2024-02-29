@@ -116,13 +116,12 @@ std::string codepoint_to_utf8(const codepoint_t codepoint)
 
   // Get required size to reserve a string so string::push_back()
   // doesn't need to reallocate its data.
-  std::size_t required_size = 0;
-  required_size += insert_utf8_char(codepoint);
-  if (!required_size)
+  const std::size_t required_size = insert_utf8_char(codepoint);
+  if (required_size == 0)
     return std::string();
 
   std::string result;
-  result.reserve(++required_size);
+  result.reserve(required_size+1);
   insert_utf8_char(codepoint, &result);
   return result;
 }
