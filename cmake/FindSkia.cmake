@@ -226,6 +226,8 @@ endif()
 
 add_library(skunicode INTERFACE)
 target_link_libraries(skunicode INTERFACE ${SKUNICODE_LIBRARY})
+target_compile_definitions(skunicode INTERFACE
+  SK_UNICODE_AVAILABLE)
 
 add_library(skshaper INTERFACE)
 target_link_libraries(skshaper INTERFACE ${SKSHAPER_LIBRARY} skunicode)
