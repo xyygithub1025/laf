@@ -20,12 +20,14 @@ using namespace text;
 
 class LogWindow {
 public:
-  LogWindow(System* system)
-    : m_window(system->makeWindow(800, 600))
+  LogWindow(const SystemRef& system)
+    : m_system(system)
+    , m_window(system->makeWindow(800, 600))
     , m_fontMgr(FontMgr::Make())
     , m_font(m_fontMgr->defaultFont(18))
     , m_lineHeight(m_font->metrics(nullptr)) {
-    m_window->setTitle("All Events");
+    m_system->setTranslateDeadKeys(m_translateDeadKeys);
+    m_window->setTitle(titleBar());
 
     recalcMaxLines();
 
@@ -81,18 +83,24 @@ public:
             m_nextEscCloses = true;
           logLine("-- Next KeyDown with kKeyEsc will close the window --");
         }
+        else if (ev.scancode() == kKeyD) {
+          m_translateDeadKeys = !m_translateDeadKeys;
+          m_system->setTranslateDeadKeys(m_translateDeadKeys);
+          m_window->setTitle(titleBar());
+        }
         else {
           m_nextEscCloses = false;
         }
         [[fallthrough]];
       case Event::KeyUp: {
-        logLine("%s repeat=%d scancode=%d unicode=0x%x (%s)%s",
+        logLine("%s repeat=%d scancode=%d unicode=0x%x (%s)%s%s",
                 (ev.type() == Event::KeyDown ? "KeyDown": "KeyUp"),
                 ev.repeat(),
                 ev.scancode(),
                 ev.unicodeChar(),
                 ev.unicodeCharAsUtf8().c_str(),
-                modifiersToString(ev.modifiers()).c_str());
+                modifiersToString(ev.modifiers()).c_str(),
+                (ev.isDeadKey() ? " DEADKEY": ""));
         break;
       }
 
@@ -123,6 +131,12 @@ public:
   }
 
 private:
+  std::string titleBar() {
+    std::string title = "All Events";
+    if (m_translateDeadKeys)
+      title += " w/Dead Keys";
+    return title;
+  }
   void recalcMaxLines() {
     m_maxlines = (m_window->height() - m_lineHeight) / m_lineHeight;
   }
@@ -220,6 +234,7 @@ private:
     return s;
   }
 
+  SystemRef m_system;
   WindowRef m_window;
   FontMgrRef m_fontMgr;
   FontRef m_font;
@@ -231,6 +246,7 @@ private:
   double m_brushSize = 4;
   double m_hue = 0.0;
   bool m_nextEscCloses = false;
+  bool m_translateDeadKeys = true;
 };
 
 int app_main(int argc, char* argv[])
@@ -238,7 +254,7 @@ int app_main(int argc, char* argv[])
   auto system = make_system();
   system->setAppMode(AppMode::GUI);
 
-  LogWindow window(system.get());
+  LogWindow window(system);
 
   system->finishLaunching();
   system->activateApp();
