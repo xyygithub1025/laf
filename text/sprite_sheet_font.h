@@ -32,7 +32,7 @@ public:
     return FontType::SpriteSheet;
   }
 
-  float metrics(FontMetrics* metrics) const {
+  float metrics(FontMetrics* metrics) const override {
     // TODO impl
     return height();
   }
