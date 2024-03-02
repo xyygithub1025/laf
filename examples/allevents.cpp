@@ -194,7 +194,7 @@ private:
     va_list ap;
     va_start(ap, str);
     char buf[4096];
-    vsprintf(buf, str, ap);
+    vsnprintf(buf, sizeof(buf), str, ap);
     va_end(ap);
 
     m_textLog.push_back(buf);
