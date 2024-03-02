@@ -4,7 +4,6 @@
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
 
-#include "gfx/path.h"
 #include "os/os.h"
 #include "text/text.h"
 
@@ -39,33 +38,29 @@ Hit hit_test(Window* window,
     return Hit::Content;
   }
   // Resize edges
-  else if (!rc2.contains(pos) &&
-           // macOS cannot start the resizing actions (just the window movement)
-           instance()->hasCapability(Capabilities::CanStartWindowResize)) {
+  if (!rc2.contains(pos) &&
+      // macOS cannot start the resizing actions (just the window movement)
+      instance()->hasCapability(Capabilities::CanStartWindowResize)) {
     if (pos.y < kResizeBorder) {
       if (pos.x < kResizeBorder) return Hit::TopLeft;
-      else if (pos.x > rc.x2()-kResizeBorder) return Hit::TopRight;
-      else return Hit::Top;
+      if (pos.x > rc.x2()-kResizeBorder) return Hit::TopRight;
+      return Hit::Top;
     }
-    else if (pos.y > rc.y2()-kResizeBorder) {
+    if (pos.y > rc.y2()-kResizeBorder) {
       if (pos.x < kResizeBorder) return Hit::BottomLeft;
-      else if (pos.x > rc.x2()-kResizeBorder) return Hit::BottomRight;
-      else return Hit::Bottom;
+      if (pos.x > rc.x2()-kResizeBorder) return Hit::BottomRight;
+      return Hit::Bottom;
     }
-    else {
-      if (pos.x < rc.w/2) return Hit::Left;
-      return Hit::Right;
-    }
+    if (pos.x < rc.w/2) return Hit::Left;
+    return Hit::Right;
   }
-  else if (pos.y <= kTitleBarSize) {
+  if (pos.y <= kTitleBarSize) {
     if (pos.x > rc.x2()-kButtonSize) return Hit::CloseButton;
-    else if (pos.x > rc.x2()-kButtonSize*2) return Hit::MaximizeButton;
-    else if (pos.x > rc.x2()-kButtonSize*3) return Hit::MinimizeButton;
-    else return Hit::TitleBar;
+    if (pos.x > rc.x2()-kButtonSize*2) return Hit::MaximizeButton;
+    if (pos.x > rc.x2()-kButtonSize*3) return Hit::MinimizeButton;
+    return Hit::TitleBar;
   }
-  else {
-    return Hit::Content;
-  }
+  return Hit::Content;
 }
 
 void draw_button(Surface* surface, int x, Hit button, const Hit hit)
@@ -102,6 +97,8 @@ void draw_button(Surface* surface, int x, Hit button, const Hit hit)
       surface->drawPath(path, p);
       break;
     }
+    default:
+      break;
   }
 }
 
@@ -175,8 +172,7 @@ bool update_hit(Window* window,
     hit = newHit;
     return true;
   }
-  else
-    return false;
+  return false;
 }
 
 WindowRef create_window()
@@ -233,6 +229,7 @@ bool handle_mouse_down(Window* window,
     case Hit::MinimizeButton: window->minimize(); return true;
     case Hit::MaximizeButton: window->maximize(); return true;
     case Hit::CloseButton:    return false;
+    default:                  break;
   }
   window->performWindowAction(action, &ev);
   return true;
@@ -281,6 +278,8 @@ int app_main(int argc, char* argv[])
           case kKeyF:
           case kKeyF11:
             window->setFullscreen(!window->isFullscreen());
+            break;
+          default:
             break;
         }
         break;

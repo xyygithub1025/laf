@@ -125,8 +125,7 @@ std::string get_current_path()
   std::vector<char> path(MAXPATHLEN);
   if (getcwd(&path[0], path.size()))
     return std::string(&path[0]);
-  else
-    return std::string();
+  return std::string();
 }
 
 std::string get_app_path()
@@ -155,8 +154,7 @@ std::string get_temp_path()
   char* tmpdir = getenv("TMPDIR");
   if (tmpdir)
     return tmpdir;
-  else
-    return "/tmp";
+  return "/tmp";
 }
 
 std::string get_user_docs_folder()
@@ -164,8 +162,7 @@ std::string get_user_docs_folder()
   char* tmpdir = getenv("HOME");
   if (tmpdir)
     return tmpdir;
-  else
-    return "/";
+  return "/";
 }
 
 std::string get_canonical_path(const std::string& path)

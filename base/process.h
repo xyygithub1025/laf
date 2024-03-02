@@ -15,7 +15,11 @@
 
 namespace base {
 
-  typedef uint32_t pid;
+  #ifdef LAF_WINDOWS
+    using pid = uint32_t; // DWORD
+  #else
+    using pid = int;
+  #endif
 
   pid get_current_process_id();
 

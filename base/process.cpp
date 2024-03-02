@@ -98,13 +98,13 @@ std::string get_process_name(pid pid)
 std::string get_process_name(pid pid)
 {
   char path[128];
-  std::memset(path, 0, 128);
-  std::sprintf(path, "/proc/%d/exe", pid);
+  std::memset(path, 0, sizeof(path));
+  std::snprintf(path, sizeof(path), "/proc/%d/exe", pid);
   char* exepath = realpath(path, nullptr);
   if (!exepath)
     return std::string();
 
-  const std::string exename = base::get_file_name(exepath);
+  std::string exename = base::get_file_name(exepath);
   free(exepath);
 
   return exename;

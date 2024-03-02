@@ -25,10 +25,10 @@ namespace base {
 
   std::string codepoint_to_utf8(codepoint_t codepoint);
 
-  std::string to_utf8(const wchar_t* src, const int n);
+  std::string to_utf8(const wchar_t* src, size_t n);
 
   inline std::string to_utf8(const std::wstring& widestring) {
-   return to_utf8(widestring.c_str(), (int)widestring.size());
+   return to_utf8(widestring.c_str(), widestring.size());
   }
 
   std::wstring from_utf8(const std::string& utf8string);

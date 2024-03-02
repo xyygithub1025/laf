@@ -1,12 +1,15 @@
 # LAF OS
 # Copyright (C) 2019-2024  Igara Studio S.A.
 
+add_custom_target(laf-examples)
+
 function(laf_add_example name console="")
   if("${console}" STREQUAL "CONSOLE")
     add_executable(${name} ${name}.cpp)
   else()
     add_executable(${name} WIN32 ${name}.cpp)
   endif()
+  add_dependencies(laf-examples ${name})
   target_link_libraries(${name} laf-os laf-text)
   set_target_properties(${name} PROPERTIES LINK_FLAGS "${LAF_BACKEND_LINK_FLAGS}")
 endfunction()

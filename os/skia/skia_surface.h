@@ -140,8 +140,7 @@ private:
   sk_sp<SkColorSpace> skColorSpace() const {
     if (m_colorSpace)
       return static_cast<SkiaColorSpace*>(m_colorSpace.get())->skColorSpace();
-    else
-      return nullptr;
+    return nullptr;
   }
 
   SkBitmap m_bitmap;

@@ -49,7 +49,9 @@ public:
         break;
 
       case Event::DropFiles:
-        logLine("DropFiles files={");
+        logLine("DropFiles pos=%d,%d files={",
+                ev.position().x,
+                ev.position().y);
         for (const auto& file : ev.files()) {
           logLine("  \"%s\"", file.c_str());
         }
@@ -79,8 +81,7 @@ public:
         if (ev.scancode() == kKeyEsc) {
           if (m_nextEscCloses)
             return false;
-          else
-            m_nextEscCloses = true;
+          m_nextEscCloses = true;
           logLine("-- Next KeyDown with kKeyEsc will close the window --");
         }
         else if (ev.scancode() == kKeyD) {
@@ -215,7 +216,7 @@ private:
     va_list ap;
     va_start(ap, str);
     char buf[4096];
-    vsprintf(buf, str, ap);
+    vsnprintf(buf, sizeof(buf), str, ap);
     va_end(ap);
 
     TextBlobRef blob = TextBlob::MakeWithShaper(m_fontMgr, m_font, buf);
