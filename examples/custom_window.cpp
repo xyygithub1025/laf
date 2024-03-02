@@ -95,6 +95,8 @@ void draw_button(os::Surface* surface, int x, Hit button, const Hit hit)
       surface->drawPath(path, p);
       break;
     }
+    default:
+      break;
   }
 }
 
@@ -223,6 +225,7 @@ bool handle_mouse_down(os::Window* window,
     case Hit::MinimizeButton: window->minimize(); return true;
     case Hit::MaximizeButton: window->maximize(); return true;
     case Hit::CloseButton:    return false;
+    default:                  break;
   }
   window->performWindowAction(action, &ev);
   return true;
@@ -268,6 +271,8 @@ int app_main(int argc, char* argv[])
           case os::kKeyF:
           case os::kKeyF11:
             window->setFullscreen(!window->isFullscreen());
+            break;
+          default:
             break;
         }
         break;

@@ -77,6 +77,9 @@ public:
                  ev.scancode() == os::kKeyEnterPad)
           onEnterKey();
         break;
+
+      default:
+        break;
     }
     return true;
   }

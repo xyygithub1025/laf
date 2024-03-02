@@ -223,6 +223,7 @@ int app_main(int argc, char* argv[])
               case os::kKeyUp:    rc.y -= rc.h; break;
               case os::kKeyRight: rc.x += rc.w; break;
               case os::kKeyDown:  rc.y += rc.h; break;
+              default: break;
             }
             ev.window()->setFrame(rc);
 
@@ -233,6 +234,8 @@ int app_main(int argc, char* argv[])
             break;
           }
 
+          default:
+            break;
         }
         break;
 

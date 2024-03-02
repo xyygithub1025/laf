@@ -69,6 +69,8 @@ Event::MouseButton get_mouse_buttons(NSEvent* event)
     case NSEventTypeRightMouseUp:
     case NSEventTypeRightMouseDragged:
       return Event::RightButton;
+    default:
+      break;
   }
 
   switch (event.buttonNumber) {
