@@ -1,6 +1,8 @@
 # LAF OS
 # Copyright (C) 2019-2022  Igara Studio S.A.
 
+add_custom_target(laf-examples)
+
 if(LAF_BACKEND STREQUAL "skia")
   function(laf_add_example name console="")
     if("${console}" STREQUAL "CONSOLE")
@@ -8,6 +10,7 @@ if(LAF_BACKEND STREQUAL "skia")
     else()
       add_executable(${name} WIN32 ${name}.cpp)
     endif()
+    add_dependencies(laf-examples ${name})
     target_link_libraries(${name} laf-os)
     set_target_properties(${name} PROPERTIES LINK_FLAGS "${LAF_BACKEND_LINK_FLAGS}")
   endfunction()
