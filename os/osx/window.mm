@@ -481,7 +481,7 @@ os::ScreenRef WindowOSX::screen() const
 
 os::ColorSpaceRef WindowOSX::colorSpace() const
 {
-  if (auto defaultCS = os::instance()->windowsColorSpace())
+  if (auto defaultCS = System::instance()->windowsColorSpace())
     return defaultCS;
 
   ASSERT(m_nsWindow);

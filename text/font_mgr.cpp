@@ -29,7 +29,7 @@ FontMgr::~FontMgr()
 
 FontRef FontMgr::loadSpriteSheetFont(const char* filename, int scale)
 {
-  os::SurfaceRef sheet = os::instance()->loadRgbaSurface(filename);
+  os::SurfaceRef sheet = os::System::instance()->loadRgbaSurface(filename);
   FontRef font = nullptr;
   if (sheet) {
     sheet->applyScale(scale);

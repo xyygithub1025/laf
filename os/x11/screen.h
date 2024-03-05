@@ -58,7 +58,7 @@ public:
   gfx::Rect workarea() const override { return m_workarea; }
   os::ColorSpaceRef colorSpace() const override {
     // TODO get screen color space
-    return os::instance()->makeColorSpace(gfx::ColorSpace::MakeSRGB());
+    return System::instance()->makeColorSpace(gfx::ColorSpace::MakeSRGB());
   }
   void* nativeHandle() const override {
     return reinterpret_cast<void*>(m_screen);

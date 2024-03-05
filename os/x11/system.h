@@ -18,6 +18,10 @@ namespace os {
 
 class SystemX11 : public CommonSystem {
 public:
+  static Ref<SystemX11> instance() {
+    return Ref<SystemX11>(System::instance());
+  }
+
   ~SystemX11();
 
   bool isKeyPressed(KeyScancode scancode) override {

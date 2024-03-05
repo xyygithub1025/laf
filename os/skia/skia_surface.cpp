@@ -777,7 +777,7 @@ void SkiaSurface::skDrawSurface(
 const SkImage* SkiaSurface::getOrCreateTextureImage() const
 {
   // TODO use the GrDirectContext of the specific os::Window
-  auto win = os::instance()->defaultWindow();
+  auto win = System::instance()->defaultWindow();
   if (!win || !win->sk_grCtx())
     return nullptr;
 
@@ -794,7 +794,8 @@ bool SkiaSurface::uploadBitmapAsTexture() const
   SkImageInfo ii = m_bitmap.info();
   sk_sp<SkImage> image = m_bitmap.asImage();
 
-  Window* win = os::instance()->defaultWindow();
+  // TODO use the window of this surface
+  Window* win = System::instance()->defaultWindow();
 
   GrBackendTexture texture;
   SkImages::BackendTextureReleaseProc proc;

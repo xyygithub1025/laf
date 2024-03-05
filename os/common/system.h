@@ -31,10 +31,7 @@ class CommonSystem : public System {
 public:
   CommonSystem() { }
   ~CommonSystem() {
-    // destroyInstance() can be called multiple times by derived
-    // classes.
-    if (instance() == this)
-      destroyInstance();
+    destroyInstance();
   }
 
   void setAppName(const std::string& appName) override { }
@@ -44,6 +41,10 @@ public:
   void finishLaunching() override { }
   void activateApp() override { }
 
+  Capabilities capabilities() const override {
+    return (Capabilities)0;
+  }
+
   void setTabletAPI(TabletAPI api) override {
     // Do nothing by default
   }
@@ -51,6 +52,8 @@ public:
   TabletAPI tabletAPI() const override {
     return TabletAPI::Default;
   }
+
+  void errorMessage(const char* msg) override;
 
   Logger* logger() override {
     return nullptr;
@@ -92,34 +95,34 @@ public:
         isKeyPressed(kKeyRWin) ? kKeyWinModifier: 0));
   }
 
-protected:
-  // This must be called in the final class that derived from
-  // CommonSystem, because clearing the list of events can generate
-  // events on windows that will depend on the platform-specific
-  // System.
-  //
-  // E.g. We've crash reports because WindowWin is receiving
-  // WM_ACTIVATE messages when we destroy the events queue, and the
-  // handler of that message is expecting the SystemWin instance (not
-  // a CommonSystem instance). That's why we cannot call this from
-  // ~CommonSystem() destructor and we have to call this from
-  // ~SystemWin (or other platform-specific System implementations).
-  void destroyInstance() {
-    // We have to reset the list of all events to clear all possible
-    // living WindowRef (so all window destructors are called at this
-    // point, when the os::System instance is still alive).
-    //
-    // TODO Maybe the event queue should be inside the System instance
-    //      (so when the system is deleted, the queue is
-    //      deleted). Anyway we should still clear all the events
-    //      before set_instance(nullptr), and we're not sure if this
-    //      is possible on macOS, as some events are queued before the
-    //      System instance is even created (see
-    //      EventQueue::instance() comment on laf/os/event_queue.h).
-    eventQueue()->clearEvents();
-
-    set_instance(nullptr);
+  bool gpuAcceleration() const override { return false; }
+  void setGpuAcceleration(bool state) override { }
+  ScreenRef mainScreen() override { return nullptr; }
+  void listScreens(ScreenList& screens) override { }
+  Window* defaultWindow() override { return nullptr; }
+  Ref<Window> makeWindow(const WindowSpec&) override { return nullptr; }
+  Ref<Surface> makeSurface(int, int, const os::ColorSpaceRef&) override { return nullptr; }
+  Ref<Surface> makeRgbaSurface(int, int, const os::ColorSpaceRef&) override { return nullptr; }
+  Ref<Surface> loadSurface(const char*) override { return nullptr; }
+  Ref<Surface> loadRgbaSurface(const char*) override { return nullptr; }
+  Ref<Cursor> makeCursor(const Surface*, const gfx::Point&, int) override { return nullptr; }
+  bool isKeyPressed(KeyScancode) override { return false; }
+  int getUnicodeFromScancode(KeyScancode) override { return 0; }
+  void setTranslateDeadKeys(bool) override { }
+  gfx::Point mousePosition() const override { return gfx::Point(0, 0); }
+  void setMousePosition(const gfx::Point&) override { }
+  gfx::Color getColorFromScreen(const gfx::Point&) const override { return gfx::ColorNone; }
+  void listColorSpaces(std::vector<os::ColorSpaceRef>&) override { }
+  os::ColorSpaceRef makeColorSpace(const gfx::ColorSpaceRef&) override { return nullptr; }
+  Ref<ColorSpaceConversion> convertBetweenColorSpace(
+    const os::ColorSpaceRef&, const os::ColorSpaceRef&) override {
+      return nullptr;
   }
+  void setWindowsColorSpace(const os::ColorSpaceRef&) override { }
+  os::ColorSpaceRef windowsColorSpace() override { return nullptr; }
+
+protected:
+  void destroyInstance();
 
 private:
   Ref<NativeDialogs> m_nativeDialogs;

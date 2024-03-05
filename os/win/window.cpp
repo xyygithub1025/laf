@@ -326,13 +326,13 @@ os::ScreenRef WindowWin::screen() const
     HMONITOR monitor = MonitorFromWindow(m_hwnd, MONITOR_DEFAULTTONEAREST);
     return os::make_ref<ScreenWin>(monitor);
   }
-  else
-    return os::instance()->mainScreen();
+  return os::System::instance()->mainScreen();
 }
 
 os::ColorSpaceRef WindowWin::colorSpace() const
 {
-  if (auto defaultCS = os::instance()->windowsColorSpace())
+  const os::SystemRef system = os::System::instance();
+  if (auto defaultCS = system->windowsColorSpace())
     return defaultCS;
 
   if (m_hwnd) {
@@ -346,7 +346,7 @@ os::ColorSpaceRef WindowWin::colorSpace() const
   }
   // sRGB by default
   if (!m_lastColorProfile)
-    m_lastColorProfile = os::instance()->makeColorSpace(gfx::ColorSpace::MakeSRGB());
+    m_lastColorProfile = system->makeColorSpace(gfx::ColorSpace::MakeSRGB());
   return m_lastColorProfile;
 }
 
@@ -2610,9 +2610,9 @@ void CALLBACK WindowWin::staticInteractionContextCallback(
 }
 
 // static
-SystemWin* WindowWin::system()
+Ref<SystemWin> WindowWin::system()
 {
-  return static_cast<SystemWin*>(os::instance());
+  return SystemWin::instance();
 }
 
 } // namespace os

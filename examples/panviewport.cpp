@@ -201,8 +201,8 @@ private:
 
 int app_main(int argc, char* argv[])
 {
-  os::SystemRef system = os::make_system();
-  system->setAppMode(os::AppMode::GUI);
+  SystemRef system = System::make();
+  system->setAppMode(AppMode::GUI);
 
   PanWindow window(system.get());
 

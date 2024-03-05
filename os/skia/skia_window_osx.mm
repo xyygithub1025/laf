@@ -132,8 +132,9 @@ void SkiaWindowOSX::onResize(const gfx::Size& size)
 void SkiaWindowOSX::onDrawRect(const gfx::Rect& rect)
 {
   if (m_nsWindow.contentView.inLiveResize) {
-    if (os::instance()->handleWindowResize)
-      os::instance()->handleWindowResize(this);
+    SystemRef system = System::instance();
+    if (system && system->handleWindowResize)
+      system->handleWindowResize(this);
   }
 
   switch (backend()) {
@@ -169,8 +170,11 @@ void SkiaWindowOSX::onStartResizing()
 void SkiaWindowOSX::onResizing(gfx::Size& size)
 {
   resizeSkiaSurface(size);
-  if (os::instance()->handleWindowResize)
-    os::instance()->handleWindowResize(this);
+
+  SystemRef system = System::instance();
+  ASSERT(system);
+  if (system && system->handleWindowResize)
+    system->handleWindowResize(this);
 }
 
 void SkiaWindowOSX::onEndResizing()
@@ -179,8 +183,10 @@ void SkiaWindowOSX::onEndResizing()
     return;
 
   // Generate the resizing display event for the user.
-  if (os::instance()->handleWindowResize) {
-    os::instance()->handleWindowResize(this);
+  SystemRef system = System::instance();
+  ASSERT(system);
+  if (system && system->handleWindowResize) {
+    system->handleWindowResize(this);
   }
   else {
     Event ev;

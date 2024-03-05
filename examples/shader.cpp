@@ -52,9 +52,10 @@ half4 main(vec2 fragcoord) {
 
 class ShaderWindow {
 public:
-  ShaderWindow(System* system)
-    : m_builder(SkRuntimeEffect::MakeForShader(SkString(shaderCode)).effect) {
-    m_window = system->makeWindow(256, 256);
+  ShaderWindow(const SystemRef& system)
+    : m_system(system)
+    , m_builder(SkRuntimeEffect::MakeForShader(SkString(shaderCode)).effect) {
+    m_window = m_system->makeWindow(256, 256);
     m_window->setCursor(NativeCursor::Arrow);
     m_window->setTitle("Shader");
     repaint();
@@ -75,8 +76,8 @@ public:
         if (ev.scancode() == kKeyEsc)
           return false;
         else if (ev.scancode() == kKeyG) {
-          instance()->setGpuAcceleration(
-            !instance()->gpuAcceleration());
+          m_system->setGpuAcceleration(
+            !m_system->gpuAcceleration());
 
           m_window->setTitle(
             m_window->isGpuAccelerated() ?
@@ -117,16 +118,17 @@ private:
     canvas->drawPaint(p);
   }
 
+  SystemRef m_system;
   WindowRef m_window;
   SkRuntimeShaderBuilder m_builder;
 };
 
 int app_main(int argc, char* argv[])
 {
-  SystemRef system = make_system();
+  SystemRef system = System::make();
   system->setAppMode(AppMode::GUI);
 
-  ShaderWindow window(system.get());
+  ShaderWindow window(system);
 
   system->handleWindowResize = [&window](Window* win){
     window.repaint();

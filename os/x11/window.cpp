@@ -448,11 +448,16 @@ os::ScreenRef WindowX11::screen() const
 
 os::ColorSpaceRef WindowX11::colorSpace() const
 {
-  if (auto defaultCS = os::instance()->windowsColorSpace())
+  auto system = System::instance();
+  ASSERT(system);
+  if (!system)
+    return nullptr;
+
+  if (auto defaultCS = system->windowsColorSpace())
     return defaultCS;
 
   // TODO get the window color space
-  return os::instance()->makeColorSpace(gfx::ColorSpace::MakeSRGB());
+  return system->makeColorSpace(gfx::ColorSpace::MakeSRGB());
 }
 
 void WindowX11::setScale(const int scale)
@@ -763,7 +768,7 @@ void WindowX11::invalidateRegion(const gfx::Region& rgn)
 
 bool WindowX11::setCursor(NativeCursor nativeCursor)
 {
-  const CursorRef cursor = ((SystemX11*)os::instance())->getNativeCursor(nativeCursor);
+  const CursorRef cursor = SystemX11::instance()->getNativeCursor(nativeCursor);
   if (cursor)
     return setX11Cursor((::Cursor)cursor->nativeHandle());
   return false;

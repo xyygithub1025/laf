@@ -315,4 +315,9 @@ void SystemWin::_setInternalMousePosition(const Event& ev)
   m_screenMousePos = ev.window()->pointToScreen(ev.position());
 }
 
+SystemRef System::makeWin()
+{
+  return make_ref<SystemWin>();
+}
+
 } // namespace os

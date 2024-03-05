@@ -156,4 +156,9 @@ void SystemOSX::listScreens(ScreenList& list)
     list.push_back(make_ref<ScreenOSX>(screen));
 }
 
+SystemRef System::makeOSX()
+{
+  return make_ref<SystemOSX>();
+}
+
 }

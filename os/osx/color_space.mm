@@ -28,7 +28,7 @@ os::ColorSpaceRef convert_nscolorspace_to_os_colorspace(NSColorSpace* nsColorSpa
         std::string("Display Profile: ") +
         [[nsColorSpace localizedName] UTF8String]);
 
-      osCS = os::instance()->makeColorSpace(gfxCS);
+      osCS = System::instance()->makeColorSpace(gfxCS);
       CFRelease(icc);
     }
   }

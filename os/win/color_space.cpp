@@ -39,8 +39,13 @@ std::string get_hmonitor_icc_filename(HMONITOR monitor)
 
 os::ColorSpaceRef get_colorspace_from_icc_file(const std::string& iccFilename)
 {
+  auto system = System::instance();
+  ASSERT(system);
+  if (!system)
+    return nullptr;
+
   auto buf = base::read_file_content(iccFilename);
-  auto osCS = os::instance()->makeColorSpace(gfx::ColorSpace::MakeICC(std::move(buf)));
+  auto osCS = system->makeColorSpace(gfx::ColorSpace::MakeICC(std::move(buf)));
   if (osCS) {
     osCS->gfxColorSpace()
       ->setName("Display Profile: " +

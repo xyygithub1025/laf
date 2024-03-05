@@ -69,7 +69,7 @@ static WindowRef add_window(const std::string& title,
                             const WindowSpec& spec,
                             const FontRef& font)
 {
-  WindowRef newWindow = instance()->makeWindow(spec);
+  WindowRef newWindow = System::instance()->makeWindow(spec);
   newWindow->setCursor(NativeCursor::Arrow);
   newWindow->setTitle(title);
   windows.emplace_back(newWindow);
@@ -105,7 +105,7 @@ static void destroy_window(const WindowRef& window)
 
 int app_main(int argc, char* argv[])
 {
-  auto system = make_system();
+  SystemRef system = System::make();
   FontRef font = FontMgr::Make()->defaultFont(12);
 
   system->setAppMode(AppMode::GUI);

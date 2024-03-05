@@ -74,7 +74,7 @@ static void print_set(const std::string& name,
 
 int app_main(int argc, char* argv[])
 {
-  SystemRef system = make_system();
+  SystemRef system = System::make();
   system->setAppMode(AppMode::CLI);
 
   FontMgrRef fm = FontMgr::Make();

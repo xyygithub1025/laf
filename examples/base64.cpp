@@ -1,5 +1,5 @@
 // LAF Library
-// Copyright (c) 2022  Igara Studio S.A.
+// Copyright (c) 2022-2024  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -13,7 +13,7 @@
 
 int app_main(int argc, char* argv[])
 {
-  os::SystemRef system = os::make_system();
+  os::SystemRef system = os::System::make();
   system->setAppMode(os::AppMode::CLI);
 
   std::string fn;

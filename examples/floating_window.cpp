@@ -31,7 +31,7 @@ public:
       spec.position(os::WindowSpec::Position::Default);
     }
 
-    m_nativeWindow = os::instance()->makeWindow(spec);
+    m_nativeWindow = System::instance()->makeWindow(spec);
     m_nativeWindow->setTitle(title);
     m_nativeWindow->setUserData(this);
 
@@ -170,7 +170,7 @@ private:
 
 int app_main(int argc, char* argv[])
 {
-  auto system = os::make_system();
+  SystemRef system = System::make();
   system->setAppMode(os::AppMode::GUI);
   system->handleWindowResize =
     [](os::Window* window){

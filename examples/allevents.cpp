@@ -252,7 +252,7 @@ private:
 
 int app_main(int argc, char* argv[])
 {
-  auto system = make_system();
+  SystemRef system = System::make();
   system->setAppMode(AppMode::GUI);
 
   LogWindow window(system);

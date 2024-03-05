@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2020  Igara Studio S.A.
+// Copyright (C) 2020-2024  Igara Studio S.A.
 // Copyright (C) 2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -15,7 +15,7 @@
 
 TEST(System, CtorDtor)
 {
-  auto system = os::make_system();
+  auto system = os::System::make();
 }
 
 int app_main(int argc, char* argv[])

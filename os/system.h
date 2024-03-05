@@ -70,6 +70,22 @@ namespace os {
     virtual ~System() { }
   public:
 
+    [[nodiscard]] static SystemRef instance();
+    [[nodiscard]] static SystemRef make();
+    [[nodiscard]] static SystemRef makeNone();
+#if LAF_WINDOWS
+    [[nodiscard]] static SystemRef makeWin();
+#endif
+#if LAF_MACOS
+    [[nodiscard]] static SystemRef makeOSX();
+#endif
+#if LAF_LINUX
+    [[nodiscard]] static SystemRef makeX11();
+#endif
+#if LAF_SKIA
+    [[nodiscard]] static SystemRef makeSkia();
+#endif
+
     // Windows-specific: The app name at the moment is used to receive
     // DDE messages (WM_DDE_INITIATE) and convert WM_DDE_EXECUTE
     // messages into Event::DropFiles. This allows to the user
@@ -131,6 +147,9 @@ namespace os {
     // a way to opt-out loading this library.)
     virtual void setTabletAPI(TabletAPI api) = 0;
     virtual TabletAPI tabletAPI() const = 0;
+
+    // Error logging.
+    virtual void errorMessage(const char* msg) = 0;
 
     // Sub-interfaces
     virtual Logger* logger() = 0;
@@ -241,9 +260,15 @@ namespace os {
 #endif
   };
 
-  SystemRef make_system();
-  System* instance();
-  void set_instance(System* system);
+  [[deprecated]]
+  inline SystemRef make_system() {
+    return System::make();
+  }
+
+  [[deprecated]]
+  inline SystemRef instance() {
+    return System::instance();
+  }
 
 } // namespace os
 

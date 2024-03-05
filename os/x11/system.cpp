@@ -190,4 +190,9 @@ CursorRef SystemX11::makeCursor(const Surface* surface,
   return make_ref<CursorX11>(xcursor);
 }
 
+SystemRef System::makeX11()
+{
+  return make_ref<SystemX11>();
+}
+
 } // namespace os

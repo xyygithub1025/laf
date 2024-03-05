@@ -8,8 +8,10 @@
 set(LAF_OS_SOURCES
   common/event_queue.cpp
   common/main.cpp
+  common/system.cpp
+  error.cpp
   event.cpp
-  system.cpp
+  none/system.cpp
   window.cpp)
 if(WIN32)
   list(APPEND LAF_OS_SOURCES
@@ -59,10 +61,10 @@ if(LAF_BACKEND STREQUAL "skia")
     add_definitions(-Wno-c++14-extensions)
   endif()
   list(APPEND LAF_OS_SOURCES
-    skia/os.cpp
     skia/skia_color_space.cpp
     skia/skia_gl.cpp
     skia/skia_surface.cpp
+    skia/skia_system.cpp
     skia/skia_window.cpp)
   if(WIN32)
     list(APPEND LAF_OS_SOURCES
@@ -74,14 +76,6 @@ if(LAF_BACKEND STREQUAL "skia")
     list(APPEND LAF_OS_SOURCES
       skia/skia_window_x11.cpp)
   endif()
-endif()
-
-######################################################################
-# None backend
-
-if(LAF_BACKEND STREQUAL "none")
-  list(APPEND LAF_OS_SOURCES
-    none/os.cpp)
 endif()
 
 ######################################################################

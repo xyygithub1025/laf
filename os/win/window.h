@@ -121,7 +121,7 @@ namespace os {
       void* clientData,
       const INTERACTION_CONTEXT_OUTPUT* output);
 
-    static SystemWin* system();
+    static Ref<SystemWin> system();
 
     mutable HWND m_hwnd = nullptr;
     HCURSOR m_hcursor = nullptr;

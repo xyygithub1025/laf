@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2020-2021  Igara Studio S.A.
+// Copyright (C) 2020-2024  Igara Studio S.A.
 // Copyright (C) 2012-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -17,6 +17,10 @@ namespace os {
 
 class SystemWin : public CommonSystem {
 public:
+  static Ref<SystemWin> instance() {
+    return Ref<SystemWin>(System::instance());
+  }
+
   SystemWin();
   ~SystemWin();
 

@@ -42,7 +42,7 @@ void draw_window(Window* window,
   SurfaceLock lock(surface);
   const gfx::Rect rc = surface->bounds();
 
-  SurfaceRef backSurface = instance()->makeSurface(rc.w, rc.h);
+  SurfaceRef backSurface = System::instance()->makeSurface(rc.w, rc.h);
   SurfaceLock lock2(backSurface.get());
 
   Paint p;
@@ -84,7 +84,7 @@ void draw_window(Window* window,
 
 int app_main(int argc, char* argv[])
 {
-  SystemRef system = make_system();
+  SystemRef system = System::make();
   system->setAppMode(AppMode::GUI);
 
   FontMgrRef fontMgr = FontMgr::Make();

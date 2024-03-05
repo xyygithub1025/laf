@@ -86,7 +86,7 @@ public:
       m_glCtx->destroyGLContext();
 
     // GPU-accelerated surface
-    if (os::instance()->gpuAcceleration()) {
+    if (System::instance()->gpuAcceleration()) {
       m_glCtx->createGLContext();
 
       if (m_glCtx->isValid()) {
@@ -202,12 +202,12 @@ protected:
   void onResize(const gfx::Size& sz) override {
     resizeSkiaSurface(sz);
 
-    if (os::instance()->handleWindowResize &&
+    if (System::instance()->handleWindowResize &&
         // Check that the surface is created to avoid a call to
         // handleWindowResize() with an empty surface (or null
         // SkiaSurface::m_canvas) when the window is being created.
         isInitialized()) {
-      os::instance()->handleWindowResize(this);
+      System::instance()->handleWindowResize(this);
     }
     else {
       Event ev;

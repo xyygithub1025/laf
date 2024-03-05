@@ -8,15 +8,18 @@
 
 #include <cstdio>
 
+using namespace os;
+
 int app_main(int argc, char* argv[])
 {
-  os::SystemRef system = os::make_system();
-  system->setAppMode(os::AppMode::CLI);
+  SystemRef system = System::make();
+  system->setAppMode(AppMode::CLI);
 
-  os::ScreenList screens;
+  ScreenList screens;
   system->listScreens(screens);
 
   int i = 0;
+  std::printf("Screens (%ld):\n", screens.size());
   for (auto screen : screens) {
     auto rc = screen->bounds();
     auto wa = screen->workarea();

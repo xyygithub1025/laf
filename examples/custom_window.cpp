@@ -40,7 +40,7 @@ Hit hit_test(Window* window,
   // Resize edges
   if (!rc2.contains(pos) &&
       // macOS cannot start the resizing actions (just the window movement)
-      instance()->hasCapability(Capabilities::CanStartWindowResize)) {
+      System::instance()->hasCapability(Capabilities::CanStartWindowResize)) {
     if (pos.y < kResizeBorder) {
       if (pos.x < kResizeBorder) return Hit::TopLeft;
       if (pos.x > rc.x2()-kResizeBorder) return Hit::TopRight;
@@ -182,7 +182,7 @@ WindowRef create_window()
   spec.titled(false);
   spec.borderless(true);
 
-  WindowRef window = instance()->makeWindow(spec);
+  WindowRef window = System::instance()->makeWindow(spec);
   window->setTitle("Custom Window");
   window->handleHitTest = hit_test;
 
@@ -237,7 +237,7 @@ bool handle_mouse_down(Window* window,
 
 int app_main(int argc, char* argv[])
 {
-  SystemRef system = make_system();
+  SystemRef system = System::make();
   system->setAppMode(AppMode::GUI);
 
   FontRef font = FontMgr::Make()->defaultFont();

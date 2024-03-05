@@ -34,7 +34,7 @@ void draw_window(Window* window)
 
 int app_main(int argc, char* argv[])
 {
-  SystemRef system = make_system();
+  SystemRef system = System::make();
   system->setAppMode(AppMode::GUI);
 
   WindowRef window = system->makeWindow(400, 300);
