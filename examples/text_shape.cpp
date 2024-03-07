@@ -21,10 +21,7 @@ using namespace text;
 
 struct TextEdit {
   struct Box {
-    struct {
-      int begin = 0;
-      int end = 0;
-    } utf8Range;
+    TextBlob::Utf8Range utf8Range;
     gfx::RectF bounds;
   };
 
@@ -48,26 +45,8 @@ struct TextEdit {
           info.glyphCount > 0) {
         Box box;
         for (int i=0; i<info.glyphCount; ++i) {
-          // LTR
-          if (!info.rtl) {
-            box.utf8Range.begin = info.utf8Range.begin + info.clusters[i];
-            box.utf8Range.end = (i+1 < info.glyphCount ?
-                                 info.utf8Range.begin + info.clusters[i+1]:
-                                 info.utf8Range.end);
-          }
-          // RTL
-          else {
-            box.utf8Range.begin = info.utf8Range.begin + info.clusters[i];
-            box.utf8Range.end = (i == 0 ? info.utf8Range.end:
-                                          info.utf8Range.begin + info.clusters[i-1]);
-          }
-          box.bounds = info.font->getGlyphBounds(info.glyphs[i]);
-          if (box.bounds.isEmpty()) {
-            box.bounds.w = 4;
-            box.bounds.h = 1;
-          }
-          box.bounds.offset(info.positions[i].x,
-                            info.positions[i].y);
+          box.utf8Range = info.getGlyphUtf8Range(i);
+          box.bounds = info.getGlyphBounds(i);
           m_boxes.push_back(box);
         }
       }

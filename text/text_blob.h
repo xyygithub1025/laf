@@ -8,6 +8,7 @@
 #define LAF_TEXT_TEXT_BLOB_H_INCLUDED
 #pragma once
 
+#include "gfx/fwd.h"
 #include "gfx/point.h"
 #include "text/fwd.h"
 #include "text/text_blob.h"
@@ -19,21 +20,26 @@ namespace text {
 
   class TextBlob : public base::RefCount {
   public:
+    struct Utf8Range {
+      size_t begin = 0;
+      size_t end = 0;
+    };
+
     // Based on SkShaper::RunHandler::RunInfo and Buffer
     struct RunInfo {
       FontRef font;
       size_t glyphCount = 0;
       bool rtl = false;
-      struct {
-        size_t begin = 0;
-        size_t end = 0;
-      } utf8Range;
+      Utf8Range utf8Range;
       GlyphID* glyphs = nullptr;        // required
       gfx::PointF* positions = nullptr; // required, if (!offsets) put glyphs[i] at positions[i]
-                                        // if ( offsets) positions[i+1]-positions[i] are advances
+                                        // if (offsets) positions[i+1]-positions[i] are advances
       gfx::PointF* offsets = nullptr;   // optional, if ( offsets) put glyphs[i] at positions[i]+offsets[i]
       uint32_t* clusters = nullptr;     // optional, utf8+clusters[i] starts run which produced glyphs[i]
       gfx::PointF point;                // offset to add to all positions
+
+      Utf8Range getGlyphUtf8Range(size_t i) const;
+      gfx::RectF getGlyphBounds(size_t i) const;
     };
 
     class RunHandler {

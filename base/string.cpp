@@ -126,6 +126,25 @@ std::string codepoint_to_utf8(const codepoint_t codepoint)
   return result;
 }
 
+codepoint_t utf16_to_codepoint(const uint16_t low,
+                               const uint16_t hi)
+{
+  // Valid code point
+  if ((low >= 0x0000 && low <= 0xD7FF) ||
+      (low >= 0xE000 && low <= 0xFFFF)) {
+    return codepoint_t(low);
+  }
+
+  // Surrogate pair
+  if (low >= 0xDC00 && low <= 0xDFFF) {
+    ASSERT(hi >= 0xD800 && hi <= 0xDBFF);
+    return (0x10000 | (((low - 0xDC00)) |
+                       ((hi - 0xD800) << 10)));
+  }
+
+  return 0;
+}
+
 #ifdef LAF_WINDOWS
 
 std::string to_utf8(const wchar_t* src, const size_t n)

@@ -9,6 +9,7 @@
 #define LAF_TEXT_DRAW_TEXT_H_INCLUDED
 #pragma once
 
+#include "base/codepoint.h"
 #include "base/ref.h"
 #include "base/string.h"
 #include "gfx/color.h"
@@ -32,7 +33,7 @@ namespace text {
 
     // This is called before drawing the character.
     virtual void preProcessChar(const int index,
-                                const int codepoint,
+                                const base::codepoint_t codepoint,
                                 gfx::Color& fg,
                                 gfx::Color& bg,
                                 const gfx::Rect& charBounds) {
@@ -53,8 +54,10 @@ namespace text {
   // (e.g. measure how much space will use the text without drawing
   // it). It uses FreeType2 library and harfbuzz. Doesn't support RTL
   // (right-to-left) languages.
+  [[deprecated]]
   gfx::Rect draw_text(
     os::Surface* surface,
+    const FontMgrRef& fontMgr,
     const FontRef& font,
     const std::string& text,
     gfx::Color fg, gfx::Color bg,
@@ -75,8 +78,7 @@ namespace text {
     const std::string& text,
     const gfx::PointF& pos,
     const os::Paint* paint = nullptr,
-    const TextAlign textAlign = TextAlign::Left,
-    DrawTextDelegate* delegate = nullptr);
+    const TextAlign textAlign = TextAlign::Left);
 
   // Uses Skia's SkTextUtils::Draw() to draw text (doesn't depend on
   // harfbuzz or big dependencies, useful to print English text only).
@@ -86,10 +88,9 @@ namespace text {
     const std::string& text,
     const gfx::Point& pos,
     const os::Paint* paint = nullptr,
-    const TextAlign textAlign = TextAlign::Left,
-    DrawTextDelegate* delegate = nullptr) {
+    const TextAlign textAlign = TextAlign::Left) {
     draw_text(surface, font, text, gfx::PointF(pos),
-              paint, textAlign, delegate);
+              paint, textAlign);
   }
 
   // Uses SkShaper::Make() to draw text (harfbuzz if available),
@@ -103,8 +104,7 @@ namespace text {
     const std::string& text,
     const gfx::PointF& pos,
     const os::Paint* paint = nullptr,
-    const TextAlign textAlign = TextAlign::Left,
-    DrawTextDelegate* delegate = nullptr);
+    const TextAlign textAlign = TextAlign::Left);
 
 } // namespace text
 

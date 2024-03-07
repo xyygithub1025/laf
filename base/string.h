@@ -14,6 +14,7 @@
 #include <string>
 
 #include "base/codepoint.h"
+#include "base/ints.h"
 
 namespace base {
 
@@ -24,6 +25,7 @@ namespace base {
   std::string string_to_upper(const std::string& original);
 
   std::string codepoint_to_utf8(codepoint_t codepoint);
+  codepoint_t utf16_to_codepoint(uint16_t low, uint16_t hi);
 
   std::string to_utf8(const wchar_t* src, size_t n);
 

@@ -148,13 +148,11 @@ void draw_text_with_shaper(
   const std::string& text,
   const gfx::PointF& pos,
   const os::Paint* paint,
-  const TextAlign textAlign,
-  DrawTextDelegate* delegate)
+  const TextAlign textAlign)
 {
   if (!fontMgr || !font || font->type() != FontType::Native)
     return;
 
-  // TODO call "delegate" then
   TextBlobRef blob = TextBlob::MakeWithShaper(
     fontMgr, font, text, nullptr);
   if (blob)

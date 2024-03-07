@@ -31,8 +31,7 @@ void draw_text(
   const std::string& text,
   const gfx::PointF& pos,
   const os::Paint* paint,
-  const TextAlign textAlign,
-  DrawTextDelegate* delegate)
+  const TextAlign textAlign)
 {
   if (!font || font->type() != FontType::Native)
     return;

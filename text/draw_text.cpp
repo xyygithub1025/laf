@@ -15,12 +15,135 @@
 #include "ft/hb_shaper.h"
 #include "gfx/clip.h"
 #include "os/common/generic_surface.h"
+#include "os/paint.h"
 #include "text/freetype_font.h"
 #include "text/sprite_sheet_font.h"
+#include "text/text_blob.h"
+
+#if LAF_SKIA
+  #include "os/skia/skia_surface.h"
+  #include "text/skia_font.h"
+
+  #include "include/core/SkCanvas.h"
+#endif
 
 namespace text {
 
+namespace {
+
+// Adapts the old DrawTextDelegate with new TextBlob run handlers.
+class AdapterBuilder : public TextBlob::RunHandler {
+public:
+  AdapterBuilder(os::Surface* surface,
+                 const std::string& text,
+                 gfx::Color fg,
+                 gfx::Color bg,
+                 const gfx::PointF& origin,
+                 DrawTextDelegate* delegate)
+    : m_surface(surface)
+    , m_text(text)
+    , m_fg(fg), m_bg(bg)
+    , m_origin(origin)
+    , m_delegate(delegate) { }
+
+  // TextBlob::RunHandler impl
+  void commitRunBuffer(TextBlob::RunInfo& info) override {
+    if (info.clusters &&
+        info.glyphCount > 0) {
+      os::Paint paint;
+      paint.style(os::Paint::Fill);
+
+      for (int i=0; i<info.glyphCount; ++i) {
+        int utf8Begin, utf8End;
+
+        // LTR
+        if (!info.rtl) {
+          utf8Begin = info.utf8Range.begin + info.clusters[i];
+          utf8End = (i+1 < info.glyphCount ?
+                     info.utf8Range.begin + info.clusters[i+1]:
+                     info.utf8Range.end);
+        }
+        // RTL
+        else {
+          utf8Begin = info.utf8Range.begin + info.clusters[i];
+          utf8End = (i == 0 ? info.utf8Range.end:
+                              info.utf8Range.begin + info.clusters[i-1]);
+        }
+
+        const std::string utf8text =
+          m_text.substr(utf8Begin, utf8End - utf8Begin);
+
+        gfx::RectF bounds = info.getGlyphBounds(i);
+        bounds.offset(m_origin.x, m_origin.y);
+
+        if (m_delegate) {
+          const std::wstring widetext = base::from_utf8(utf8text);
+          base::codepoint_t codepoint = 0;
+          if (widetext.size() > 0) {
+            // On macOS and Linux wchar_t has 32-bits
+            if constexpr (sizeof(wchar_t) >= 4) {
+              codepoint = widetext[0];
+            }
+            // On Windows wchar_t has 16-bits (wide strings are UTF-16 strings)
+            else if constexpr (sizeof(wchar_t) == 2) {
+              codepoint = base::utf16_to_codepoint(
+                widetext.size() > 1 ? widetext[1]: widetext[0],
+                widetext.size() > 1 ? widetext[0]: 0);
+            }
+            else {
+              codepoint = 0;
+            }
+          }
+
+          m_delegate->preProcessChar(utf8Begin, codepoint,
+                                     m_fg, m_bg, bounds);
+        }
+
+        if (m_delegate)
+          m_delegate->preDrawChar(bounds);
+
+        if (m_bg != gfx::ColorNone) {
+          paint.color(m_bg);
+          m_surface->drawRect(bounds, paint);
+        }
+
+#if LAF_SKIA
+        if (m_surface) {
+          SkGlyphID glyphs = info.glyphs[i];
+          SkPoint positions = SkPoint::Make(info.positions[i].x,
+                                            info.positions[i].y);
+          uint32_t clusters = info.clusters[i];
+          paint.color(m_fg);
+          static_cast<os::SkiaSurface*>(m_surface)
+            ->canvas().drawGlyphs(
+              1, &glyphs, &positions, &clusters,
+              utf8text.size(),
+              utf8text.data(),
+              SkPoint::Make(m_origin.x, m_origin.y),
+              static_cast<SkiaFont*>(info.font.get())->skFont(),
+              paint.skPaint());
+        }
+#endif
+
+        if (m_delegate)
+          m_delegate->postDrawChar(bounds);
+      }
+    }
+  }
+
+private:
+  os::Surface* m_surface;
+  const std::string& m_text;
+  gfx::Color m_fg;
+  gfx::Color m_bg;
+  gfx::PointF m_origin;
+  DrawTextDelegate* m_delegate;
+};
+
+}
+
 gfx::Rect draw_text(os::Surface* surface,
+                    const FontMgrRef& fontMgr,
                     const FontRef& fontRef,
                     const std::string& text,
                     gfx::Color fg, gfx::Color bg,
@@ -232,6 +355,25 @@ retry:;
 
       if (surface)
         surface->unlock();
+      break;
+    }
+
+    case FontType::Native: {
+#if LAF_SKIA
+      TextBlobRef blob;
+      if (delegate) {
+        AdapterBuilder handler(surface, text, fg, bg,
+                               gfx::PointF(x, y), delegate);
+        blob = TextBlob::MakeWithShaper(fontMgr, fontRef, text, &handler);
+      }
+      else {
+        os::Paint paint;
+        paint.color(fg);
+        // TODO Draw background with bg
+        blob = TextBlob::MakeWithShaper(fontMgr, fontRef, text);
+        draw_text(surface, blob, gfx::PointF(x, y), &paint);
+      }
+#endif // LAF_SKIA
       break;
     }
 

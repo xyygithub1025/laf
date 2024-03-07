@@ -5,7 +5,8 @@
 
 add_library(laf-text
   draw_text.cpp
-  font_mgr.cpp)
+  font_mgr.cpp
+  text_blob.cpp)
 
 target_link_libraries(laf-text laf-os laf-gfx laf-base)
 
