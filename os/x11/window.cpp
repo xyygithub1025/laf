@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2022  Igara Studio S.A.
+// Copyright (C) 2018-2024  Igara Studio S.A.
 // Copyright (C) 2017-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -1093,21 +1093,33 @@ void WindowX11::processX11Event(XEvent& event)
         }
         case XK_Shift_L:
         case XK_Shift_R:
-          modifiers |= kKeyShiftModifier;
+          if (event.type == KeyPress)
+            modifiers |= kKeyShiftModifier;
+          else
+            modifiers &= ~kKeyShiftModifier;
           break;
         case XK_Control_L:
         case XK_Control_R:
-          modifiers |= kKeyCtrlModifier;
+          if (event.type == KeyPress)
+            modifiers |= kKeyCtrlModifier;
+          else
+            modifiers &= ~kKeyCtrlModifier;
           break;
         case XK_Alt_L:
         case XK_Alt_R:
-          modifiers |= kKeyAltModifier;
+          if (event.type == KeyPress)
+            modifiers |= kKeyAltModifier;
+          else
+            modifiers &= ~kKeyAltModifier;
           break;
         case XK_Meta_L:
         case XK_Super_L:
         case XK_Meta_R:
         case XK_Super_R:
-          modifiers |= kKeyWinModifier;
+          if (event.type == KeyPress)
+            modifiers |= kKeyWinModifier;
+          else
+            modifiers &= ~kKeyWinModifier;
           break;
       }
       ev.setModifiers((KeyModifiers)modifiers);
