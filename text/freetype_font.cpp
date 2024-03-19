@@ -57,6 +57,11 @@ int FreeTypeFont::textLength(const std::string& str) const
   return ft::calc_text_bounds(m_face, str).w;
 }
 
+gfx::RectF FreeTypeFont::measureText(const std::string& str) const
+{
+  return gfx::RectF(0, 0, textLength(str), height());
+}
+
 bool FreeTypeFont::isScalable() const
 {
   return true;

@@ -30,6 +30,7 @@ namespace text {
     float metrics(FontMetrics* metrics) const override;
     int height() const override;
     int textLength(const std::string& str) const override;
+    gfx::RectF measureText(const std::string& str) const override;
     bool isScalable() const override;
     void setSize(int size) override;
     void setAntialias(bool antialias) override;

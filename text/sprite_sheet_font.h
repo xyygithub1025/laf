@@ -49,6 +49,10 @@ public:
     return x;
   }
 
+  gfx::RectF measureText(const std::string& str) const override {
+    return gfx::RectF(0, 0, textLength(str), height());
+  }
+
   bool isScalable() const override {
     return false;
   }

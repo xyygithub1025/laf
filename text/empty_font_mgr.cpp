@@ -27,6 +27,7 @@ public:
   float metrics(FontMetrics* metrics) const { return 0.0f; }
   int height() const override { return 0; }
   int textLength(const std::string& str) const override { return 0; };
+  gfx::RectF measureText(const std::string& str) const override { return gfx::RectF(); }
   bool isScalable() const override { return false; }
   void setSize(int size) override { }
   void setAntialias(bool antialias) override { }

@@ -33,6 +33,7 @@ namespace text {
     virtual float metrics(FontMetrics* metrics) const = 0;
     virtual int height() const = 0;
     virtual int textLength(const std::string& str) const = 0;
+    virtual gfx::RectF measureText(const std::string& str) const = 0;
     virtual bool isScalable() const = 0;
     virtual void setSize(int size) = 0;
     virtual void setAntialias(bool antialias) = 0;

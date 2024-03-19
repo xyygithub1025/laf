@@ -73,6 +73,17 @@ int SkiaFont::textLength(const std::string& str) const
   return bounds.width();
 }
 
+gfx::RectF SkiaFont::measureText(const std::string& str) const
+{
+  SkRect bounds;
+  m_skFont.measureText(
+    str.c_str(),
+    str.size(),
+    SkTextEncoding::kUTF8,
+    &bounds);
+  return os::from_skia(bounds);
+}
+
 bool SkiaFont::isScalable() const
 {
   return true;
