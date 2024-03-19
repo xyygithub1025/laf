@@ -25,6 +25,8 @@ public:
   std::string familyName() const override;
   FontStyle fontStyle() const override;
 
+  sk_sp<SkTypeface> skTypeface() const { return m_skTypeface; }
+
 private:
   sk_sp<SkTypeface> m_skTypeface;
 };
@@ -50,6 +52,8 @@ public:
   ~SkiaFontMgr();
 
   FontRef defaultFont(float size) const override;
+  FontRef makeFont(const TypefaceRef& typeface) override;
+  FontRef makeFont(const TypefaceRef& typeface, float size) override;
 
   int countFamilies() const override;
   std::string familyName(int i) const override;

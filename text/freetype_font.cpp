@@ -15,6 +15,7 @@
 #include "ft/algorithm.h"
 #include "gfx/point.h"
 #include "gfx/size.h"
+#include "text/typeface.h"
 
 namespace text {
 
@@ -39,6 +40,11 @@ bool FreeTypeFont::isValid() const
 FontType FreeTypeFont::type()
 {
   return FontType::FreeType;
+}
+
+TypefaceRef FreeTypeFont::typeface() const
+{
+  return nullptr;               // TODO impl
 }
 
 float FreeTypeFont::metrics(FontMetrics* metrics) const

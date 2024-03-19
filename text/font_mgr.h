@@ -24,6 +24,8 @@ namespace text {
 
     FontRef loadSpriteSheetFont(const char* filename, int scale);
     FontRef loadTrueTypeFont(const char* filename, int height);
+    virtual FontRef makeFont(const TypefaceRef& typeface) = 0;
+    virtual FontRef makeFont(const TypefaceRef& typeface, float size) = 0;
 
     virtual FontRef defaultFont(float size = 12) const = 0;
     virtual int countFamilies() const = 0;

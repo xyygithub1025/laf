@@ -8,6 +8,7 @@
 
 #include "os/skia/skia_helpers.h"
 #include "text/font_metrics.h"
+#include "text/skia_font_mgr.h"
 
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkFontTypes.h"
@@ -31,6 +32,12 @@ bool SkiaFont::isValid() const
 FontType SkiaFont::type()
 {
   return FontType::Native;
+}
+
+TypefaceRef SkiaFont::typeface() const
+{
+  return base::make_ref<SkiaTypeface>(
+    sk_ref_sp(m_skFont.getTypeface()));
 }
 
 float SkiaFont::metrics(FontMetrics* metrics) const

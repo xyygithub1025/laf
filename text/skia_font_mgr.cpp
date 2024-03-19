@@ -118,6 +118,20 @@ FontRef SkiaFontMgr::defaultFont(float size) const
   return base::make_ref<SkiaFont>(skFont);
 }
 
+FontRef SkiaFontMgr::makeFont(const TypefaceRef& typeface)
+{
+  ASSERT(typeface.get());
+  return base::make_ref<SkiaFont>(
+    SkFont(static_cast<SkiaTypeface*>(typeface.get())->skTypeface()));
+}
+
+FontRef SkiaFontMgr::makeFont(const TypefaceRef& typeface, float size)
+{
+  ASSERT(typeface.get());
+  return base::make_ref<SkiaFont>(
+    SkFont(static_cast<SkiaTypeface*>(typeface.get())->skTypeface(), size));
+}
+
 int SkiaFontMgr::countFamilies() const
 {
   return m_skFontMgr->countFamilies();

@@ -25,6 +25,7 @@ class EmptyFont : public Font {
 public:
   EmptyFont() { }
   FontType type() override { return FontType::Unknown; }
+  TypefaceRef typeface() const override { return base::make_ref<EmptyTypeface>(); }
   float metrics(FontMetrics* metrics) const { return 0.0f; }
   int height() const override { return 0; }
   int textLength(const std::string& str) const override { return 0; };
@@ -55,6 +56,14 @@ class EmptyFontMgr : public FontMgr {
 public:
   EmptyFontMgr() { }
   ~EmptyFontMgr() { }
+
+  FontRef makeFont(const TypefaceRef& typeface) {
+    return base::make_ref<EmptyFont>();
+  }
+  FontRef makeFont(const TypefaceRef& typeface, float size) {
+    return base::make_ref<EmptyFont>();
+  }
+
   FontRef defaultFont(float size) const override {
     return base::make_ref<EmptyFont>();
   }

@@ -14,8 +14,9 @@
 #include "base/string.h"
 #include "base/utf8_decode.h"
 #include "gfx/rect.h"
-#include "text/font.h"
 #include "os/surface.h"
+#include "text/font.h"
+#include "text/typeface.h"
 
 #include <vector>
 
@@ -30,6 +31,10 @@ public:
 
   FontType type() override {
     return FontType::SpriteSheet;
+  }
+
+  TypefaceRef typeface() const override {
+    return nullptr;             // TODO impl
   }
 
   float metrics(FontMetrics* metrics) const override {
