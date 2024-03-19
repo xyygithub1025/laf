@@ -22,6 +22,7 @@ class SkiaTypeface : public Typeface {
 public:
   SkiaTypeface(sk_sp<SkTypeface> skTypeface);
 
+  std::string familyName() const override;
   FontStyle fontStyle() const override;
 
 private:

@@ -10,12 +10,16 @@
 
 #include "base/ref.h"
 
+#include <string>
+
 namespace text {
+  class FontStyle;
 
   class Typeface : public base::RefCount {
   protected:
     virtual ~Typeface() { }
   public:
+    virtual std::string familyName() const = 0;
     virtual FontStyle fontStyle() const = 0;
   };
 

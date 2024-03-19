@@ -17,6 +17,7 @@ namespace text {
 class EmptyTypeface : public Typeface {
 public:
   EmptyTypeface() { }
+  std::string familyName() const override { return std::string(); }
   FontStyle fontStyle() const override { return FontStyle(); }
 };
 

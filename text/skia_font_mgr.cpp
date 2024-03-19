@@ -29,6 +29,13 @@ SkiaTypeface::SkiaTypeface(sk_sp<SkTypeface> skTypeface)
 {
 }
 
+std::string SkiaTypeface::familyName() const
+{
+  SkString name;
+  m_skTypeface->getFamilyName(&name);
+  return std::string(name.c_str());
+}
+
 FontStyle SkiaTypeface::fontStyle() const
 {
   SkFontStyle skStyle = m_skTypeface->fontStyle();
