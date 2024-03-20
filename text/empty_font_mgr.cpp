@@ -26,15 +26,17 @@ public:
   EmptyFont() { }
   FontType type() override { return FontType::Unknown; }
   TypefaceRef typeface() const override { return base::make_ref<EmptyTypeface>(); }
-  float metrics(FontMetrics* metrics) const { return 0.0f; }
+  float metrics(FontMetrics*) const { return 0.0f; }
   int height() const override { return 0; }
-  int textLength(const std::string& str) const override { return 0; };
-  gfx::RectF measureText(const std::string& str) const override { return gfx::RectF(); }
+  int textLength(const std::string&) const override { return 0; };
+  float measureText(const std::string&,
+                    gfx::RectF*,
+                    const os::Paint*) const override { return 0.0f; }
   bool isScalable() const override { return false; }
-  void setSize(int size) override { }
-  void setAntialias(bool antialias) override { }
-  bool hasCodePoint(int codepoint) const override { return false; }
-  gfx::RectF getGlyphBounds(GlyphID glyph) const override { return gfx::RectF(); }
+  void setSize(int) override { }
+  void setAntialias(bool) override { }
+  bool hasCodePoint(int) const override { return false; }
+  gfx::RectF getGlyphBounds(GlyphID) const override { return gfx::RectF(); }
 };
 
 class EmptyFontStyleSet : public FontStyleSet {

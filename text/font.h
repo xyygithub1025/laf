@@ -16,6 +16,10 @@
 
 #include <string>
 
+namespace os {
+  class Paint;
+}
+
 namespace text {
 
   enum class FontType {
@@ -34,7 +38,9 @@ namespace text {
     virtual float metrics(FontMetrics* metrics) const = 0;
     virtual int height() const = 0;
     virtual int textLength(const std::string& str) const = 0;
-    virtual gfx::RectF measureText(const std::string& str) const = 0;
+    virtual float measureText(const std::string& str,
+                              gfx::RectF* bounds,
+                              const os::Paint* paint = nullptr) const = 0;
     virtual bool isScalable() const = 0;
     virtual void setSize(int size) = 0;
     virtual void setAntialias(bool antialias) = 0;

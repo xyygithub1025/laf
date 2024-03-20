@@ -71,24 +71,27 @@ int SkiaFont::height() const
 
 int SkiaFont::textLength(const std::string& str) const
 {
-  SkRect bounds;
-  m_skFont.measureText(
+  return m_skFont.measureText(
     str.c_str(),
     str.size(),
     SkTextEncoding::kUTF8,
-    &bounds);
-  return bounds.width();
+    nullptr);
 }
 
-gfx::RectF SkiaFont::measureText(const std::string& str) const
+float SkiaFont::measureText(const std::string& str,
+                            gfx::RectF* outBounds,
+                            const os::Paint* paint) const
 {
   SkRect bounds;
-  m_skFont.measureText(
+  float width = m_skFont.measureText(
     str.c_str(),
     str.size(),
     SkTextEncoding::kUTF8,
-    &bounds);
-  return os::from_skia(bounds);
+    &bounds,
+    paint ? &paint->skPaint(): nullptr);
+  if (outBounds)
+    *outBounds = os::from_skia(bounds);
+  return width;
 }
 
 bool SkiaFont::isScalable() const

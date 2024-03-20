@@ -54,8 +54,13 @@ public:
     return x;
   }
 
-  gfx::RectF measureText(const std::string& str) const override {
-    return gfx::RectF(0, 0, textLength(str), height());
+  float measureText(const std::string& str,
+                    gfx::RectF* bounds,
+                    const os::Paint* paint) const override {
+    float w = textLength(str);
+    if (bounds)
+      *bounds = gfx::RectF(0, 0, w, height());
+    return w;
   }
 
   bool isScalable() const override {
