@@ -24,13 +24,13 @@ jobs:
         if [[ "${{ runner.os }}" == "Windows" ]] ; then
           if [[ "${{ matrix.backend }}" == "skia" ]] ; then
             choco install wget
-            wget https://github.com/aseprite/skia/releases/download/m122-c8178a62fa/Skia-Windows-Release-x64.zip
+            wget https://github.com/aseprite/skia/releases/download/m124-8c6cfae8c5/Skia-Windows-Release-x64.zip
             unzip Skia-Windows-Release-x64.zip -d skia
           fi
         elif [[ "${{ runner.os }}" == "macOS" ]] ; then
           brew install pixman freetype harfbuzz zlib
           if [[ "${{ matrix.backend }}" == "skia" ]] ; then
-            wget https://github.com/aseprite/skia/releases/download/m122-c8178a62fa/Skia-macOS-Release-x64.zip
+            wget https://github.com/aseprite/skia/releases/download/m124-8c6cfae8c5/Skia-macOS-Release-x64.zip
             unzip Skia-macOS-Release-x64.zip -d skia
           fi
         else
@@ -40,7 +40,7 @@ jobs:
             libpixman-1-dev libfreetype6-dev libharfbuzz-dev zlib1g-dev \
             libx11-dev libxcursor-dev libxi-dev libgl1-mesa-dev
           if [[ "${{ matrix.backend }}" == "skia" ]] ; then
-            wget https://github.com/aseprite/skia/releases/download/m122-c8178a62fa/Skia-Linux-Release-x64.zip
+            wget https://github.com/aseprite/skia/releases/download/m124-8c6cfae8c5/Skia-Linux-Release-x64.zip
             unzip Skia-Linux-Release-x64.zip -d skia
           fi
         fi
