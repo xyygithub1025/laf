@@ -236,6 +236,10 @@ if(UNIX AND NOT APPLE)
   find_library(FONTCONFIG_LIBRARY fontconfig)
   target_link_libraries(skia INTERFACE
     ${FONTCONFIG_LIBRARY})
+
+  # Options to ignore order of libraries in linking process
+  target_link_options(skia BEFORE INTERFACE -Wl,--start-group)
+  target_link_libraries(skia INTERFACE -Wl,--end-group)
 endif()
 
 add_library(skunicode INTERFACE)
