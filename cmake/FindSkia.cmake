@@ -162,6 +162,17 @@ if(NOT ZLIB_LIBRARIES)
   set(ZLIB_LIBRARIES ${ZLIB_LIBRARY})
 endif()
 
+# We require libpng because freetype expects to be linked with libpng
+if(NOT PNG_LIBRARIES)
+  find_library(PNG_LIBRARY
+    NAMES png libpng
+    PATHS "${SKIA_LIBRARY_DIR}"
+    NO_DEFAULT_PATH
+    REQUIRED)
+  set(PNG_LIBRARIES ${PNG_LIBRARY})
+  set(PNG_INCLUDE_DIRS "${SKIA_DIR}/third_party/externals/libpng")
+endif()
+
 set(FREETYPE_FOUND ON)
 find_library(FREETYPE_LIBRARY freetype2 PATH "${SKIA_LIBRARY_DIR}" NO_DEFAULT_PATH)
 set(FREETYPE_LIBRARIES ${FREETYPE_LIBRARY})
@@ -180,7 +191,8 @@ add_library(skia INTERFACE)
 target_include_directories(skia INTERFACE
   ${SKIA_DIR}
   ${FREETYPE_INCLUDE_DIRS}
-  ${HARFBUZZ_INCLUDE_DIRS})
+  ${HARFBUZZ_INCLUDE_DIRS}
+  ${PNG_INCLUDE_DIRS})
 target_link_libraries(skia INTERFACE ${SKIA_LIBRARIES})
 target_compile_definitions(skia INTERFACE
   SK_INTERNAL
@@ -192,8 +204,10 @@ target_compile_definitions(skia INTERFACE
   SK_ENABLE_SKSL=1
   SK_GL=1)
 
-# Freetype is used by skia, and it needs zlib
-target_link_libraries(skia INTERFACE ${ZLIB_LIBRARIES})
+# Freetype is used by skia, and it needs zlib and libpng
+target_link_libraries(skia INTERFACE
+  ${ZLIB_LIBRARIES}
+  ${PNG_LIBRARIES})
 
 if(WIN32)
   target_compile_definitions(skia INTERFACE

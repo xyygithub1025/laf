@@ -74,6 +74,7 @@ endif()
 
 message(STATUS "laf backend: ${LAF_BACKEND}")
 message(STATUS "laf zlib: ${ZLIB_LIBRARIES}")
+message(STATUS "laf libpng: ${PNG_LIBRARIES}")
 message(STATUS "laf pixman: ${PIXMAN_LIBRARY}")
 message(STATUS "laf freetype: ${FREETYPE_LIBRARIES}")
 message(STATUS "laf harfbuzz: ${HARFBUZZ_LIBRARIES}")
