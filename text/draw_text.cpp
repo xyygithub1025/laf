@@ -317,6 +317,8 @@ retry:;
                   ++p;
                 }
               }
+              else
+                alpha = 0;
 
               const uint32_t backdrop = *dst_address;
               const gfx::Color backdropColor =
