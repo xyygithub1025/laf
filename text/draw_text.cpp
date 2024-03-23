@@ -11,14 +11,17 @@
 
 #include "text/draw_text.h"
 
-#include "ft/algorithm.h"
-#include "ft/hb_shaper.h"
 #include "gfx/clip.h"
 #include "os/common/generic_surface.h"
 #include "os/paint.h"
-#include "text/freetype_font.h"
 #include "text/sprite_sheet_font.h"
 #include "text/text_blob.h"
+
+#if LAF_FREETYPE
+  #include "ft/algorithm.h"
+  #include "ft/hb_shaper.h"
+  #include "text/freetype_font.h"
+#endif
 
 #if LAF_SKIA
   #include "os/skia/skia_surface.h"
@@ -230,6 +233,7 @@ retry:;
     }
 
     case FontType::FreeType: {
+#if LAF_FREETYPE
       FreeTypeFont* ttFont = static_cast<FreeTypeFont*>(font);
       const int fg_alpha = gfx::geta(fg);
 
@@ -357,6 +361,7 @@ retry:;
 
       if (surface)
         surface->unlock();
+#endif // LAF_FREETYPE
       break;
     }
 

@@ -15,3 +15,5 @@ target_include_directories(laf-ft
   PUBLIC
   ${FREETYPE_INCLUDE_DIRS}
   ${HARFBUZZ_INCLUDE_DIRS})
+
+target_compile_definitions(laf-ft PUBLIC LAF_FREETYPE)

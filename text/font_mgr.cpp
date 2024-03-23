@@ -11,9 +11,9 @@
 #include "text/font_mgr.h"
 
 #include "os/system.h"
-#ifdef LAF_FREETYPE
-#include "ft/lib.h"
-#include "text/freetype_font.h"
+#if LAF_FREETYPE
+  #include "ft/lib.h"
+  #include "text/freetype_font.h"
 #endif
 #include "text/sprite_sheet_font.h"
 
@@ -41,7 +41,7 @@ FontRef FontMgr::loadSpriteSheetFont(const char* filename, int scale)
 
 FontRef FontMgr::loadTrueTypeFont(const char* filename, int height)
 {
-#ifdef LAF_FREETYPE
+#if LAF_FREETYPE
   if (!m_ft)
     m_ft.reset(new ft::Lib());
   return FreeTypeFont::LoadFont(*m_ft.get(), filename, height);

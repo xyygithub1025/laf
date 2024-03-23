@@ -38,7 +38,7 @@ namespace text {
     virtual ~FontMgr();
 
   private:
-#ifdef LAF_FREETYPE
+#if LAF_FREETYPE
     std::unique_ptr<ft::Lib> m_ft;
 #endif
   };

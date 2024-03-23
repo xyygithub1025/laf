@@ -12,8 +12,6 @@ target_link_libraries(laf-text laf-os laf-gfx laf-base)
 
 if(FREETYPE_LIBRARIES AND HARFBUZZ_LIBRARIES)
   target_link_libraries(laf-text laf-ft)
-  target_compile_definitions(laf-text PRIVATE
-    LAF_FREETYPE)
   target_sources(laf-text PRIVATE
     freetype_font.cpp)
 endif()
