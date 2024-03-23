@@ -28,6 +28,7 @@
   #include "include/gpu/GrDirectContext.h"
   #include "include/gpu/ganesh/SkImageGanesh.h"
   #include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
+  #include "src/image/SkSurface_Raster.h"
 #endif
 
 #include <memory>
@@ -266,17 +267,39 @@ void SkiaSurface::clear()
 
 uint8_t* SkiaSurface::getData(int x, int y) const
 {
-  if (m_bitmap.isNull())
-    return nullptr;
-  return (uint8_t*)m_bitmap.getAddr32(x, y);
+  if (SkBitmap* bitmap = getBitmap())
+    return (uint8_t*)bitmap->getAddr32(x, y);
+
+  return nullptr;
+}
+
+SkBitmap* SkiaSurface::getBitmap() const
+{
+  if (!m_bitmap.isNull())
+    return const_cast<SkBitmap*>(&m_bitmap);
+
+  // The SkSurface_Raster::skBitmap() member function was added by us
+  // in our own Skia branch.
+  if (auto* base = static_cast<SkSurface_Base*>(m_surface.get())) {
+    if (base->type() == SkSurface_Base::Type::kRaster) {
+      auto* raster = static_cast<SkSurface_Raster*>(base);
+      return &raster->skBitmap();
+    }
+  }
+
+  return nullptr;
 }
 
 void SkiaSurface::getFormat(SurfaceFormatData* formatData) const
 {
-  formatData->format = kRgbaSurfaceFormat;
-  formatData->bitsPerPixel = 8*m_bitmap.bytesPerPixel();
+  SkBitmap* bitmap = getBitmap();
+  if (!bitmap)
+    return;
 
-  switch (m_bitmap.colorType()) {
+  formatData->format = kRgbaSurfaceFormat;
+  formatData->bitsPerPixel = 8*bitmap->bytesPerPixel();
+
+  switch (bitmap->colorType()) {
     case kRGB_565_SkColorType:
       formatData->redShift   = SK_R16_SHIFT;
       formatData->greenShift = SK_G16_SHIFT;

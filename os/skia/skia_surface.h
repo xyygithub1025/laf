@@ -143,6 +143,8 @@ private:
     return nullptr;
   }
 
+  SkBitmap* getBitmap() const;
+
   SkBitmap m_bitmap;
 #if SK_SUPPORT_GPU
   mutable sk_sp<SkImage> m_image;
