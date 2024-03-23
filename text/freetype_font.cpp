@@ -64,13 +64,13 @@ int FreeTypeFont::textLength(const std::string& str) const
 }
 
 float FreeTypeFont::measureText(const std::string& str,
-                                gfx::RectF* bounds,
+                                gfx::RectF* outBounds,
                                 const os::Paint*) const
 {
-  float w = textLength(str);
-  if (bounds)
-    *bounds = gfx::RectF(0, 0, w, height());
-  return w;
+  auto bounds = ft::calc_text_bounds(m_face, str);
+  if (outBounds)
+    *outBounds = bounds;
+  return bounds.w;
 }
 
 bool FreeTypeFont::isScalable() const
