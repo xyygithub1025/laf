@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2023  Igara Studio S.A.
+// Copyright (C) 2018-2024  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -62,6 +62,10 @@
 
 #ifndef INTERACTION_CONTEXT_PROPERTY_MEASUREMENT_UNITS_SCREEN
 #define INTERACTION_CONTEXT_PROPERTY_MEASUREMENT_UNITS_SCREEN 1
+#endif
+
+#ifndef INTERACTION_CONTEXT_PROPERTY_INTERACTION_UI_FEEDBACK
+#define INTERACTION_CONTEXT_PROPERTY_INTERACTION_UI_FEEDBACK_OFF 0
 #endif
 
 namespace os {
@@ -240,6 +244,13 @@ WindowWin::WindowWin(const WindowSpec& spec)
           m_ictx,
           INTERACTION_CONTEXT_PROPERTY_MEASUREMENT_UNITS,
           INTERACTION_CONTEXT_PROPERTY_MEASUREMENT_UNITS_SCREEN);
+      }
+      // Disable the Windows Ink circle feedback
+      if (SUCCEEDED(hr)) {
+        hr = winApi.SetPropertyInteractionContext(
+          m_ictx,
+          INTERACTION_CONTEXT_PROPERTY_INTERACTION_UI_FEEDBACK,
+          INTERACTION_CONTEXT_PROPERTY_INTERACTION_UI_FEEDBACK_OFF);
       }
     }
 
