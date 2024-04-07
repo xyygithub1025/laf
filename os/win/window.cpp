@@ -1001,6 +1001,19 @@ LRESULT WindowWin::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
       return TRUE;
 
     case WM_NCACTIVATE:
+      // If the user is activating a child window, the title bar of
+      // the parent must be kept active. We control this when the
+      // parent receives a WM_NCACTIVATE with wparam==FALSE to redraw
+      // its title bar as inactive.
+      if (!wparam && lparam != -1) {
+        HWND possibleChild = reinterpret_cast<HWND>(lparam);
+        if (IsWindow(possibleChild) &&
+            GetAncestor(possibleChild, GA_ROOTOWNER) == m_hwnd) {
+          // Keep parent title bar active.
+          wparam = TRUE;
+        }
+      }
+
       // The default WM_NCACTIVATE behavior paints the default NC
       // frame borders (and resize grip if scrollbars are enabled)
       // when we activate/deactivate the window.
