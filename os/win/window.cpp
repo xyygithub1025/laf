@@ -64,6 +64,10 @@
 #define INTERACTION_CONTEXT_PROPERTY_MEASUREMENT_UNITS_SCREEN 1
 #endif
 
+#ifndef INTERACTION_CONTEXT_PROPERTY_INTERACTION_UI_FEEDBACK
+#define INTERACTION_CONTEXT_PROPERTY_INTERACTION_UI_FEEDBACK_OFF 0
+#endif
+
 namespace os {
 
 // Converts an os::Hit to a Win32 hit test value
@@ -240,6 +244,13 @@ WindowWin::WindowWin(const WindowSpec& spec)
           m_ictx,
           INTERACTION_CONTEXT_PROPERTY_MEASUREMENT_UNITS,
           INTERACTION_CONTEXT_PROPERTY_MEASUREMENT_UNITS_SCREEN);
+      }
+      // Disable the Windows Ink circle feedback
+      if (SUCCEEDED(hr)) {
+        hr = winApi.SetPropertyInteractionContext(
+          m_ictx,
+          INTERACTION_CONTEXT_PROPERTY_INTERACTION_UI_FEEDBACK,
+          INTERACTION_CONTEXT_PROPERTY_INTERACTION_UI_FEEDBACK_OFF);
       }
     }
 
@@ -990,6 +1001,19 @@ LRESULT WindowWin::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
       return TRUE;
 
     case WM_NCACTIVATE:
+      // If the user is activating a child window, the title bar of
+      // the parent must be kept active. We control this when the
+      // parent receives a WM_NCACTIVATE with wparam==FALSE to redraw
+      // its title bar as inactive.
+      if (!wparam && lparam != -1) {
+        HWND possibleChild = reinterpret_cast<HWND>(lparam);
+        if (IsWindow(possibleChild) &&
+            GetAncestor(possibleChild, GA_ROOTOWNER) == m_hwnd) {
+          // Keep parent title bar active.
+          wparam = TRUE;
+        }
+      }
+
       // The default WM_NCACTIVATE behavior paints the default NC
       // frame borders (and resize grip if scrollbars are enabled)
       // when we activate/deactivate the window.
