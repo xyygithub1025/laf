@@ -58,21 +58,72 @@ class GLock {
 public:
   GLock() = delete;
   GLock(const GLock&) = delete;
-  GLock(HGLOBAL hglobal) : m_hmem(hglobal) {
+  explicit GLock(HGLOBAL hglobal) : m_hmem(hglobal) {
     m_data = static_cast<T>(GlobalLock(m_hmem));
   }
 
-  ~GLock() { GlobalUnlock(m_hmem); }
+  virtual ~GLock() { GlobalUnlock(m_hmem); }
 
   operator HGLOBAL() { return m_hmem; }
 
   operator T() { return m_data; }
 
+  bool operator==(std::nullptr_t) const { return m_data == nullptr; }
+  bool operator!=(std::nullptr_t) const { return m_data != nullptr; }
+
   SIZE_T size() { return GlobalSize(m_hmem); }
 
 private:
-  HGLOBAL m_hmem;
-  T m_data;
+  HGLOBAL m_hmem = nullptr;
+  T m_data = nullptr;
+};
+
+// STGMEDIUM wrapper. This is a specific wrapper for the case when the medium
+// is of TYMED_HGLOBAL type. Maybe it could be generalized to support the
+// other types of mediums, but this is not needed right now, so I'm leaving
+// this as is.
+template<typename T>
+class Medium : public GLock<T> {
+public:
+  Medium() = delete;
+  Medium(const Medium&) = delete;
+  Medium(std::nullptr_t) : GLock<T>(nullptr) {
+    std::memset(&m_medium, 0, sizeof(STGMEDIUM));
+  }
+  explicit Medium(const STGMEDIUM& medium) : GLock<T>(medium.hGlobal) {
+    m_medium = medium;
+  }
+
+  ~Medium() override { ReleaseStgMedium(&m_medium); }
+
+private:
+  STGMEDIUM m_medium;
+};
+
+// IDataObject wrapper.
+class DataWrapper {
+public:
+  DataWrapper() = delete;
+  DataWrapper(const DataWrapper&) = delete;
+  DataWrapper(IDataObject* data) : m_data(data) {}
+
+  template<typename T>
+  Medium<T> get(CLIPFORMAT cfmt) {
+    STGMEDIUM medium;
+    FORMATETC fmt;
+    fmt.cfFormat = cfmt;
+    fmt.ptd = nullptr;
+    fmt.dwAspect = DVASPECT_CONTENT;
+    fmt.lindex = -1;
+    fmt.tymed = TYMED::TYMED_HGLOBAL;
+    if (m_data->GetData(&fmt, &medium) != S_OK)
+      return nullptr;
+
+    return Medium<T>(medium);
+  }
+
+private:
+  IDataObject* m_data = nullptr;
 };
 
 } // anonymous namespace
@@ -82,31 +133,20 @@ namespace os {
 base::paths DragDataProviderWin::getPaths()
 {
   base::paths files;
-  FORMATETC fmt;
-  fmt.cfFormat = CF_HDROP;
-  fmt.ptd = nullptr;
-  fmt.dwAspect = DVASPECT_CONTENT;
-  fmt.lindex = -1;
-  fmt.tymed = TYMED::TYMED_HGLOBAL;
-  STGMEDIUM medium;
-  if (m_data->GetData(&fmt, &medium) == S_OK) {
-    {
-      GLock<HDROP> hdrop(medium.hGlobal);
-      if (static_cast<HDROP>(hdrop)) {
-        int count = DragQueryFile(hdrop, 0xFFFFFFFF, nullptr, 0);
-        for (int index = 0; index < count; ++index) {
-          int length = DragQueryFile(hdrop, index, nullptr, 0);
-          if (length > 0) {
-            // From Win32 docs: https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-dragqueryfilew
-            // the DragQueryFile() does't include the null character in its return value.
-            std::vector<TCHAR> str(length + 1);
-            DragQueryFile(hdrop, index, str.data(), str.size());
-            files.push_back(base::to_utf8(str.data()));
-          }
-        }
+  DataWrapper data(m_data);
+  Medium<HDROP> hdrop = data.get<HDROP>(CF_HDROP);
+  if (hdrop != nullptr) {
+    int count = DragQueryFile(hdrop, 0xFFFFFFFF, nullptr, 0);
+    for (int index = 0; index < count; ++index) {
+      int length = DragQueryFile(hdrop, index, nullptr, 0);
+      if (length > 0) {
+        // From Win32 docs: https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-dragqueryfilew
+        // the DragQueryFile() doesn't include the null character in its return value.
+        std::vector<TCHAR> str(length + 1);
+        DragQueryFile(hdrop, index, str.data(), str.size());
+        files.push_back(base::to_utf8(str.data()));
       }
     }
-    ReleaseStgMedium(&medium);
   }
   return files;
 }
@@ -114,69 +154,49 @@ base::paths DragDataProviderWin::getPaths()
 SurfaceRef DragDataProviderWin::getImage()
 {
   SurfaceRef surface = nullptr;
-  clip::image_spec spec;
   clip::image img;
-  SurfaceFormatData sfd;
 
-  STGMEDIUM medium;
-  medium.hGlobal = nullptr;
-  FORMATETC fmt;
-  fmt.ptd = nullptr;
-  fmt.dwAspect = DVASPECT_CONTENT;
-  fmt.lindex = -1;
-  fmt.tymed = TYMED_HGLOBAL;
+  auto makeSurface = [](const clip::image& img) {
+    SurfaceFormatData sfd;
+    clip::image_spec spec = img.spec();
+    sfd.bitsPerPixel = spec.bits_per_pixel;
+    sfd.redMask = spec.red_mask;
+    sfd.greenMask = spec.green_mask;
+    sfd.blueMask = spec.blue_mask;
+    sfd.alphaMask = spec.alpha_mask;
+    sfd.redShift = spec.red_shift;
+    sfd.greenShift = spec.green_shift;
+    sfd.blueShift = spec.blue_shift;
+    sfd.alphaShift = spec.alpha_shift;
+    sfd.pixelAlpha = PixelAlpha::kStraight;
+    return os::instance()->makeSurface(spec.width, spec.height, sfd, (unsigned char*)img.data());
+  };
 
+  DataWrapper data(m_data);
   UINT png_format = RegisterClipboardFormatA("PNG");
   if (png_format) {
-    fmt.cfFormat = png_format;
-    if (m_data->GetData(&fmt, &medium) == S_OK) {
-      GLock<uint8_t*> png_handle(medium.hGlobal);
-      if (clip::win::read_png(png_handle, png_handle.size(), &img, nullptr)) {
-        spec = img.spec();
-        goto makeSurface;
-      }
-    }
+    Medium<uint8_t*> png_handle = data.get<uint8_t*>(png_format);
+    if (png_handle != nullptr &&
+        clip::win::read_png(png_handle, png_handle.size(), &img, nullptr))
+      return makeSurface(img);
   }
 
-  fmt.cfFormat = CF_DIBV5;
-  if (m_data->GetData(&fmt, &medium) == S_OK) {
-    GLock<BITMAPV5HEADER*> b5(medium.hGlobal);
+  Medium<BITMAPV5HEADER*> b5 = data.get<BITMAPV5HEADER*>(CF_DIBV5);
+  if (b5 != nullptr) {
     clip::win::BitmapInfo bi(b5);
-    if (bi.to_image(img)) {
-      spec = img.spec();
-      goto makeSurface;
-    }
+    if (bi.to_image(img))
+      return makeSurface(img);
   }
 
-  fmt.cfFormat = CF_DIB;
-  if (m_data->GetData(&fmt, &medium) == S_OK) {
-    GLock<BITMAPINFO*> hbi(medium.hGlobal);
+  Medium<BITMAPINFO*> hbi = data.get<BITMAPINFO*>(CF_DIB);
+  if (hbi != nullptr) {
     clip::win::BitmapInfo bi(hbi);
-    if (bi.to_image(img)) {
-      spec = img.spec();
-      goto makeSurface;
-    }
+    if (bi.to_image(img))
+      return makeSurface(img);
   }
 
-  // No suitable image format found, release medium and return.
-  goto releaseMedium;
-
-makeSurface:
-  sfd.bitsPerPixel = spec.bits_per_pixel;
-  sfd.redMask = spec.red_mask;
-  sfd.greenMask = spec.green_mask;
-  sfd.blueMask = spec.blue_mask;
-  sfd.alphaMask = spec.alpha_mask;
-  sfd.redShift = spec.red_shift;
-  sfd.greenShift = spec.green_shift;
-  sfd.blueShift = spec.blue_shift;
-  sfd.alphaShift = spec.alpha_shift;
-  sfd.pixelAlpha = PixelAlpha::kStraight;
-  surface = os::instance()->makeSurface(spec.width, spec.height, sfd, (unsigned char*)img.data());
-
-releaseMedium:
-  ReleaseStgMedium(&medium);
-  return surface;
+  // No suitable image format found.
+  return nullptr;
 }
 
 bool DragDataProviderWin::contains(DragDataItemType type)
