@@ -24,6 +24,12 @@
 #include <stdexcept>
 #include <string>
 
+#if CLIP_ENABLE_IMAGE
+namespace clip {
+  class image;
+}
+#endif
+
 namespace os {
 
   class ColorSpaceConversion;
@@ -162,7 +168,9 @@ namespace os {
     }
 
     virtual Ref<Surface> makeSurface(int width, int height, const os::ColorSpaceRef& colorSpace = nullptr) = 0;
-    virtual Ref<Surface> makeSurface(int width, int height, const os::SurfaceFormatData& sf, const unsigned char* data = nullptr) = 0;
+#if CLIP_ENABLE_IMAGE
+    virtual Ref<Surface> makeSurface(const clip::image& image) = 0;
+#endif
     virtual Ref<Surface> makeRgbaSurface(int width, int height, const os::ColorSpaceRef& colorSpace = nullptr) = 0;
     virtual Ref<Surface> loadSurface(const char* filename) = 0;
     virtual Ref<Surface> loadRgbaSurface(const char* filename) = 0;

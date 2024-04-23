@@ -33,7 +33,6 @@ public:
   ~SkiaSurface();
 
   void create(int width, int height, const os::ColorSpaceRef& cs);
-  void create(int width, int height,  const SurfaceFormatData& sf, const unsigned char* data);
   void createRgba(int width, int height, const os::ColorSpaceRef& cs);
   void destroy();
 

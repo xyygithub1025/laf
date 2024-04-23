@@ -30,6 +30,10 @@
 #include "os/menus.h"
 #include "os/system.h"
 
+#if CLIP_ENABLE_IMAGE
+#include "clip/clip.h"
+#endif
+
 #include <memory>
 
 namespace os {
@@ -119,6 +123,76 @@ public:
        (isKeyPressed(kKeyLWin) ||
         isKeyPressed(kKeyRWin) ? kKeyWinModifier: 0));
   }
+
+#if CLIP_ENABLE_IMAGE
+
+  SurfaceRef makeSurface(const clip::image& image) override
+  {
+    const clip::image_spec spec = image.spec();
+
+    if (spec.bits_per_pixel != 32 &&
+        spec.bits_per_pixel != 24 &&
+        spec.bits_per_pixel != 16)
+      return nullptr;
+
+    SurfaceRef surface = ((System*)this)->makeRgbaSurface(spec.width, spec.height);
+    SurfaceFormatData sfd;
+    surface->getFormat(&sfd);
+
+    auto get_rgba32 = [&spec](char* scanlineAddr, int* r, int* g, int* b, int* a) {
+      uint32_t c = *((uint32_t*)scanlineAddr);
+      *r = ((c & spec.red_mask)  >> spec.red_shift);
+      *g = ((c & spec.green_mask)>> spec.green_shift);
+      *b = ((c & spec.blue_mask) >> spec.blue_shift);
+      *a = ((c & spec.alpha_mask)>> spec.alpha_shift);
+    };
+    auto get_rgba24 = [&spec](char* scanlineAddr, int* r, int* g, int* b, int* a) {
+      uint32_t c = *((uint32_t*)scanlineAddr);
+      *r = ((c & spec.red_mask)  >> spec.red_shift);
+      *g = ((c & spec.green_mask)>> spec.green_shift);
+      *b = ((c & spec.blue_mask) >> spec.blue_shift);
+      *a = 255;
+    };
+    auto get_rgba16 = [&spec](char* scanlineAddr, int* r, int* g, int *b, int *a) {
+      uint16_t c = *((uint16_t*)scanlineAddr);
+      *r = (((c & spec.red_mask  )>>spec.red_shift  )*255) / (spec.red_mask  >>spec.red_shift);
+      *g = (((c & spec.green_mask)>>spec.green_shift)*255) / (spec.green_mask>>spec.green_shift);
+      *b = (((c & spec.blue_mask )>>spec.blue_shift )*255) / (spec.blue_mask >>spec.blue_shift);
+      *a = 255;
+    };
+
+    // Select color components retrieval function.
+    std::function<void(char*, int*, int*, int*, int*)> get_rgba;
+    switch (spec.bits_per_pixel) {
+      case 32:
+        get_rgba = get_rgba32;
+        break;
+      case 24:
+        get_rgba = get_rgba24;
+        break;
+      case 16:
+        get_rgba = get_rgba16;
+        break;
+    }
+
+    for (int v=0; v<spec.height; ++v) {
+      uint32_t* dst = (uint32_t*)surface->getData(0, v);
+      char* src = image.data() + v * spec.bytes_per_row;
+      for (int u=0; u<spec.width; ++u, ++dst) {
+        int r, g, b, a;
+        get_rgba(src, &r, &g, &b, &a);
+        *dst = (r << sfd.redShift)   |
+               (g << sfd.greenShift) |
+               (b << sfd.blueShift)  |
+               (a << sfd.alphaShift);
+
+        src += (spec.bits_per_pixel/8);
+      }
+    }
+
+    return surface;
+  }
+#endif
 
 protected:
   // This must be called in the final class that derived from

@@ -104,13 +104,6 @@ public:
     return sur;
   }
 
-  SurfaceRef makeSurface(int width, int height,
-                         const os::SurfaceFormatData& sf,
-                         const unsigned char* data) override {
-    auto sur = make_ref<SkiaSurface>();
-    sur->create(width, height, sf, data);
-    return sur;
-  }
 
   SurfaceRef makeRgbaSurface(int width, int height,
                              const os::ColorSpaceRef& colorSpace) override {

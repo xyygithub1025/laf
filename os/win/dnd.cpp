@@ -156,43 +156,27 @@ SurfaceRef DragDataProviderWin::getImage()
   SurfaceRef surface = nullptr;
   clip::image img;
 
-  auto makeSurface = [](const clip::image& img) {
-    SurfaceFormatData sfd;
-    clip::image_spec spec = img.spec();
-    sfd.bitsPerPixel = spec.bits_per_pixel;
-    sfd.redMask = spec.red_mask;
-    sfd.greenMask = spec.green_mask;
-    sfd.blueMask = spec.blue_mask;
-    sfd.alphaMask = spec.alpha_mask;
-    sfd.redShift = spec.red_shift;
-    sfd.greenShift = spec.green_shift;
-    sfd.blueShift = spec.blue_shift;
-    sfd.alphaShift = spec.alpha_shift;
-    sfd.pixelAlpha = PixelAlpha::kStraight;
-    return os::instance()->makeSurface(spec.width, spec.height, sfd, (unsigned char*)img.data());
-  };
-
   DataWrapper data(m_data);
   UINT png_format = RegisterClipboardFormatA("PNG");
   if (png_format) {
     Medium<uint8_t*> png_handle = data.get<uint8_t*>(png_format);
     if (png_handle != nullptr &&
         clip::win::read_png(png_handle, png_handle.size(), &img, nullptr))
-      return makeSurface(img);
+      return os::instance()->makeSurface(img);
   }
 
   Medium<BITMAPV5HEADER*> b5 = data.get<BITMAPV5HEADER*>(CF_DIBV5);
   if (b5 != nullptr) {
     clip::win::BitmapInfo bi(b5);
     if (bi.to_image(img))
-      return makeSurface(img);
+      return os::instance()->makeSurface(img);
   }
 
   Medium<BITMAPINFO*> hbi = data.get<BITMAPINFO*>(CF_DIB);
   if (hbi != nullptr) {
     clip::win::BitmapInfo bi(hbi);
     if (bi.to_image(img))
-      return makeSurface(img);
+      return os::instance()->makeSurface(img);
   }
 
   // No suitable image format found.

@@ -40,22 +40,7 @@ SurfaceRef DragDataProviderOSX::getImage()
   if (!clip::osx::get_image_from_clipboard(m_pasteboard, &img, &spec))
     return nullptr;
 
-  os::SurfaceFormatData sfd;
-  sfd.bitsPerPixel = spec.bits_per_pixel;
-  sfd.redMask = spec.red_mask;
-  sfd.greenMask = spec.green_mask;
-  sfd.blueMask = spec.blue_mask;
-  sfd.alphaMask = spec.alpha_mask;
-  sfd.redShift = spec.red_shift;
-  sfd.greenShift = spec.green_shift;
-  sfd.blueShift = spec.blue_shift;
-  sfd.alphaShift = spec.alpha_shift;
-  sfd.pixelAlpha = PixelAlpha::kStraight;
-
-  SurfaceRef surface = os::instance()->makeSurface(
-                          spec.width, spec.height,
-                          sfd, (unsigned char*) img.data());
-  return surface;
+  return os::instance()->makeSurface(img);
 }
 
 bool DragDataProviderOSX::contains(DragDataItemType type)

@@ -82,40 +82,6 @@ void SkiaSurface::create(int width, int height, const os::ColorSpaceRef& cs)
   swapBitmap(bmp);
 }
 
-void SkiaSurface::create(int width, int height,
-                         const os::SurfaceFormatData& sf,
-                         const unsigned char* data)
-{
-  destroy();
-
-  ASSERT(!m_surface)
-    ASSERT(width > 0);
-  ASSERT(height > 0);
-
-  SkColorType ct = SkiaSurface::deductSkColorType(sf);
-  SkAlphaType at = SkiaSurface::asSkAlphaType(sf.pixelAlpha);
-
-  SkBitmap bmp;
-  if (!bmp.tryAllocPixels(
-      SkImageInfo::Make(width, height, ct, at)))
-    throw base::Exception("Cannot create Skia surface");
-
-  if (data) {
-    // Convert 24bpp data to 32bpp data because Skia doesn't work with 24bpp
-    // images.
-    if (sf.bitsPerPixel == 24) {
-      for (int i=0,j=0; j<width * height * 3; i+=4,j+=3)
-        std::memcpy(&static_cast<unsigned char*>(bmp.getPixels())[i], &data[j], 3);
-    }
-    else
-      bmp.writePixels(SkPixmap(bmp.info(), data, size_t(width) * size_t(sf.bitsPerPixel / 8)));
-  }
-  else {
-    bmp.eraseColor(SK_ColorTRANSPARENT);
-  }
-  swapBitmap(bmp);
-}
-
 void SkiaSurface::createRgba(int width, int height, const os::ColorSpaceRef& cs)
 {
   destroy();
