@@ -66,7 +66,7 @@ float SkiaFont::metrics(FontMetrics* metrics) const
 
 int SkiaFont::height() const
 {
-  return m_skFont.getSize();
+  return m_skFont.getMetrics(nullptr);
 }
 
 int SkiaFont::textLength(const std::string& str) const
