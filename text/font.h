@@ -43,6 +43,7 @@ namespace text {
                               const os::Paint* paint = nullptr) const = 0;
     virtual bool isScalable() const = 0;
     virtual void setSize(int size) = 0;
+    virtual bool antialias() const = 0;
     virtual void setAntialias(bool antialias) = 0;
     virtual bool hasCodePoint(int codepoint) const = 0;
     virtual gfx::RectF getGlyphBounds(GlyphID glyph) const = 0;

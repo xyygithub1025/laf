@@ -104,6 +104,11 @@ void SkiaFont::setSize(int size)
   m_skFont.setSize(size);
 }
 
+bool SkiaFont::antialias() const
+{
+  return (m_skFont.getEdging() != SkFont::Edging::kAlias);
+}
+
 void SkiaFont::setAntialias(bool antialias)
 {
   m_skFont.setEdging(antialias ? SkFont::Edging::kAntiAlias:

@@ -71,6 +71,10 @@ public:
     // Do nothing
   }
 
+  bool antialias() const override {
+    return false;
+  }
+
   void setAntialias(bool antialias) override {
     // Do nothing
   }

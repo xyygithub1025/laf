@@ -83,6 +83,11 @@ void FreeTypeFont::setSize(int size)
   m_face.setSize(size);
 }
 
+bool FreeTypeFont::antialias() const
+{
+  return m_face.antialias();
+}
+
 void FreeTypeFont::setAntialias(bool antialias)
 {
   m_face.setAntialias(antialias);

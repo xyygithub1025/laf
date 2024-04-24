@@ -34,6 +34,7 @@ public:
                     const os::Paint*) const override { return 0.0f; }
   bool isScalable() const override { return false; }
   void setSize(int) override { }
+  bool antialias() const override { return false; }
   void setAntialias(bool) override { }
   bool hasCodePoint(int) const override { return false; }
   gfx::RectF getGlyphBounds(GlyphID) const override { return gfx::RectF(); }

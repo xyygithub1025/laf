@@ -36,6 +36,7 @@ namespace text {
                       const os::Paint* paint) const override;
     bool isScalable() const override;
     void setSize(int size) override;
+    bool antialias() const override;
     void setAntialias(bool antialias) override;
     bool hasCodePoint(int codepoint) const override;
     gfx::RectF getGlyphBounds(GlyphID glyph) const override;
