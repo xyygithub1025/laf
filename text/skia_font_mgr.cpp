@@ -109,6 +109,19 @@ SkiaFontMgr::~SkiaFontMgr()
 {
 }
 
+FontRef SkiaFontMgr::loadTrueTypeFont(const char* filename, float size)
+{
+  // Use the native impl from Skia to load the font file
+  sk_sp<SkTypeface> face = m_skFontMgr->makeFromFile(filename);
+  if (!face) {
+    // In other case try the FreeType impl
+    return FontMgr::loadTrueTypeFont(filename, size);
+  }
+
+  SkFont skFont(face, size);
+  return base::make_ref<SkiaFont>(skFont);
+}
+
 FontRef SkiaFontMgr::defaultFont(float size) const
 {
   sk_sp<SkTypeface> face =

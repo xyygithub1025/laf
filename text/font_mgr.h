@@ -23,7 +23,7 @@ namespace text {
     static FontMgrRef Make();
 
     FontRef loadSpriteSheetFont(const char* filename, int scale);
-    FontRef loadTrueTypeFont(const char* filename, int height);
+    virtual FontRef loadTrueTypeFont(const char* filename, float size);
     virtual FontRef makeFont(const TypefaceRef& typeface) = 0;
     virtual FontRef makeFont(const TypefaceRef& typeface, float size) = 0;
 

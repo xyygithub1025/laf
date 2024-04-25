@@ -39,12 +39,12 @@ FontRef FontMgr::loadSpriteSheetFont(const char* filename, int scale)
   return font;
 }
 
-FontRef FontMgr::loadTrueTypeFont(const char* filename, int height)
+FontRef FontMgr::loadTrueTypeFont(const char* filename, float size)
 {
 #if LAF_FREETYPE
   if (!m_ft)
     m_ft.reset(new ft::Lib());
-  return FreeTypeFont::LoadFont(*m_ft.get(), filename, height);
+  return FreeTypeFont::LoadFont(*m_ft.get(), filename, size);
 #else
   return nullptr;
 #endif

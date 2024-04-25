@@ -51,6 +51,8 @@ public:
   SkiaFontMgr();
   ~SkiaFontMgr();
 
+  FontRef loadTrueTypeFont(const char* filename, float size) override;
+
   FontRef defaultFont(float size) const override;
   FontRef makeFont(const TypefaceRef& typeface) override;
   FontRef makeFont(const TypefaceRef& typeface, float size) override;
