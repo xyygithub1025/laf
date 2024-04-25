@@ -182,6 +182,10 @@ retry:;
     }
   }
 
+  // Use the same antialias setting as the original font.
+  if (font != fontRef)
+    font->setAntialias(fontRef->antialias());
+
   switch (font->type()) {
 
     case FontType::Unknown:
