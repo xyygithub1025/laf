@@ -16,6 +16,7 @@
 #include "gfx/rect.h"
 #include "os/surface.h"
 #include "text/font.h"
+#include "text/font_metrics.h"
 #include "text/typeface.h"
 
 #include <vector>
@@ -39,6 +40,13 @@ public:
 
   float metrics(FontMetrics* metrics) const override {
     // TODO impl
+
+    if (metrics) {
+      metrics->ascent = -height();
+      metrics->underlineThickness = 1.0f;
+      metrics->underlinePosition = 0.5f;
+    }
+
     return height();
   }
 

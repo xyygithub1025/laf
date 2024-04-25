@@ -15,6 +15,7 @@
 #include "ft/algorithm.h"
 #include "gfx/point.h"
 #include "gfx/size.h"
+#include "text/font_metrics.h"
 #include "text/typeface.h"
 
 namespace text {
@@ -50,7 +51,22 @@ TypefaceRef FreeTypeFont::typeface() const
 float FreeTypeFont::metrics(FontMetrics* metrics) const
 {
   // TODO impl
-  return float(height());
+
+  if (metrics) {
+    FT_Face ftFace = m_face;
+
+    float yscale =
+      float(m_face->size->metrics.y_ppem)
+      / float(m_face->units_per_EM);
+
+    metrics->ascent = -float(ftFace->ascender) * yscale;
+    metrics->descent = -float(ftFace->descender) * yscale;
+    metrics->underlineThickness = float(ftFace->underline_thickness) * yscale;
+    metrics->underlinePosition = -float(ftFace->underline_position +
+                                        ftFace->underline_thickness/2) * yscale;
+  }
+
+  return float(m_face.height());
 }
 
 int FreeTypeFont::height() const
