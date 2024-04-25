@@ -120,6 +120,8 @@ TextBlobRef TextBlob::MakeWithShaper(
   const std::string& text,
   TextBlob::RunHandler* handler)
 {
+  ASSERT(dynamic_cast<SkiaFont*>(font.get()));
+
   SkFont skFont = static_cast<SkiaFont*>(font.get())->skFont();
   sk_sp<SkTextBlob> textBlob;
   if (auto shaper = SkShaper::Make(

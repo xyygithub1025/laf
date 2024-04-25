@@ -371,13 +371,15 @@ retry:;
       if (delegate) {
         AdapterBuilder handler(surface, text, fg, bg,
                                gfx::PointF(x, y), delegate);
-        blob = TextBlob::MakeWithShaper(fontMgr, fontRef, text, &handler);
+        // We use AddRef(font) and not fontRef because font might have
+        // changed now that we searched for a fallback font.
+        blob = TextBlob::MakeWithShaper(fontMgr, AddRef(font), text, &handler);
       }
       else {
         os::Paint paint;
         paint.color(fg);
         // TODO Draw background with bg
-        blob = TextBlob::MakeWithShaper(fontMgr, fontRef, text);
+        blob = TextBlob::MakeWithShaper(fontMgr, AddRef(font), text);
         draw_text(surface, blob, gfx::PointF(x, y), &paint);
       }
 #endif // LAF_SKIA
