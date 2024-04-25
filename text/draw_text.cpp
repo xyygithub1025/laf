@@ -164,7 +164,7 @@ retry:;
   if (font->fallback()) {
     // TODO compose unicode characters and check those codepoints, the
     //      same in the drawing code of sprite sheet font
-    while (const uint32_t code = decode.next()) {
+    while (const base::codepoint_t code = decode.next()) {
       if (code && !font->hasCodePoint(code)) {
         Font* newFont = font->fallback();
 
@@ -204,7 +204,7 @@ retry:;
       decode = base::utf8_decode(text);
       while (true) {
         const int i = decode.pos() - text.begin();
-        const int chr = decode.next();
+        const base::codepoint_t chr = decode.next();
         if (!chr)
           break;
 

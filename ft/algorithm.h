@@ -1,5 +1,5 @@
 // LAF FreeType Wrapper
-// Copyright (c) 2022 Igara Studio S.A.
+// Copyright (c) 2022-2024 Igara Studio S.A.
 // Copyright (c) 2016-2017 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -29,12 +29,12 @@ namespace ft {
       , m_decode(str) {
     }
 
-    int next() {
+    base::codepoint_t next() {
       m_pos = m_decode.pos();
       return (m_char = m_decode.next());
     }
 
-    int unicodeChar() const {
+    base::codepoint_t unicodeChar() const {
       return m_char;
     }
 
@@ -60,7 +60,7 @@ namespace ft {
     std::string::const_iterator m_begin;
     std::string::const_iterator m_pos;
     base::utf8_decode m_decode;
-    int m_char = 0;
+    base::codepoint_t m_char = 0;
   };
 
   template<typename FaceFT,
@@ -82,16 +82,16 @@ namespace ft {
       unloadGlyph();
     }
 
-    int unicodeChar() { return m_shaper.unicodeChar(); }
-    int charIndex() { return m_shaper.charIndex(); }
+    base::codepoint_t unicodeChar() const { return m_shaper.unicodeChar(); }
+    int charIndex() const { return m_shaper.charIndex(); }
 
     const Glyph* glyph() const { return m_glyph; }
 
-    int next() {
+    base::codepoint_t next() {
       if (m_glyph)
         m_prevGlyph = m_shaper.glyphIndex();
 
-      if (int chr = m_shaper.next()) {
+      if (const base::codepoint_t chr = m_shaper.next()) {
         prepareGlyph();
         return chr;
       }

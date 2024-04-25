@@ -1,5 +1,5 @@
 // LAF FreeType Wrapper
-// Copyright (c) 2020-2022 Igara Studio S.A.
+// Copyright (c) 2020-2024 Igara Studio S.A.
 // Copyright (c) 2017 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -33,7 +33,7 @@ namespace ft {
       const auto begin = str.begin();
       while (true) {
         const auto pos = decode.pos();
-        const int chr = decode.next();
+        const base::codepoint_t chr = decode.next();
         if (!chr)
           break;
 
@@ -58,13 +58,13 @@ namespace ft {
       hb_buffer_destroy(chrBuf);
     }
 
-    int next() {
+    base::codepoint_t next() {
       if (++m_index < m_glyphCount)
         return m_glyphInfo[m_index].codepoint;
       return 0;
     }
 
-    int unicodeChar() const {
+    base::codepoint_t unicodeChar() const {
       return m_glyphInfo[m_index].codepoint;
     }
 
