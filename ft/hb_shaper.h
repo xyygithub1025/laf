@@ -60,12 +60,15 @@ namespace ft {
 
     base::codepoint_t next() {
       if (++m_index < m_glyphCount)
-        return m_glyphInfo[m_index].codepoint;
+        return m_codePoints[m_index];
       return 0;
     }
 
     base::codepoint_t unicodeChar() const {
-      return m_glyphInfo[m_index].codepoint;
+      if (m_index >= 0 && m_index < m_codePoints.size())
+        return m_codePoints[m_index];
+      else
+        return 0;
     }
 
     int charIndex() const {
@@ -73,6 +76,7 @@ namespace ft {
     }
 
     unsigned int glyphIndex() const {
+      // After shaping the "codepoint" field is the glyph index.
       return m_glyphInfo[m_index].codepoint;
     }
 
@@ -99,14 +103,27 @@ namespace ft {
       hb_buffer_set_script(buf, script);
       hb_buffer_set_direction(buf, hb_script_get_horizontal_direction(script));
 
+      // Update code points array
+      unsigned int count;
+      hb_glyph_info_t* info;
+      {
+        info = hb_buffer_get_glyph_infos(buf, &count);
+        const auto start = m_codePoints.size();
+        m_codePoints.resize(start+count);
+        for (auto i=0; i<count; ++i) {
+          m_codePoints[start+i] = info[i].codepoint;
+        }
+      }
+
+      // Shape text
       hb_shape(m_face.font(), buf, nullptr, 0);
 
-      unsigned int count;
-      auto info = hb_buffer_get_glyph_infos(buf, &count);
+      // Update glyph info/pos arrays.
+      info = hb_buffer_get_glyph_infos(buf, &count);
       auto pos = hb_buffer_get_glyph_positions(buf, &count);
 
       m_glyphCount += count;
-      const unsigned int start = m_glyphInfo.size();
+      const auto start = m_glyphInfo.size();
       m_glyphInfo.resize(m_glyphCount);
       m_glyphPos.resize(m_glyphCount);
       for (unsigned int i=0; i<count; ++i) {
@@ -116,6 +133,7 @@ namespace ft {
     }
 
     HBFace& m_face;
+    std::vector<base::codepoint_t> m_codePoints;
     std::vector<hb_glyph_info_t> m_glyphInfo;
     std::vector<hb_glyph_position_t> m_glyphPos;
     int m_glyphCount = 0;
