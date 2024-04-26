@@ -50,13 +50,10 @@ void draw_window(Window* window,
   SurfaceLock lock(surface);
   const gfx::Rect rc = surface->bounds();
 
-  SurfaceRef backSurface = System::instance()->makeSurface(rc.w, rc.h);
-  SurfaceLock lock2(backSurface.get());
-
   Paint p;
   p.color(gfx::rgba(0, 0, 0));
   p.style(Paint::Fill);
-  backSurface->drawRect(rc, p);
+  surface->drawRect(rc, p);
 
   p.color(gfx::rgba(255, 255, 255));
 
@@ -76,13 +73,13 @@ void draw_window(Window* window,
 
 #if 0
     draw_text_with_shaper(
-      backSurface.get(), fontMgr, font, s,
+      surface, fontMgr, font, s,
       pos, &p, TextAlign::Left);
 #else
     // This example shows how to use the old DrawTextDelegate to
     // change foreground/background per character.
     draw_text(
-      backSurface.get(), fontMgr, font, s,
+      surface, fontMgr, font, s,
       p.color(), gfx::rgba(0, 0, 0),
       pos.x, pos.y, &delegate);
 #endif
@@ -99,9 +96,6 @@ void draw_window(Window* window,
   else {
     window->setTitle(kTitle);
   }
-
-  // Flip the back surface to the window surface
-  surface->drawSurface(backSurface.get(), 0, 0);
 
   // Invalidates the whole window to show it on the screen.
   if (window->isVisible())
@@ -133,6 +127,11 @@ int app_main(int argc, char* argv[])
   gfx::Point mousePos;
   bool running = true;
   bool redraw = true;
+
+  system->handleWindowResize = [&](Window* w) {
+    draw_window(w, fontMgr, font, mousePos);
+  };
+
   while (running) {
     // Pick next event in the queue (without waiting)
     Event ev;
