@@ -141,10 +141,13 @@ public:
 
     auto get_rgba32 = [&spec](char* scanlineAddr, int* r, int* g, int* b, int* a) {
       uint32_t c = *((uint32_t*)scanlineAddr);
-      *r = ((c & spec.red_mask)  >> spec.red_shift);
-      *g = ((c & spec.green_mask)>> spec.green_shift);
-      *b = ((c & spec.blue_mask) >> spec.blue_shift);
-      *a = ((c & spec.alpha_mask)>> spec.alpha_shift);
+      *a = ((c & spec.alpha_mask) >> spec.alpha_shift);
+      // The source image is in straight-alpha and makeRgbaSurface returns a
+      // surface using premultiplied-alpha so we have to premultiply the
+      // source values.
+      *r = ((c & spec.red_mask)  >> spec.red_shift  )*(*a)/255;
+      *g = ((c & spec.green_mask)>> spec.green_shift)*(*a)/255;
+      *b = ((c & spec.blue_mask) >> spec.blue_shift )*(*a)/255;
     };
     auto get_rgba24 = [&spec](char* scanlineAddr, int* r, int* g, int* b, int* a) {
       uint32_t c = *((uint32_t*)scanlineAddr);

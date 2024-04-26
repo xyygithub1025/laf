@@ -133,7 +133,7 @@ static void redraw_window(os::Window* window)
 
   if (windowData.image) {
     y += 12;
-    s->drawSurface(windowData.image.get(), 0, y);
+    s->drawRgbaSurface(windowData.image.get(), 0, y);
   }
 
   paint.style(os::Paint::Style::Stroke);
