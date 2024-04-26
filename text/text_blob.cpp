@@ -16,32 +16,14 @@
 
 namespace text {
 
-namespace {
-
-class BoundsBuilder : public TextBlob::RunHandler {
-public:
-  const gfx::RectF& bounds() const { return m_bounds; }
-
-  // TextBlob::RunHandler impl
-  void commitRunBuffer(TextBlob::RunInfo& info) override {
-    for (int i = 0; i < info.glyphCount; ++i)
-      m_bounds |= info.getGlyphBounds(i);
-  }
-
-private:
-  gfx::RectF m_bounds;
-};
-
-} // namespace anonymous
-
 gfx::RectF TextBlob::bounds()
 {
-  if (!m_bounds.isEmpty())
-    return m_bounds;
-
-  BoundsBuilder handler;
-  visitRuns(&handler);
-  m_bounds = handler.bounds();
+  if (m_bounds.isEmpty()) {
+    visitRuns([this](RunInfo& info) {
+      for (int i = 0; i < info.glyphCount; ++i)
+        m_bounds |= info.getGlyphBounds(i);
+    });
+  }
   return m_bounds;
 }
 

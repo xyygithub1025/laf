@@ -24,10 +24,8 @@ SkiaTextBlob::SkiaTextBlob(const sk_sp<SkTextBlob>& skTextBlob,
 {
 }
 
-void SkiaTextBlob::visitRuns(RunHandler* handler)
+void SkiaTextBlob::visitRuns(const RunVisitor& visitor)
 {
-  ASSERT(handler);
-
   SkTextBlob::Iter iter(*m_skTextBlob);
   SkTextBlob::Iter::ExperimentalRun run;
   TextBlob::RunInfo subInfo;
@@ -46,7 +44,7 @@ void SkiaTextBlob::visitRuns(RunHandler* handler)
     }
     subInfo.positions = positions.data();
 
-    handler->commitRunBuffer(subInfo);
+    visitor(subInfo);
   }
 }
 

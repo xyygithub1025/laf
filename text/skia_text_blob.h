@@ -21,7 +21,7 @@ public:
 
   sk_sp<SkTextBlob> skTextBlob() const { return m_skTextBlob; }
 
-  void visitRuns(RunHandler* handler) override;
+  void visitRuns(const RunVisitor& visitor) override;
 
 private:
   sk_sp<SkTextBlob> m_skTextBlob;
