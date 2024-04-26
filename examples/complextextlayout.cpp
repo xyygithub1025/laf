@@ -62,7 +62,7 @@ void draw_window(Window* window,
 
   const char* lines[] = { "English",
                           "Español",
-                          "Русский язык",   // Russian
+                          "Русский",        // Russian
                           "汉语",            // Simplified Chinese
                           "日本語",          // Japanese
                           "한국어",          // Korean
