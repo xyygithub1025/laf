@@ -46,7 +46,7 @@ jobs:
         fi
     - uses: ilammy/msvc-dev-cmd@v1
       if: runner.os == 'Windows'
-    - uses: turtlesec-no/get-ninja@main
+    - uses: aseprite/get-ninja@main
     - name: Generating Makefiles
       shell: bash
       run: |
