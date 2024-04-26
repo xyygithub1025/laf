@@ -76,7 +76,7 @@ namespace text {
     os::Surface* surface,
     const FontRef& font,
     const std::string& text,
-    const gfx::PointF& pos,
+    gfx::PointF pos,
     const os::Paint* paint = nullptr,
     const TextAlign textAlign = TextAlign::Left);
 
@@ -102,7 +102,7 @@ namespace text {
     const FontMgrRef& fontMgr,
     const FontRef& font,
     const std::string& text,
-    const gfx::PointF& pos,
+    gfx::PointF pos,
     const os::Paint* paint = nullptr,
     const TextAlign textAlign = TextAlign::Left);
 

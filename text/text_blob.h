@@ -8,8 +8,8 @@
 #define LAF_TEXT_TEXT_BLOB_H_INCLUDED
 #pragma once
 
-#include "gfx/fwd.h"
 #include "gfx/point.h"
+#include "gfx/rect.h"
 #include "text/fwd.h"
 #include "text/text_blob.h"
 
@@ -48,8 +48,14 @@ namespace text {
       virtual void commitRunBuffer(RunInfo& info) = 0;
     };
 
-    TextBlob() { }
+    TextBlob(gfx::RectF bounds) : m_bounds(bounds) { }
     virtual ~TextBlob() { }
+
+    // Returns exact bounds that are required to draw this TextBlob.
+    gfx::RectF bounds();
+
+    // Visits each run in the TextBlob.
+    virtual void visitRuns(RunHandler* handler) = 0;
 
     // Uses Skia'SkTextBlob::MakeFromText() to create the TextBlob, it
     // doesn't depend on harfbuzz or big dependencies, useful to print
@@ -66,7 +72,10 @@ namespace text {
       const FontMgrRef& fontMgr,
       const FontRef& font,
       const std::string& text,
-      TextBlob::RunHandler* handler = nullptr);
+      RunHandler* handler = nullptr);
+
+  private:
+    gfx::RectF m_bounds;
   };
 
 } // namespace text

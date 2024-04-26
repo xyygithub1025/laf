@@ -6,6 +6,7 @@
 
 #include "text/skia_text_blob.h"
 
+#include "os/skia/skia_helpers.h"
 #include "text/skia_font.h"
 #include "text/skia_font_mgr.h"
 
@@ -16,9 +17,37 @@
 
 namespace text {
 
-SkiaTextBlob::SkiaTextBlob(sk_sp<SkTextBlob> skTextBlob)
-  : m_skTextBlob(skTextBlob)
+SkiaTextBlob::SkiaTextBlob(const sk_sp<SkTextBlob>& skTextBlob,
+                           const gfx::RectF& bounds)
+  : TextBlob(bounds)
+  , m_skTextBlob(skTextBlob)
 {
+}
+
+void SkiaTextBlob::visitRuns(RunHandler* handler)
+{
+  ASSERT(handler);
+
+  SkTextBlob::Iter iter(*m_skTextBlob);
+  SkTextBlob::Iter::ExperimentalRun run;
+  TextBlob::RunInfo subInfo;
+  std::vector<gfx::PointF> positions;
+
+  while (iter.experimentalNext(&run)) {
+    const int n = run.count;
+    subInfo.font = base::make_ref<SkiaFont>(run.font);
+    subInfo.glyphCount = n;
+    subInfo.glyphs = const_cast<GlyphID*>(run.glyphs);
+    if (positions.size() < n)
+      positions.resize(n);
+    for (size_t i=0; i<n; ++i) {
+      positions[i] = gfx::PointF(run.positions[i].x(),
+                                 run.positions[i].y());
+    }
+    subInfo.positions = positions.data();
+
+    handler->commitRunBuffer(subInfo);
+  }
 }
 
 TextBlobRef TextBlob::Make(

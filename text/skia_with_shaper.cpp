@@ -39,6 +39,10 @@ public:
     return m_builder.makeBlob();
   }
 
+  const gfx::RectF& bounds() {
+    return m_bounds;
+  }
+
   void beginLine() override {
     m_builder.beginLine();
   }
@@ -96,6 +100,9 @@ public:
     subInfo.point = gfx::PointF(m_buffer.point.x(),
                                 m_buffer.point.y());
 
+    for (int i=0; i<subInfo.glyphCount; ++i)
+      m_bounds |= subInfo.getGlyphBounds(i);
+
     if (m_subHandler)
       m_subHandler->commitRunBuffer(subInfo);
   }
@@ -110,6 +117,7 @@ private:
   Buffer m_buffer;
   std::vector<gfx::PointF> m_positions;
   std::vector<gfx::PointF> m_offsets;
+  gfx::RectF m_bounds;
 };
 
 }
@@ -124,6 +132,7 @@ TextBlobRef TextBlob::MakeWithShaper(
 
   SkFont skFont = static_cast<SkiaFont*>(font.get())->skFont();
   sk_sp<SkTextBlob> textBlob;
+  gfx::RectF bounds;
   if (auto shaper = SkShaper::Make(
         static_cast<SkiaFontMgr*>(fontMgr.get())->skFontMgr())) {
     ShaperRunHandler shaperHandler(text.c_str(), { 0, 0 }, handler);
@@ -134,13 +143,14 @@ TextBlobRef TextBlob::MakeWithShaper(
       std::numeric_limits<float>::max(),
       &shaperHandler);
     textBlob = shaperHandler.makeBlob();
+    bounds = shaperHandler.bounds();
   }
   else {
     textBlob = SkTextBlob::MakeFromText(text.c_str(), text.size(),
                                         skFont, SkTextEncoding::kUTF8);
   }
 
-  return base::make_ref<SkiaTextBlob>(textBlob);
+  return base::make_ref<SkiaTextBlob>(textBlob, bounds);
 }
 
 void draw_text_with_shaper(
@@ -148,7 +158,7 @@ void draw_text_with_shaper(
   const FontMgrRef& fontMgr,
   const FontRef& font,
   const std::string& text,
-  const gfx::PointF& pos,
+  gfx::PointF pos,
   const os::Paint* paint,
   const TextAlign textAlign)
 {
@@ -157,8 +167,16 @@ void draw_text_with_shaper(
 
   TextBlobRef blob = TextBlob::MakeWithShaper(
     fontMgr, font, text, nullptr);
-  if (blob)
-    draw_text(surface, blob, pos, paint);
+  if (!blob)
+    return;
+
+  switch (textAlign) {
+    case TextAlign::Left: break;
+    case TextAlign::Center: pos.x -= blob->bounds().w / 2.0f; break;
+    case TextAlign::Right: pos.x -= blob->bounds().w; break;
+  }
+
+  draw_text(surface, blob, pos, paint);
 }
 
 } // namespace text

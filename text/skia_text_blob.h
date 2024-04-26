@@ -16,9 +16,12 @@ namespace text {
 
 class SkiaTextBlob : public TextBlob {
 public:
-  SkiaTextBlob(sk_sp<SkTextBlob> skTextBlob);
+  SkiaTextBlob(const sk_sp<SkTextBlob>& skTextBlob,
+               const gfx::RectF& bounds = gfx::RectF());
 
   sk_sp<SkTextBlob> skTextBlob() const { return m_skTextBlob; }
+
+  void visitRuns(RunHandler* handler) override;
 
 private:
   sk_sp<SkTextBlob> m_skTextBlob;
