@@ -36,6 +36,7 @@ namespace os {
   enum class DragDataItemType {
     Paths,
     Image,
+    Url,
   };
 
   // Interface to get dragged data from the platform's implementation.
@@ -44,6 +45,7 @@ namespace os {
     virtual ~DragDataProvider() {}
     virtual base::paths getPaths() = 0;
     virtual SurfaceRef getImage() = 0;
+    virtual std::string getUrl() = 0;
     virtual bool contains(DragDataItemType type) { return false; }
   };
 

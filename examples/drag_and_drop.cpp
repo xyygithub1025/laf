@@ -31,6 +31,7 @@ struct WindowData {
   int drag;
   base::paths paths;
   os::SurfaceRef image;
+  std::string url;
   gfx::Point dragPosition;
   gfx::Rect dropZone;
 };
@@ -78,6 +79,8 @@ public:
           windowData.paths = ev.dataProvider()->getPaths();
         if (ev.dataProvider()->contains(os::DragDataItemType::Image))
           windowData.image = ev.dataProvider()->getImage();
+        if (ev.dataProvider()->contains(os::DragDataItemType::Url))
+          windowData.url = ev.dataProvider()->getUrl();
       }
 
       redraw_window(ev.target());
@@ -89,12 +92,12 @@ static void redraw_window(os::Window* window)
 {
   os::Surface* s = window->surface();
   os::Paint paint;
-  paint.color(gfx::rgba(0, 0, 0));
+  paint.color(gfx::rgba(128, 128, 128));
   s->drawRect(window->bounds(), paint);
 
   paint.color(gfx::rgba(255, 255, 255));
 
-  char buf[256];
+  char buf[2049];
   int y = 12;
   std::snprintf(buf, sizeof(buf), "Drag Position = [%d, %d]", windowData.dragPosition.x, windowData.dragPosition.y);
   os::draw_text(s, nullptr, buf, gfx::Point(0, y), &paint);
@@ -117,6 +120,15 @@ static void redraw_window(os::Window* window)
       std::snprintf(buf, sizeof(buf), "%s", path.c_str());
       os::draw_text(s, nullptr, buf, gfx::Point(12, y), &paint);
     }
+  }
+
+  if (!windowData.url.empty()) {
+    y += 12;
+    std::snprintf(buf, sizeof(buf), "URL:");
+    os::draw_text(s, nullptr, buf, gfx::Point(0, y), &paint);
+    y += 12;
+    std::snprintf(buf, sizeof(buf), "%s", windowData.url.c_str());
+    os::draw_text(s, nullptr, buf, gfx::Point(12, y), &paint);
   }
 
   if (windowData.image) {

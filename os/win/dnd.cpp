@@ -183,12 +183,26 @@ SurfaceRef DragDataProviderWin::getImage()
   return nullptr;
 }
 
+std::string DragDataProviderWin::getUrl()
+{
+  DataWrapper data(m_data);
+  UINT urlFormat = RegisterClipboardFormat(CFSTR_INETURL);
+
+  Medium<TCHAR*> url = data.get<TCHAR*>(urlFormat);
+  if (url == nullptr)
+    return std::string();
+
+  return std::string(base::to_utf8((TCHAR*)url));
+}
+
 bool DragDataProviderWin::contains(DragDataItemType type)
 {
   base::ComPtr<IEnumFORMATETC> formats;
   if (m_data->EnumFormatEtc(DATADIR::DATADIR_GET, &formats) != S_OK)
     return false;
 
+  UINT urlFormat = RegisterClipboardFormat(CFSTR_INETURL);
+  UINT pngFormat = RegisterClipboardFormat(L"PNG");
   char name[101];
   FORMATETC fmt;
   while (formats->Next(1, &fmt, nullptr) == S_OK) {
@@ -206,10 +220,17 @@ bool DragDataProviderWin::contains(DragDataItemType type)
           return true;
         break;
       default: {
-        int namelen = GetClipboardFormatNameA(fmt.cfFormat, name, 100);
-        name[namelen] = '\0';
-        if (std::strcmp(name, "PNG") == 0 && type == DragDataItemType::Image)
-          return true;
+        switch (type) {
+          case DragDataItemType::Image:
+            if (fmt.cfFormat == pngFormat)
+              return true;
+
+            break;
+          case DragDataItemType::Url:
+            if (fmt.cfFormat == urlFormat)
+              return true;
+            break;
+        }
         break;
       }
     }

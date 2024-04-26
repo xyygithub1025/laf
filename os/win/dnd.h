@@ -24,6 +24,7 @@ namespace os {
 
     base::paths getPaths() override;
     SurfaceRef getImage() override;
+    std::string getUrl() override;
     bool contains(DragDataItemType type) override;
   };
 
