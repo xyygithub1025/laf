@@ -6,6 +6,7 @@
 
 #include "os/os.h"
 #include "text/text.h"
+#include "base/utf8_decode.h"
 
 #include <cstdio>
 
@@ -13,33 +14,51 @@ using namespace os;
 using namespace text;
 
 const char* kTitle = "CTL";
-
-class MyDrawTextDelegate : public DrawTextDelegate {
-  gfx::Point m_mousePos;
-  base::codepoint_t m_codepoint = 0;
-public:
-  MyDrawTextDelegate(const gfx::Point& mousePos) : m_mousePos(mousePos) { }
-
-  // Codepoint of the char with the mouse above.
-  base::codepoint_t codepoint() const { return m_codepoint; }
-
-  void preProcessChar(const int index,
-                      const base::codepoint_t codepoint,
-                      gfx::Color& fg,
-                      gfx::Color& bg,
-                      const gfx::Rect& charBounds) override {
-    if (charBounds.contains(m_mousePos)) {
-      fg = gfx::rgba(0, 0, 0);
-      bg = gfx::rgba(255, 255, 255);
-
-      m_codepoint = codepoint;
-    }
-    else {
-      fg = gfx::rgba(255, 255, 255);
-      bg = gfx::rgba(0, 0, 0, 0);
-    }
-  }
+const char* kLines[] = {
+  "English",
+  "Español",
+  "Русский", // Russian
+  "汉语", // Simplified Chinese
+  "日本語", // Japanese
+  "한국어", // Korean
+  "العَرَبِيَّة‎", // Arabic
+  "👍❤️😂☺️😯😢😡" // Emojis
 };
+constexpr size_t N = sizeof(kLines) / sizeof(kLines[0]);
+
+std::vector<TextBlobRef> textBlobs;
+
+base::codepoint_t inside_glyph_bounds(TextBlob* textBlob,
+                                      const std::string& utf8text,
+                                      const gfx::Point& mousePos,
+                                      gfx::RectF& glyphBounds)
+{
+  // Once a TextBlob is created, it does't contain the original
+  // Unicode code points data, so we have to decode the string again
+  // if we want to match the glyph <-> codepoint association.
+  //
+  // This is used only to show in the window title bar which code
+  // point we have the mouse on.
+  base::utf8_decode decode(utf8text);
+
+  base::codepoint_t codepoint = 0;
+  textBlob->visitRuns([&](TextBlob::RunInfo& info) {
+    for (int i = 0; i < info.glyphCount; ++i) {
+      base::codepoint_t cp = decode.next();
+      while (cp >= 0xfe00 && cp <= 0xfe0f) { // Skip variant selectors
+        cp = decode.next();
+      }
+
+      const gfx::RectF rc = info.getGlyphBounds(i);
+      if (rc.contains(gfx::PointF(mousePos))) {
+        glyphBounds = rc;
+        codepoint = cp;
+        break;
+      }
+    }
+  });
+  return codepoint;
+}
 
 void draw_window(Window* window,
                  const FontMgrRef& fontMgr,
@@ -57,41 +76,45 @@ void draw_window(Window* window,
 
   p.color(gfx::rgba(255, 255, 255));
 
-  const char* lines[] = { "English",
-                          "Español",
-                          "Русский",        // Russian
-                          "汉语",            // Simplified Chinese
-                          "日本語",          // Japanese
-                          "한국어",          // Korean
-                          "العَرَبِيَّة‎",        // Arabic
-                          "👍❤️😂☺️😯😢😡" }; // Emojis
+  // Create the text blobs just one time, and we cache them in textBlobs array
+  if (textBlobs.empty()) {
+    textBlobs.resize(N);
+    for (size_t i=0; i<N; ++i) {
+      textBlobs[i] = TextBlob::MakeWithShaper(fontMgr, font, kLines[i]);
+    }
+  }
 
-  MyDrawTextDelegate delegate(mousePos);
-  gfx::PointF pos(0, 0);
-  for (auto line : lines) {
-    std::string s = line;
+  gfx::RectF focusedGlyph;
+  base::codepoint_t focusedCodepoint = 0;
 
-#if 0
-    draw_text_with_shaper(
-      surface, fontMgr, font, s,
-      pos, &p, TextAlign::Left);
-#else
-    // This example shows how to use the old DrawTextDelegate to
-    // change foreground/background per character.
-    draw_text(
-      surface, fontMgr, font, s,
-      p.color(), gfx::rgba(0, 0, 0),
-      pos.x, pos.y, &delegate);
-#endif
+  gfx::PointF pos(rc.w/2, 0);
+  for (size_t i=0; i<N; ++i) {
+    auto& blob = textBlobs[i];
+    gfx::PointF textPos(pos.x - blob->bounds().w/2, pos.y);
+
+    draw_text(surface, blob, textPos, &p);
+
+    // Check if the mouse is over one glyph of this text blob.
+    if (!focusedCodepoint) {
+      focusedCodepoint =
+        inside_glyph_bounds(blob.get(), kLines[i],
+                            mousePos - textPos, focusedGlyph);
+      if (focusedCodepoint)
+        focusedGlyph.offset(textPos);
+    }
 
     pos.y += font->height() + 4;
   }
 
   // Show Unicode code point of the hover char in the title bar.
-  if (delegate.codepoint()) {
+  if (focusedCodepoint) {
     char buf[256];
-    snprintf(buf, sizeof(buf), "%s - U+%04X", kTitle, delegate.codepoint());
+    snprintf(buf, sizeof(buf), "%s - U+%04X", kTitle, focusedCodepoint);
     window->setTitle(buf);
+
+    focusedGlyph.enlarge(1.0f);
+    p.style(Paint::Style::Stroke);
+    surface->drawRect(focusedGlyph, p);
   }
   else {
     window->setTitle(kTitle);
@@ -116,7 +139,7 @@ int app_main(int argc, char* argv[])
     return 1;
   }
 
-  WindowRef window = system->makeWindow(400, 300);
+  WindowRef window = system->makeWindow(800, 800, 2);
   window->setTitle(kTitle);
 
   system->finishLaunching();
