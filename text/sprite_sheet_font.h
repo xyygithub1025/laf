@@ -87,40 +87,51 @@ public:
     // Do nothing
   }
 
-  bool hasCodePoint(int codepoint) const override {
-    codepoint -= (int)' ';
-    return (codepoint >= 0 &&
-            codepoint < (int)m_chars.size() &&
-            !m_chars[codepoint].isEmpty());
+  glyph_t codePointToGlyph(const codepoint_t codepoint) const override {
+    glyph_t glyph = codepoint - int(' ') + 2;
+    if (glyph >= 0 &&
+        glyph < int(m_glyphs.size()) &&
+        !m_glyphs[glyph].isEmpty()) {
+      return glyph;
+    }
+    else
+      return 0;
   }
 
-  gfx::RectF getGlyphBounds(GlyphID glyph) const override {
-    return gfx::RectF(getCharBounds(' ' + glyph));
+  gfx::RectF getGlyphBounds(glyph_t glyph) const override {
+    if (glyph >= 0 && glyph < (int)m_glyphs.size())
+      return m_glyphs[glyph];
+
+    return getCharBounds(128);
   }
 
   os::Surface* sheetSurface() const {
     return m_sheet.get();
   }
 
-  gfx::Rect getCharBounds(int chr) const {
-    chr -= (int)' ';
-    if (chr >= 0 && chr < (int)m_chars.size())
-      return m_chars[chr];
-    if (chr != 128)
-      return getCharBounds(128);
-    return gfx::Rect();
+  gfx::Rect getCharBounds(codepoint_t cp) const {
+    glyph_t glyph = codePointToGlyph(cp);
+    if (glyph == 0)
+      glyph = codePointToGlyph(128);
+
+    if (glyph != 0)
+      return m_glyphs[glyph];
+    else
+      return gfx::Rect();
   }
 
   static FontRef FromSurface(const os::SurfaceRef& sur) {
     auto font = base::make_ref<SpriteSheetFont>();
     font->m_sheet = sur;
+    font->m_glyphs.push_back(gfx::Rect()); // glyph index 0 is MISSING CHARACTER glyph
+    font->m_glyphs.push_back(gfx::Rect()); // glyph index 1 is NULL glyph
 
     os::SurfaceLock lock(sur.get());
     gfx::Rect bounds(0, 0, 1, 1);
-    gfx::Rect charBounds;
+    gfx::Rect glyphBounds;
 
-    while (font->findChar(sur.get(), sur->width(), sur->height(), bounds, charBounds)) {
-      font->m_chars.push_back(charBounds);
+    while (font->findGlyph(sur.get(), sur->width(), sur->height(), bounds, glyphBounds)) {
+      font->m_glyphs.push_back(glyphBounds);
       bounds.x += bounds.w;
     }
 
@@ -129,8 +140,8 @@ public:
 
 private:
 
-  bool findChar(const os::Surface* sur, int width, int height,
-                gfx::Rect& bounds, gfx::Rect& charBounds) {
+  bool findGlyph(const os::Surface* sur, int width, int height,
+                 gfx::Rect& bounds, gfx::Rect& glyphBounds) {
     gfx::Color keyColor = sur->getPixel(0, 0);
 
     while (sur->getPixel(bounds.x, bounds.y) == keyColor) {
@@ -161,16 +172,16 @@ private:
     // Using red color in the first pixel of the char indicates that
     // this glyph shouldn't be used as a valid one.
     if (firstCharPixel != kRedColor)
-      charBounds = bounds;
+      glyphBounds = bounds;
     else
-      charBounds = gfx::Rect();
+      glyphBounds = gfx::Rect();
 
     return !bounds.isEmpty();
   }
 
 private:
   os::SurfaceRef m_sheet;
-  std::vector<gfx::Rect> m_chars;
+  std::vector<gfx::Rect> m_glyphs;
 };
 
 } // namespace text

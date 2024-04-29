@@ -45,8 +45,13 @@ namespace text {
     virtual void setSize(int size) = 0;
     virtual bool antialias() const = 0;
     virtual void setAntialias(bool antialias) = 0;
-    virtual bool hasCodePoint(int codepoint) const = 0;
-    virtual gfx::RectF getGlyphBounds(GlyphID glyph) const = 0;
+
+    bool hasCodePoint(codepoint_t cp) const {
+      return (codePointToGlyph(cp) != 0);
+    }
+
+    virtual glyph_t codePointToGlyph(codepoint_t cp) const = 0;
+    virtual gfx::RectF getGlyphBounds(glyph_t glyph) const = 0;
 
     Font* fallback() const {
       return m_fallback;

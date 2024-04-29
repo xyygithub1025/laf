@@ -36,8 +36,9 @@ public:
   void setSize(int) override { }
   bool antialias() const override { return false; }
   void setAntialias(bool) override { }
-  bool hasCodePoint(int) const override { return false; }
-  gfx::RectF getGlyphBounds(GlyphID) const override { return gfx::RectF(); }
+
+  glyph_t codePointToGlyph(codepoint_t) const override { return false; }
+  gfx::RectF getGlyphBounds(glyph_t) const override { return gfx::RectF(); }
 };
 
 class EmptyFontStyleSet : public FontStyleSet {

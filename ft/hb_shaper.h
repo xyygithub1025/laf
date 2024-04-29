@@ -9,6 +9,7 @@
 #define FT_HB_SHAPER_H_INCLUDED
 #pragma once
 
+#include "base/glyph.h"
 #include "base/utf8_decode.h"
 #include "ft/hb_face.h"
 
@@ -75,7 +76,7 @@ namespace ft {
       return m_glyphInfo[m_index].cluster;
     }
 
-    unsigned int glyphIndex() const {
+    base::glyph_t glyphIndex() const {
       // After shaping the "codepoint" field is the glyph index.
       return m_glyphInfo[m_index].codepoint;
     }

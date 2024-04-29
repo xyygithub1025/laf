@@ -115,12 +115,12 @@ void SkiaFont::setAntialias(bool antialias)
                                  SkFont::Edging::kAlias);
 }
 
-bool SkiaFont::hasCodePoint(int codepoint) const
+glyph_t SkiaFont::codePointToGlyph(codepoint_t codepoint) const
 {
-  return (m_skFont.unicharToGlyph(codepoint) != 0);
+  return m_skFont.unicharToGlyph(codepoint);
 }
 
-gfx::RectF SkiaFont::getGlyphBounds(GlyphID glyph) const
+gfx::RectF SkiaFont::getGlyphBounds(glyph_t glyph) const
 {
   float widths;
   SkRect bounds;

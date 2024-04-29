@@ -35,7 +35,7 @@ void SkiaTextBlob::visitRuns(const RunVisitor& visitor)
     const int n = run.count;
     subInfo.font = base::make_ref<SkiaFont>(run.font);
     subInfo.glyphCount = n;
-    subInfo.glyphs = const_cast<GlyphID*>(run.glyphs);
+    subInfo.glyphs = const_cast<glyph_t*>(run.glyphs);
     if (positions.size() < n)
       positions.resize(n);
     for (size_t i=0; i<n; ++i) {

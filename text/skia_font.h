@@ -32,8 +32,9 @@ namespace text {
     void setSize(int size) override;
     bool antialias() const override;
     void setAntialias(bool antialias) override;
-    bool hasCodePoint(int codepoint) const override;
-    gfx::RectF getGlyphBounds(GlyphID glyph) const override;
+
+    glyph_t codePointToGlyph(codepoint_t codepoint) const override;
+    gfx::RectF getGlyphBounds(glyph_t glyph) const override;
 
     SkFont& skFont() { return m_skFont; }
 

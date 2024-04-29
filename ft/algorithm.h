@@ -42,7 +42,7 @@ namespace ft {
       return m_pos - m_begin;
     }
 
-    unsigned int glyphIndex() {
+    base::glyph_t glyphIndex() const {
       return m_face.cache().getGlyphIndex(m_face, unicodeChar());
     }
 

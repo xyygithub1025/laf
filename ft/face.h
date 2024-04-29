@@ -11,6 +11,7 @@
 
 #include "base/debug.h"
 #include "base/disable_copying.h"
+#include "base/glyph.h"
 #include "ft/freetype_headers.h"
 
 #include <map>
@@ -84,12 +85,15 @@ namespace ft {
       return int(m_face->descender * y_scale);
     }
 
-    bool hasCodePoint(base::codepoint_t codepoint) const {
-      if (m_face) {
-        codepoint = FT_Get_Char_Index(m_face, codepoint);
-        return (codepoint != 0);
-      }
-      return false;
+    bool hasCodePoint(base::codepoint_t cp) const {
+      return (codePointToGlyph(cp) != 0);
+    }
+
+    base::glyph_t codePointToGlyph(base::codepoint_t cp) const {
+      if (m_face)
+        return FT_Get_Char_Index(m_face, cp);
+      else
+        return 0;
     }
 
     Cache& cache() { return m_cache; }

@@ -109,12 +109,12 @@ void FreeTypeFont::setAntialias(bool antialias)
   m_face.setAntialias(antialias);
 }
 
-bool FreeTypeFont::hasCodePoint(int codepoint) const
+glyph_t FreeTypeFont::codePointToGlyph(codepoint_t cp) const
 {
-  return m_face.hasCodePoint(codepoint);
+  return m_face.codePointToGlyph(cp);
 }
 
-gfx::RectF FreeTypeFont::getGlyphBounds(GlyphID glyph) const
+gfx::RectF FreeTypeFont::getGlyphBounds(glyph_t glyph) const
 {
   return gfx::RectF();        // TODO impl
 }

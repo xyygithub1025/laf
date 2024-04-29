@@ -43,7 +43,7 @@ namespace text {
       size_t glyphCount = 0;
       bool rtl = false;
       Utf8Range utf8Range;
-      GlyphID* glyphs = nullptr;        // required
+      glyph_t* glyphs = nullptr;        // required
       gfx::PointF* positions = nullptr; // required, if (!offsets) put glyphs[i] at positions[i]
                                         // if (offsets) positions[i+1]-positions[i] are advances
       gfx::PointF* offsets = nullptr;   // optional, if ( offsets) put glyphs[i] at positions[i]+offsets[i]

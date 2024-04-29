@@ -8,9 +8,14 @@
 #define LAF_TEXT_FWD_H_INCLUDED
 #pragma once
 
+#include "base/codepoint.h"
+#include "base/glyph.h"
 #include "base/ref.h"
 
 namespace text {
+
+  using codepoint_t = base::codepoint_t;
+  using glyph_t = base::glyph_t;
 
   class Font;
   using FontRef = base::Ref<Font>;
@@ -31,8 +36,6 @@ namespace text {
 
   class Typeface;
   using TypefaceRef = base::Ref<Typeface>;
-
-  using GlyphID = uint16_t;
 
 } // namespace text
 

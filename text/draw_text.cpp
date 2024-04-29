@@ -81,7 +81,7 @@ public:
 
         if (m_delegate) {
           const std::wstring widetext = base::from_utf8(utf8text);
-          base::codepoint_t codepoint = 0;
+          codepoint_t codepoint = 0;
           if (widetext.size() > 0) {
             // On macOS and Linux wchar_t has 32-bits
             if constexpr (sizeof(wchar_t) >= 4) {
@@ -164,7 +164,7 @@ retry:;
   if (font->fallback()) {
     // TODO compose unicode characters and check those codepoints, the
     //      same in the drawing code of sprite sheet font
-    while (const base::codepoint_t code = decode.next()) {
+    while (const codepoint_t code = decode.next()) {
       if (code && !font->hasCodePoint(code)) {
         Font* newFont = font->fallback();
 
@@ -204,7 +204,7 @@ retry:;
       decode = base::utf8_decode(text);
       while (true) {
         const int i = decode.pos() - text.begin();
-        const base::codepoint_t chr = decode.next();
+        const codepoint_t chr = decode.next();
         if (!chr)
           break;
 

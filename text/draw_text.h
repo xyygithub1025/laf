@@ -9,7 +9,6 @@
 #define LAF_TEXT_DRAW_TEXT_H_INCLUDED
 #pragma once
 
-#include "base/codepoint.h"
 #include "base/ref.h"
 #include "base/string.h"
 #include "gfx/color.h"
@@ -17,6 +16,7 @@
 #include "gfx/point.h"
 #include "text/font.h"
 #include "text/font_mgr.h"
+#include "text/fwd.h"
 
 namespace os {
   class Surface;
@@ -33,7 +33,7 @@ namespace text {
 
     // This is called before drawing the character.
     virtual void preProcessChar(const int index,
-                                const base::codepoint_t codepoint,
+                                const codepoint_t codepoint,
                                 gfx::Color& fg,
                                 gfx::Color& bg,
                                 const gfx::Rect& charBounds) {
