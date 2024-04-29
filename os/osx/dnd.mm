@@ -8,6 +8,7 @@
 #include "base/fs.h"
 #include "clip/clip.h"
 #include "clip/clip_osx.h"
+#include "os/dnd.h"
 #include "os/osx/dnd.h"
 #include "os/surface_format.h"
 #include "os/system.h"
@@ -43,6 +44,12 @@ SurfaceRef DragDataProviderOSX::getImage()
   return os::instance()->makeSurface(img);
 }
 
+std::string DragDataProviderOSX::getUrl()
+{
+  NSURL* url = [NSURL URLFromPasteboard: m_pasteboard];
+  return url ? url.absoluteString.UTF8String : "";
+}
+
 bool DragDataProviderOSX::contains(DragDataItemType type)
 {
   for (NSPasteboardType t in m_pasteboard.types) {
@@ -53,6 +60,10 @@ bool DragDataProviderOSX::contains(DragDataItemType type)
     if (type == DragDataItemType::Image &&
         ([t isEqual: NSPasteboardTypeTIFF] ||
           [t isEqual: NSPasteboardTypePNG]))
+      return true;
+
+    if (type == DragDataItemType::Url &&
+        [t isEqual: NSURLPboardType])
       return true;
   }
   return false;

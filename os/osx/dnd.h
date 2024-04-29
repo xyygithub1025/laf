@@ -29,6 +29,8 @@ namespace os {
 
     SurfaceRef getImage() override;
 
+    std::string getUrl() override;
+
     bool contains(DragDataItemType type) override;
   };
 } // namespace os

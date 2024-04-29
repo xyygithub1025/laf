@@ -150,6 +150,7 @@ using namespace os;
                          NSFilenamesPboardType,
                          NSPasteboardTypePNG,
                          NSPasteboardTypeTIFF,
+                         NSURLPboardType,
                        nil]];
 
       // Create a CALayer for backing content with async drawing. This
