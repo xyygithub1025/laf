@@ -14,6 +14,10 @@
 
 #include "include/core/SkCanvas.h"
 
+#if LAF_WITH_CLIP
+  #include "clip/clip.h"
+#endif
+
 #include <cstdio>
 
 using namespace os;
@@ -271,6 +275,13 @@ int app_main(int argc, char* argv[])
               if (chr) {
                 std::string newUtf8Str = ev.unicodeCharAsUtf8();
 
+#if LAF_WITH_CLIP
+                if ((ev.scancode() == kKeyV) &&
+                    (ev.modifiers() & kKeyCtrlModifier) != 0) {
+                  clip::get_text(newUtf8Str);
+                }
+#endif
+
                 if (edit.caretIndex < edit.boxes.size()) {
                   size_t pos = edit.boxes[edit.caretIndex].utf8Range.begin;
                   edit.text.insert(pos, newUtf8Str);
@@ -279,8 +290,9 @@ int app_main(int argc, char* argv[])
                   edit.text += newUtf8Str;
                 }
 
+                size_t oldSize = edit.boxes.size();
                 edit.makeBlob(fontMgr, font);
-                ++edit.caretIndex;
+                edit.caretIndex += edit.boxes.size() - oldSize;
               }
             }
             break;
