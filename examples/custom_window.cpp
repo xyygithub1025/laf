@@ -123,7 +123,7 @@ void draw_window(Window* window,
     rc2.y += kTitleBarSize/2 - 10;
 
     p.color(kTitleBarText);
-    draw_text(surface, nullptr, "Custom Window",
+    draw_text(surface, font, "Custom Window",
               rc2.center(), &p, TextAlign::Center);
 
     // Draw buttons
