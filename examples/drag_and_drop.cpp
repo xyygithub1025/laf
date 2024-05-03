@@ -77,8 +77,10 @@ public:
       if (ev.acceptDrop()) {
         if (ev.dataProvider()->contains(os::DragDataItemType::Paths))
           windowData.paths = ev.dataProvider()->getPaths();
+#if CLIP_ENABLE_IMAGE
         if (ev.dataProvider()->contains(os::DragDataItemType::Image))
           windowData.image = ev.dataProvider()->getImage();
+#endif
         if (ev.dataProvider()->contains(os::DragDataItemType::Url))
           windowData.url = ev.dataProvider()->getUrl();
       }

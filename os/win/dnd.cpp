@@ -4,6 +4,7 @@
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
 
+#include "base/fs.h"
 #include "os/window.h"
 #include "os/win/dnd.h"
 #include "os/system.h"
@@ -68,6 +69,8 @@ public:
 
   operator T() { return m_data; }
 
+  T operator ->() { return m_data; }
+
   bool operator==(std::nullptr_t) const { return m_data == nullptr; }
   bool operator!=(std::nullptr_t) const { return m_data != nullptr; }
 
@@ -108,13 +111,14 @@ public:
   DataWrapper(IDataObject* data) : m_data(data) {}
 
   template<typename T>
-  Medium<T> get(CLIPFORMAT cfmt) {
+  Medium<T> get(CLIPFORMAT cfmt, LONG lindex = -1)
+  {
     STGMEDIUM medium;
     FORMATETC fmt;
     fmt.cfFormat = cfmt;
     fmt.ptd = nullptr;
     fmt.dwAspect = DVASPECT_CONTENT;
-    fmt.lindex = -1;
+    fmt.lindex = lindex;
     fmt.tymed = TYMED::TYMED_HGLOBAL;
     if (m_data->GetData(&fmt, &medium) != S_OK)
       return nullptr;
@@ -151,20 +155,20 @@ base::paths DragDataProviderWin::getPaths()
   return files;
 }
 
+#if CLIP_ENABLE_IMAGE
 SurfaceRef DragDataProviderWin::getImage()
 {
   SurfaceRef surface = nullptr;
-  clip::image img;
 
   DataWrapper data(m_data);
   UINT png_format = RegisterClipboardFormatA("PNG");
   if (png_format) {
     Medium<uint8_t*> png_handle = data.get<uint8_t*>(png_format);
-    if (png_handle != nullptr &&
-        clip::win::read_png(png_handle, png_handle.size(), &img, nullptr))
-      return os::instance()->makeSurface(img);
+    if (png_handle != nullptr)
+      return os::decode_png(png_handle, png_handle.size());
   }
 
+  clip::image img;
   Medium<BITMAPV5HEADER*> b5 = data.get<BITMAPV5HEADER*>(CF_DIBV5);
   if (b5 != nullptr) {
     clip::win::BitmapInfo bi(b5);
@@ -179,9 +183,40 @@ SurfaceRef DragDataProviderWin::getImage()
       return os::instance()->makeSurface(img);
   }
 
+  // If there is a file descriptor available, then we inspect the first
+  // file of the group to see if its filename has any of the supported
+  // filename extensions for image formats.
+  UINT fileDescriptorFormat = RegisterClipboardFormat(CFSTR_FILEDESCRIPTOR);
+  UINT fileContentsFormat = RegisterClipboardFormat(CFSTR_FILECONTENTS);
+  if (fileDescriptorFormat) {
+    Medium<FILEGROUPDESCRIPTOR*> fgd = data.get<FILEGROUPDESCRIPTOR*>(fileDescriptorFormat);
+    if (fgd != nullptr &&  fgd->cItems > 0) {
+      // Get content of the first file on the group.
+      Medium<uint8_t*> content = data.get<uint8_t*>(fileContentsFormat, 0);
+      if (content != nullptr) {
+        std::string filename(base::to_utf8(fgd->fgd->cFileName));
+        std::string ext = base::get_file_extension(filename);
+        std::transform(ext.begin(), ext.end(), ext.begin(), ::toupper);
+
+        if (ext == "PNG")
+          return os::decode_png(content, content.size());
+
+        if (ext == "JPG" || ext == "JPEG" || ext == "JPE")
+          return os::decode_jpg(content, content.size());
+
+        if (ext == "GIF")
+          return os::decode_gif(content, content.size());
+
+        if (ext == "BMP")
+          return os::decode_bmp(content, content.size());
+      }
+    }
+  }
+
   // No suitable image format found.
   return nullptr;
 }
+#endif
 
 std::string DragDataProviderWin::getUrl()
 {
@@ -203,6 +238,7 @@ bool DragDataProviderWin::contains(DragDataItemType type)
 
   UINT urlFormat = RegisterClipboardFormat(CFSTR_INETURL);
   UINT pngFormat = RegisterClipboardFormat(L"PNG");
+  UINT fileDescriptorFormat = RegisterClipboardFormat(CFSTR_FILEDESCRIPTOR);
   char name[101];
   FORMATETC fmt;
   while (formats->Next(1, &fmt, nullptr) == S_OK) {
@@ -211,6 +247,7 @@ bool DragDataProviderWin::contains(DragDataItemType type)
         if (type == DragDataItemType::Paths)
           return true;
         break;
+#if CLIP_ENABLE_IMAGE
       case CF_DIBV5:
         if (type == DragDataItemType::Image)
           return true;
@@ -219,13 +256,28 @@ bool DragDataProviderWin::contains(DragDataItemType type)
         if (type == DragDataItemType::Image)
           return true;
         break;
+#endif
       default: {
         switch (type) {
+#if CLIP_ENABLE_IMAGE
           case DragDataItemType::Image:
             if (fmt.cfFormat == pngFormat)
               return true;
 
+            if (fmt.cfFormat == fileDescriptorFormat) {
+              DataWrapper data(m_data);
+              Medium<FILEGROUPDESCRIPTOR*> fgd = data.get<FILEGROUPDESCRIPTOR*>(fileDescriptorFormat);
+              if (fgd != nullptr && fgd->cItems > 0) {
+                std::string filename(base::to_utf8(fgd->fgd->cFileName));
+                std::string ext =  base::get_file_extension(filename);
+                std::transform(ext.begin(), ext.end(), ext.begin(), ::toupper);
+                if (ext == "PNG" || ext == "JPG" || ext == "JPEG" ||
+                    ext == "JPE" || ext == "GIF" || ext == "BMP")
+                  return true;
+              }
+            }
             break;
+#endif
           case DragDataItemType::Url:
             if (fmt.cfFormat == urlFormat)
               return true;

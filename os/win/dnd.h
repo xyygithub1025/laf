@@ -23,7 +23,9 @@ namespace os {
     IDataObject* m_data;
 
     base::paths getPaths() override;
+#if CLIP_ENABLE_IMAGE
     SurfaceRef getImage() override;
+#endif
     std::string getUrl() override;
     bool contains(DragDataItemType type) override;
   };

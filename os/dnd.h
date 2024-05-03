@@ -13,6 +13,7 @@
 #include "gfx/point.h"
 #include "os/surface.h"
 
+#include <functional>
 #include <memory>
 
 #pragma push_macro("None")
@@ -22,6 +23,21 @@ namespace os {
 
   class Window;
 
+#if CLIP_ENABLE_IMAGE
+  using DecoderFunc = std::function<SurfaceRef(const uint8_t* buf, const uint32_t len)>;
+
+  // Methods used to configure custom decoder functions by replacing the default implementations.
+
+  void set_decode_png(DecoderFunc func);
+  void set_decode_jpg(DecoderFunc func);
+  void set_decode_bmp(DecoderFunc func);
+  void set_decode_gif(DecoderFunc func);
+
+  SurfaceRef decode_png(const uint8_t* buf, const uint32_t len);
+  SurfaceRef decode_jpg(const uint8_t* buf, const uint32_t len);
+  SurfaceRef decode_bmp(const uint8_t* buf, const uint32_t len);
+  SurfaceRef decode_gif(const uint8_t* buf, const uint32_t len);
+#endif
   // Operations that can be supported by source and target windows in a drag
   // and drop operation.
   enum class DropOperation {
@@ -44,7 +60,9 @@ namespace os {
   public:
     virtual ~DragDataProvider() {}
     virtual base::paths getPaths() = 0;
+#if CLIP_ENABLE_IMAGE
     virtual SurfaceRef getImage() = 0;
+#endif
     virtual std::string getUrl() = 0;
     virtual bool contains(DragDataItemType type) { return false; }
   };

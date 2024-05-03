@@ -8,6 +8,7 @@
 set(LAF_OS_SOURCES
   common/event_queue.cpp
   common/main.cpp
+  dnd.cpp
   system.cpp
   window.cpp)
 if(WIN32)
