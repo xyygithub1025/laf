@@ -13,6 +13,11 @@
 #include "gfx/rect.h"
 #include "text/font.h"
 #include "text/font_metrics.h"
+#include "text/sprite_text_blob.h"
+
+#if LAF_SKIA
+  #include "text/skia_text_blob.h"
+#endif
 
 namespace text {
 
@@ -31,8 +36,9 @@ TextBlob::Utf8Range TextBlob::RunInfo::getGlyphUtf8Range(size_t i) const
 {
   Utf8Range subRange;
 
+  ASSERT(clusters);
   ASSERT(i < glyphCount);
-  if (i >= glyphCount)
+  if (i >= glyphCount || !clusters)
     return subRange;
 
   // LTR
@@ -73,7 +79,34 @@ gfx::RectF TextBlob::RunInfo::getGlyphBounds(const size_t i) const
     bounds.offset(offsets[i].x,
                   offsets[i].y);
   }
+
+  // Add global "point" offset to the bounds.
+  bounds.offset(point);
   return bounds;
+}
+
+TextBlobRef TextBlob::Make(
+  const FontRef& font,
+  const std::string& text)
+{
+  ASSERT(font);
+  switch (font->type()) {
+
+    case FontType::SpriteSheet:
+      return SpriteTextBlob::Make(font, text);
+
+    case FontType::FreeType:
+      ASSERT(false);            // TODO impl
+      return nullptr;
+
+#if LAF_SKIA
+    case FontType::Native:
+      return SkiaTextBlob::Make(font, text);
+#endif
+
+    default:
+      return nullptr;
+  }
 }
 
 } // namespace text

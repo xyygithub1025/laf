@@ -100,6 +100,13 @@ public:
 
   gfx::RectF getGlyphBounds(glyph_t glyph) const override {
     if (glyph >= 0 && glyph < (int)m_glyphs.size())
+      return gfx::RectF(0, 0, m_glyphs[glyph].w, m_glyphs[glyph].h);
+
+    return getCharBounds(128);
+  }
+
+  gfx::RectF getGlyphBoundsOnSheet(glyph_t glyph) const {
+    if (glyph >= 0 && glyph < (int)m_glyphs.size())
       return m_glyphs[glyph];
 
     return getCharBounds(128);

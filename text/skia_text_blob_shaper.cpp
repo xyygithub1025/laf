@@ -30,9 +30,10 @@ namespace {
 
 class ShaperRunHandler final : public SkShaper::RunHandler {
 public:
-  ShaperRunHandler(const char* utf8Text, SkPoint offset,
+  ShaperRunHandler(const char* utf8Text,
+                   const gfx::PointF& offset,
                    TextBlob::RunHandler* subHandler)
-    : m_builder(utf8Text, offset)
+    : m_builder(utf8Text, os::to_skia(offset))
     , m_subHandler(subHandler) { }
 
   sk_sp<SkTextBlob> makeBlob() {
@@ -61,17 +62,12 @@ public:
   }
 
   void commitRunBuffer(const RunInfo& info) override {
-    SkString family;
-    info.fFont.getTypeface()
-      ->getFamilyName(&family);
-
     m_builder.commitRunBuffer(info);
 
     // Now the m_buffer field is valid and can be used
     size_t n = info.glyphCount;
     TextBlob::RunInfo subInfo;
-    FontRef font = base::make_ref<SkiaFont>(info.fFont);
-    subInfo.font = font;
+    subInfo.font = base::make_ref<SkiaFont>(info.fFont);
     subInfo.glyphCount = n;
     subInfo.rtl = (info.fBidiLevel & 1);
     subInfo.utf8Range.begin = info.utf8Range.begin();
@@ -97,14 +93,16 @@ public:
     }
 
     subInfo.clusters = m_buffer.clusters;
-    subInfo.point = gfx::PointF(m_buffer.point.x(),
-                                m_buffer.point.y());
 
-    for (int i=0; i<subInfo.glyphCount; ++i)
-      m_bounds |= subInfo.getGlyphBounds(i);
+    // subInfo.point = os::from_skia(m_buffer.point);
+    // subInfo.point = gfx::PointF(0, 0);
+    subInfo.point += os::from_skia(m_builder.endPoint());
 
     if (m_subHandler)
       m_subHandler->commitRunBuffer(subInfo);
+
+    for (int i=0; i<subInfo.glyphCount; ++i)
+      m_bounds |= subInfo.getGlyphBounds(i);
   }
 
   void commitLine() override {
@@ -122,12 +120,14 @@ private:
 
 }
 
-TextBlobRef TextBlob::MakeWithShaper(
+TextBlobRef SkiaTextBlob::MakeWithShaper(
   const FontMgrRef& fontMgr,
   const FontRef& font,
   const std::string& text,
   TextBlob::RunHandler* handler)
 {
+  ASSERT(font);
+  ASSERT(font->type() == FontType::Native);
   ASSERT(dynamic_cast<SkiaFont*>(font.get()));
 
   SkFont skFont = static_cast<SkiaFont*>(font.get())->skFont();
@@ -150,33 +150,10 @@ TextBlobRef TextBlob::MakeWithShaper(
                                         skFont, SkTextEncoding::kUTF8);
   }
 
-  return base::make_ref<SkiaTextBlob>(textBlob, bounds);
-}
-
-void draw_text_with_shaper(
-  os::Surface* surface,
-  const FontMgrRef& fontMgr,
-  const FontRef& font,
-  const std::string& text,
-  gfx::PointF pos,
-  const os::Paint* paint,
-  const TextAlign textAlign)
-{
-  if (!fontMgr || !font || font->type() != FontType::Native)
-    return;
-
-  TextBlobRef blob = TextBlob::MakeWithShaper(
-    fontMgr, font, text, nullptr);
-  if (!blob)
-    return;
-
-  switch (textAlign) {
-    case TextAlign::Left: break;
-    case TextAlign::Center: pos.x -= blob->bounds().w / 2.0f; break;
-    case TextAlign::Right: pos.x -= blob->bounds().w; break;
-  }
-
-  draw_text(surface, blob, pos, paint);
+  if (textBlob)
+    return base::make_ref<SkiaTextBlob>(textBlob, bounds);
+  else
+    return nullptr;
 }
 
 } // namespace text

@@ -11,7 +11,6 @@
 #include "text/skia_font_mgr.h"
 
 #include "include/core/SkTextBlob.h"
-#include "modules/skshaper/include/SkShaper.h"
 
 #include <limits>
 
@@ -22,6 +21,7 @@ SkiaTextBlob::SkiaTextBlob(const sk_sp<SkTextBlob>& skTextBlob,
   : TextBlob(bounds)
   , m_skTextBlob(skTextBlob)
 {
+  ASSERT(skTextBlob);
 }
 
 void SkiaTextBlob::visitRuns(const RunVisitor& visitor)
@@ -48,15 +48,22 @@ void SkiaTextBlob::visitRuns(const RunVisitor& visitor)
   }
 }
 
-TextBlobRef TextBlob::Make(
+TextBlobRef SkiaTextBlob::Make(
   const FontRef& font,
   const std::string& text)
 {
+  ASSERT(font);
+  ASSERT(font->type() == FontType::Native);
+  ASSERT(dynamic_cast<SkiaFont*>(font.get()));
+
   SkFont skFont = static_cast<SkiaFont*>(font.get())->skFont();
   sk_sp<SkTextBlob> textBlob;
   textBlob = SkTextBlob::MakeFromText(text.c_str(), text.size(),
                                       skFont, SkTextEncoding::kUTF8);
-  return base::make_ref<SkiaTextBlob>(textBlob);
+  if (textBlob)
+    return base::make_ref<SkiaTextBlob>(textBlob);
+
+  return nullptr;
 }
 
 } // namespace text

@@ -20,6 +20,7 @@ namespace text {
 
   class FontMgr : public base::RefCount {
   public:
+    [[nodiscard]]
     static FontMgrRef Make();
 
     FontRef loadSpriteSheetFont(const char* filename, int scale);

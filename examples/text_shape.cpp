@@ -45,14 +45,11 @@ struct TextEdit {
 
     // TextBlob::RunHandler impl
     void commitRunBuffer(TextBlob::RunInfo& info) override {
-      if (info.clusters &&
-          info.glyphCount > 0) {
-        Box box;
-        for (int i=0; i<info.glyphCount; ++i) {
-          box.utf8Range = info.getGlyphUtf8Range(i);
-          box.bounds = info.getGlyphBounds(i);
-          m_boxes.push_back(box);
-        }
+      Box box;
+      for (int i=0; i<info.glyphCount; ++i) {
+        box.utf8Range = info.getGlyphUtf8Range(i);
+        box.bounds = info.getGlyphBounds(i);
+        m_boxes.push_back(box);
       }
     }
 

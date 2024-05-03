@@ -63,7 +63,7 @@ namespace text {
       virtual void commitRunBuffer(RunInfo& info) = 0;
     };
 
-    TextBlob(gfx::RectF bounds) : m_bounds(bounds) { }
+    TextBlob(const gfx::RectF& bounds) : m_bounds(bounds) { }
     virtual ~TextBlob() { }
 
     // Returns exact bounds that are required to draw this TextBlob.

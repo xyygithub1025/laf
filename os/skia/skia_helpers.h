@@ -9,6 +9,7 @@
 #pragma once
 
 #include "gfx/color.h"
+#include "gfx/point.h"
 #include "gfx/rect.h"
 #include "os/paint.h"
 #include "os/sampling.h"
@@ -30,12 +31,20 @@ inline SkColor4f to_skia4f(gfx::Color c) {
   return SkColor4f::FromColor(to_skia(c));
 }
 
+inline SkPoint to_skia(const gfx::PointF& pt) {
+  return SkPoint::Make(pt.x, pt.y);
+}
+
 inline SkIRect to_skia(const gfx::Rect& rc) {
   return SkIRect::MakeXYWH(rc.x, rc.y, rc.w, rc.h);
 }
 
 inline SkRect to_skia(const gfx::RectF& rc) {
   return SkRect::MakeXYWH(SkScalar(rc.x), SkScalar(rc.y), SkScalar(rc.w), SkScalar(rc.h));
+}
+
+inline gfx::PointF from_skia(const SkPoint& pt) {
+  return gfx::PointF(pt.x(), pt.y());
 }
 
 inline gfx::RectF from_skia(const SkRect& rc) {

@@ -5,8 +5,12 @@
 
 add_library(laf-text
   draw_text.cpp
+  draw_text_shaper.cpp
   font_mgr.cpp
-  text_blob.cpp)
+  sprite_text_blob.cpp
+  sprite_text_blob_shaper.cpp
+  text_blob.cpp
+  text_blob_shaper.cpp)
 
 target_link_libraries(laf-text laf-os laf-gfx laf-base)
 
@@ -18,11 +22,10 @@ endif()
 
 if(LAF_BACKEND STREQUAL "skia")
   target_sources(laf-text PRIVATE
-    skia_draw_text.cpp
     skia_font.cpp
     skia_font_mgr.cpp
     skia_text_blob.cpp
-    skia_with_shaper.cpp)
+    skia_text_blob_shaper.cpp)
   target_link_libraries(laf-text
     skia skshaper)
 else()
