@@ -10,53 +10,15 @@
   #include "config.h"
 #endif
 
-#include "clip/clip.h"
-#include "clip/clip_win.h"
 #include "os/dnd.h"
 #include "os/system.h"
 
+static os::DecoderFunc g_decode_png = default_decode_png;
+static os::DecoderFunc g_decode_jpg = default_decode_jpg;
+static os::DecoderFunc g_decode_bmp = default_decode_bmp;
+static os::DecoderFunc g_decode_gif = default_decode_gif;
+
 namespace os {
-
-SurfaceRef default_decode_png(const uint8_t* buf, const uint32_t len)
-{
-  clip::image img;
-  if (!clip::win::read_png(buf, len, &img, nullptr))
-    return nullptr;
-
-  return os::instance()->makeSurface(img);
-}
-
-SurfaceRef default_decode_jpg(const uint8_t* buf, const uint32_t len)
-{
-  clip::image img;
-  if (!clip::win::read_jpg(buf, len, &img, nullptr))
-    return nullptr;
-
-  return os::instance()->makeSurface(img);
-}
-
-SurfaceRef default_decode_bmp(const uint8_t* buf, const uint32_t len)
-{
-  clip::image img;
-  if (!clip::win::read_bmp(buf, len, &img, nullptr))
-    return nullptr;
-
-  return os::instance()->makeSurface(img);
-}
-
-SurfaceRef default_decode_gif(const uint8_t* buf, const uint32_t len)
-{
-  clip::image img;
-  if (!clip::win::read_gif(buf, len, &img, nullptr))
-    return nullptr;
-
-  return os::instance()->makeSurface(img);
-}
-
-static DecoderFunc g_decode_png = default_decode_png;
-static DecoderFunc g_decode_jpg = default_decode_jpg;
-static DecoderFunc g_decode_bmp = default_decode_bmp;
-static DecoderFunc g_decode_gif = default_decode_gif;
 
 void set_decode_png(DecoderFunc func)
 {

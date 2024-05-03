@@ -132,6 +132,44 @@ private:
 
 } // anonymous namespace
 
+#if CLIP_ENABLE_IMAGE
+os::SurfaceRef default_decode_png(const uint8_t* buf, const uint32_t len)
+{
+  clip::image img;
+  if (!clip::win::read_png(buf, len, &img, nullptr))
+    return nullptr;
+
+  return os::instance()->makeSurface(img);
+}
+
+os::SurfaceRef default_decode_jpg(const uint8_t* buf, const uint32_t len)
+{
+  clip::image img;
+  if (!clip::win::read_jpg(buf, len, &img, nullptr))
+    return nullptr;
+
+  return os::instance()->makeSurface(img);
+}
+
+os::SurfaceRef default_decode_bmp(const uint8_t* buf, const uint32_t len)
+{
+  clip::image img;
+  if (!clip::win::read_bmp(buf, len, &img, nullptr))
+    return nullptr;
+
+  return os::instance()->makeSurface(img);
+}
+
+os::SurfaceRef default_decode_gif(const uint8_t* buf, const uint32_t len)
+{
+  clip::image img;
+  if (!clip::win::read_gif(buf, len, &img, nullptr))
+    return nullptr;
+
+  return os::instance()->makeSurface(img);
+}
+#endif
+
 namespace os {
 
 base::paths DragDataProviderWin::getPaths()
@@ -268,8 +306,8 @@ bool DragDataProviderWin::contains(DragDataItemType type)
               DataWrapper data(m_data);
               Medium<FILEGROUPDESCRIPTOR*> fgd = data.get<FILEGROUPDESCRIPTOR*>(fileDescriptorFormat);
               if (fgd != nullptr && fgd->cItems > 0) {
-                std::string filename(base::to_utf8(fgd->fgd->cFileName));
-                std::string ext =  base::get_file_extension(filename);
+                const std::string filename(base::to_utf8(fgd->fgd->cFileName));
+                std::string ext = base::get_file_extension(filename);
                 std::transform(ext.begin(), ext.end(), ext.begin(), ::toupper);
                 if (ext == "PNG" || ext == "JPG" || ext == "JPEG" ||
                     ext == "JPE" || ext == "GIF" || ext == "BMP")

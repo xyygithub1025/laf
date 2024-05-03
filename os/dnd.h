@@ -19,6 +19,11 @@
 #pragma push_macro("None")
 #undef None // Undefine the X11 None macro
 
+os::SurfaceRef default_decode_png(const uint8_t* buf, const uint32_t len);
+os::SurfaceRef default_decode_jpg(const uint8_t* buf, const uint32_t len);
+os::SurfaceRef default_decode_bmp(const uint8_t* buf, const uint32_t len);
+os::SurfaceRef default_decode_gif(const uint8_t* buf, const uint32_t len);
+
 namespace os {
 
   class Window;
