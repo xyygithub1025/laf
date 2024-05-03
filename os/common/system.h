@@ -141,7 +141,10 @@ public:
 
     auto get_rgba32 = [&spec](char* scanlineAddr, int* r, int* g, int* b, int* a) {
       uint32_t c = *((uint32_t*)scanlineAddr);
-      *a = ((c & spec.alpha_mask) >> spec.alpha_shift);
+      if (spec.alpha_mask)
+        *a = ((c & spec.alpha_mask) >> spec.alpha_shift);
+      else
+        *a = 255;
       // The source image is in straight-alpha and makeRgbaSurface returns a
       // surface using premultiplied-alpha so we have to premultiply the
       // source values.
