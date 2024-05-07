@@ -53,20 +53,17 @@ public:
       windowData.drag = 0;
       windowData.dragPosition = ev.position();
       redraw_window(ev.target());
-      ev.target()->invalidate();
     }
     void dragLeave(os::DragEvent& ev) override {
       windowData.dragEnter = false;
       windowData.dragLeave = true;
       windowData.dragPosition = ev.position();
       redraw_window(ev.target());
-      ev.target()->invalidate();
     }
     void drag(os::DragEvent& ev) override {
       ++windowData.drag;
       windowData.dragPosition = ev.position();
       redraw_window(ev.target());
-      ev.target()->invalidate();
     }
     void drop(os::DragEvent& ev) override {
       windowData.dragEnter = false;
@@ -86,7 +83,6 @@ public:
       }
 
       redraw_window(ev.target());
-      ev.target()->invalidate();
     }
 };
 
@@ -159,6 +155,11 @@ static void redraw_window(os::Window* window)
   paint.color(textColor);
   paint.style(os::Paint::Style::Fill);
   os::draw_text(s, nullptr, "Drop here!", windowData.dropZone.center(), &paint, os::TextAlign::Center);
+
+  if (window->isVisible())
+    window->invalidateRegion(gfx::Region(rc));
+  else
+    window->setVisible(true);
 }
 
 static os::WindowRef create_window(const std::string& title,
@@ -210,7 +211,6 @@ int app_main(int argc, char* argv[])
 
       case os::Event::ResizeWindow:
         redraw_window(ev.window().get());
-        ev.window()->invalidate();
         break;
 
       default:
