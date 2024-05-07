@@ -13,12 +13,12 @@
 #include "os/dnd.h"
 #include "os/system.h"
 
-static os::DecoderFunc g_decode_png = default_decode_png;
-static os::DecoderFunc g_decode_jpg = default_decode_jpg;
-static os::DecoderFunc g_decode_bmp = default_decode_bmp;
-static os::DecoderFunc g_decode_gif = default_decode_gif;
-
 namespace os {
+
+static DecoderFunc g_decode_png = default_decode_png;
+static DecoderFunc g_decode_jpg = default_decode_jpg;
+static DecoderFunc g_decode_bmp = default_decode_bmp;
+static DecoderFunc g_decode_gif = default_decode_gif;
 
 void set_decode_png(DecoderFunc func)
 {

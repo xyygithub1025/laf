@@ -13,23 +13,22 @@
 #include "gfx/point.h"
 #include "os/surface.h"
 
-#include <functional>
 #include <memory>
 
 #pragma push_macro("None")
 #undef None // Undefine the X11 None macro
 
-os::SurfaceRef default_decode_png(const uint8_t* buf, const uint32_t len);
-os::SurfaceRef default_decode_jpg(const uint8_t* buf, const uint32_t len);
-os::SurfaceRef default_decode_bmp(const uint8_t* buf, const uint32_t len);
-os::SurfaceRef default_decode_gif(const uint8_t* buf, const uint32_t len);
-
 namespace os {
+
+  SurfaceRef default_decode_png(const uint8_t* buf, uint32_t len);
+  SurfaceRef default_decode_jpg(const uint8_t* buf, uint32_t len);
+  SurfaceRef default_decode_bmp(const uint8_t* buf, uint32_t len);
+  SurfaceRef default_decode_gif(const uint8_t* buf, uint32_t len);
 
   class Window;
 
 #if CLIP_ENABLE_IMAGE
-  using DecoderFunc = std::function<SurfaceRef(const uint8_t* buf, const uint32_t len)>;
+  using DecoderFunc = SurfaceRef(*)(const uint8_t* buf, uint32_t len);
 
   // Methods used to configure custom decoder functions by replacing the default implementations.
 
@@ -38,10 +37,10 @@ namespace os {
   void set_decode_bmp(DecoderFunc func);
   void set_decode_gif(DecoderFunc func);
 
-  SurfaceRef decode_png(const uint8_t* buf, const uint32_t len);
-  SurfaceRef decode_jpg(const uint8_t* buf, const uint32_t len);
-  SurfaceRef decode_bmp(const uint8_t* buf, const uint32_t len);
-  SurfaceRef decode_gif(const uint8_t* buf, const uint32_t len);
+  SurfaceRef decode_png(const uint8_t* buf, uint32_t len);
+  SurfaceRef decode_jpg(const uint8_t* buf, uint32_t len);
+  SurfaceRef decode_bmp(const uint8_t* buf, uint32_t len);
+  SurfaceRef decode_gif(const uint8_t* buf, uint32_t len);
 #endif
   // Operations that can be supported by source and target windows in a drag
   // and drop operation.

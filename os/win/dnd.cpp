@@ -132,8 +132,10 @@ private:
 
 } // anonymous namespace
 
+namespace os {
+
 #if CLIP_ENABLE_IMAGE
-os::SurfaceRef default_decode_png(const uint8_t* buf, const uint32_t len)
+SurfaceRef default_decode_png(const uint8_t* buf, uint32_t len)
 {
   clip::image img;
   if (!clip::win::read_png(buf, len, &img, nullptr))
@@ -142,7 +144,7 @@ os::SurfaceRef default_decode_png(const uint8_t* buf, const uint32_t len)
   return os::instance()->makeSurface(img);
 }
 
-os::SurfaceRef default_decode_jpg(const uint8_t* buf, const uint32_t len)
+SurfaceRef default_decode_jpg(const uint8_t* buf, uint32_t len)
 {
   clip::image img;
   if (!clip::win::read_jpg(buf, len, &img, nullptr))
@@ -151,7 +153,7 @@ os::SurfaceRef default_decode_jpg(const uint8_t* buf, const uint32_t len)
   return os::instance()->makeSurface(img);
 }
 
-os::SurfaceRef default_decode_bmp(const uint8_t* buf, const uint32_t len)
+SurfaceRef default_decode_bmp(const uint8_t* buf, uint32_t len)
 {
   clip::image img;
   if (!clip::win::read_bmp(buf, len, &img, nullptr))
@@ -160,7 +162,7 @@ os::SurfaceRef default_decode_bmp(const uint8_t* buf, const uint32_t len)
   return os::instance()->makeSurface(img);
 }
 
-os::SurfaceRef default_decode_gif(const uint8_t* buf, const uint32_t len)
+SurfaceRef default_decode_gif(const uint8_t* buf, uint32_t len)
 {
   clip::image img;
   if (!clip::win::read_gif(buf, len, &img, nullptr))
@@ -169,8 +171,6 @@ os::SurfaceRef default_decode_gif(const uint8_t* buf, const uint32_t len)
   return os::instance()->makeSurface(img);
 }
 #endif
-
-namespace os {
 
 base::paths DragDataProviderWin::getPaths()
 {

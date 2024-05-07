@@ -104,7 +104,6 @@ public:
     return sur;
   }
 
-
   SurfaceRef makeRgbaSurface(int width, int height,
                              const os::ColorSpaceRef& colorSpace) override {
     auto sur = make_ref<SkiaSurface>();
