@@ -4,26 +4,11 @@
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
 
-
 #include "base/paths.h"
-#include "gfx/hsv.h"
-#include "gfx/point.h"
-#include "gfx/rect.h"
-#include "gfx/rgb.h"
-#include "os/dnd.h"
-#include "os/draw_text.h"
 #include "os/os.h"
-#include "os/paint.h"
-#include "os/surface.h"
 
-#include <algorithm>
-#include <cstdarg>
 #include <cstdio>
-#include <map>
-#include <memory>
-#include <vector>
-
-using Boxes = std::vector<gfx::Rect>;
+#include <string>
 
 struct WindowData {
   bool dragEnter;
@@ -42,48 +27,54 @@ static void redraw_window(os::Window* window);
 
 class DragTarget : public os::DragTarget {
 public:
-    void dragEnter(os::DragEvent& ev) override {
-      if (!windowData.dropZone.contains(ev.position()) || !ev.sourceSupports(os::DropOperation::Copy))
-        ev.dropResult(os::DropOperation::None);
-      else if (ev.sourceSupports(os::DropOperation::Copy))
-        ev.dropResult(os::DropOperation::Copy);
+  void dragEnter(os::DragEvent& ev) override {
+    if (!windowData.dropZone.contains(ev.position()) ||
+        !ev.sourceSupports(os::DropOperation::Copy)) {
+      ev.dropResult(os::DropOperation::None);
+    }
+    else if (ev.sourceSupports(os::DropOperation::Copy)) {
+      ev.dropResult(os::DropOperation::Copy);
+    }
 
-      windowData.dragEnter = true;
-      windowData.dragLeave = false;
-      windowData.drag = 0;
-      windowData.dragPosition = ev.position();
-      redraw_window(ev.target());
-    }
-    void dragLeave(os::DragEvent& ev) override {
-      windowData.dragEnter = false;
-      windowData.dragLeave = true;
-      windowData.dragPosition = ev.position();
-      redraw_window(ev.target());
-    }
-    void drag(os::DragEvent& ev) override {
-      ++windowData.drag;
-      windowData.dragPosition = ev.position();
-      redraw_window(ev.target());
-    }
-    void drop(os::DragEvent& ev) override {
-      windowData.dragEnter = false;
-      windowData.dragLeave = false;
-      windowData.dragPosition = {0, 0};
-      ev.acceptDrop(windowData.dropZone.contains(ev.position()));
+    windowData.dragEnter = true;
+    windowData.dragLeave = false;
+    windowData.drag = 0;
+    windowData.dragPosition = ev.position();
+    redraw_window(ev.target());
+  }
 
-      if (ev.acceptDrop()) {
-        if (ev.dataProvider()->contains(os::DragDataItemType::Paths))
-          windowData.paths = ev.dataProvider()->getPaths();
+  void dragLeave(os::DragEvent& ev) override {
+    windowData.dragEnter = false;
+    windowData.dragLeave = true;
+    windowData.dragPosition = ev.position();
+    redraw_window(ev.target());
+  }
+
+  void drag(os::DragEvent& ev) override {
+    ++windowData.drag;
+    windowData.dragPosition = ev.position();
+    redraw_window(ev.target());
+  }
+
+  void drop(os::DragEvent& ev) override {
+    windowData.dragEnter = false;
+    windowData.dragLeave = false;
+    windowData.dragPosition = { 0, 0 };
+    ev.acceptDrop(windowData.dropZone.contains(ev.position()));
+
+    if (ev.acceptDrop()) {
+      if (ev.dataProvider()->contains(os::DragDataItemType::Paths))
+        windowData.paths = ev.dataProvider()->getPaths();
 #if CLIP_ENABLE_IMAGE
-        if (ev.dataProvider()->contains(os::DragDataItemType::Image))
-          windowData.image = ev.dataProvider()->getImage();
+      if (ev.dataProvider()->contains(os::DragDataItemType::Image))
+        windowData.image = ev.dataProvider()->getImage();
 #endif
-        if (ev.dataProvider()->contains(os::DragDataItemType::Url))
-          windowData.url = ev.dataProvider()->getUrl();
-      }
-
-      redraw_window(ev.target());
+      if (ev.dataProvider()->contains(os::DragDataItemType::Url))
+        windowData.url = ev.dataProvider()->getUrl();
     }
+
+    redraw_window(ev.target());
+  }
 };
 
 static void redraw_window(os::Window* window)
