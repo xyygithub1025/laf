@@ -1,5 +1,5 @@
 # LAF OS
-# Copyright (C) 2018-2023  Igara Studio S.A.
+# Copyright (C) 2018-2024  Igara Studio S.A.
 # Copyright (C) 2012-2018  David Capello
 
 ######################################################################
@@ -8,6 +8,7 @@
 set(LAF_OS_SOURCES
   common/event_queue.cpp
   common/main.cpp
+  common/system.cpp
   dnd.cpp
   system.cpp
   window.cpp)
