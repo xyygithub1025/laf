@@ -89,9 +89,11 @@ public:
 static void redraw_window(os::Window* window)
 {
   os::Surface* s = window->surface();
+  const gfx::Rect rc = s->bounds();
+
   os::Paint paint;
   paint.color(gfx::rgba(32, 32, 32, 255));
-  s->drawRect(window->bounds(), paint);
+  s->drawRect(rc, paint);
 
   paint.color(gfx::rgba(255, 255, 200, 255));
 
@@ -135,13 +137,13 @@ static void redraw_window(os::Window* window)
   }
 
   paint.style(os::Paint::Style::Stroke);
-  s->drawRect(window->bounds(), paint);
-
+  s->drawRect(rc, paint);
 
   auto zoneColor = paint.color();
   auto textColor = zoneColor;
-  windowData.dropZone.x = window->width() - windowData.dropZone.w - 12;
-  if (windowData.dropZone.contains(windowData.dragPosition)){
+
+  windowData.dropZone.x = rc.w - windowData.dropZone.w - 12;
+  if (windowData.dropZone.contains(windowData.dragPosition)) {
     paint.style(os::Paint::Style::Fill);
     paint.color(zoneColor);
     s->drawRect(windowData.dropZone, paint);
@@ -162,16 +164,22 @@ static void redraw_window(os::Window* window)
     window->setVisible(true);
 }
 
-static os::WindowRef create_window(const std::string& title,
-                                  const os::WindowSpec& spec,
-                                  os::DragTarget& dragTarget)
+static os::WindowRef create_window(os::DragTarget& dragTarget)
 {
+  auto screen = os::instance()->mainScreen();
+  os::WindowSpec spec;
+  spec.titled(true);
+  spec.position(os::WindowSpec::Position::Frame);
+  spec.frame(screen->workarea()/2);
+  spec.screen(screen);
+  spec.scale(2);
+
   os::WindowRef newWindow = os::instance()->makeWindow(spec);
   newWindow->setCursor(os::NativeCursor::Arrow);
-  newWindow->setTitle(title);
-  newWindow->setVisible(true);
+  newWindow->setTitle("Drag & Drop example");
   newWindow->setDragTarget(&dragTarget);
-  windowData.dropZone = {spec.frame().w - 64 - 12, 12, 64, 64};
+
+  windowData.dropZone = gfx::Rect(spec.frame().w-64-12, 12, 64, 64);
   redraw_window(newWindow.get());
   return newWindow;
 }
@@ -182,15 +190,8 @@ int app_main(int argc, char* argv[])
   system->setAppMode(os::AppMode::GUI);
   system->handleWindowResize = redraw_window;
 
-  auto screen = system->mainScreen();
-  os::WindowSpec spec;
   DragTarget dragTarget;
-  spec.titled(true);
-  spec.position(os::WindowSpec::Position::Frame);
-  auto frame = screen->workarea()/2;
-  spec.frame(frame);
-  spec.screen(screen);
-  os::WindowRef window = create_window("Drag & Drop example", spec, dragTarget);
+  os::WindowRef window = create_window(dragTarget);
 
   bool running = true;
 
