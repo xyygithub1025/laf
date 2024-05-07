@@ -90,6 +90,39 @@ KeyModifiers CommonSystem::keyModifiers()
 
 #if CLIP_ENABLE_IMAGE
 
+void get_rgba32(const clip::image_spec& spec, const char* scanlineAddr, int* r, int* g, int* b, int* a)
+{
+  uint32_t c = *((uint32_t*)scanlineAddr);
+  if (spec.alpha_mask)
+    *a = ((c & spec.alpha_mask) >> spec.alpha_shift);
+  else
+    *a = 255;
+  // The source image is in straight-alpha and makeRgbaSurface returns a
+  // surface using premultiplied-alpha so we have to premultiply the
+  // source values.
+  *r = ((c & spec.red_mask)  >> spec.red_shift  )*(*a)/255;
+  *g = ((c & spec.green_mask)>> spec.green_shift)*(*a)/255;
+  *b = ((c & spec.blue_mask) >> spec.blue_shift )*(*a)/255;
+}
+
+void get_rgba24(const clip::image_spec& spec, const char* scanlineAddr, int* r, int* g, int* b, int* a)
+{
+  uint32_t c = *((uint32_t*)scanlineAddr);
+  *r = ((c & spec.red_mask)  >> spec.red_shift);
+  *g = ((c & spec.green_mask)>> spec.green_shift);
+  *b = ((c & spec.blue_mask) >> spec.blue_shift);
+  *a = 255;
+}
+
+void get_rgba16(const clip::image_spec& spec, const char* scanlineAddr, int* r, int* g, int* b, int* a)
+{
+  uint16_t c = *((uint16_t*)scanlineAddr);
+  *r = (((c & spec.red_mask  )>>spec.red_shift  )*255) / (spec.red_mask  >>spec.red_shift);
+  *g = (((c & spec.green_mask)>>spec.green_shift)*255) / (spec.green_mask>>spec.green_shift);
+  *b = (((c & spec.blue_mask )>>spec.blue_shift )*255) / (spec.blue_mask >>spec.blue_shift);
+  *a = 255;
+}
+
 SurfaceRef CommonSystem::makeSurface(const clip::image& image)
 {
   const clip::image_spec spec = image.spec();
@@ -103,36 +136,8 @@ SurfaceRef CommonSystem::makeSurface(const clip::image& image)
   SurfaceFormatData sfd;
   surface->getFormat(&sfd);
 
-  auto get_rgba32 = [&spec](char* scanlineAddr, int* r, int* g, int* b, int* a) {
-    uint32_t c = *((uint32_t*)scanlineAddr);
-    if (spec.alpha_mask)
-      *a = ((c & spec.alpha_mask) >> spec.alpha_shift);
-    else
-      *a = 255;
-    // The source image is in straight-alpha and makeRgbaSurface returns a
-    // surface using premultiplied-alpha so we have to premultiply the
-    // source values.
-    *r = ((c & spec.red_mask)  >> spec.red_shift  )*(*a)/255;
-    *g = ((c & spec.green_mask)>> spec.green_shift)*(*a)/255;
-    *b = ((c & spec.blue_mask) >> spec.blue_shift )*(*a)/255;
-  };
-  auto get_rgba24 = [&spec](char* scanlineAddr, int* r, int* g, int* b, int* a) {
-    uint32_t c = *((uint32_t*)scanlineAddr);
-    *r = ((c & spec.red_mask)  >> spec.red_shift);
-    *g = ((c & spec.green_mask)>> spec.green_shift);
-    *b = ((c & spec.blue_mask) >> spec.blue_shift);
-    *a = 255;
-  };
-  auto get_rgba16 = [&spec](char* scanlineAddr, int* r, int* g, int *b, int *a) {
-    uint16_t c = *((uint16_t*)scanlineAddr);
-    *r = (((c & spec.red_mask  )>>spec.red_shift  )*255) / (spec.red_mask  >>spec.red_shift);
-    *g = (((c & spec.green_mask)>>spec.green_shift)*255) / (spec.green_mask>>spec.green_shift);
-    *b = (((c & spec.blue_mask )>>spec.blue_shift )*255) / (spec.blue_mask >>spec.blue_shift);
-    *a = 255;
-  };
-
   // Select color components retrieval function.
-  std::function<void(char*, int*, int*, int*, int*)> get_rgba;
+  void (*get_rgba)(const clip::image_spec&, const char*, int*, int*, int*, int*);
   switch (spec.bits_per_pixel) {
     case 32:
       get_rgba = get_rgba32;
@@ -150,7 +155,7 @@ SurfaceRef CommonSystem::makeSurface(const clip::image& image)
     char* src = image.data() + v * spec.bytes_per_row;
     for (int u=0; u<spec.width; ++u, ++dst) {
       int r, g, b, a;
-      get_rgba(src, &r, &g, &b, &a);
+      get_rgba(spec, src, &r, &g, &b, &a);
       *dst = (r << sfd.redShift)   |
         (g << sfd.greenShift) |
         (b << sfd.blueShift)  |
