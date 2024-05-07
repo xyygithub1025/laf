@@ -69,8 +69,6 @@ bool DragDataProviderOSX::contains(DragDataItemType type)
   return false;
 }
 
-} // namespace os
-
 NSDragOperation as_nsdragoperation(const os::DropOperation op)
 {
   NSDragOperation nsdop;
@@ -108,5 +106,7 @@ gfx::Point drag_position(id<NSDraggingInfo> sender)
     sender.draggingLocation.x,
     contentRect.size.height - sender.draggingLocation.y);
 }
+
+} // namespace os
 
 #endif

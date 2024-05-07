@@ -33,11 +33,12 @@ namespace os {
 
     bool contains(DragDataItemType type) override;
   };
-} // namespace os
 
-NSDragOperation as_nsdragoperation(const os::DropOperation op);
-os::DropOperation as_dropoperation(const NSDragOperation nsdop);
-gfx::Point drag_position(id<NSDraggingInfo> sender);
+  NSDragOperation as_nsdragoperation(const os::DropOperation op);
+  os::DropOperation as_dropoperation(const NSDragOperation nsdop);
+  gfx::Point drag_position(id<NSDraggingInfo> sender);
+
+} // namespace os
 
 #endif
 
