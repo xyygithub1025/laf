@@ -94,10 +94,10 @@ static void redraw_window(os::Window* window)
 {
   os::Surface* s = window->surface();
   os::Paint paint;
-  paint.color(gfx::rgba(128, 128, 128));
+  paint.color(gfx::rgba(32, 32, 32, 255));
   s->drawRect(window->bounds(), paint);
 
-  paint.color(gfx::rgba(255, 255, 255));
+  paint.color(gfx::rgba(255, 255, 200, 255));
 
   char buf[2049];
   int y = 12;
@@ -142,7 +142,7 @@ static void redraw_window(os::Window* window)
   s->drawRect(window->bounds(), paint);
 
 
-  auto zoneColor = gfx::rgba(100, 255, 100);
+  auto zoneColor = paint.color();
   auto textColor = zoneColor;
   windowData.dropZone.x = window->width() - windowData.dropZone.w - 12;
   if (windowData.dropZone.contains(windowData.dragPosition)){
