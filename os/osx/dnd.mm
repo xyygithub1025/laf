@@ -10,6 +10,7 @@
 #include "clip/clip_osx.h"
 #include "os/dnd.h"
 #include "os/osx/dnd.h"
+#include "os/osx/window.h"
 #include "os/surface_format.h"
 #include "os/system.h"
 
@@ -101,10 +102,10 @@ os::DropOperation as_dropoperation(const NSDragOperation nsdop)
 
 gfx::Point drag_position(id<NSDraggingInfo> sender)
 {
-  NSRect contentRect = [sender.draggingDestinationWindow contentRectForFrameRect:sender.draggingDestinationWindow.frame];
-  return gfx::Point(
-    sender.draggingLocation.x,
-    contentRect.size.height - sender.draggingLocation.y);
+  Window* target = [(WindowOSXObjc*)sender.draggingDestinationWindow impl];
+  return target->pointFromScreen(
+    gfx::Point(target->contentRect().x + sender.draggingLocation.x,
+               target->contentRect().y + target->contentRect().h - sender.draggingLocation.y));
 }
 
 } // namespace os
