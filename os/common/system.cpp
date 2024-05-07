@@ -90,7 +90,7 @@ KeyModifiers CommonSystem::keyModifiers()
 
 #if CLIP_ENABLE_IMAGE
 
-void get_rgba32(const clip::image_spec& spec, const char* scanlineAddr, int* r, int* g, int* b, int* a)
+void get_rgba32(const clip::image_spec& spec, const uint8_t* scanlineAddr, int* r, int* g, int* b, int* a)
 {
   uint32_t c = *((uint32_t*)scanlineAddr);
   if (spec.alpha_mask)
@@ -105,7 +105,7 @@ void get_rgba32(const clip::image_spec& spec, const char* scanlineAddr, int* r, 
   *b = ((c & spec.blue_mask) >> spec.blue_shift )*(*a)/255;
 }
 
-void get_rgba24(const clip::image_spec& spec, const char* scanlineAddr, int* r, int* g, int* b, int* a)
+void get_rgba24(const clip::image_spec& spec, const uint8_t* scanlineAddr, int* r, int* g, int* b, int* a)
 {
   uint32_t c = *((uint32_t*)scanlineAddr);
   *r = ((c & spec.red_mask)  >> spec.red_shift);
@@ -114,7 +114,7 @@ void get_rgba24(const clip::image_spec& spec, const char* scanlineAddr, int* r, 
   *a = 255;
 }
 
-void get_rgba16(const clip::image_spec& spec, const char* scanlineAddr, int* r, int* g, int* b, int* a)
+void get_rgba16(const clip::image_spec& spec, const uint8_t* scanlineAddr, int* r, int* g, int* b, int* a)
 {
   uint16_t c = *((uint16_t*)scanlineAddr);
   *r = (((c & spec.red_mask  )>>spec.red_shift  )*255) / (spec.red_mask  >>spec.red_shift);
@@ -137,7 +137,7 @@ SurfaceRef CommonSystem::makeSurface(const clip::image& image)
   surface->getFormat(&sfd);
 
   // Select color components retrieval function.
-  void (*get_rgba)(const clip::image_spec&, const char*, int*, int*, int*, int*);
+  void (*get_rgba)(const clip::image_spec&, const uint8_t*, int*, int*, int*, int*);
   switch (spec.bits_per_pixel) {
     case 32:
       get_rgba = get_rgba32;
@@ -152,7 +152,7 @@ SurfaceRef CommonSystem::makeSurface(const clip::image& image)
 
   for (int v=0; v<spec.height; ++v) {
     uint32_t* dst = (uint32_t*)surface->getData(0, v);
-    char* src = image.data() + v * spec.bytes_per_row;
+    const uint8_t* src = ((uint8_t*)image.data()) + v * spec.bytes_per_row;
     for (int u=0; u<spec.width; ++u, ++dst) {
       int r, g, b, a;
       get_rgba(spec, src, &r, &g, &b, &a);
