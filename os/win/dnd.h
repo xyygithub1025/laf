@@ -56,6 +56,8 @@ namespace os {
                                    DWORD* pdwEffect) override;
 
   private:
+    DragEvent DragTargetAdapter::newDragEvent(POINTL* pt, DWORD* pdwEffect);
+
     ULONG m_ref = 0;
     Window* m_window = nullptr;
     // Pointer to data being dragged

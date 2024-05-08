@@ -69,7 +69,7 @@ public:
 
   operator T() { return m_data; }
 
-  T operator ->() { return m_data; }
+  T operator->() { return m_data; }
 
   bool operator==(std::nullptr_t) const { return m_data == nullptr; }
   bool operator!=(std::nullptr_t) const { return m_data != nullptr; }
@@ -357,6 +357,18 @@ ULONG DragTargetAdapter::Release()
   return ref;
 }
 
+DragEvent DragTargetAdapter::newDragEvent(POINTL* pt, DWORD* pdwEffect)
+{
+  if (pt)
+    m_position = drag_position((HWND)m_window->nativeHandle(), *pt);
+
+  std::unique_ptr<DragDataProvider> ddProvider = std::make_unique<DragDataProviderWin>(m_data.get());
+  return DragEvent(m_window,
+                   as_dropoperation(*pdwEffect),
+                   m_position,
+                   ddProvider);
+}
+
 STDMETHODIMP DragTargetAdapter::DragEnter(IDataObject* pDataObj,
                                           DWORD grfKeyState,
                                           POINTL pt,
@@ -369,17 +381,9 @@ STDMETHODIMP DragTargetAdapter::DragEnter(IDataObject* pDataObj,
   if (!m_data)
     return E_UNEXPECTED;
 
-  m_position = drag_position((HWND)m_window->nativeHandle(), pt);
-  auto ddProvider = std::make_unique<DragDataProviderWin>(m_data.get());
-  DragEvent ev(m_window,
-               as_dropoperation(*pdwEffect),
-               m_position,
-               ddProvider.get());
-
+  DragEvent ev = newDragEvent(&pt, pdwEffect);
   m_window->notifyDragEnter(ev);
-
   *pdwEffect = as_dropeffect(ev.dropResult());
-
   return S_OK;
 }
 
@@ -390,17 +394,9 @@ STDMETHODIMP DragTargetAdapter::DragOver(DWORD grfKeyState,
   if (!m_window->hasDragTarget())
     return E_NOTIMPL;
 
-  m_position = drag_position((HWND)m_window->nativeHandle(), pt);
-  auto ddProvider = std::make_unique<DragDataProviderWin>(m_data.get());
-  DragEvent ev(m_window,
-               as_dropoperation(*pdwEffect),
-               m_position,
-               ddProvider.get());
-
+  DragEvent ev = newDragEvent(&pt, pdwEffect);
   m_window->notifyDrag(ev);
-
   *pdwEffect = as_dropeffect(ev.dropResult());
-
   return S_OK;
 }
 
@@ -409,13 +405,8 @@ STDMETHODIMP DragTargetAdapter::DragLeave(void)
   if (!m_window->hasDragTarget())
     return E_NOTIMPL;
 
-  auto ddProvider = std::make_unique<DragDataProviderWin>(m_data.get());
-  os::DragEvent ev(m_window,
-                   DropOperation::None,
-                   m_position,
-                   ddProvider.get());
+  DragEvent ev = newDragEvent(nullptr, DROPEFFECT_NONE);
   m_window->notifyDragLeave(ev);
-
   m_data.reset();
   return S_OK;
 }
@@ -432,19 +423,11 @@ STDMETHODIMP DragTargetAdapter::Drop(IDataObject* pDataObj,
   if (!m_data)
     return E_UNEXPECTED;
 
-  m_position = drag_position((HWND)m_window->nativeHandle(), pt);
-  auto ddProvider = std::make_unique<DragDataProviderWin>(m_data.get());
-  DragEvent ev(m_window,
-               as_dropoperation(*pdwEffect),
-               m_position,
-               ddProvider.get());
-
+  DragEvent ev = newDragEvent(&pt, pdwEffect);
   m_window->notifyDrop(ev);
-
   m_data = nullptr;
   *pdwEffect = as_dropeffect(ev.dropResult());
   return S_OK;
 }
-
 
 } // namespase os
