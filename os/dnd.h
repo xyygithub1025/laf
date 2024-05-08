@@ -76,11 +76,11 @@ namespace os {
     DragEvent(os::Window* target,
               DropOperation supportedOperations,
               const gfx::Point& dragPosition,
-              DragDataProvider* dataProvider)
+              std::unique_ptr<DragDataProvider>& dataProvider)
       : m_target(target)
       , m_supportedOperations(supportedOperations)
       , m_position(dragPosition)
-      , m_dataProvider(dataProvider) {}
+      , m_dataProvider(std::move(dataProvider)) {}
 
     // Destination window of the DragEvent.
     os::Window* target() const { return m_target; }
@@ -88,7 +88,7 @@ namespace os {
     DropOperation supportedOperations() const { return m_supportedOperations; }
     bool acceptDrop() const { return m_acceptDrop; }
     const gfx::Point& position() { return m_position; }
-    DragDataProvider* dataProvider() { return m_dataProvider; }
+    DragDataProvider* dataProvider() { return m_dataProvider.get(); }
 
     // Sets what will be the outcome of dropping the dragged data when it is
     // accepted by the target window. Only one of the enum values should be passed,
@@ -100,7 +100,7 @@ namespace os {
 
     bool sourceSupports(DropOperation op) {
       return static_cast<int>(m_supportedOperations) & static_cast<int>(op);
-      }
+    }
 
   private:
     os::Window* m_target = nullptr;
@@ -109,7 +109,7 @@ namespace os {
     DropOperation m_supportedOperations;
     bool m_acceptDrop = false;
     gfx::Point m_position;
-    DragDataProvider* m_dataProvider;
+    std::unique_ptr<DragDataProvider> m_dataProvider = nullptr;
   };
 
   class DragTarget {

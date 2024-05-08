@@ -657,6 +657,17 @@ using namespace os;
   }
 }
 
+os::DragEvent newDragEvent(id<NSDraggingInfo> sender)
+{
+  NSPasteboard* pasteboard = [sender draggingPasteboard];
+  std::unique_ptr<DragDataProvider> ddProvider = std::make_unique<DragDataProviderOSX>(pasteboard);
+  os::Window* window = [(WindowOSXObjc*)sender.draggingDestinationWindow impl];
+  return os::DragEvent(window,
+                       as_dropoperation([sender draggingSourceOperationMask]),
+                       drag_position(sender),
+                       ddProvider);
+}
+
 - (NSDragOperation)draggingEntered:(id<NSDraggingInfo>)sender
 {
   WindowOSXObjc* target = (WindowOSXObjc*)sender.draggingDestinationWindow;
@@ -664,13 +675,8 @@ using namespace os;
   if (!target || ![target impl]->hasDragTarget())
     return NSDragOperationCopy;
 
-  NSPasteboard* pasteboard = [sender draggingPasteboard];
+  os::DragEvent ev = newDragEvent(sender);
   os::Window* window = [target impl];
-  auto ddProvider = std::make_unique<DragDataProviderOSX>(pasteboard);
-  os::DragEvent ev(window,
-                   as_dropoperation([sender draggingSourceOperationMask]),
-                   drag_position(sender),
-                   ddProvider.get());
   window->notifyDragEnter(ev);
   return as_nsdragoperation(ev.dropResult());
 }
@@ -683,14 +689,9 @@ using namespace os;
   if (!target || ![target impl]->hasDragTarget())
     return value;
 
-  NSPasteboard* pasteboard = [sender draggingPasteboard];
-  os::Window* window = [target impl];
-  auto ddProvider = std::make_unique<DragDataProviderOSX>(pasteboard);
-  os::DragEvent ev(window,
-                   as_dropoperation([sender draggingSourceOperationMask]),
-                   drag_position(sender),
-                   ddProvider.get());
+  os::DragEvent ev = newDragEvent(sender);
   ev.dropResult(as_dropoperation(value));
+  os::Window* window = [target impl];
   window->notifyDrag(ev);
   return as_nsdragoperation(ev.dropResult());
 }
@@ -702,13 +703,8 @@ using namespace os;
   if (!target || ![target impl]->hasDragTarget())
     return;
 
-  NSPasteboard* pasteboard = [sender draggingPasteboard];
+  os::DragEvent ev = newDragEvent(sender);
   os::Window* window = [target impl];
-  auto ddProvider = std::make_unique<DragDataProviderOSX>(pasteboard);
-  os::DragEvent ev(window,
-                   as_dropoperation([sender draggingSourceOperationMask]),
-                   drag_position(sender),
-                   ddProvider.get());
   window->notifyDragLeave(ev);
 }
 
@@ -729,12 +725,8 @@ using namespace os;
     return YES;
   }
 
+  os::DragEvent ev = newDragEvent(sender);
   os::Window* window = [target impl];
-  auto ddProvider = std::make_unique<DragDataProviderOSX>(pasteboard);
-  os::DragEvent ev(window,
-                   as_dropoperation([sender draggingSourceOperationMask]),
-                   drag_position(sender),
-                   ddProvider.get());
   window->notifyDrop(ev);
   return ev.acceptDrop();
 }
