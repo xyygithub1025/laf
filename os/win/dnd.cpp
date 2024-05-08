@@ -46,13 +46,6 @@ os::DropOperation as_dropoperation(DWORD pdwEffect)
   return static_cast<os::DropOperation>(op);
 }
 
-
-gfx::Point drag_position(HWND hwnd, POINTL& pt)
-{
-  ScreenToClient(hwnd, (LPPOINT) &pt);
-  return gfx::Point(pt.x, pt.y);
-}
-
 // HGLOBAL Locking/Unlocking wrapper
 template<typename T>
 class GLock {
@@ -360,7 +353,8 @@ ULONG DragTargetAdapter::Release()
 DragEvent DragTargetAdapter::newDragEvent(POINTL* pt, DWORD* pdwEffect)
 {
   if (pt)
-    m_position = drag_position((HWND)m_window->nativeHandle(), *pt);
+    // Get drag position
+    m_position = m_window->pointFromScreen(gfx::Point(pt->x, pt->y));
 
   std::unique_ptr<DragDataProvider> ddProvider = std::make_unique<DragDataProviderWin>(m_data.get());
   return DragEvent(m_window,
