@@ -117,9 +117,6 @@ public:
   static SurfaceRef loadSurface(const char* filename);
 
 private:
-  static SkColorType deductSkColorType(const os::SurfaceFormatData& sf);
-  static os::PixelAlpha asPixelAlpha(SkAlphaType at);
-  static SkAlphaType asSkAlphaType(os::PixelAlpha pa);
   void skDrawSurface(
     const Surface* src,
     const gfx::Clip& clip,
