@@ -1,4 +1,5 @@
 // LAF Base Library
+// Copyright (c) 2024 Igara Studio S.A.
 // Copyright (c) 2001-2018 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -6,6 +7,7 @@
 
 #include <gtest/gtest.h>
 
+#include "base/file_content.h"
 #include "base/fs.h"
 
 using namespace base;
@@ -258,6 +260,20 @@ TEST(FS, CompareFilenames)
   EXPECT_EQ(1, compare_filenames("a1-2.png", "a1-1.png"));
   EXPECT_EQ(1, compare_filenames("a1-10.png", "a1-9.png"));
   EXPECT_EQ(1, compare_filenames("a1-64-10.png", "a1-64-9.png"));
+}
+
+TEST(FS, CopyFiles)
+{
+  std::vector<uint8_t> data = { 'H', 'e', 'l', 'l', 'o', ' ', 'W', 'o', 'r', 'l', 'd' };
+  const std::string dst = "_test_copy_.tmp";
+
+  if (base::is_file(dst))
+    base::delete_file(dst);
+
+  base::write_file_content("_test_orig_.tmp", data.data(), data.size());
+  base::copy_file("_test_orig_.tmp", dst, true);
+
+  EXPECT_EQ(data, base::read_file_content(dst));
 }
 
 int main(int argc, char** argv)
