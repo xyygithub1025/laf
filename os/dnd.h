@@ -49,7 +49,7 @@ namespace os {
     Copy = 1,
     Move = 2,
     Link = 4,
-    Any = Copy | Move | Link,
+    All = Copy | Move | Link,
   };
 
   // Types of representations supported for each DragDataItem.
@@ -99,7 +99,8 @@ namespace os {
     void acceptDrop(bool value) { m_acceptDrop = value; }
 
     bool sourceSupports(DropOperation op) {
-      return static_cast<int>(m_supportedOperations) & static_cast<int>(op);
+      return (static_cast<int>(m_supportedOperations) & static_cast<int>(op))
+        == static_cast<int>(op);
     }
 
   private:
