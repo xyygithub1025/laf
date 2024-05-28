@@ -20,7 +20,7 @@ jobs:
       shell: bash
       run: |
         if [[ "${{ runner.os }}" == "Windows" ]] ; then
-          choco install wget
+          choco install --no-progress wget
         elif [[ "${{ runner.os }}" == "macOS" ]] ; then
           brew install pixman freetype harfbuzz zlib
         else
@@ -36,8 +36,9 @@ jobs:
           else
             skia_build_type=Debug
           fi
-          wget https://github.com/aseprite/skia/releases/download/m124-eadfe707ca/Skia-${{ runner.os }}-$skia_build_type-x64.zip
-          unzip Skia-${{ runner.os }}-$skia_build_type-x64.zip -d skia
+          skia_arch=$(echo $RUNNER_ARCH | awk '{print tolower($0)}')
+          wget -q https://github.com/aseprite/skia/releases/download/m124-eadfe707ca/Skia-${{ runner.os }}-$skia_build_type-$skia_arch.zip
+          unzip Skia-${{ runner.os }}-$skia_build_type-$skia_arch.zip -d skia
         fi
     - uses: ilammy/msvc-dev-cmd@v1
       if: runner.os == 'Windows'
