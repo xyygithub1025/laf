@@ -1,9 +1,14 @@
 // LAF Base Library
-// Copyright (c) 2021 Igara Studio S.A.
+// Copyright (c) 2021-2024 Igara Studio S.A.
 // Copyright (c) 2001-2018 David Capello
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
+
+#include "base/file_handle.h"
+#include "base/ints.h"
+#include "base/paths.h"
+#include "base/time.h"
 
 #include <dirent.h>
 #include <sys/stat.h>
@@ -11,8 +16,8 @@
 #include <unistd.h>
 
 #include <cerrno>
-#include <climits>              // Required for PATH_MAX
-#include <cstdio>               // Required for rename()
+#include <climits>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
@@ -24,9 +29,6 @@
 #elif __FreeBSD__
   #include <sys/sysctl.h>
 #endif
-
-#include "base/paths.h"
-#include "base/time.h"
 
 #define MAXPATHLEN 1024
 
@@ -67,9 +69,43 @@ void move_file(const std::string& src, const std::string& dst)
                              std::string(std::strerror(errno)));
 }
 
-void copy_file(const std::string& src, const std::string& dst, bool overwrite)
+void copy_file(const std::string& src_fn, const std::string& dst_fn,
+               const bool overwrite)
 {
-  throw std::runtime_error("Error copying file: unimplemented");
+  // First copy the file content
+  FileHandle src = open_file(src_fn, "rb");
+  if (!src) {
+    throw std::runtime_error("Cannot open source file " +
+                             std::string(std::strerror(errno)));
+  }
+
+  FileHandle dst = open_file(dst_fn, "wb");
+  if (!dst) {
+    throw std::runtime_error("Cannot open destination file " +
+                             std::string(std::strerror(errno)));
+  }
+
+  // Copy data in 4KB chunks
+  constexpr size_t kChunkSize = 4096;
+  std::vector<uint8_t> buf(kChunkSize);
+  while (size_t bytes = std::fread(buf.data(), 1, buf.size(), src.get())) {
+    std::fwrite(buf.data(), 1, bytes, dst.get());
+  }
+
+  // Now copy file attributes (mode and owner)
+  struct stat sts;
+  stat(src_fn.c_str(), &sts);
+  fchmod(fileno(dst.get()), sts.st_mode);
+  fchown(fileno(dst.get()), sts.st_uid, sts.st_gid);
+
+  // Check that the output file has the same mode and owner
+#if _DEBUG
+  struct stat sts2;
+  stat(dst_fn.c_str(), &sts2);
+  ASSERT(sts.st_mode == sts2.st_mode);
+  ASSERT(sts.st_uid == sts2.st_uid);
+  ASSERT(sts.st_gid == sts2.st_gid);
+#endif
 }
 
 void delete_file(const std::string& path)

@@ -73,7 +73,11 @@ std::string get_absolute_path(const std::string& filename)
 
 bool is_path_separator(std::string::value_type chr)
 {
-  return (chr == '\\' || chr == '/');
+  return (
+#if LAF_WINDOWS
+    chr == '\\' ||
+#endif
+    chr == '/');
 }
 
 std::string get_file_path(const std::string& filename)

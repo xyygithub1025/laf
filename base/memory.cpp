@@ -1,5 +1,5 @@
 // LAF Base Library
-// Copyright (c) 2022 Igara Studio S.A.
+// Copyright (c) 2022-2024 Igara Studio S.A.
 // Copyright (c) 2001-2016 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -8,6 +8,8 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+
+#include "base/debug.h"
 
 #include <cassert>
 #include <cstdio>
@@ -304,6 +306,10 @@ void* base_aligned_alloc(std::size_t bytes, std::size_t alignment)
 #if LAF_WINDOWS
   return _aligned_malloc(bytes, alignment);
 #else
+  ASSERT(alignment > 0);
+  std::size_t misaligned = (bytes % alignment);
+  if (misaligned > 0)
+    bytes += alignment - misaligned;
   return aligned_alloc(alignment, bytes);
 #endif
 }
