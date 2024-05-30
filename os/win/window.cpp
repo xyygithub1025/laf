@@ -318,7 +318,9 @@ WindowWin::~WindowWin()
 
   // If this assert fails it's highly probable that an os::WindowRef
   // was kept alive in some kind of memory leak (or just inside an
-  // os::Event in the os::EventQueue).
+  // os::Event in the os::EventQueue). Also this can happen when
+  // declaring a os::WindowRef before calling os::make_system(),
+  // because of deletion order when destructors got called.
   ASSERT(sys);
 
   if (sys) {
@@ -343,6 +345,10 @@ os::ScreenRef WindowWin::screen() const
 os::ColorSpaceRef WindowWin::colorSpace() const
 {
   const os::SystemRef system = os::System::instance();
+  ASSERT(system);
+  if (!system)
+    return nullptr;
+
   if (auto defaultCS = system->windowsColorSpace())
     return defaultCS;
 
@@ -606,6 +612,26 @@ void WindowWin::setMousePosition(const gfx::Point& position)
   SetCursorPos(pos.x, pos.y);
 
   system()->_setInternalMousePosition(gfx::Point(pos.x, pos.y));
+}
+
+void WindowWin::onSetDragTarget()
+{
+  HRESULT result;
+  // Drag target was set, then register for drag and drop.
+  if (hasDragTarget()) {
+    m_dragTargetAdapter = std::make_unique<DragTargetAdapter>(this);
+    result = RegisterDragDrop(m_hwnd, reinterpret_cast<LPDROPTARGET>(m_dragTargetAdapter.get()));
+    if (result != S_OK) {
+      LOG(LogLevel::ERROR, "Could not register window for Drag & Drop: %d\n", result);
+    }
+  }
+  else { // Drag target was unset (set to nullptr), then revoke DnD registration.
+    m_dragTargetAdapter = nullptr;
+    result = RevokeDragDrop(m_hwnd);
+    if (result != S_OK) {
+      LOG(LogLevel::ERROR, "Could not revoke Drag & Drop: %d\n", result);
+    }
+  }
 }
 
 bool WindowWin::setCursor(NativeCursor cursor)

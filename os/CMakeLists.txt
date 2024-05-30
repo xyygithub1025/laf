@@ -9,6 +9,7 @@ set(LAF_OS_SOURCES
   common/event_queue.cpp
   common/main.cpp
   common/system.cpp
+  dnd.cpp
   error.cpp
   event.cpp
   none/system.cpp
@@ -16,6 +17,7 @@ set(LAF_OS_SOURCES
 if(WIN32)
   list(APPEND LAF_OS_SOURCES
     win/color_space.cpp
+    win/dnd.cpp
     win/event_queue.cpp
     win/keys.cpp
     win/native_dialogs.cpp
@@ -31,6 +33,7 @@ elseif(APPLE)
     list(APPEND LAF_OS_SOURCES
       osx/app.mm
       osx/app_delegate.mm
+      osx/dnd.mm
       osx/color_space.mm
       osx/event_queue.mm
       osx/keys.mm

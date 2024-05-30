@@ -16,6 +16,7 @@
 #include "os/native_cursor.h"
 #include "os/pointer_type.h"
 #include "os/screen.h"
+#include "os/win/dnd.h"
 #include "os/win/wintab.h"
 
 #include <string>
@@ -71,6 +72,9 @@ namespace os {
     void onTabletAPIChange();
 
     NativeHandle nativeHandle() const override { return m_hwnd; }
+
+  protected:
+    void onSetDragTarget() override;
 
   private:
     bool setCursor(HCURSOR hcursor,
@@ -137,6 +141,8 @@ namespace os {
 #else
     gfx::Rect m_restoredFrame;
 #endif
+
+    std::unique_ptr<DragTargetAdapter> m_dragTargetAdapter = nullptr;
 
     int m_scale;
     bool m_isCreated;

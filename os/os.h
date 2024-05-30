@@ -16,6 +16,7 @@
 #include "gfx/region.h"
 #include "gfx/size.h"
 #include "os/capabilities.h"
+#include "os/dnd.h"
 #include "os/error.h"
 #include "os/event.h"
 #include "os/event_queue.h"

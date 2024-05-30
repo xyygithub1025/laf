@@ -24,6 +24,8 @@ public:
   SystemWin();
   ~SystemWin();
 
+  void setAppMode(AppMode appMode) override;
+
   WinAPI& winApi() { return m_winApi; }
   WintabAPI& wintabApi() { return m_wintabApi; }
 
@@ -63,6 +65,7 @@ private:
   WinAPI m_winApi;
   WintabAPI m_wintabApi;
   gfx::Point m_screenMousePos;
+  AppMode m_appMode;
 };
 
 } // namespace os

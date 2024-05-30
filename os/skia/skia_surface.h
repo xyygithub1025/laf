@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (c) 2018-2022  Igara Studio S.A.
+// Copyright (c) 2018-2024  Igara Studio S.A.
 // Copyright (c) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -14,8 +14,10 @@
 #include "gfx/matrix.h"
 #include "os/skia/skia_color_space.h"
 #include "os/surface.h"
+#include "os/surface_format.h"
 
 #include "include/core/SkBitmap.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkSurface.h"
 
