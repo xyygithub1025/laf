@@ -65,12 +65,20 @@ public:
     if (ev.acceptDrop()) {
       if (ev.dataProvider()->contains(os::DragDataItemType::Paths))
         windowData.paths = ev.dataProvider()->getPaths();
+      else
+        windowData.paths.clear();
+
 #if CLIP_ENABLE_IMAGE
       if (ev.dataProvider()->contains(os::DragDataItemType::Image))
         windowData.image = ev.dataProvider()->getImage();
+      else
+        windowData.image.reset();
 #endif
+
       if (ev.dataProvider()->contains(os::DragDataItemType::Url))
         windowData.url = ev.dataProvider()->getUrl();
+      else
+        windowData.url.clear();
     }
 
     redraw_window(ev.target());
@@ -167,7 +175,7 @@ static os::WindowRef create_window(os::DragTarget& dragTarget)
 
   os::WindowRef newWindow = os::instance()->makeWindow(spec);
   newWindow->setCursor(os::NativeCursor::Arrow);
-  newWindow->setTitle("Drag & Drop example");
+  newWindow->setTitle("Drag & Drop");
   newWindow->setDragTarget(&dragTarget);
 
   windowData.dropZone = gfx::Rect(spec.frame().w-64-12, 12, 64, 64);
@@ -195,6 +203,14 @@ int app_main(int argc, char* argv[])
     queue->getEvent(ev);
 
     switch (ev.type()) {
+
+      case os::Event::KeyDown:
+        switch (ev.scancode()) {
+          case os::kKeyEsc:
+            running = false;
+            break;
+        }
+        break;
 
       case os::Event::CloseApp:
       case os::Event::CloseWindow:
