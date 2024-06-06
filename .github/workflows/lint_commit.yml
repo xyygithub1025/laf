@@ -47,10 +47,7 @@ jobs:
             const commits = await github.paginate(opts);
 
             const errors = [];
-            for (const { sha, commit: { message }, author } of commits) {
-              if (author !== null) {
-                continue;
-              }
+            for (const { sha, commit: { message } } of commits) {
               const commitErrors = [];
               for (const { pattern, error } of rules) {
                 if (!pattern.test(message)) {
