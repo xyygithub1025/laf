@@ -23,7 +23,7 @@ jobs:
       run: |
         if [[ "${{ runner.os }}" == "Windows" ]] ; then
           if [[ "${{ matrix.backend }}" == "skia" ]] ; then
-            choco install wget
+            choco install wget -y --no-progress
             wget https://github.com/aseprite/skia/releases/download/m102-861e4743af/Skia-Windows-Release-x64.zip
             unzip Skia-Windows-Release-x64.zip -d skia
           fi
