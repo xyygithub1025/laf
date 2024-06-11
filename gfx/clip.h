@@ -34,6 +34,12 @@ namespace gfx {
       , size(w, h) {
     }
 
+    explicit ClipT(const SizeT<T>& sz)
+      : dst(0, 0)
+      , src(0, 0)
+      , size(sz) {
+    }
+
     ClipT(T dst_x, T dst_y, T src_x, T src_y, T w, T h)
       : dst(dst_x, dst_y)
       , src(src_x, src_y)
