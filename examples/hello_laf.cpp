@@ -90,9 +90,8 @@ int app_main(int argc, char* argv[])
             running = false;
             break;
 
-          case kKeyG:
-            system->setGpuAcceleration(!system->gpuAcceleration());
-            // TODO change window backend immediately
+          case os::kKeyG:
+            window->setGpuAcceleration(!window->gpuAcceleration());
             redraw = true;
             break;
 

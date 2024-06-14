@@ -56,8 +56,6 @@ public:
   }
 
   KeyModifiers keyModifiers() override;
-  bool gpuAcceleration() const override { return false; }
-  void setGpuAcceleration(bool state) override { }
   ScreenRef mainScreen() override { return nullptr; }
   void listScreens(ScreenList& screens) override { }
   Window* defaultWindow() override { return nullptr; }

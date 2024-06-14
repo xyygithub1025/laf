@@ -57,7 +57,8 @@ public:
     , m_builder(SkRuntimeEffect::MakeForShader(SkString(shaderCode)).effect) {
     m_window = m_system->makeWindow(256, 256);
     m_window->setCursor(NativeCursor::Arrow);
-    m_window->setTitle("Shader");
+    m_window->setTitle("Shader - GPU");
+    m_window->setGpuAcceleration(true);
     repaint();
     m_window->setVisible(true);
   }
@@ -75,12 +76,10 @@ public:
       case Event::KeyDown:
         if (ev.scancode() == kKeyEsc)
           return false;
-        else if (ev.scancode() == kKeyG) {
-          m_system->setGpuAcceleration(
-            !m_system->gpuAcceleration());
-
+        else if (ev.scancode() == os::kKeyG) {
+          m_window->setGpuAcceleration(!m_window->gpuAcceleration());
           m_window->setTitle(
-            m_window->isGpuAccelerated() ?
+            m_window->gpuAcceleration() ?
             "Shader - GPU":
             "Shader");
         }

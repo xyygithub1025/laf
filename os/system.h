@@ -163,9 +163,6 @@ namespace os {
     virtual NativeDialogs* nativeDialogs() = 0;
     virtual EventQueue* eventQueue() = 0;
 
-    virtual bool gpuAcceleration() const = 0;
-    virtual void setGpuAcceleration(bool state) = 0;
-
     // Returns the main screen
     virtual ScreenRef mainScreen() = 0;
 
