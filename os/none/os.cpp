@@ -34,8 +34,6 @@ public:
   Menus* menus() override { return nullptr; }
   NativeDialogs* nativeDialogs() override { return nullptr; }
   EventQueue* eventQueue() override { return nullptr; }
-  bool gpuAcceleration() const override { return false; }
-  void setGpuAcceleration(bool state) override { }
   ScreenRef mainScreen() override { return nullptr; }
   void listScreens(ScreenList& screens) override { }
   Window* defaultWindow() override { return nullptr; }

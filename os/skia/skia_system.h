@@ -42,8 +42,7 @@ namespace os {
 class SkiaSystem final : public SkiaSystemBase {
 public:
   SkiaSystem()
-    : m_defaultWindow(nullptr)
-    , m_gpuAcceleration(false) {
+    : m_defaultWindow(nullptr) {
     SkGraphics::Init();
   }
 
@@ -65,14 +64,6 @@ public:
       | int(Capabilities::GpuAccelerationSwitch)
 #endif
       );
-  }
-
-  bool gpuAcceleration() const override {
-    return m_gpuAcceleration;
-  }
-
-  void setGpuAcceleration(bool state) override {
-    m_gpuAcceleration = state;
   }
 
   void setTabletAPI(TabletAPI api) override {
@@ -165,7 +156,6 @@ public:
 private:
   SkiaWindow* m_defaultWindow;
   Ref<FontManager> m_fontManager;
-  bool m_gpuAcceleration;
   ColorSpaceRef m_windowCS;
 };
 
