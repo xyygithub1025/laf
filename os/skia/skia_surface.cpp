@@ -38,83 +38,16 @@
 
 namespace os {
 
-SkColorType deductSkColorType(const os::SurfaceFormatData& sf)
+static PixelAlpha from_skia(const SkAlphaType at)
 {
-  if (sf.redShift   == SK_RGBA_R32_SHIFT &&
-      sf.greenShift == SK_RGBA_G32_SHIFT &&
-      sf.blueShift  == SK_RGBA_B32_SHIFT &&
-      sf.alphaShift == SK_RGBA_A32_SHIFT &&
-      sf.redMask    == (255 << SK_RGBA_R32_SHIFT) &&
-      sf.greenMask  == (255 << SK_RGBA_G32_SHIFT) &&
-      sf.blueMask   == (255 << SK_RGBA_B32_SHIFT) &&
-      sf.alphaMask  == (255 << SK_RGBA_A32_SHIFT))
-    return kRGBA_8888_SkColorType;
-
-  if (sf.redShift   == SK_RGBA_R32_SHIFT &&
-      sf.greenShift == SK_RGBA_G32_SHIFT &&
-      sf.blueShift  == SK_RGBA_B32_SHIFT &&
-      sf.redMask    == (255 << SK_RGBA_R32_SHIFT) &&
-      sf.greenMask  == (255 << SK_RGBA_G32_SHIFT) &&
-      sf.blueMask   == (255 << SK_RGBA_B32_SHIFT) &&
-      sf.alphaMask  == 0)
-    return kRGB_888x_SkColorType;
-
-  if (sf.redShift   == SK_BGRA_R32_SHIFT &&
-      sf.greenShift == SK_BGRA_G32_SHIFT &&
-      sf.blueShift  == SK_BGRA_B32_SHIFT &&
-      sf.alphaShift == SK_BGRA_A32_SHIFT &&
-      sf.redMask    == (255 << SK_BGRA_R32_SHIFT) &&
-      sf.greenMask  == (255 << SK_BGRA_G32_SHIFT) &&
-      sf.blueMask   == (255 << SK_BGRA_B32_SHIFT) &&
-      sf.alphaMask  == (255 << SK_BGRA_A32_SHIFT))
-    return kBGRA_8888_SkColorType;
-
-  if (sf.redShift   == SK_R4444_SHIFT &&
-      sf.greenShift == SK_G4444_SHIFT &&
-      sf.blueShift  == SK_B4444_SHIFT &&
-      sf.alphaShift == SK_A4444_SHIFT &&
-      sf.redMask    == (15 << SK_R4444_SHIFT) &&
-      sf.greenMask  == (15 << SK_G4444_SHIFT) &&
-      sf.blueMask   == (15 << SK_B4444_SHIFT) &&
-      sf.alphaMask  == (15 << SK_A4444_SHIFT))
-    return kARGB_4444_SkColorType;
-
-  if (sf.redShift   == SK_R16_SHIFT &&
-      sf.greenShift == SK_G16_SHIFT &&
-      sf.blueShift  == SK_B16_SHIFT &&
-      sf.alphaShift == 0 &&
-      sf.redMask    == SK_R16_MASK &&
-      sf.greenMask  == SK_G16_MASK &&
-      sf.blueMask   == SK_B16_MASK &&
-      sf.alphaMask  == 0)
-    return kRGB_565_SkColorType;
-
-  return kUnknown_SkColorType;
-}
-
-os::PixelAlpha asPixelAlpha(SkAlphaType at)
-{
-  switch(at) {
-    case SkAlphaType::kOpaque_SkAlphaType:
-      return os::PixelAlpha::kOpaque;
-    case SkAlphaType::kPremul_SkAlphaType:
-      return os::PixelAlpha::kPremultiplied;
-    case SkAlphaType::kUnpremul_SkAlphaType:
-      return os::PixelAlpha::kStraight;
+  switch (at) {
+    case SkAlphaType::kOpaque_SkAlphaType: return PixelAlpha::kOpaque;
+    case SkAlphaType::kPremul_SkAlphaType: return PixelAlpha::kPremultiplied;
+    case SkAlphaType::kUnpremul_SkAlphaType: return PixelAlpha::kStraight;
     default:
-      throw base::Exception("Unsupported alpha type");
-  }
-}
-
-SkAlphaType asSkAlphaType(os::PixelAlpha pa)
-{
-  switch(pa) {
-    case os::PixelAlpha::kOpaque:
-      return SkAlphaType::kOpaque_SkAlphaType;
-    case os::PixelAlpha::kPremultiplied:
-      return SkAlphaType::kPremul_SkAlphaType;
-    case os::PixelAlpha::kStraight:
-      return SkAlphaType::kUnpremul_SkAlphaType;
+      // Invalid alpha type
+      ASSERT(false);
+      return PixelAlpha::kPremultiplied;
   }
 }
 
@@ -357,7 +290,7 @@ void SkiaSurface::getFormat(SurfaceFormatData* formatData) const
 {
   formatData->format = kRgbaSurfaceFormat;
   formatData->bitsPerPixel = 8*m_bitmap.bytesPerPixel();
-  formatData->pixelAlpha = asPixelAlpha(m_bitmap.alphaType());
+  formatData->pixelAlpha = from_skia(m_bitmap.alphaType());
 
   switch (m_bitmap.colorType()) {
     case kRGB_565_SkColorType:
