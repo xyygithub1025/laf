@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2023  Igara Studio S.A.
+// Copyright (C) 2018-2024  Igara Studio S.A.
 // Copyright (C) 2012-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -69,7 +69,7 @@ namespace os {
     void setLayout(const std::string& layout) override;
     void setTranslateDeadKeys(bool state);
     void setInterpretOneFingerGestureAsMouseMovement(bool state) override;
-    void onTabletAPIChange();
+    void onTabletOptionsChange();
 
     NativeHandle nativeHandle() const override { return m_hwnd; }
 

@@ -66,11 +66,12 @@ public:
       );
   }
 
-  void setTabletAPI(TabletAPI api) override {
+  void setTabletOptions(const TabletOptions& options) override {
 #if LAF_WINDOWS
-    SkiaSystemBase::setTabletAPI(api);
+    SkiaSystemBase::setTabletOptions(options);
     if (SkiaWindow* window = dynamic_cast<SkiaWindow*>(defaultWindow())) {
-      window->onTabletAPIChange();
+      // TODO notify all windows
+      window->onTabletOptionsChange();
     }
 #endif
   }

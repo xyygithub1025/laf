@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2020-2021  Igara Studio S.A.
+// Copyright (C) 2020-2024  Igara Studio S.A.
 // Copyright (C) 2012-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -28,8 +28,9 @@ public:
   void setAppName(const std::string& appName) override;
   std::string appName() const { return m_appName; }
 
-  void setTabletAPI(TabletAPI api) override;
-  TabletAPI tabletAPI() const override { return m_tabletAPI; }
+  void setTabletOptions(const TabletOptions& options) override;
+  TabletOptions tabletOptions() const override { return m_tabletOptions; }
+  TabletAPI tabletAPI() const override { return m_tabletOptions.api; }
 
   bool isKeyPressed(KeyScancode scancode) override;
   int getUnicodeFromScancode(KeyScancode scancode) override;
@@ -57,7 +58,7 @@ public:
 
 private:
   std::string m_appName;
-  TabletAPI m_tabletAPI = TabletAPI::Default;
+  TabletOptions m_tabletOptions;
   WinAPI m_winApi;
   WintabAPI m_wintabApi;
   gfx::Point m_screenMousePos;

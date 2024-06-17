@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (c) 2018-2021  Igara Studio S.A.
+// Copyright (c) 2018-2024  Igara Studio S.A.
 // Copyright (c) 2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -28,7 +28,8 @@ public:
   void activateApp() override { }
 
   Capabilities capabilities() const override { return (Capabilities)0; }
-  void setTabletAPI(TabletAPI api) override { }
+  void setTabletOptions(const TabletOptions&) override { }
+  TabletOptions tabletOptions() const override { return TabletOptions(); }
   TabletAPI tabletAPI() const override { return TabletAPI::Default; }
   Logger* logger() override { return nullptr; }
   Menus* menus() override { return nullptr; }

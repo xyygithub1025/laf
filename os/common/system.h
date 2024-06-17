@@ -36,13 +36,11 @@ public:
   void finishLaunching() override { }
   void activateApp() override { }
 
-  void setTabletAPI(TabletAPI api) override {
-    // Do nothing by default
-  }
-
-  TabletAPI tabletAPI() const override {
-    return TabletAPI::Default;
-  }
+  // Do nothing options (these functions are for Windows-only at the
+  // moment)
+  void setTabletOptions(const TabletOptions&) override { }
+  TabletOptions tabletOptions() const override { return TabletOptions(); }
+  TabletAPI tabletAPI() const override { return TabletAPI::Default; }
 
   Logger* logger() override {
     return nullptr;

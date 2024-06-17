@@ -858,9 +858,9 @@ void WindowWin::setInterpretOneFingerGestureAsMouseMovement(bool state)
   }
 }
 
-void WindowWin::onTabletAPIChange()
+void WindowWin::onTabletOptionsChange()
 {
-  LOG("WIN: On window %p tablet API change %d\n",
+  LOG("WIN: On window %p tablet options change tablet API=%d\n",
       m_hwnd, int(system()->tabletAPI()));
 
   closeWintabCtx();
@@ -2056,7 +2056,11 @@ bool WindowWin::pointerEvent(WPARAM wparam, Event& ev, POINTER_INFO& pi)
   if (!m_usePointerApi)
     return false;
 
-  auto& winApi = system()->winApi();
+  auto sys = system();
+  if (!sys)
+    return false;
+
+  auto& winApi = sys->winApi();
   if (!winApi.GetPointerInfo(GET_POINTERID_WPARAM(wparam), &pi))
     return false;
 
@@ -2065,6 +2069,15 @@ bool WindowWin::pointerEvent(WPARAM wparam, Event& ev, POINTER_INFO& pi)
   ev.setModifiers(get_modifiers_from_last_win32_message());
   ev.setPosition(gfx::Point((pi.ptPixelLocation.x - rc.left) / m_scale,
                             (pi.ptPixelLocation.y - rc.top) / m_scale));
+
+  // Calling SetCursorPos() when we receive a pointer event from the
+  // stylus can fix issues live streaming with OBS and a stylus, where
+  // the captured mouse position is always obtained through
+  // GetCursorPos() but we are in other position with the stylus.
+  if (sys->tabletOptions().setCursorFix) {
+    SetCursorPos(pi.ptPixelLocation.x,
+                 pi.ptPixelLocation.y);
+  }
 
   switch (pi.pointerType) {
     case PT_MOUSE: {
@@ -2436,17 +2449,20 @@ void WindowWin::checkDarkModeChange()
 
 void WindowWin::openWintabCtx()
 {
-  const TabletAPI tabletAPI = system()->tabletAPI();
-  if (tabletAPI == TabletAPI::Wintab ||
-      tabletAPI == TabletAPI::WintabPackets) {
+  auto sys = system();
+  TabletOptions options = sys->tabletOptions();
+  if (options.api == TabletAPI::Wintab ||
+      options.api == TabletAPI::WintabPackets) {
     // Attach Wacom context
-    auto& api = system()->wintabApi();
+    auto& api = sys->wintabApi();
     m_hpenctx = api.open(
       m_hwnd,
       true); // We want to move the cursor with the pen in any case
 
-    if (api.crashedBefore())
-      system()->setTabletAPI(TabletAPI::Default);
+    if (api.crashedBefore()) {
+      options.api = TabletAPI::Default;
+      sys->setTabletOptions(options);
+    }
   }
 }
 

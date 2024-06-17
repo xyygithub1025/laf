@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2020-2023  Igara Studio S.A.
+// Copyright (C) 2020-2024  Igara Studio S.A.
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -180,14 +180,14 @@ void SystemWin::setAppName(const std::string& appName)
   m_appName = appName;
 }
 
-void SystemWin::setTabletAPI(TabletAPI api)
+void SystemWin::setTabletOptions(const TabletOptions& options)
 {
-  m_tabletAPI = api;
+  m_tabletOptions = options;
 
   // If the user selects the wintab API again, we remove any possible
   // file indicating a crash in the past.
-  if (m_tabletAPI == TabletAPI::Wintab ||
-      m_tabletAPI == TabletAPI::WintabPackets) {
+  if (m_tabletOptions.api == TabletAPI::Wintab ||
+      m_tabletOptions.api == TabletAPI::WintabPackets) {
     m_wintabApi.resetCrashFileIfPresent();
   }
 }
