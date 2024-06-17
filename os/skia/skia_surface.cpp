@@ -797,6 +797,10 @@ const SkImage* SkiaSurface::getOrCreateTextureImage() const
   if (!win || !win->sk_grCtx())
     return nullptr;
 
+  // Invalidate the cached texture if the bitmap pixels were modified.
+  if (m_cachedGen && m_cachedGen != m_bitmap.getGenerationID())
+    m_image.reset();
+
   if (m_image && m_image->isValid(win->sk_grCtx()))
     return m_image.get();
   if (uploadBitmapAsTexture() &&
@@ -827,6 +831,9 @@ bool SkiaSurface::uploadBitmapAsTexture() const
     ii.colorType(),
     ii.alphaType(),
     nullptr);
+
+  if (m_image)
+    m_cachedGen = m_bitmap.getGenerationID();
 
   return (m_image != nullptr);
 }
