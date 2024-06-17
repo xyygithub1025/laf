@@ -174,6 +174,23 @@ TEST(FS, GetFileTitleWithPath)
   EXPECT_EQ("C:\\",            get_file_title_with_path("C:\\.cpp"));
 }
 
+TEST(FS, GetRelativePath)
+{
+  EXPECT_EQ("C:\\foo\\bar\\test.file", get_relative_path("C:\\foo\\bar\\test.file", "D:\\another\\disk"));
+
+#if LAF_WINDOWS
+  EXPECT_EQ("bar\\test.file",           get_relative_path("C:\\foo\\bar\\test.file", "C:\\foo"));
+  EXPECT_EQ("C:\\foo\\bar\\test.file",  get_relative_path("C:\\foo\\bar\\test.file", "D:\\another\\disk"));
+  EXPECT_EQ("..\\bar\\test.file",       get_relative_path("C:\\foo\\bar\\test.file", "C:\\foo\\another"));
+  EXPECT_EQ("..\\..\\bar\\test.file",   get_relative_path("C:\\foo\\bar\\test.file", "C:\\foo\\a\\b"));
+#else
+  EXPECT_EQ("bar/test.file",            get_relative_path("C:/foo/bar/test.file", "C:/foo"));
+  EXPECT_EQ("C:/foo/bar/test.file",     get_relative_path("C:/foo/bar/test.file", "D:/another/disk"));
+  EXPECT_EQ("../bar/test.file",         get_relative_path("/foo/bar/test.file", "/foo/another"));
+  EXPECT_EQ("../../bar/test.file",      get_relative_path("/foo/bar/test.file", "/foo/a/b"));
+#endif
+}
+
 TEST(FS, JoinPath)
 {
   std::string sep;

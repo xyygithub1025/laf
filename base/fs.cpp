@@ -210,6 +210,40 @@ std::string get_file_title_with_path(const std::string& filename)
   return filename;
 }
 
+std::string get_relative_path(const std::string& filename, const std::string& base_path)
+{
+  std::vector<std::string> baseDirs;
+  split_string(base_path, baseDirs, "/\\");
+
+  std::vector<std::string> toParts;
+  split_string(filename, toParts, "/\\");
+
+  // Find the common prefix
+  auto itFrom = baseDirs.begin();
+  auto itTo = toParts.begin();
+
+  while (itFrom != baseDirs.end() && itTo != toParts.end() && *itFrom == *itTo) {
+    ++itFrom;
+    ++itTo;
+  }
+
+  if (itFrom == baseDirs.begin() && itTo == toParts.begin()) {
+    // No common prefix
+    return filename;
+  }
+
+  // Calculate the number of directories to go up from base path
+  std::string relativePath;
+  for (auto it = itFrom; it != baseDirs.end(); ++it)
+    relativePath = base::join_path(relativePath, "..");
+
+  // Append the remaining part of 'toPath'
+  for (auto it = itTo; it != toParts.end(); ++it)
+    relativePath = base::join_path(relativePath, *it);
+
+  return relativePath;
+}
+
 std::string join_path(const std::string& path, const std::string& file)
 {
   std::string result(path);
