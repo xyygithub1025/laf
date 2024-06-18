@@ -73,11 +73,4 @@ XInput* X11::xinput()
   return m_xinput.get();
 }
 
-// TODO move this to TabletOptions
-void x11_set_user_defined_string_to_detect_stylus(const std::string& str)
-{
-  if (auto* x11 = X11::instance())
-    x11->setUserDefinedTablet(str);
-}
-
 } // namespace os

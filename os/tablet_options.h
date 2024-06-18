@@ -42,6 +42,12 @@ namespace os {
     // cursor position each time we receive a pointer event like
     bool setCursorFix = false;
 #endif
+
+#if LAF_LINUX
+    // An user-defined string to detect the stylus device from
+    // "xinput --list" command.
+    std::string detectStylusPattern;
+#endif
   };
 
 } // namespace os
