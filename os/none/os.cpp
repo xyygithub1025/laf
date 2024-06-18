@@ -20,6 +20,8 @@ namespace os {
 
 class NoneSystem : public System {
 public:
+  const std::string& appName() const override { return m_appName; }
+  void setAppName(const std::string& appName) override { m_appName = appName; }
   void setAppMode(AppMode appMode) override { }
 
   void markCliFileAsProcessed(const std::string& fn) override { }
@@ -65,6 +67,9 @@ public:
     const os::ColorSpaceRef& src, const os::ColorSpaceRef& dst) override { return nullptr; }
   void setWindowsColorSpace(const os::ColorSpaceRef& cs) override { }
   os::ColorSpaceRef windowsColorSpace() override { return nullptr; }
+
+private:
+  std::string m_appName;
 };
 
 System* make_system_impl() {
