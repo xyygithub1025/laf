@@ -25,9 +25,6 @@ public:
   WinAPI& winApi() { return m_winApi; }
   WintabAPI& wintabApi() { return m_wintabApi; }
 
-  void setAppName(const std::string& appName) override;
-  std::string appName() const { return m_appName; }
-
   void setTabletOptions(const TabletOptions& options) override;
   TabletOptions tabletOptions() const override { return m_tabletOptions; }
 
@@ -56,7 +53,6 @@ public:
   void _setInternalMousePosition(const Event& ev);
 
 private:
-  std::string m_appName;
   TabletOptions m_tabletOptions;
   WinAPI m_winApi;
   WintabAPI m_wintabApi;

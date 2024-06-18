@@ -58,11 +58,15 @@ namespace os {
     virtual ~System() { }
   public:
 
-    // Windows-specific: The app name at the moment is used to receive
-    // DDE messages (WM_DDE_INITIATE) and convert WM_DDE_EXECUTE
-    // messages into Event::DropFiles. This allows to the user
-    // double-click files in the File Explorer and open the file in a
-    // running instance of your app.
+    // The app name is used in several places.
+    //
+    // For X11 it's used for the WM_CLASS name of the main window.
+    //
+    // For Windows it's used for 1) the main window class name, and
+    // 2) to receive DDE messages (WM_DDE_INITIATE) and convert
+    // WM_DDE_EXECUTE messages into Event::DropFiles. This allows to
+    // the user double-click files in the File Explorer and open the
+    // file in a running instance of your app.
     //
     // To receive DDE messages you have to configure the registry in
     // this way (HKCR=HKEY_CLASSES_ROOT):
@@ -76,6 +80,7 @@ namespace os {
     //
     // The default value of "HKCR\AppFile\shell\open\ddeexec\application"
     // must match the "appName" given in this function.
+    virtual const std::string& appName() const = 0;
     virtual void setAppName(const std::string& appName) = 0;
 
     // We can use this function to create an application that can run

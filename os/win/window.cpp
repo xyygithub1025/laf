@@ -44,10 +44,6 @@
 
 #include <algorithm>
 
-// TODO the window name should be customized from the CMakeLists.txt
-//      properties (see LAF_X11_WM_CLASS too)
-#define OS_WND_CLASS_NAME L"Aseprite.Window"
-
 #define KEY_TRACE(...)
 #define MOUSE_TRACE(...)
 #define TOUCH_TRACE(...)
@@ -135,6 +131,17 @@ static BOOL CALLBACK log_monitor_info(HMONITOR monitor,
         iccFilename.c_str());
   }
   return TRUE;
+}
+
+std::wstring get_wnd_class_name()
+{
+  if (auto sys = instance()) {
+    if (!sys->appName().empty())
+      return base::from_utf8(sys->appName());
+  }
+  // On Windows the class name cannot be empty, if we use an empty
+  // class the window class registration will fail.
+  return std::wstring(L"laf");
 }
 
 // Keys used to detect if the Windows 11 dark mode is selected.
@@ -2501,9 +2508,10 @@ TabletAPI WindowWin::tabletAPI() const
 void WindowWin::registerClass()
 {
   HMODULE instance = GetModuleHandle(nullptr);
+  const auto className = get_wnd_class_name();
 
   WNDCLASSEX wcex;
-  if (GetClassInfoEx(instance, OS_WND_CLASS_NAME, &wcex))
+  if (GetClassInfoEx(instance, className.c_str(), &wcex))
     return;                 // Already registered
 
   wcex.cbSize        = sizeof(WNDCLASSEX);
@@ -2516,7 +2524,7 @@ void WindowWin::registerClass()
   wcex.hCursor       = NULL;
   wcex.hbrBackground = (HBRUSH)(COLOR_WINDOWFRAME+1);
   wcex.lpszMenuName  = nullptr;
-  wcex.lpszClassName = OS_WND_CLASS_NAME;
+  wcex.lpszClassName = className.c_str();
   wcex.hIconSm       = nullptr;
 
   if (RegisterClassEx(&wcex) == 0)
@@ -2593,9 +2601,10 @@ HWND WindowWin::createHwnd(WindowWin* self, const WindowSpec& spec)
     rc.h = CW_USEDEFAULT;
   }
 
+  const auto className = get_wnd_class_name();
   HWND hwnd = CreateWindowEx(
     exStyle,
-    OS_WND_CLASS_NAME,
+    className.c_str(),
     L"",
     style,
     rc.x, rc.y, rc.w, rc.h,

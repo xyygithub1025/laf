@@ -175,11 +175,6 @@ void SystemWin::setAppMode(AppMode appMode)
   }
 }
 
-void SystemWin::setAppName(const std::string& appName)
-{
-  m_appName = appName;
-}
-
 void SystemWin::setTabletOptions(const TabletOptions& options)
 {
   m_tabletOptions = options;

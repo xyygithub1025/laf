@@ -87,7 +87,7 @@ class HandleSigSegv {
 
 private:
   static std::string getFilename() {
-    std::string appName = ((SystemWin*)os::instance())->appName();
+    std::string appName = os::instance()->appName();
     return base::join_path(base::get_temp_path(),
                            appName + "-wintab32.crash");
   }

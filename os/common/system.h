@@ -29,7 +29,8 @@ public:
   CommonSystem();
   ~CommonSystem();
 
-  void setAppName(const std::string& appName) override { }
+  const std::string& appName() const override { return m_appName; }
+  void setAppName(const std::string& appName) override { m_appName = appName; }
   void setAppMode(AppMode appMode) override { }
 
   void markCliFileAsProcessed(const std::string& fn) override { }
@@ -79,6 +80,7 @@ protected:
   void destroyInstance();
 
 private:
+  std::string m_appName;
   Ref<NativeDialogs> m_nativeDialogs;
 #ifdef LAF_FREETYPE
   std::unique_ptr<ft::Lib> m_ft;

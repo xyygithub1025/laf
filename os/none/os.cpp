@@ -20,7 +20,6 @@ namespace os {
 
 class NoneSystem : public System {
 public:
-  void setAppName(const std::string& appName) override { }
   void setAppMode(AppMode appMode) override { }
 
   void markCliFileAsProcessed(const std::string& fn) override { }
