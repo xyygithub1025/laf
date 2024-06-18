@@ -16,6 +16,7 @@
 #include "os/native_cursor.h"
 #include "os/pointer_type.h"
 #include "os/screen.h"
+#include "os/tablet_options.h"
 #include "os/win/dnd.h"
 #include "os/win/wintab.h"
 
@@ -110,6 +111,8 @@ namespace os {
       //      issue with the scrollbar grip
       return true;
     }
+
+    TabletAPI tabletAPI() const;
 
     virtual void onResize(const gfx::Size& sz) { }
     virtual void onStartResizing() { }

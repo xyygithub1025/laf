@@ -861,7 +861,7 @@ void WindowWin::setInterpretOneFingerGestureAsMouseMovement(bool state)
 void WindowWin::onTabletOptionsChange()
 {
   LOG("WIN: On window %p tablet options change tablet API=%d\n",
-      m_hwnd, int(system()->tabletAPI()));
+      m_hwnd, int(tabletAPI()));
 
   closeWintabCtx();
   openWintabCtx();
@@ -882,7 +882,7 @@ LRESULT WindowWin::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
 
     case WM_CREATE: {
       LOG("WIN: Creating window %p (tablet API %d)\n",
-          m_hwnd, int(system()->tabletAPI()));
+          m_hwnd, int(tabletAPI()));
       openWintabCtx();
 
       if (m_borderless &&
@@ -1294,7 +1294,7 @@ LRESULT WindowWin::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
                   ev.position().x, ev.position().y,
                   ev.button(), (int)m_pointerType);
 
-      if (system()->tabletAPI() == TabletAPI::WintabPackets &&
+      if (tabletAPI() == TabletAPI::WintabPackets &&
           same_mouse_event(ev, m_lastWintabEvent)) {
         MOUSE_TRACE(" - IGNORED (WinTab)\n");
       }
@@ -1329,7 +1329,7 @@ LRESULT WindowWin::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
                   ev.position().x, ev.position().y,
                   ev.button());
 
-      if (system()->tabletAPI() == TabletAPI::WintabPackets &&
+      if (tabletAPI() == TabletAPI::WintabPackets &&
           same_mouse_event(ev, m_lastWintabEvent)) {
         MOUSE_TRACE(" - IGNORED (WinTab)\n");
       }
@@ -1940,7 +1940,6 @@ LRESULT WindowWin::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
     }
 
     case WT_PACKET: {
-      const TabletAPI tabletAPI = system()->tabletAPI();
       auto& api = system()->wintabApi();
       HCTX ctx = (HCTX)lparam;
       if (m_packets.size() < api.packetQueueSize())
@@ -1973,7 +1972,7 @@ LRESULT WindowWin::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
         }
         m_pointerType = wt_packet_pkcursor_to_pointer_type(packet.pkCursor);
 
-        if (tabletAPI == TabletAPI::WintabPackets) {
+        if (tabletAPI() == TabletAPI::WintabPackets) {
           POINT pos = { packet.pkX,
                         // Wintab API uses lower-left corner as the origin
                         (api.outBounds().h-1) - packet.pkY };
@@ -2019,8 +2018,7 @@ LRESULT WindowWin::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
     }
 
     case WT_INFOCHANGE: {
-      const TabletAPI tabletAPI = system()->tabletAPI();
-      MOUSE_TRACE("WT_INFOCHANGE tablet API %d\n", int(tabletAPI));
+      MOUSE_TRACE("WT_INFOCHANGE tablet API %d\n", int(tabletAPI()));
 
       if (m_hpenctx) {
         closeWintabCtx();
@@ -2146,8 +2144,7 @@ void WindowWin::handleMouseMove(Event& ev)
 
   ev.setType(Event::MouseMove);
 
-  auto sys = system();
-  if (sys->tabletAPI() == TabletAPI::WintabPackets &&
+  if (tabletAPI() == TabletAPI::WintabPackets &&
       same_mouse_event(ev, m_lastWintabEvent)) {
     MOUSE_TRACE(" - IGNORED (WinTab)\n");
   }
@@ -2155,7 +2152,7 @@ void WindowWin::handleMouseMove(Event& ev)
     queueEvent(ev);
     m_lastWintabEvent.setType(Event::None);
 
-    sys->_setInternalMousePosition(ev);
+    system()->_setInternalMousePosition(ev);
   }
 }
 
@@ -2490,6 +2487,14 @@ void WindowWin::notifyFullScreenStateToShell()
   // Useful to send the taskbar at the bottom when the window is set
   // as fullscreen.
   taskbar->MarkFullscreenWindow(m_hwnd, m_fullscreen ? TRUE: FALSE);
+}
+
+TabletAPI WindowWin::tabletAPI() const
+{
+  if (auto sys = system())
+    return sys->tabletOptions().api;
+  else
+    return TabletAPI::Default;
 }
 
 //static

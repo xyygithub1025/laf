@@ -33,6 +33,7 @@ namespace os {
   };
 
   struct TabletOptions {
+#if LAF_WINDOWS
     // Windows API to get stylus/digital tablet position of the pen
     // (Windows Pointer API, legacy Wintab, etc.).
     TabletAPI api = TabletAPI::Default;
@@ -40,6 +41,7 @@ namespace os {
     // Use a fix for live streaming software like OBS to set the
     // cursor position each time we receive a pointer event like
     bool setCursorFix = false;
+#endif
   };
 
 } // namespace os

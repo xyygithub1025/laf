@@ -120,9 +120,6 @@ namespace os {
     virtual void setTabletOptions(const TabletOptions& opts) = 0;
     virtual TabletOptions tabletOptions() const = 0;
 
-    // Shortcut alternative (could be faster?) for tabletOptions().api
-    virtual TabletAPI tabletAPI() const = 0;
-
     // Sub-interfaces
     virtual Logger* logger() = 0;
     virtual Menus* menus() = 0;

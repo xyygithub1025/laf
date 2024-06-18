@@ -40,7 +40,6 @@ public:
   // moment)
   void setTabletOptions(const TabletOptions&) override { }
   TabletOptions tabletOptions() const override { return TabletOptions(); }
-  TabletAPI tabletAPI() const override { return TabletAPI::Default; }
 
   Logger* logger() override {
     return nullptr;

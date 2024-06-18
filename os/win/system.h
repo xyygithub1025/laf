@@ -30,7 +30,6 @@ public:
 
   void setTabletOptions(const TabletOptions& options) override;
   TabletOptions tabletOptions() const override { return m_tabletOptions; }
-  TabletAPI tabletAPI() const override { return m_tabletOptions.api; }
 
   bool isKeyPressed(KeyScancode scancode) override;
   int getUnicodeFromScancode(KeyScancode scancode) override;
