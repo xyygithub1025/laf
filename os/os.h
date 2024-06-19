@@ -33,6 +33,7 @@
 #include "os/surface.h"
 #include "os/surface_format.h"
 #include "os/system.h"
+#include "os/tablet_options.h"
 #include "os/window.h"
 #include "os/window_spec.h"
 

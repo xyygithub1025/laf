@@ -77,6 +77,9 @@ namespace base {
   std::string get_file_title(const std::string& filename);
   std::string get_file_title_with_path(const std::string& filename);
 
+  // Returns the relative path of the given filename from the base_path.
+  std::string get_relative_path(const std::string& filename, const std::string& base_path);
+
   // Joins two paths or a path and a file name with a path-separator.
   std::string join_path(const std::string& path, const std::string& file);
 

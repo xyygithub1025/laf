@@ -16,6 +16,7 @@
 #include "os/keys.h"
 #include "os/ref.h"
 #include "os/screen.h"
+#include "os/tablet_options.h"
 #include "os/window.h"
 #include "os/window_spec.h"
 
@@ -50,27 +51,6 @@ namespace os {
       : std::runtime_error(msg) { }
   };
 
-  // Windows-specific details: API to use to get tablet input information.
-  enum class TabletAPI {
-    // Default tablet API to use in the system (Windows Ink on
-    // Windows; only valid value on other systems).
-    Default = 0,
-
-    // Use Windows 8/10 pointer messages (Windows Ink).
-    WindowsPointerInput = 0,
-
-    // Use the Wintab API to get pressure information from packets but
-    // mouse movement from Windows system messages
-    // (WM_MOUSEMOVE).
-    Wintab = 1,
-
-    // Use the Wintab API processing packets directly (pressure and
-    // stylus movement information). With this we might get more
-    // precision from the device (but still work-in-progress, some
-    // messages might be mixed up).
-    WintabPackets = 2,
-  };
-
   class System : public RefCount {
   protected:
     virtual ~System() { }
@@ -92,11 +72,15 @@ namespace os {
     [[nodiscard]] static SystemRef makeSkia();
 #endif
 
-    // Windows-specific: The app name at the moment is used to receive
-    // DDE messages (WM_DDE_INITIATE) and convert WM_DDE_EXECUTE
-    // messages into Event::DropFiles. This allows to the user
-    // double-click files in the File Explorer and open the file in a
-    // running instance of your app.
+    // The app name is used in several places.
+    //
+    // For X11 it's used for the WM_CLASS name of the main window.
+    //
+    // For Windows it's used for 1) the main window class name, and
+    // 2) to receive DDE messages (WM_DDE_INITIATE) and convert
+    // WM_DDE_EXECUTE messages into Event::DropFiles. This allows to
+    // the user double-click files in the File Explorer and open the
+    // file in a running instance of your app.
     //
     // To receive DDE messages you have to configure the registry in
     // this way (HKCR=HKEY_CLASSES_ROOT):
@@ -110,6 +94,7 @@ namespace os {
     //
     // The default value of "HKCR\AppFile\shell\open\ddeexec\application"
     // must match the "appName" given in this function.
+    virtual const std::string& appName() const = 0;
     virtual void setAppName(const std::string& appName) = 0;
 
     // We can use this function to create an application that can run
@@ -145,14 +130,14 @@ namespace os {
       return (int(capabilities()) & int(c)) == int(c);
     }
 
-    // Sets the specific API to use to process tablet/stylus/pen
-    // messages.
+    // Sets the specific API/Options to use to process
+    // tablet/stylus/pen messages.
     //
     // It can be used to avoid loading wintab32.dll too (sometimes a
-    // program can be locked when we load the wintab32.dll, so we need
+    // program can crash when we load a buggy wintab32.dll, so we need
     // a way to opt-out loading this library.)
-    virtual void setTabletAPI(TabletAPI api) = 0;
-    virtual TabletAPI tabletAPI() const = 0;
+    virtual void setTabletOptions(const TabletOptions& opts) = 0;
+    virtual TabletOptions tabletOptions() const = 0;
 
     // Error logging.
     virtual void errorMessage(const char* msg) = 0;

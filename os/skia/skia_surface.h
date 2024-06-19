@@ -149,6 +149,8 @@ private:
 
   SkBitmap m_bitmap;
 #if SK_SUPPORT_GPU
+  // Cached m_bitmap generation in the GPU texture.
+  mutable uint32_t m_cachedGen = 0;
   mutable sk_sp<SkImage> m_image;
 #endif
   sk_sp<SkSurface> m_surface;

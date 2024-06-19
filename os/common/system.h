@@ -20,7 +20,8 @@ public:
   CommonSystem();
   ~CommonSystem();
 
-  void setAppName(const std::string& appName) override { }
+  const std::string& appName() const override { return m_appName; }
+  void setAppName(const std::string& appName) override { m_appName = appName; }
   void setAppMode(AppMode appMode) override { }
 
   void markCliFileAsProcessed(const std::string& fn) override { }
@@ -31,13 +32,10 @@ public:
     return (Capabilities)0;
   }
 
-  void setTabletAPI(TabletAPI api) override {
-    // Do nothing by default
-  }
-
-  TabletAPI tabletAPI() const override {
-    return TabletAPI::Default;
-  }
+  // Do nothing options (these functions are for Windows-only at the
+  // moment)
+  void setTabletOptions(const TabletOptions&) override { }
+  TabletOptions tabletOptions() const override { return TabletOptions(); }
 
   void errorMessage(const char* msg) override;
 
@@ -87,6 +85,7 @@ protected:
   void destroyInstance();
 
 private:
+  std::string m_appName;
   Ref<NativeDialogs> m_nativeDialogs;
 };
 
