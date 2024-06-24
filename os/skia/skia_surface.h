@@ -17,6 +17,7 @@
 #include "os/surface_format.h"
 
 #include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkSurface.h"
@@ -120,19 +121,22 @@ private:
     const Surface* src,
     const gfx::Clip& clip,
     const SkSamplingOptions& sampling,
-    const SkPaint& paint);
+    const SkPaint& paint,
+    SkCanvas::SrcRectConstraint constraint);
   void skDrawSurface(
     const Surface* src,
     const gfx::Rect& srcRect,
     const gfx::Rect& dstRect,
     const SkSamplingOptions& sampling,
-    const SkPaint& paint);
+    const SkPaint& paint,
+    SkCanvas::SrcRectConstraint constraint);
   void skDrawSurface(
     const SkiaSurface* src,
     const SkRect& srcRect,
     const SkRect& dstRect,
     const SkSamplingOptions& sampling,
-    const SkPaint& paint);
+    const SkPaint& paint,
+    SkCanvas::SrcRectConstraint constraint);
 
 #if SK_SUPPORT_GPU
   const SkImage* getOrCreateTextureImage() const;
