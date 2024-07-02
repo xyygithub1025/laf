@@ -476,13 +476,20 @@ void WindowX11::setScale(const int scale)
 
 bool WindowX11::isVisible() const
 {
-  // TODO
-  return true;
+  XWindowAttributes attr;
+  memset(&attr, 0, sizeof(attr));
+  Status status = XGetWindowAttributes(m_display, m_window, &attr);
+  return ((attr.map_state & IsViewable) == IsViewable);
 }
 
 void WindowX11::setVisible(bool visible)
 {
-  // TODO
+  if (visible) {
+    XMapWindow(m_display, m_window);
+  }
+  else {
+    XUnmapWindow(m_display, m_window);
+  }
 }
 
 void WindowX11::activate()
