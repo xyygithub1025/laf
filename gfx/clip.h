@@ -15,6 +15,55 @@
 
 namespace gfx {
 
+  // Imagine you want to copy the following rectangle
+  //
+  //       size.w
+  //    +---------+
+  //    |         | size.h
+  //    +---------+
+  //
+  // from a "source image" to a "destination image", from "src"
+  // location to the "dst" location:
+  //
+  //          "source image"        "destination image"
+  //         +--------------+      +---------------------+
+  // src.xy  |              |      |         dst.xy      |
+  //    +---------+         |      |            +---------+
+  //    |         |         | ---> |            |         |
+  //    +---------+         |      |            +---------+
+  //         |              |      |                     |
+  //         +--------------+      +---------------------+
+  //
+  // There are two restrictions:
+  //
+  // 1) You cannot read from the "source image" outside its bounds, and
+  // 2) you cannot write into the "destination image" outside its bounds.
+  //
+  // This Clip class helps to determine the only valid region to
+  // read/write between these two images. The initial Clip values can
+  // be outside these bounds, but the Clip::clip() function determines
+  // the valid region.
+  //
+  // So in our example, if the "source image" has a dimension of
+  // "avail_src_w/h" and the "destination image" a dimension of
+  // "avail_dst_w/h", after calling Clip::clip() we get these modified
+  // Clip fields:
+  //
+  //          "source image"        "destination image"
+  //         +--------------+      +---------------------+
+  //      src.xy            |      |              dst.xy |
+  //    .....+---+.         |      |            .....+---+.
+  //    .....|   |.         | ---> |            .....|   |.
+  //    .....+---+.         |      |            .....+---+.
+  //         |              |      |                     |
+  //         +--------------+      +---------------------+
+  //
+  // The dotted areas (...) are invalid image regions that cannot be
+  // read/written. The "dst", "src", and "size" fields of the Clip
+  // instance are adjusted to be inside both images.
+  //
+  // Clip::clip() returns false in case there is no valid area to
+  // copy.
   template<typename T>
   class ClipT {
   public:
