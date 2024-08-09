@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2018-2021  Igara Studio S.A.
+// Copyright (C) 2018-2024  Igara Studio S.A.
 // Copyright (C) 2015-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -88,16 +88,19 @@ void EventQueueOSX::getEvent(Event& ev, double timeout)
       if (timeout == kWithoutTimeout)
         EV_TRACE("EV: Waiting for events\n");
 
-      // Wait until there is a Cocoa event in queue
       m_sleeping = true;
     }
+
+    // Wait until there is a Cocoa event in queue
     event = [app nextEventMatchingMask:NSEventMaskAny
                              untilDate:untilDate
                                 inMode:NSDefaultRunLoopMode
                                dequeue:YES];
-    m_mutex.lock();
-    m_sleeping = false;
-    m_mutex.unlock();
+
+    {
+      const std::lock_guard lock(m_mutex);
+      m_sleeping = false;
+    }
 
     if (event) {
       EV_TRACE("EV: Event received!\n");
